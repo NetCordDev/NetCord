@@ -2,7 +2,7 @@
 
 	<Import Project="NetCord.Natives.targets" Condition="Exists('NetCord.Natives.targets')"	/>
 
-	<Target Name="ProcessNetCordNativeAot_Local" BeforeTargets="ProcessNetCordNativeAot">
+	<Target Name="ProcessNetCordNatives_Local" BeforeTargets="GetNetCordNativesItems">
 	
 		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
 				 Targets="GetStaticBuildDir"
@@ -22,6 +22,16 @@
 				>$([System.IO.Path]::GetDirectoryName('%(_NetCordRuntimesDir.FullPath)'))</NetCordNativesRuntimesDir>
 		</PropertyGroup>
 
+	</Target>
+
+	<Target Name="ExcludeStaticLinkedLibPrjCopyPublish" Condition="'$(PublishAot)' == 'true'" 
+			DependsOnTargets="GetNetCordNativesItems"
+			AfterTargets="ComputeResolvedFilesToPublishList"
+			BeforeTargets="ComputeFilesToPublish">
+
+		<ItemGroup>
+			<ResolvedFileToPublish Remove="%(_RunExclude.FullPath)" />
+		</ItemGroup>
 	</Target>
 
 </Project>

@@ -1,8 +1,6 @@
 <Project>
 
-	<Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'"
-	 	    AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
-
+	<Target Name="GetNetCordNativesItems">
 		<ItemGroup>
 			<!-- Order matters, dependencies come last -->
 			<!-- 1. Top-level application libraries (The Consumers) -->
@@ -26,22 +24,6 @@
 			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*" />
 			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*;" />
 
-			<NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />
-		</ItemGroup>
-
-		<PropertyGroup>
-			<!-- Set property if any DirectPInvoke.Identity is 'libdave' -->
-			<LinkStandardCPlusPlusLibrary 
-				Condition="'$(LinkStandardCPlusPlusLibrary)' == '' and '%(DirectPInvoke.Identity)' == 'libdave'"
-				>true</LinkStandardCPlusPlusLibrary>
-		</PropertyGroup>
-	</Target>
-
-	<Target Name="ExcludeLibCopy" DependsOnTargets="ProcessNetCordNativeAot"
-			AfterTargets="ResolvePackageAssets"
-			BeforeTargets="ResolveLockFileCopyLocalFiles">
-
-		<ItemGroup>
 			<_NetCordExcluded Include="$(NetCordExcludeNatives)" 
 							  Condition="'$(NetCordExcludeNatives)' != ''" />
 			<_NetCordExcluded Include="libcrypto" 
@@ -50,11 +32,35 @@
 			<_NetCordExcluded Include="@(_NetCordStaticLink)" 
 							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
 
-			<_RunExclude Include="$(NetCordNativesRuntimesDir)\**\native\%(_NetCordExcluded.Identity)*.*" 
-						 Condition="'@(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
-			<_RunExclude Include="$(NetCordNativesRuntimesDir)\**\native\lib%(_NetCordExcluded.Identity)*.*" 
-						 Condition="'@(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
+			<_RunExclude Include="$(NetCordNativesRuntimesDir)\%(_NetCordExcluded.Identity)*.*" 
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
+			<_RunExclude Include="$(NetCordNativesRuntimesDir)\lib%(_NetCordExcluded.Identity)*.*" 
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
 
+		</ItemGroup>
+	</Target>
+
+	<Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'" 
+			DependsOnTargets="GetNetCordNativesItems"
+	 	    AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
+
+		<ItemGroup>
+			<NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />
+		</ItemGroup>
+		
+		<PropertyGroup>
+			<!-- Set property if any DirectPInvoke.Identity is 'libdave' -->
+			<LinkStandardCPlusPlusLibrary 
+				Condition="'$(LinkStandardCPlusPlusLibrary)' == '' and '%(DirectPInvoke.Identity)' == 'libdave'"
+				>true</LinkStandardCPlusPlusLibrary>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="ExcludeStaticLinkedLibFromCopy" DependsOnTargets="ProcessNetCordNativeAot"
+			AfterTargets="ResolvePackageAssets"
+			BeforeTargets="ResolveLockFileCopyLocalFiles">
+
+		<ItemGroup>
 			<ResolvedFileToPublish Remove="%(_RunExclude.FullPath)" />
 			<RuntimeTargetsCopyLocalItems Remove="%(_RunExclude.FullPath)" />
 		</ItemGroup>
@@ -82,10 +88,6 @@
 				<BaseLink Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib', '.dylib'))</BaseLink>
 			</SymlinkTask>
 		</ItemGroup>
-
-		<Message Text="Symlinking in /%(SymlinkTask.Directory): [%(SymlinkTask.MajorLink) -> %(SymlinkTask.MajorTarget)], [%(SymlinkTask.BaseLink) -> %(SymlinkTask.BaseTarget)]" 
-				 Importance="high"
-				 Condition="'@(SymlinkTask)' != ''" />
 
 		<Exec Command="{ [ '%(SymlinkTask.MajorTarget)' = '%(SymlinkTask.MajorLink)' ] || ln -sf %(SymlinkTask.MajorTarget) %(SymlinkTask.MajorLink); } &amp;&amp; ln -sf %(SymlinkTask.BaseTarget) %(SymlinkTask.BaseLink)" 
 			  WorkingDirectory="%(SymlinkTask.RootDir)%(SymlinkTask.Directory)" 

@@ -42,7 +42,7 @@ public class NativesBuildTests
     [DoNotParallelize]
     [TestMethod]
     [DataRow("libdave;libsodium;opus;zstd")]
-    public void NativeAotStaticLinking(string libName)
+    public void NativeAotStaticLinking(string libNames)
     {
         var projectDirectory = Path.Combine(AppContext.BaseDirectory, "Assets", "NativeAotApp");
         var projectFile = Path.Combine(projectDirectory, "NativeAotApp.csproj");
@@ -95,9 +95,10 @@ public class NativesBuildTests
         var ok = buildProcess.Start();
         buildProcess.BeginOutputReadLine();
         buildProcess.BeginErrorReadLine();
-        buildProcess.WaitForExit();
+        if (!buildProcess.HasExited)
+            buildProcess.WaitForExit();
 
-        Assert.AreEqual(0, buildProcess.ExitCode, $"Native AoT build failed for '{libName}'.");
+        Assert.AreEqual(0, buildProcess.ExitCode, $"Native AoT build failed for '{libNames}'.");
 
         // Obtain the generated RunCommand from a build so we launch the same command the SDK would.
         var getRunCmd = new System.Diagnostics.Process();
@@ -135,13 +136,47 @@ public class NativesBuildTests
         getRunCmd.Start();
         getRunCmd.BeginErrorReadLine();
         getRunCmd.BeginOutputReadLine();
-        getRunCmd.WaitForExit();
+        if (!getRunCmd.HasExited)
+            getRunCmd.WaitForExit();
 
-        Assert.AreEqual(0, getRunCmd.ExitCode, $"Failed to obtain PublishDir for '{libName}'.");
-        Assert.IsFalse(string.IsNullOrEmpty(runCmdOutput), $"PublishDir is empty for '{libName}'.");
+        Assert.AreEqual(0, getRunCmd.ExitCode, $"Failed to obtain PublishDir for '{libNames}'.");
+        Assert.IsFalse(string.IsNullOrEmpty(runCmdOutput), $"PublishDir is empty for '{libNames}'.");
 
         runCmdOutput = Path.Combine(projectDirectory, runCmdOutput,
                         "NativeAotApp" + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : ""));
+
+        var libs = libNames.Split([';',','], StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim());
+        List<string> deps = [];
+
+        foreach (var lib in libs)
+        {
+            switch (lib)
+            {
+                case "libdave":
+                    deps.AddRange([lib, "crypto"]);
+                    break;
+                case "libsodium":
+                case "opus":
+                case "zstd":
+                    deps.Add(lib);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unknown library name '{lib}' provided to test.");
+            }
+        }
+
+        var copiedDlls = Directory.GetFiles(Path.GetDirectoryName(runCmdOutput) ?? string.Empty, 
+                                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "*.dll" : 
+                                            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "lib*.so" : "lib*.dylib",
+                                            SearchOption.TopDirectoryOnly)
+                                  .Select(f => Path.GetFileName(f));
+        
+        var matchCopied = copiedDlls.Where(dll => deps.Any(lib => 
+                                        dll.StartsWith(lib, StringComparison.OrdinalIgnoreCase) || 
+                                        dll.StartsWith($"lib{lib}", StringComparison.OrdinalIgnoreCase)
+                                    ));
+
+        Assert.IsEmpty(matchCopied, $"These should've not been copied to the publish output directory: {string.Join(", ", matchCopied)}");
 
         // check that the library is running without errors, which indicates that it was statically linked successfully
         var aotProcess = new System.Diagnostics.Process();
@@ -165,8 +200,9 @@ public class NativesBuildTests
         aotProcess.Start();
         aotProcess.BeginOutputReadLine();
         aotProcess.BeginErrorReadLine();
-        aotProcess.WaitForExit();
+        if (!aotProcess.HasExited)
+            aotProcess.WaitForExit();
 
-        Assert.AreEqual(0, aotProcess.ExitCode, $"Native AoT app failed to run for '{libName}'.");
+        Assert.AreEqual(0, aotProcess.ExitCode, $"Native AoT app failed to run for '{libNames}'.");
     }
 }

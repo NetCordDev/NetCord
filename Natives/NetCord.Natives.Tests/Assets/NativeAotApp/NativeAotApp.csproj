@@ -19,7 +19,7 @@
   <PropertyGroup>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
-  <Target Name="NativeAotRemoveLinkerArgs" AfterTargets="_InitializeCommonProperties" BeforeTargets="_BeforeAppleBuild">
+  <Target Name="NativeAotRemoveLinkerArgs" AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
     <ItemGroup>
       <LinkerArg Remove="-licucore" />
     </ItemGroup>
@@ -37,10 +37,6 @@
 		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
 		<ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
 	</ItemGroup>
-
-  <PropertyGroup>
-    <NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>
-  </PropertyGroup>
 
   <Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
 
