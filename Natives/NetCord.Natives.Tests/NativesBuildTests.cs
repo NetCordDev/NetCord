@@ -1,6 +1,12 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Build.Evaluation;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Locator;
+using Microsoft.Build.Logging;
 
 namespace NetCord.Natives.Tests;
 
@@ -39,114 +45,87 @@ public class NativesBuildTests
     }
 
     const string NativeAotAppLogTag = nameof(NativeAotStaticLinking);
-    [DoNotParallelize]
     [TestMethod]
     [DataRow("libdave;libsodium;opus;zstd")]
     public void NativeAotStaticLinking(string libNames)
     {
+        MSBuildLocator.RegisterDefaults();
+        MSBuildNativeAotPublish(libNames);
+    }
+
+    private static void MSBuildNativeAotPublish(string libNames)
+    {
         var projectDirectory = Path.Combine(AppContext.BaseDirectory, "Assets", "NativeAotApp");
         var projectFile = Path.Combine(projectDirectory, "NativeAotApp.csproj");
-        var generatedProjectFile = Path.Combine(projectDirectory, "NativeAotApp.g.csproj");
 
-        // get properties to be passed to the NativeAotApp build from AssemblyMetadata attribute
+        // 1. Get properties from AssemblyMetadata attributes
         var assembly = typeof(NativesBuildTests).Assembly;
 
-        var properties = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()?
-                                 .FirstOrDefault(a => a.Key == "NativeAotAppProps")?
-                                 .Value?.Split([';', ','], StringSplitOptions.RemoveEmptyEntries).Select(p => $"-p:{p.Trim()}");
-        Assert.IsNotNull(properties, "NativeAotAppProps metadata attribute is not defined.");
+        var propsAttr = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                                .FirstOrDefault(a => a.Key == "NativeAotAppProps")?.Value;
+        Assert.IsNotNull(propsAttr, "NativeAotAppProps metadata attribute is not defined.");
 
-        var binlogpath = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()?
-                                .FirstOrDefault(a => a.Key == "NativeAotBinLogPath")?.Value;
+        var binlogpath = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                                 .FirstOrDefault(a => a.Key == "NativeAotBinLogPath")?.Value;
 
         var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>()?.Configuration ?? "Debug";
 
-        // build asset NativeAotApp with Native AoT enabled
-        var buildProcess = new System.Diagnostics.Process();
-        buildProcess.StartInfo.FileName = "dotnet";
-        buildProcess.StartInfo.ArgumentList.Add("publish");
-        buildProcess.StartInfo.ArgumentList.Add("NativeAotApp.csproj");
-        buildProcess.StartInfo.ArgumentList.Add("-c");
-        buildProcess.StartInfo.ArgumentList.Add(configuration);
-        buildProcess.StartInfo.ArgumentList.Add("-tl:off");
-        buildProcess.StartInfo.ArgumentList.Add("-v:n");
-        buildProcess.StartInfo.ArgumentList.Add("-nodeReuse:false");
+        // 2. Parse MSBuild Global Properties into a Dictionary
+        var globalProperties = new Dictionary<string, string>
+        {
+            { "Configuration", configuration }
+        };
+
+        var pairs = propsAttr.Split([';', ','], StringSplitOptions.RemoveEmptyEntries);
+        foreach (var pair in pairs)
+        {
+            var kvp = pair.Split('=');
+            if (kvp.Length == 2)
+            {
+                globalProperties[kvp[0].Trim()] = kvp[1].Trim();
+            }
+        }
+
+        // 3. Set up Loggers (Console + optional Binary Logger)
+        var loggers = new List<ILogger>
+        {
+            new ConsoleLogger(LoggerVerbosity.Normal, msg => Console.WriteLine($"[{NativeAotAppLogTag}/Publish] {msg.Trim()}"), null, null)
+        };
 
         if (!string.IsNullOrEmpty(binlogpath))
-            buildProcess.StartInfo.ArgumentList.Add($"-bl:{binlogpath}");
-        foreach (var property in properties)
-            buildProcess.StartInfo.ArgumentList.Add(property);
-
-        Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Building Native AoT app in ({projectDirectory}): 'dotnet {buildProcess.StartInfo.ArgumentList.Aggregate((a, b) => $"{a} {b}")}'");
-
-        buildProcess.StartInfo.WorkingDirectory = projectDirectory;
-        buildProcess.StartInfo.RedirectStandardOutput = true;
-        buildProcess.OutputDataReceived += (sender, e) =>
         {
-            if (!string.IsNullOrEmpty(e.Data))
-                Console.WriteLine($"[{NativeAotAppLogTag}/Publish] {e.Data}");
+            loggers.Add(new BinaryLogger { Parameters = binlogpath });
+        }
+
+        // 4. Evaluate and Execute the "Publish" target programmatically
+        Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Building Native AoT app in ({projectDirectory}) via MSBuild API...");
+        
+        using var projectCollection = new ProjectCollection();
+        var projectInstance = new ProjectInstance(projectFile, globalProperties, null, projectCollection);
+        
+        var buildParameters = new BuildParameters 
+        { 
+            Loggers = loggers,
+            EnableNodeReuse = false,
         };
-        buildProcess.StartInfo.RedirectStandardError = true;
-        buildProcess.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-                Console.Error.WriteLine($"[{NativeAotAppLogTag}/Publish] {e.Data}");
-        };
-        var ok = buildProcess.Start();
-        buildProcess.BeginOutputReadLine();
-        buildProcess.BeginErrorReadLine();
-        if (!buildProcess.HasExited)
-            buildProcess.WaitForExit();
+        var buildRequest = new BuildRequestData(projectInstance, ["Publish"]);
 
-        Assert.AreEqual(0, buildProcess.ExitCode, $"Native AoT build failed for '{libNames}'.");
+        var buildResult = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequest);
 
-        // Obtain the generated RunCommand from a build so we launch the same command the SDK would.
-        var getRunCmd = new System.Diagnostics.Process();
-        getRunCmd.StartInfo.FileName = "dotnet";
-        getRunCmd.StartInfo.ArgumentList.Add("build");
-        getRunCmd.StartInfo.ArgumentList.Add("NativeAotApp.csproj");
-        getRunCmd.StartInfo.ArgumentList.Add("-c");
-        getRunCmd.StartInfo.ArgumentList.Add(configuration);
-        getRunCmd.StartInfo.ArgumentList.Add("-t:GetTargetPath");
-        getRunCmd.StartInfo.ArgumentList.Add("-getProperty:PublishDir");
-        getRunCmd.StartInfo.ArgumentList.Add("--no-restore");
-        getRunCmd.StartInfo.ArgumentList.Add("-nodeReuse:false");
+        // Assert build success
+        Assert.AreEqual(BuildResultCode.Success, buildResult.OverallResult, $"Native AoT build failed for '{libNames}'.");
 
-        foreach (var property in properties)
-            getRunCmd.StartInfo.ArgumentList.Add(property);
+        // 5. Instantly extract the 'PublishDir' property from the evaluated project state
+        // (This replaces the entire second "dotnet build -getProperty" process call!)
+        var publishDirProperty = projectInstance.GetPropertyValue("PublishDir");
+        Assert.IsFalse(string.IsNullOrEmpty(publishDirProperty), $"PublishDir is empty for '{libNames}'.");
 
-        string? runCmdOutput = null;
+        var runCmdOutput = Path.GetFullPath(Path.Combine(projectDirectory, publishDirProperty, 
+            "NativeAotApp" + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")));
 
-        getRunCmd.StartInfo.WorkingDirectory = projectDirectory;
-        getRunCmd.StartInfo.RedirectStandardOutput = true;
-        getRunCmd.OutputDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                Console.WriteLine($"[{NativeAotAppLogTag}/GetRunCmd] {e.Data}");
-                runCmdOutput = e.Data.Trim('\r', '\n', '"');
-            }
-        };
-        getRunCmd.StartInfo.RedirectStandardError = true;
-        getRunCmd.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-                Console.Error.WriteLine($"[{NativeAotAppLogTag}/GetRunCmd] {e.Data}");
-        };
-        getRunCmd.Start();
-        getRunCmd.BeginErrorReadLine();
-        getRunCmd.BeginOutputReadLine();
-        if (!getRunCmd.HasExited)
-            getRunCmd.WaitForExit();
-
-        Assert.AreEqual(0, getRunCmd.ExitCode, $"Failed to obtain PublishDir for '{libNames}'.");
-        Assert.IsFalse(string.IsNullOrEmpty(runCmdOutput), $"PublishDir is empty for '{libNames}'.");
-
-        runCmdOutput = Path.Combine(projectDirectory, runCmdOutput,
-                        "NativeAotApp" + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : ""));
-
-        var libs = libNames.Split([';',','], StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim());
-        List<string> deps = [];
+        // 6. Assertions on copied native binaries
+        var libs = libNames.Split([';', ','], StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim());
+        var deps = new List<string>();
 
         foreach (var lib in libs)
         {
@@ -169,16 +148,17 @@ public class NativesBuildTests
                                             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "*.dll" : 
                                             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "lib*.so" : "lib*.dylib",
                                             SearchOption.TopDirectoryOnly)
-                                  .Select(f => Path.GetFileName(f));
+                                  .Select(Path.GetFileName);
         
-        var matchCopied = copiedDlls.Where(dll => deps.Any(lib => 
+        var matchCopied = copiedDlls.Where(dll => dll != null && deps.Any(lib => 
                                         dll.StartsWith(lib, StringComparison.OrdinalIgnoreCase) || 
-                                        dll.StartsWith($"lib{lib}", StringComparison.OrdinalIgnoreCase)
-                                    ));
+                                        dll.StartsWith($"lib{lib}", StringComparison.OrdinalIgnoreCase)))
+                                    .ToList();
 
         Assert.IsEmpty(matchCopied, $"These should've not been copied to the publish output directory: {string.Join(", ", matchCopied)}");
 
-        // check that the library is running without errors, which indicates that it was statically linked successfully
+        // 7. Execute the generated Native AOT Binary
+        // NOTE: Running the compiled native application still requires System.Diagnostics.Process
         var aotProcess = new System.Diagnostics.Process();
         aotProcess.StartInfo.FileName = runCmdOutput;
         aotProcess.StartInfo.WorkingDirectory = Path.GetDirectoryName(runCmdOutput);
@@ -197,9 +177,11 @@ public class NativesBuildTests
             if (!string.IsNullOrEmpty(e.Data))
                 Console.Error.WriteLine($"[{NativeAotAppLogTag}/Run] {e.Data}");
         };
+        
         aotProcess.Start();
         aotProcess.BeginOutputReadLine();
         aotProcess.BeginErrorReadLine();
+        
         if (!aotProcess.HasExited)
             aotProcess.WaitForExit();
 
