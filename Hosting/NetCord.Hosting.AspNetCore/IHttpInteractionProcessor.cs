@@ -6,11 +6,20 @@ using NetCord.Rest;
 
 namespace NetCord.Hosting.AspNetCore;
 
-internal sealed class HttpInteractionHandler(IServiceProvider services,
-                                             string pattern) : HttpEventHandler<IInteraction>(services,
-                                                                                              pattern)
+public interface IHttpInteractionProcessor
 {
-    private readonly ILogger<HttpInteractionHandler> _logger = services.GetRequiredService<ILogger<HttpInteractionHandler>>();
+    /// <summary>
+    /// Processes an incoming HTTP interaction request.
+    /// </summary>
+    /// <param name="context">The <see cref="HttpContext"/> of the incoming request.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public Task ProcessAsync(HttpContext context);
+}
+
+internal sealed class HttpInteractionProcessor(
+    IServiceProvider services) : HttpEventProcessor<IInteraction>(services), IHttpInteractionProcessor
+{
+    private readonly ILogger<HttpInteractionProcessor> _logger = services.GetRequiredService<ILogger<HttpInteractionProcessor>>();
 
     private readonly Func<Interaction, ValueTask>[] _handlers = [.. services.GetServices<IHttpInteractionHandler>()
                                                                             .Select<IHttpInteractionHandler, Func<Interaction, ValueTask>>(h => h.HandleAsync)];

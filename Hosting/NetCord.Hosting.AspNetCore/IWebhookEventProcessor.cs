@@ -7,17 +7,27 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Hosting.AspNetCore;
 
+public interface IWebhookEventProcessor
+{
+    /// <summary>
+    /// Processes an incoming webhook event request.
+    /// </summary>
+    /// <param name="context">The <see cref="HttpContext"/> of the incoming request.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public Task ProcessAsync(HttpContext context);
+}
+
 [GenerateHandler("APPLICATION_AUTHORIZED", typeof(ApplicationAuthorizedWebhookEventArgs))]
 [GenerateHandler("APPLICATION_DEAUTHORIZED", typeof(ApplicationDeauthorizedWebhookEventArgs))]
 [GenerateHandler("ENTITLEMENT_CREATE", typeof(EntitlementCreateWebhookEventArgs))]
 [GenerateHandler(null, typeof(UnknownEventWebhookEventArgs))]
-internal partial class WebhookEventHandler : HttpEventHandler<JsonWebhookEventArgs>
+internal partial class WebhookEventProcessor : HttpEventProcessor<JsonWebhookEventArgs>, IWebhookEventProcessor
 {
     private partial class StorageBuilder;
 
     private partial class Storage;
 
-    public WebhookEventHandler(IServiceProvider services, string pattern) : base(services, pattern)
+    public WebhookEventProcessor(IServiceProvider services) : base(services)
     {
         StorageBuilder builder = new();
 
@@ -31,12 +41,12 @@ internal partial class WebhookEventHandler : HttpEventHandler<JsonWebhookEventAr
 
         _storage = builder.Build();
 
-        _logger = services.GetRequiredService<ILogger<WebhookEventHandler>>();
+        _logger = services.GetRequiredService<ILogger<WebhookEventProcessor>>();
     }
 
     private readonly Storage _storage;
 
-    private readonly ILogger<WebhookEventHandler> _logger;
+    private readonly ILogger<WebhookEventProcessor> _logger;
 
     protected override JsonWebhookEventArgs GetData(HttpContext context, ReadOnlySpan<byte> body)
     {

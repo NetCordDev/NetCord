@@ -57,7 +57,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             context.AddSource("WebhookHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(attributesData), Encoding.UTF8));
 
-            context.AddSource("WebhookEventHandler.g.cs", SourceText.From(GenerateWebhookEventHandler(attributesData), Encoding.UTF8));
+            context.AddSource("WebhookEventProcessor.g.cs", SourceText.From(GenerateWebhookEventProcessor(attributesData), Encoding.UTF8));
         });
     }
 
@@ -185,21 +185,21 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         }
     }
 
-    private string GenerateWebhookEventHandler(ImmutableArray<GenerateHandlerAttributeData> attributesData)
+    private string GenerateWebhookEventProcessor(ImmutableArray<GenerateHandlerAttributeData> attributesData)
     {
         StringWriter stringWriter = new();
         Setup(stringWriter);
 
-        WriteWebhookEventHandler(stringWriter, attributesData);
+        WriteWebhookEventProcessor(stringWriter, attributesData);
 
         return stringWriter.ToString();
     }
 
-    private void WriteWebhookEventHandler(StringWriter stringWriter, ImmutableArray<GenerateHandlerAttributeData> attributesData)
+    private void WriteWebhookEventProcessor(StringWriter stringWriter, ImmutableArray<GenerateHandlerAttributeData> attributesData)
     {
         stringWriter.WriteLine();
 
-        stringWriter.WriteLine("partial class WebhookEventHandler");
+        stringWriter.WriteLine("partial class WebhookEventProcessor");
 
         stringWriter.Write("{");
 
@@ -367,7 +367,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("public global::NetCord.Hosting.AspNetCore.WebhookEventHandler.Storage Build()");
+        stringWriter.WriteLine("public global::NetCord.Hosting.AspNetCore.WebhookEventProcessor.Storage Build()");
 
         stringWriter.WriteIndentation(2);
         stringWriter.WriteLine("{");
