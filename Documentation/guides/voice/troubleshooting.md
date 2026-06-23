@@ -22,7 +22,7 @@ Check if the voice channel is full; the bot needs an available slot to join.
 Verify that the bot isn't already active in the channel it is trying to join.
 
 ### Slow Network Connection
-@NetCord.Gateway.Voice.GatewayClientExtensions.JoinVoiceChannelAsync* has a default timeout of 2 seconds, which might be too brief for slower networks. You can extend this timeout (e.g., to 10 seconds) as shown below:
+@NetCord.Gateway.Voice.GatewayClientExtensions.JoinVoiceChannelAsync* has a default timeout of 5 seconds, which might be too brief for slower networks. You can extend this timeout (e.g., to 15 seconds) as shown below:
 [!code-cs[Join Voice Channel with Extended Timeout](Troubleshooting/Examples.cs#L13)]
 
 ---
@@ -45,8 +45,7 @@ The log error `Failed to get the external socket address. Aborting the client.` 
 
 Try connecting the bot to a mobile hotspot to quickly determine if your local router or firewall settings are the culprit.
 
-Alternatively, try increasing the default 5-second discovery timeout directly in your configuration:
-
+Alternatively, try increasing the default 5-second discovery timeout in the configuration as shown below:
 [!code-cs[External Socket Address Discovery Timeout](Troubleshooting/Examples.cs#L18-L21)]
 
 ---

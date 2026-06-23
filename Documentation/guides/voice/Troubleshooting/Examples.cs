@@ -10,7 +10,7 @@ internal static class Examples
                                                           ulong channelId,
                                                           VoiceClientConfiguration? configuration)
     {
-        var voiceClient = await client.JoinVoiceChannelAsync(guildId, channelId, configuration, TimeSpan.FromSeconds(10));
+        var voiceClient = await client.JoinVoiceChannelAsync(guildId, channelId, configuration, TimeSpan.FromSeconds(15));
     }
 
     public static async Task LongerExternalSocketAddressDiscoveryTimeoutAsync()
