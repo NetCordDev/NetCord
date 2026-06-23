@@ -3,6 +3,6 @@
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "REGISTER_COMMANDS": "true"
+        "REGISTER_COMMANDS": "1"
     }
 }
