@@ -83,7 +83,7 @@ jobs:
             vcpkg-os-target: linux
             vcpkg-platform-target: arm64
             use-nix: true
-            shell_command: nix develop .#natives-musl -c bash -eo pipefail {0}
+            shell_command: nix develop .#natives-musl --option max-jobs 2 --option cores 2 -c bash -eo pipefail {0}
             musl: true
 
     runs-on: ${{ matrix.runs-on }}
