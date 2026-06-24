@@ -69,6 +69,11 @@
             pkgs.autoconf-archive
             pkgs.automake
             pkgs.libtool
+            pkgs.git
+            pkgs.zip
+            pkgs.unzip
+            pkgs.perl
+            pkgs.curl
           ] ++ darwinPackages;
 
           DOTNET_ROOT = dotnetRoot;
@@ -96,6 +101,11 @@
             pkgs.autoconf-archive
             pkgs.automake
             pkgs.libtool
+            pkgs.git
+            pkgs.zip
+            pkgs.unzip
+            pkgs.perl
+            pkgs.curl
           ] ++ darwinPackages;
 
           DOTNET_ROOT = dotnetRoot;
