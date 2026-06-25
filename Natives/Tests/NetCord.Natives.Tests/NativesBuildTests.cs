@@ -91,7 +91,8 @@ public class NativesBuildTests
         // 3. Set up Loggers (Console + optional Binary Logger)
         var loggers = new List<ILogger>
         {
-            new ConsoleLogger(LoggerVerbosity.Normal, msg => Console.WriteLine($"[{NativeAotAppLogTag}/Publish] {msg.Trim()}"), null, null)
+            new ConsoleLogger(Enum.Parse<LoggerVerbosity>(Environment.GetEnvironmentVariable("DotnetVerbose") ?? "Minimal", true),
+                msg => Console.WriteLine($"[{NativeAotAppLogTag}/Publish] {msg.Trim()}"), null, null)
         };
 
         if (!string.IsNullOrEmpty(binlogpath))
@@ -101,12 +102,12 @@ public class NativesBuildTests
 
         // 4. Evaluate and Execute the "Publish" target programmatically
         Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Building Native AoT app in ({projectDirectory}) via MSBuild API...");
-        
+
         using var projectCollection = new ProjectCollection();
         var projectInstance = new ProjectInstance(projectFile, globalProperties, null, projectCollection);
-        
-        var buildParameters = new BuildParameters 
-        { 
+
+        var buildParameters = new BuildParameters
+        {
             Loggers = loggers,
             EnableNodeReuse = false,
         };
@@ -125,7 +126,7 @@ public class NativesBuildTests
         // sanitize back-slash
         publishDirProperty = publishDirProperty.Replace('\\', Path.DirectorySeparatorChar);
 
-        var runCmdOutput = Path.GetFullPath(Path.Combine(projectDirectory, publishDirProperty, 
+        var runCmdOutput = Path.GetFullPath(Path.Combine(projectDirectory, publishDirProperty,
             "NativeAotApp" + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")));
 
         Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Native AoT app published to: '{runCmdOutput}'");
@@ -151,14 +152,14 @@ public class NativesBuildTests
             }
         }
 
-        var copiedDlls = Directory.GetFiles(Path.GetDirectoryName(runCmdOutput) ?? string.Empty, 
-                                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "*.dll" : 
+        var copiedDlls = Directory.GetFiles(Path.GetDirectoryName(runCmdOutput) ?? string.Empty,
+                                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "*.dll" :
                                             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "lib*.so" : "lib*.dylib",
                                             SearchOption.TopDirectoryOnly)
                                   .Select(Path.GetFileName);
-        
-        var matchCopied = copiedDlls.Where(dll => dll != null && deps.Any(lib => 
-                                        dll.StartsWith(lib, StringComparison.OrdinalIgnoreCase) || 
+
+        var matchCopied = copiedDlls.Where(dll => dll != null && deps.Any(lib =>
+                                        dll.StartsWith(lib, StringComparison.OrdinalIgnoreCase) ||
                                         dll.StartsWith($"lib{lib}", StringComparison.OrdinalIgnoreCase)))
                                     .ToList();
 
@@ -184,11 +185,11 @@ public class NativesBuildTests
             if (!string.IsNullOrEmpty(e.Data))
                 Console.Error.WriteLine($"[{NativeAotAppLogTag}/Run] {e.Data}");
         };
-        
+
         aotProcess.Start();
         aotProcess.BeginOutputReadLine();
         aotProcess.BeginErrorReadLine();
-        
+
         if (!aotProcess.HasExited)
             aotProcess.WaitForExit();
 

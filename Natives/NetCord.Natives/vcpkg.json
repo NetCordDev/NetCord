@@ -8,6 +8,9 @@
   "vcpkg-configuration": {
     "overlay-ports": [
       "natives-ports"
+    ],
+    "overlay-triplets": [
+      "natives-triplets"
     ]
   },
   "builtin-baseline": "89dd0f4d241136b843fb55813b2f0fa6448c204d",
