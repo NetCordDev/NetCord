@@ -13,11 +13,9 @@ public class ComponentInteractionResultHandler<TContext>
     : IComponentInteractionResultHandler<TContext>
     where TContext : IComponentInteractionContext
 {
-    public static ComponentInteractionResultHandler<TContext> Ephemeral
-        => new EphemeralComponentInteractionResultHandler<TContext>();
+    public static ComponentInteractionResultHandler<TContext> Default => new();
 
-    public static ComponentInteractionResultHandler<TContext> Default
-        => new();
+    public static ComponentInteractionResultHandler<TContext> Ephemeral => new EphemeralComponentInteractionResultHandler<TContext>();
 
     protected ComponentInteractionResultHandler()
     {
