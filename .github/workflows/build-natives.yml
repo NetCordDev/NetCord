@@ -84,8 +84,7 @@ jobs:
         shell: ${{ matrix.shell_command }}
     env:
       CI: true
-      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
-      VCPKG_DOWNLOADS: ${{ github.workspace }}/.vcpkg-downloads
+      VCPKG_BINARY_SOURCES: clear;x-gha,readwrite
       VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
       VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}
       Configuration: Release
@@ -110,30 +109,22 @@ jobs:
         if: ${{ matrix.use-nix }}
         uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
+      - name: Export GitHub Actions Vcpkg Cache Environment Variables
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
       - name: Setup vcpkg (Windows)
         if: ${{ !matrix.use-nix }}
         run: |
-          New-Item -ItemType Directory -Path $env:VCPKG_BINARY_SOURCES.Split(',')[1] -Force | Out-Null
-          New-Item -ItemType Directory -Path $env:VCPKG_DOWNLOADS -Force | Out-Null
-          $VCPKG_ROOT/vcpkg/bootstrap-vcpkg.bat
+          $env:VCPKG_ROOT/bootstrap-vcpkg.bat
 
       - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
         run: |
-          mkdir -p "${VCPKG_BINARY_SOURCES#*,}"
-          mkdir -p "${VCPKG_DOWNLOADS}"
-          $VCPKG_ROOT/vcpkg/bootstrap-vcpkg.sh
-
-      - name: Restore vcpkg cache
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: |
-            .vcpkg-cache
-          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**', 'Natives/NetCord.Natives/natives-triplets/**') }}
-          # Fallback keys to grab any latest previous cache
-          restore-keys: |
-            vcpkg-${{ runner.os }}-${{ matrix.rid }}-
-            vcpkg-${{ runner.os }}-
+          $VCPKG_ROOT/bootstrap-vcpkg.sh
 
       - name: Setup .NET Core SDK (Windows)
         if: ${{ !matrix.use-nix }}
@@ -156,11 +147,6 @@ jobs:
           -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.TargetRID }}"
           -p:GeneratePackageOnBuild=false -p:CI=false
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
-
-      - name: List output directory (Nix)
-        if: ${{ matrix.use-nix }}
-        run: |
-          ls -Rlsha Natives/NetCord.Natives.Tests/bin/
 
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
@@ -196,14 +182,6 @@ jobs:
           name: NetCord.Natives.${{ matrix.rid }}.packages
           path: |
             Natives/NetCord.Natives/bin/${{ matrix.rid }}
-
-      - name: Save vcpkg cache
-        if: ${{ always() && steps.build_step.outcome == 'success' }}
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: |
-            .vcpkg-cache
-          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**', 'Natives/NetCord.Natives/natives-triplets/**') }}
 
   pack-natives:
     needs: [build-natives]

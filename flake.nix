@@ -110,8 +110,6 @@
 
           DOTNET_ROOT = dotnetRoot;
 
-          TARGET_MUSL = "true";
-
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
 
           shellHook = ''
