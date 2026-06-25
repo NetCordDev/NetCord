@@ -19,8 +19,8 @@
   <Folder Name="/Tests/">
     <File Path="../Tests/Directory.Build.props" />
     <File Path="../Tests/Directory.Build.targets" />
-    <Project Path="NetCord.Natives.Tests/NetCord.Natives.Tests.csproj" />
-    <Project Path="NetCord.Natives.Tests/Assets/NativeAotApp/NativeAotApp.csproj" />
+    <Project Path="Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj" />
+    <Project Path="Tests/NativeAotApp/NativeAotApp.csproj" />
   </Folder>
   <Project Path="NetCord.Natives/NetCord.Natives.csproj" />
   <Project Path="../NetCord/NetCord.csproj" />

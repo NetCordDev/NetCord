@@ -11,11 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Assets\**" />
-    <None Remove="Assets\**" />
-    <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="NativeProbes.cs" CopyToOutputDirectory="PreserveNewest" 
-             Condition="Exists('NativeProbes.cs')" />
+    <Compile Include="..\NativeProbes.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,7 +28,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <NetCordNativesDir>..\NetCord.Natives\</NetCordNativesDir>
+    <NetCordNativesDir>..\..\NetCord.Natives\</NetCordNativesDir>
     <NativeAotAppProps>NetCordNativesDir=$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</NativeAotAppProps>
 
     <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
@@ -40,9 +36,17 @@
 
     <NativeAotAppProps Condition="'$(AppendNativeAotAppProps)' != ''">$(NativeAotAppProps);$(AppendNativeAotAppProps)</NativeAotAppProps>
   </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
+    <ProjectReference Include="..\..\..\NetCord\NetCord.csproj" />
     <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
+      <_Parameter1>NativeAotAppDir</_Parameter1>
+      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../NativeAotApp'))</_Parameter2>
+    </AssemblyAttribute>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
       <_Parameter1>NativeAotAppProps</_Parameter1>
       <_Parameter2>$(NativeAotAppProps)</_Parameter2>

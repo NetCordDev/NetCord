@@ -12,7 +12,7 @@
     <IsAotCompatible>true</IsAotCompatible>
     <SelfContained>true</SelfContained>
 
-    <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\NetCord.Natives</NetCordNativesDir>
+    <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
 
   <!-- for Nix issue -->
@@ -26,7 +26,7 @@
   </Target>
 
   <ItemGroup>
-    <Compile Include="..\..\NativeProbes.cs" Condition="Exists('..\..\NativeProbes.cs')" />
+    <Compile Include="..\NativeProbes.cs" />
   </ItemGroup>
 
 	<ItemGroup>

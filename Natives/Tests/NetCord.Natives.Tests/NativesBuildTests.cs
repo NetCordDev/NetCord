@@ -55,15 +55,17 @@ public class NativesBuildTests
 
     private static void MSBuildNativeAotPublish(string libNames)
     {
-        var projectDirectory = Path.Combine(AppContext.BaseDirectory, "Assets", "NativeAotApp");
-        var projectFile = Path.Combine(projectDirectory, "NativeAotApp.csproj");
-
         // 1. Get properties from AssemblyMetadata attributes
         var assembly = typeof(NativesBuildTests).Assembly;
 
+        var projectDirectory = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                                       .FirstOrDefault(a => a.Key == "NativeAotAppDir")?.Value;
+        Assert.IsNotNull(projectDirectory, "NativeAotAppDir metadata attribute is not defined.");
+
+        var projectFile = Path.Combine(projectDirectory, "NativeAotApp.csproj");
+
         var propsAttr = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                                 .FirstOrDefault(a => a.Key == "NativeAotAppProps")?.Value;
-        Assert.IsNotNull(propsAttr, "NativeAotAppProps metadata attribute is not defined.");
 
         var binlogpath = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                                  .FirstOrDefault(a => a.Key == "NativeAotBinLogPath")?.Value;
@@ -76,7 +78,7 @@ public class NativesBuildTests
             { "Configuration", configuration }
         };
 
-        var pairs = propsAttr.Split([';', ','], StringSplitOptions.RemoveEmptyEntries);
+        var pairs = propsAttr?.Split([';', ','], StringSplitOptions.RemoveEmptyEntries) ?? [];
         foreach (var pair in pairs)
         {
             var kvp = pair.Split('=');
@@ -120,8 +122,13 @@ public class NativesBuildTests
         var publishDirProperty = projectInstance.GetPropertyValue("PublishDir");
         Assert.IsFalse(string.IsNullOrEmpty(publishDirProperty), $"PublishDir is empty for '{libNames}'.");
 
+        // sanitize back-slash
+        publishDirProperty = publishDirProperty.Replace('\\', Path.DirectorySeparatorChar);
+
         var runCmdOutput = Path.GetFullPath(Path.Combine(projectDirectory, publishDirProperty, 
             "NativeAotApp" + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")));
+
+        Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Native AoT app published to: '{runCmdOutput}'");
 
         // 6. Assertions on copied native binaries
         var libs = libNames.Split([';', ','], StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim());

@@ -23,25 +23,22 @@
         <DebugDefinedDir Condition="'$(Configuration)' == 'Debug'">debug</DebugDefinedDir>
 
         <VcpkgArtifactsRoot Condition="'$(VcpkgArtifactsRoot)' == ''">bin</VcpkgArtifactsRoot>
-        
+
         <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
         <VcpkgMsbuildPath>$(VcpkgRoot)\scripts\buildsystems\msbuild\vcpkg</VcpkgMsbuildPath>
 
         <VcpkgConfiguration>Release</VcpkgConfiguration>
         <VcpkgEnableManifest>true</VcpkgEnableManifest>
 
-        <TargetMusl Condition="'$(TargetMusl)' == ''">false</TargetMusl>
-
-        <TargetMusl Condition="'$(TARGET_MUSL)' == 'true'">true</TargetMusl>
-
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Windows_NT'">windows</VcpkgOSTarget>
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and $([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">osx</VcpkgOSTarget>
 
-        <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and '$(TargetMusl)' == 'true'">linux-musl</VcpkgOSTarget>
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix'">linux</VcpkgOSTarget>
 
         <VcpkgBuildOS>$(VcpkgOSTarget)</VcpkgBuildOS>
         <VcpkgBuildOS Condition="'$(VcpkgOSTarget)' == 'windows'">win</VcpkgBuildOS>
+
+        <VcpkgBuildOS Condition="'$(TARGET_MUSL)' == 'true'">$(VcpkgBuildOS)-musl</VcpkgBuildOS>
 
         <!-- Prevent vcpkg msbuild target from installing packages. We do our own Exec -->
         <VcpkgManifestInstall Condition="'$(VcpkgBuildOS)' != 'win'">false</VcpkgManifestInstall>
@@ -62,15 +59,15 @@
     <ItemGroup>
         <NativeLibSet Include="libdave;dave" />
         <NativeLibSet Include="mlspp;bytes;tls_syntax;hpke" />
-        <NativeLibSet Include="libcrypto;crypto" />
+        <NativeLibSet Include="libcrypto;crypto;libssl;ssl" />
         <NativeLibSet Include="libsodium;sodium" />
         <NativeLibSet Include="libopus;opus;libzstd;zstd" />
-        
+
         <NativeLibLic Include="libdave;openssl;libsodium;opus;zstd" />
 
 		<_VcpkgRelatedFile Include="native-ports\**" />
     </ItemGroup>
-    
+
     <Target Name="GetStaticBuildDir" Returns="@(_StaticFullPath)">
         <ItemGroup>
             <_StaticFullPath Include="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(VcpkgOutputPath_Static)'))" />
@@ -80,25 +77,17 @@
 
     <Import Project="$(VcpkgMsbuildPath).props" Condition="Exists('$(VcpkgMsbuildPath).props')" />
     <Import Project="$(VcpkgMsbuildPath).targets" Condition="Exists('$(VcpkgMsbuildPath).targets')" />
-    
-    <Target Name="BootstrapVcpkg" BeforeTargets="PrepareVcpkg" Condition="'$(VcpkgOSTarget)' == 'windows' and !Exists('$(VcpkgRoot)\vcpkg.exe')">
-        <Message Importance="high" Text="Bootstrapping vcpkg..." />
-        <Exec Command="&quot;$(VcpkgRoot)\bootstrap-vcpkg.bat&quot; -disableMetrics" />
-    </Target>
 
     <!-- When not on Windows, refer to this file -->
     <Import Project="vcpkg-non-windows.targets" 
             Condition="'$(VcpkgBuildOS)' != 'win' and Exists('vcpkg-non-windows.targets')" />
 
-    <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection" DependsOnTargets="BootstrapVcpkg">
-    
-        <Error Text="Make sure VCPKG_ROOT environment variable is set, or set &lt;VcpkgRoot&gt; property to your vcpkg installation." 
-               Condition="!Exists('$(VcpkgMsbuildPath).targets')" />
-        
+    <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection">
+
         <PropertyGroup Condition="'$(VcpkgBuildOS)' != 'win'">
             <VcpkgTriplet>$(VcpkgPlatformTarget)-$(VcpkgOSTarget)</VcpkgTriplet>
             <VcpkgTriplet Condition="'$(VcpkgUseStatic)' != 'true'">$(VcpkgTriplet)-dynamic</VcpkgTriplet>
-            
+
             <_ZVcpkgMSBuildStampFile>$(_ZVcpkgInstalledDir).msbuildstamp-$(VcpkgTriplet).$(_ZVcpkgHostTripletSuffix)stamp</_ZVcpkgMSBuildStampFile>
         </PropertyGroup>
         <PropertyGroup>
@@ -122,9 +111,10 @@
                 <Ext>so</Ext>
             </_BuiltRid>
 
-            <_BuiltRid Include="linux-musl-%(_LibArchs.Identity)">
-                <BinPath>%(_LibArchs.Identity)-linux-musl-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
-                <LibPath>%(_LibArchs.Identity)-linux-musl\lib\lib%(_LibArchs.LibName)</LibPath>
+            <_BuiltRid Include="linux-musl-%(_LibArchs.Identity)" 
+                       Condition="'$(VcpkgBuildOS)' == 'linux-musl'">
+                <BinPath>%(_LibArchs.Identity)-linux-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-linux\lib\lib%(_LibArchs.LibName)</LibPath>
                 <Ext>so</Ext>
             </_BuiltRid>
 
@@ -136,6 +126,14 @@
 
             <_BuiltRid Remove="%(Identity)" Condition="'$(CI)' != 'true' and '%(Identity)' != '$(VcpkgBuildOS)-$(VcpkgPlatformTarget)'" />
         </ItemGroup>
+    </Target>
+
+    <Target Name="CheckVcpkg" BeforeTargets="VcpkgInstallManifestDependencies">
+        <Error Text="Make sure VCPKG_ROOT environment variable is set, or set &lt;VcpkgRoot&gt; property to your vcpkg installation." 
+               Condition="!Exists('$(VcpkgMsbuildPath).targets')" />
+
+        <Error Condition="('$(VcpkgBuildOS)' == 'win' and !Exists('$(VcpkgRoot)\vcpkg.exe')) or ('$(VcpkgBuildOS)' != 'win' and !Exists('$(VcpkgRoot)/vcpkg'))"
+               Text="Vcpkg executable not found in $(VcpkgRoot). Ensure vcpkg is installed and the path is correct. (i.e., run '$(VcpkgRoot)/bootstrap-vcpkg.{bat/sh})'" />
     </Target>
 
     <Target Name="ClCompile" BeforeTargets="BeforeBuild" DependsOnTargets="PrepareVcpkg"
@@ -173,7 +171,7 @@
         <PropertyGroup Condition="'@(_VcpkgPkg)' != ''">
             <PackageDescription>$(PackageDescription)&#x0A;(Includes: @(_VcpkgPkg->'%(Identity) v%(Version)', ', '))</PackageDescription>
         </PropertyGroup>
-        
+
         <!-- Optional: Debugging message to see it working in the build log -->
         <Message Importance="high" Text="Vcpkg Sync: %(_VcpkgPkg.Identity) version is [%(_VcpkgPkg.Version)]" 
                  Condition="'%(_VcpkgPkg.Identity)' != ''"/>
@@ -263,11 +261,11 @@
             <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives-static\%(_BuiltRid.LibPath).*">
                 <PackagePath>staticlibs\%(_BuiltRid.Identity)\</PackagePath>
             </NativesBuilt>
-            
+
             <_SymlinksToRemoveBuilt Include="@(NativesBuilt)"
                                    Condition="Exists('%(FullPath)') and ($([MSBuild]::BitwiseAnd($([System.IO.File]::GetAttributes('%(FullPath)')), 1024)) == 1024)" />
             <NativesBuilt Remove="@(_SymlinksToRemoveBuilt)" />
-            
+
             <Content Include="@(NativesBuilt)" Condition="Exists('%(NativesBuilt.Identity)')">
                 <Pack>true</Pack>
             </Content>
@@ -289,7 +287,7 @@
             </None>
         </ItemGroup>
     </Target>
-    
+
     <Target Name="_PackagedFilesInfo" AfterTargets="_GetPackageFiles" BeforeTargets="GenerateNuspec">
         <Message Text="$(PackageId) packaged items:" Importance="high" />
         <Message Text="  %(_PackageFiles.Identity) -&gt; [pkg].\%(PackagePath)" Importance="high" />

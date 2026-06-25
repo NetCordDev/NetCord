@@ -102,8 +102,6 @@
 
           TARGET_MUSL = "true";
 
-          VCPKG_OVERLAY_TRIPLETS="${toString ./.}/Natives/NetCord.Natives/triplets";
-
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
 
           shellHook = ''

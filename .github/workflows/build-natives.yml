@@ -118,24 +118,25 @@ jobs:
         if: ${{ matrix.use-nix && matrix.musl }}
         uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
-      - name: Setup vcpkg cache directories (Windows)
+      - name: Setup vcpkg (Windows)
         if: ${{ !matrix.use-nix }}
         run: |
           New-Item -ItemType Directory -Path $env:VCPKG_BINARY_SOURCES.Split(',')[1] -Force | Out-Null
           New-Item -ItemType Directory -Path $env:VCPKG_DOWNLOADS -Force | Out-Null
+          $VCPKG_ROOT/vcpkg/bootstrap-vcpkg.bat
 
-      - name: Setup vcpkg cache directories (Nix)
+      - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
         run: |
           mkdir -p "${VCPKG_BINARY_SOURCES#*,}"
           mkdir -p "${VCPKG_DOWNLOADS}"
+          $VCPKG_ROOT/vcpkg/bootstrap-vcpkg.sh
 
       - name: Restore vcpkg cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             .vcpkg-cache
-            .vcpkg-downloads
           # Unique key per run
           key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}
           # Fallback keys to grab the latest previous cache
@@ -177,7 +178,7 @@ jobs:
           --no-restore
           --no-build
           -v ${{ env.DotnetVerbose }}
-          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
+          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog -p:NativeAotBinLogPath="$PWD/nativeaotapptest.binlog"' || '' }}
           --logger "console;verbosity=detailed"
           --logger GitHubActions
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
@@ -216,6 +217,5 @@ jobs:
         with:
           path: |
             .vcpkg-cache
-            .vcpkg-downloads
           # Must match the unique key from the restore step
           key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}

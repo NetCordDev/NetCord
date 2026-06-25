@@ -18,7 +18,7 @@
 								Condition="'%(DirectPInvoke.Identity)' == 'opus' or '%(DirectPInvoke.Identity)' == 'zstd'" />
 
 			<!-- 4. Low-level providers (The Leaf Dependencies) - These MUST be last -->
-			<_NetCordStaticLink Include="libcrypto;crypto" 
+			<_NetCordStaticLink Include="libcrypto;crypto;libssl;ssl" 
 								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
 
 			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*" />
