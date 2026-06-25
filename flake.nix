@@ -36,6 +36,11 @@
           dotnet-sdk = dotnet;
         };
 
+        nuget = pkgs.runCommand "unwrapped-nuget" {} ''
+          mkdir -p $out/bin
+          install -m 755 ${pkgs.nuget}/lib/Nuget/nuget.exe $out/bin/nuget.exe
+        '';
+
         dotnetRoot = "${dotnet.unwrapped}/share/dotnet";
 
         darwinPackages = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin (with pkgs; [
@@ -62,7 +67,7 @@
         } ({
           packages = [
             dotnet
-            pkgs.nuget
+            nuget
             pkgs.mono
             pkgs.cmake
             pkgs.ninja
@@ -96,7 +101,7 @@
         } ({
           packages = [
             dotnet
-            pkgs.nuget
+            nuget
             pkgs.mono
             pkgs.cmake
             pkgs.ninja
