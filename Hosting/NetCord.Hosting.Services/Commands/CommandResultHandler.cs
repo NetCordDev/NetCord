@@ -10,8 +10,7 @@ namespace NetCord.Hosting.Services.Commands;
 public class CommandResultHandler<TContext> : ICommandResultHandler<TContext>
     where TContext : ICommandContext
 {
-    public static CommandResultHandler<TContext> Default
-        => new();
+    public static CommandResultHandler<TContext> Default => new();
 
     protected CommandResultHandler()
     {
