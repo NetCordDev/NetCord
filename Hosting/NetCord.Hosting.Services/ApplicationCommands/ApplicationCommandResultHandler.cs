@@ -11,6 +11,27 @@ public class ApplicationCommandResultHandler<TContext>
     : IApplicationCommandResultHandler<TContext>
     where TContext : IApplicationCommandContext
 {
+    public static ApplicationCommandResultHandler<TContext> Ephemeral 
+        => new EphemeralApplicationCommandResultHandler<TContext>();
+
+    public static ApplicationCommandResultHandler<TContext> Default 
+        => new();
+
+    protected ApplicationCommandResultHandler()
+    {
+    }
+
+    internal class EphemeralApplicationCommandResultHandler<T> : ApplicationCommandResultHandler<T>
+        where T : IApplicationCommandContext
+    {
+        public override InteractionMessageProperties GetFailMessage(IFailResult failResult, T context, IServiceProvider services)
+        {
+            var message = base.GetFailMessage(failResult, context, services);
+            message.WithFlags(MessageFlags.Ephemeral);
+            return message;
+        }
+    }
+
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)

@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Logging;
 
 using NetCord.Gateway;
+using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Rest;
 using NetCord.Services;
+using NetCord.Services.ApplicationCommands;
 using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
@@ -11,6 +13,27 @@ public class ComponentInteractionResultHandler<TContext>
     : IComponentInteractionResultHandler<TContext>
     where TContext : IComponentInteractionContext
 {
+    public static ComponentInteractionResultHandler<TContext> Ephemeral
+        => new EphemeralComponentInteractionResultHandler<TContext>();
+
+    public static ComponentInteractionResultHandler<TContext> Default
+        => new();
+
+    protected ComponentInteractionResultHandler()
+    {
+    }
+
+    internal class EphemeralComponentInteractionResultHandler<T> : ComponentInteractionResultHandler<T>
+        where T : IComponentInteractionContext
+    {
+        public override InteractionMessageProperties GetFailMessage(IFailResult failResult, T context, IServiceProvider services)
+        {
+            var message = base.GetFailMessage(failResult, context, services);
+            message.WithFlags(MessageFlags.Ephemeral);
+            return message;
+        }
+    }
+
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)

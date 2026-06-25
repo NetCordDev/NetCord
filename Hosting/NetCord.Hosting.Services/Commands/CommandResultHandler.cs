@@ -10,6 +10,13 @@ namespace NetCord.Hosting.Services.Commands;
 public class CommandResultHandler<TContext> : ICommandResultHandler<TContext>
     where TContext : ICommandContext
 {
+    public static CommandResultHandler<TContext> Default
+        => new();
+
+    protected CommandResultHandler()
+    {
+    }
+
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
