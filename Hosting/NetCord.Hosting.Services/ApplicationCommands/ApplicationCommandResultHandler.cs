@@ -7,7 +7,7 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-public class ApplicationCommandResultHandler<TContext>(MessageFlags? messageFlags = null)
+public class ApplicationCommandResultHandler<TContext>
     : IApplicationCommandResultHandler<TContext>
     where TContext : IApplicationCommandContext
 {
@@ -25,12 +25,16 @@ public class ApplicationCommandResultHandler<TContext>(MessageFlags? messageFlag
         else
             logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", interaction.Data.Name, resultMessage);
 
-        InteractionMessageProperties message = new()
-        {
-            Content = resultMessage,
-            Flags = messageFlags,
-        };
+        var messageProperties = GetFailMessage(failResult, context, services);
 
-        return new(interaction.SendResponseAsync(InteractionCallback.Message(message)));
+        return new(interaction.SendResponseAsync(InteractionCallback.Message(messageProperties)));
+    }
+
+    public virtual InteractionMessageProperties GetFailMessage(IFailResult failResult, TContext context, IServiceProvider services)
+    {
+        return new()
+        {
+            Content = failResult.Message,
+        };
     }
 }

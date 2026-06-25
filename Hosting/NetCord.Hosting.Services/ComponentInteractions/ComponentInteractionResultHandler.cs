@@ -7,7 +7,8 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-public class ComponentInteractionResultHandler<TContext>(MessageFlags? messageFlags = null) : IComponentInteractionResultHandler<TContext>
+public class ComponentInteractionResultHandler<TContext> 
+    : IComponentInteractionResultHandler<TContext>
     where TContext : IComponentInteractionContext
 {
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
@@ -24,12 +25,16 @@ public class ComponentInteractionResultHandler<TContext>(MessageFlags? messageFl
         else
             logger.LogDebug("Execution of an interaction of custom ID '{Id}' failed with '{Message}'", interaction.Data.CustomId, resultMessage);
 
-        InteractionMessageProperties message = new()
-        {
-            Content = resultMessage,
-            Flags = messageFlags,
-        };
+        var messageProperties = GetFailMessage(failResult, context, services);
 
-        return new(interaction.SendResponseAsync(InteractionCallback.Message(message)));
+        return new(interaction.SendResponseAsync(InteractionCallback.Message(messageProperties)));
+    }
+
+    public virtual InteractionMessageProperties GetFailMessage(IFailResult failResult, TContext context, IServiceProvider services)
+    {
+        return new()
+        {
+            Content = failResult.Message,
+        };
     }
 }
