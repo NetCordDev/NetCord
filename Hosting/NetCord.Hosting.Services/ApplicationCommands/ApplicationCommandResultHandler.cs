@@ -11,11 +11,9 @@ public class ApplicationCommandResultHandler<TContext>
     : IApplicationCommandResultHandler<TContext>
     where TContext : IApplicationCommandContext
 {
-    public static ApplicationCommandResultHandler<TContext> Ephemeral 
-        => new EphemeralApplicationCommandResultHandler<TContext>();
+    public static ApplicationCommandResultHandler<TContext> Default => new();
 
-    public static ApplicationCommandResultHandler<TContext> Default 
-        => new();
+    public static ApplicationCommandResultHandler<TContext> Ephemeral => new EphemeralApplicationCommandResultHandler<TContext>();
 
     protected ApplicationCommandResultHandler()
     {
