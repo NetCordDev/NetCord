@@ -79,19 +79,23 @@ jobs:
             shell_command: nix develop .#natives-musl --option max-jobs 2 --option cores 2 -c bash -eo pipefail {0}
 
     runs-on: ${{ matrix.runs-on }}
+    permissions:
+      contents: read
+      packages: write
     defaults:
       run:
         shell: ${{ matrix.shell_command }}
     env:
       CI: true
-      VCPKG_BINARY_SOURCES: clear;x-gha,readwrite
+      VCPKG_ROOT: ${{ github.workspace }}/Natives/NetCord.Natives/vcpkg
       VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
       VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}
+      FEED_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
       Configuration: Release
       TargetRID: ${{ matrix.rid }}
       DotnetVerbose: ${{ github.event.inputs.MSBuildVerbosity || inputs.MSBuildVerbosity || 'Minimal' }}
       GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
-      VCPKG_ROOT: ${{ github.workspace }}/Natives/NetCord.Natives/vcpkg
 
     steps:
       - name: Checkout
@@ -109,17 +113,19 @@ jobs:
         if: ${{ matrix.use-nix }}
         uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
-      - name: Export GitHub Actions Vcpkg Cache Environment Variables
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Configure Github NuGet Vcpkg Cache
+        run: |
+          dotnet nuget add source "${{ env.FEED_URL }}" \
+            --name "GitHubPackages" \
+            -u "${{ github.repository_owner }}" \
+            -p "${{ secrets.VCPKG_NUGET_TOKEN }}" \
+            --store-password-in-clear-text || true
 
       - name: Setup vcpkg (Windows)
         if: ${{ !matrix.use-nix }}
         run: |
-          $env:VCPKG_ROOT/bootstrap-vcpkg.bat
+          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat"
 
       - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
@@ -139,7 +145,7 @@ jobs:
           ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
 
       - name: Build natives projects for ${{ matrix.rid }}
-        id: build_step # Added an ID here to track this step's status
+        id: build_step
         run: >
           dotnet build Natives/NetCord.Natives.slnx --no-restore
           -v ${{ env.DotnetVerbose }}
@@ -161,7 +167,7 @@ jobs:
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
       - name: Upload Binary Logs
-        if: ${{ env.GenerateBinLog == 'true' && always()}}
+        if: ${{ env.GenerateBinLog == 'true' && always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.rid }}-build-binlogs
@@ -175,8 +181,7 @@ jobs:
           find Natives/NetCord.Natives/bin/${{ matrix.rid }}/natives-static/${{ matrix.vcpkg-platform-target }}-${{ matrix.vcpkg-os-target }}/lib/ -type l -exec rm {} \;
 
       - name: Upload Natives Artifact
-        # This ensures we only upload if the Pack step actually finished successfully.
-        if: ${{ always() && steps.pack_step.outcome == 'success' }}
+        if: ${{ always() && steps.build_step.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: NetCord.Natives.${{ matrix.rid }}.packages
@@ -203,7 +208,7 @@ jobs:
           merge-multiple: true
 
       - name: Pack Natives NuGet Package
-        id: pack_step # Added an ID here to track the pack status for the upload step
+        id: pack_step
         run: >
           dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
@@ -211,7 +216,7 @@ jobs:
           -o ${{ github.workspace }}/
 
       - name: Upload Binary Logs
-        if: ${{ env.GenerateBinLog == 'true' && always()}}
+        if: ${{ env.GenerateBinLog == 'true' && always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.rid }}-pack-binlogs
@@ -219,7 +224,6 @@ jobs:
             *.binlog
 
       - name: Upload NuGet Package Artifact
-        # This ensures we only upload if the Pack step actually finished successfully.
         if: ${{ always() && steps.pack_step.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
