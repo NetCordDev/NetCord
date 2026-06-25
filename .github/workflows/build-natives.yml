@@ -113,24 +113,23 @@ jobs:
         if: ${{ matrix.use-nix }}
         uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
-
       - name: Configure Github NuGet Vcpkg Cache
-        run: |
-          dotnet nuget add source "${{ env.FEED_URL }}" \
-            --name "GitHubPackages" \
-            -u "${{ github.repository_owner }}" \
-            -p "${{ secrets.VCPKG_NUGET_TOKEN }}" \
-            --store-password-in-clear-text || true
+        run: >
+          dotnet nuget add source "${{ env.FEED_URL }}"
+          --name "GitHubPackages"
+          -u "${{ github.repository_owner }}"
+          -p "${{ secrets.VCPKG_NUGET_TOKEN }}"
+          --store-password-in-clear-text || true
 
       - name: Setup vcpkg (Windows)
         if: ${{ !matrix.use-nix }}
         run: |
-          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat"
+          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
 
       - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
         run: |
-          $VCPKG_ROOT/bootstrap-vcpkg.sh
+          $VCPKG_ROOT/bootstrap-vcpkg.sh -disableMetrics
 
       - name: Setup .NET Core SDK (Windows)
         if: ${{ !matrix.use-nix }}
