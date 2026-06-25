@@ -25,7 +25,7 @@ public class ApplicationCommandResultHandler<TContext>
         public override InteractionMessageProperties GetFailMessage(IFailResult failResult, T context, IServiceProvider services)
         {
             var message = base.GetFailMessage(failResult, context, services);
-            message.WithFlags(MessageFlags.Ephemeral);
+            message.Flags = MessageFlags.Ephemeral;
             return message;
         }
     }
