@@ -23,7 +23,7 @@ public class ComponentInteractionResultHandler<TContext>
     {
     }
 
-    internal class EphemeralComponentInteractionResultHandler<T> : ComponentInteractionResultHandler<T>
+    private class EphemeralComponentInteractionResultHandler<T> : ComponentInteractionResultHandler<T>
         where T : IComponentInteractionContext
     {
         public override InteractionMessageProperties GetFailMessage(IFailResult failResult, T context, IServiceProvider services)
