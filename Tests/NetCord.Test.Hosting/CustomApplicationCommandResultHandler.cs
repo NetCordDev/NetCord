@@ -7,9 +7,9 @@ namespace NetCord.Test.Hosting;
 
 internal class CustomApplicationCommandResultHandler : ApplicationCommandResultHandler<ApplicationCommandContext>
 {
-    public override InteractionMessageProperties GetFailMessage(IFailResult failResult, ApplicationCommandContext context, IServiceProvider services)
+    public override async ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, ApplicationCommandContext context, IServiceProvider services)
     {
-        var message = base.GetFailMessage(failResult, context, services);
+        var message = await base.GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
 
         message.WithFlags(MessageFlags.Ephemeral);
 

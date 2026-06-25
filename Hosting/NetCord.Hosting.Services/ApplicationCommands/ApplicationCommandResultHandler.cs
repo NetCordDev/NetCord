@@ -22,18 +22,18 @@ public class ApplicationCommandResultHandler<TContext>
     private class EphemeralApplicationCommandResultHandler<T> : ApplicationCommandResultHandler<T>
         where T : IApplicationCommandContext
     {
-        public override InteractionMessageProperties GetFailMessage(IFailResult failResult, T context, IServiceProvider services)
+        public override async ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, T context, IServiceProvider services)
         {
-            var message = base.GetFailMessage(failResult, context, services);
+            var message = await base.GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
             message.Flags = MessageFlags.Ephemeral;
             return message;
         }
     }
 
-    public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
+    public async ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
-            return default;
+            return;
 
         var resultMessage = failResult.Message;
 
@@ -44,16 +44,16 @@ public class ApplicationCommandResultHandler<TContext>
         else
             logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", interaction.Data.Name, resultMessage);
 
-        var messageProperties = GetFailMessage(failResult, context, services);
+        var messageProperties = await GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
 
-        return new(interaction.SendResponseAsync(InteractionCallback.Message(messageProperties)));
+        await interaction.SendResponseAsync(InteractionCallback.Message(messageProperties)).ConfigureAwait(false);
     }
 
-    public virtual InteractionMessageProperties GetFailMessage(IFailResult failResult, TContext context, IServiceProvider services)
+    public virtual ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, TContext context, IServiceProvider services)
     {
-        return new()
+        return new(new InteractionMessageProperties
         {
             Content = failResult.Message,
-        };
+        });
     }
 }
