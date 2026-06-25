@@ -1,20 +1,18 @@
-using Microsoft.Extensions.Logging;
-
-using NetCord.Gateway;
 using NetCord.Hosting.Services.ApplicationCommands;
+using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.Hosting;
 
-internal class CustomApplicationCommandResultHandler : IApplicationCommandResultHandler<ApplicationCommandContext>
+internal class CustomApplicationCommandResultHandler : ApplicationCommandResultHandler<ApplicationCommandContext>
 {
-    private static readonly ApplicationCommandResultHandler<ApplicationCommandContext> _defaultHandler = new(MessageFlags.Ephemeral);
-
-    public ValueTask HandleResultAsync(IExecutionResult result, ApplicationCommandContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
+    public override InteractionMessageProperties GetFailMessage(IFailResult failResult, ApplicationCommandContext context, IServiceProvider services)
     {
-        logger.LogInformation("Handling result of an application command");
+        var message = base.GetFailMessage(failResult, context, services);
 
-        return _defaultHandler.HandleResultAsync(result, context, client, logger, services);
+        message.WithFlags(MessageFlags.Ephemeral);
+
+        return message;
     }
 }
