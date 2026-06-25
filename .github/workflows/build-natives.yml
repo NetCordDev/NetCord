@@ -35,56 +35,48 @@ jobs:
             vcpkg-platform-target: x64
             use-nix: false
             shell_command: pwsh
-            musl: false
           - rid: win-arm64
             runs-on: windows-11-arm
             vcpkg-os-target: windows
             vcpkg-platform-target: arm64
             use-nix: false
             shell_command: pwsh
-            musl: false
           - rid: osx-x64
             runs-on: macos-15-intel
             vcpkg-os-target: osx
             vcpkg-platform-target: x64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
-            musl: false
           - rid: osx-arm64
             runs-on: macos-15
             vcpkg-os-target: osx
             vcpkg-platform-target: arm64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
-            musl: false
           - rid: linux-x64
             runs-on: ubuntu-latest
             vcpkg-os-target: linux
             vcpkg-platform-target: x64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
-            musl: false
           - rid: linux-arm64
             runs-on: ubuntu-24.04-arm
             vcpkg-os-target: linux
             vcpkg-platform-target: arm64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
-            musl: false
           - rid: linux-musl-x64
             runs-on: ubuntu-latest
-            vcpkg-os-target: linux
+            vcpkg-os-target: linux-musl
             vcpkg-platform-target: x64
             use-nix: true
             shell_command: nix develop .#natives-musl -c bash -eo pipefail {0}
-            musl: true
           - rid: linux-musl-arm64
             runs-on: ubuntu-24.04-arm
-            vcpkg-os-target: linux
+            vcpkg-os-target: linux-musl
             vcpkg-platform-target: arm64
             use-nix: true
             shell_command: nix develop .#natives-musl --option max-jobs 2 --option cores 2 -c bash -eo pipefail {0}
-            musl: true
 
     runs-on: ${{ matrix.runs-on }}
     defaults:
@@ -115,7 +107,7 @@ jobs:
         uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
       - name: Magic Nix Cache
-        if: ${{ matrix.use-nix && matrix.musl }}
+        if: ${{ matrix.use-nix }}
         uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
       - name: Setup vcpkg (Windows)
@@ -137,9 +129,8 @@ jobs:
         with:
           path: |
             .vcpkg-cache
-          # Unique key per run
-          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}
-          # Fallback keys to grab the latest previous cache
+          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**', 'Natives/NetCord.Natives/natives-triplets/**') }}
+          # Fallback keys to grab any latest previous cache
           restore-keys: |
             vcpkg-${{ runner.os }}-${{ matrix.rid }}-
             vcpkg-${{ runner.os }}-
@@ -173,7 +164,7 @@ jobs:
 
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
-          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e Configuration -e VCPKG_ROOT -e TARGET_MUSL -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          ${{ matrix.vcpkg-os-target == 'linux-musl' && 'docker run --rm -v $PWD:$PWD -w $PWD -e Configuration -e VCPKG_ROOT -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
@@ -183,21 +174,69 @@ jobs:
           --logger GitHubActions
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
-      - name: Pack NuGet Package for ${{ matrix.rid }}
-        # This forces the step to run even if 'Test' failed, as long as 'Build' succeeded.
+      - name: Upload Binary Logs
+        if: ${{ env.GenerateBinLog == 'true' && always()}}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ matrix.rid }}-build-binlogs
+          path: |
+            *.binlog
+
+      - name: Clean Symbollic Links (Nix)
+        if: ${{ matrix.use-nix }}
+        run: |
+          find Natives/NetCord.Natives/bin/${{ matrix.rid }}/natives/${{ matrix.vcpkg-platform-target }}-${{ matrix.vcpkg-os-target }}-dynamic/lib/ -type l -exec rm {} \;
+          find Natives/NetCord.Natives/bin/${{ matrix.rid }}/natives-static/${{ matrix.vcpkg-platform-target }}-${{ matrix.vcpkg-os-target }}/lib/ -type l -exec rm {} \;
+
+      - name: Upload Natives Artifact
+        # This ensures we only upload if the Pack step actually finished successfully.
+        if: ${{ always() && steps.pack_step.outcome == 'success' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: NetCord.Natives.${{ matrix.rid }}.packages
+          path: |
+            Natives/NetCord.Natives/bin/${{ matrix.rid }}
+
+      - name: Save vcpkg cache
         if: ${{ always() && steps.build_step.outcome == 'success' }}
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            .vcpkg-cache
+          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**', 'Natives/NetCord.Natives/natives-triplets/**') }}
+
+  pack-natives:
+    needs: [build-natives]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: nix develop .#natives -c bash -eo pipefail {0}
+    env:
+      Configuration: Release
+      DotnetVerbose: ${{ github.event.inputs.MSBuildVerbosity || inputs.MSBuildVerbosity || 'Minimal' }}
+      GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
+
+    steps:
+      - name: Download All Natives Artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts/natives-build
+          pattern: NetCord.Natives.*.packages
+          merge-multiple: true
+
+      - name: Pack Natives NuGet Package
         id: pack_step # Added an ID here to track the pack status for the upload step
         run: >
-          dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
+          dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
-          -o Natives/NetCord.Natives/bin/${{ matrix.rid }} 
-          -p:CI=false
+          -p:VcpkgArtifactsRoot=${{ github.workspace }}/artifacts/natives-build/
+          -o ${{ github.workspace }}/
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always()}}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.rid }}-binlogs
+          name: ${{ matrix.rid }}-pack-binlogs
           path: |
             *.binlog
 
@@ -206,16 +245,7 @@ jobs:
         if: ${{ always() && steps.pack_step.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: NetCord.Natives.${{ matrix.rid }}.packages
+          name: NetCord.Natives.packages
           path: |
-            Natives/NetCord.Natives/bin/${{ matrix.rid }}/*.nupkg
-            Natives/NetCord.Natives/bin/${{ matrix.rid }}/*.snupkg
-
-      - name: Save vcpkg cache
-        if: ${{ always() && steps.build_step.outcome == 'success' }}
-        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: |
-            .vcpkg-cache
-          # Must match the unique key from the restore step
-          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}
+            *.nupkg
+            *.snupkg
