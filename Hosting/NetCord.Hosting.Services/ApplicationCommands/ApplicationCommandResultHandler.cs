@@ -19,7 +19,7 @@ public class ApplicationCommandResultHandler<TContext>
     {
     }
 
-    private class EphemeralApplicationCommandResultHandler<T> : ApplicationCommandResultHandler<T>
+    private sealed class EphemeralApplicationCommandResultHandler<T> : ApplicationCommandResultHandler<T>
         where T : IApplicationCommandContext
     {
         public override ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, T context, IServiceProvider services)

@@ -19,7 +19,7 @@ public class ComponentInteractionResultHandler<TContext>
     {
     }
 
-    private class EphemeralComponentInteractionResultHandler<T> : ComponentInteractionResultHandler<T>
+    private sealed class EphemeralComponentInteractionResultHandler<T> : ComponentInteractionResultHandler<T>
         where T : IComponentInteractionContext
     {
         public override ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, T context, IServiceProvider services)

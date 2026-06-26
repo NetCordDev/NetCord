@@ -30,7 +30,7 @@ public class CommandResultHandler<TContext> : ICommandResultHandler<TContext>
 
         var messageProperties = await GetFailMessage(failResult, context, services).ConfigureAwait(false);
 
-        await client.Rest.SendMessageAsync(message.ChannelId, messageProperties).ConfigureAwait(false);
+        await message.SendAsync(messageProperties).ConfigureAwait(false);
     }
 
     public virtual ValueTask<MessageProperties> GetFailMessage(IFailResult failResult, TContext context, IServiceProvider services)
