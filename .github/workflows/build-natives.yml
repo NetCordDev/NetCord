@@ -113,6 +113,10 @@ jobs:
         if: ${{ matrix.use-nix }}
         uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
+      - name: Setup dev environment (Nix)
+        if: ${{ matrix.use-nix }}
+        run: 'true'
+
       - name: Setup vcpkg (Windows)
         if: ${{ !matrix.use-nix }}
         run: |
@@ -217,6 +221,9 @@ jobs:
           path: artifacts/natives-build
           pattern: NetCord.Natives.*.packages
           merge-multiple: true
+
+      - name: Setup dev environment
+        run: 'true'
 
       - name: Pack Natives NuGet Package
         id: pack_step
