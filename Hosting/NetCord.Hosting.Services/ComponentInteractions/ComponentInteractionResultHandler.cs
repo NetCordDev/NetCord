@@ -22,11 +22,13 @@ public class ComponentInteractionResultHandler<TContext>
     private class EphemeralComponentInteractionResultHandler<T> : ComponentInteractionResultHandler<T>
         where T : IComponentInteractionContext
     {
-        public override async ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, T context, IServiceProvider services)
+        public override ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, T context, IServiceProvider services)
         {
-            var message = await base.GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
-            message.Flags = MessageFlags.Ephemeral;
-            return message;
+            return new(new InteractionMessageProperties
+            {
+                Content = failResult.Message,
+                Flags = MessageFlags.Ephemeral,
+            });
         }
     }
 
