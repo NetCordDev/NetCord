@@ -38,7 +38,7 @@
 
         nuget = pkgs.runCommand "unwrapped-nuget" {} ''
           mkdir -p $out/bin
-          install -m 755 ${pkgs.nuget}/lib/Nuget/nuget.exe $out/bin/nuget.exe
+          install -m 755 ${pkgs.nuget}/lib/Nuget/nuget.exe $out/bin/nuget
         '';
 
         dotnetRoot = "${dotnet.unwrapped}/share/dotnet";
