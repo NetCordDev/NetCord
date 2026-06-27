@@ -7,7 +7,7 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-public class ComponentInteractionResultHandler<TContext> 
+public class ComponentInteractionResultHandler<TContext>
     : IComponentInteractionResultHandler<TContext>
     where TContext : IComponentInteractionContext
 {
@@ -37,18 +37,18 @@ public class ComponentInteractionResultHandler<TContext>
         if (result is not IFailResult failResult)
             return;
 
-        var resultMessage = failResult.Message;
-
         var interaction = context.Interaction;
 
+        var customId = interaction.Data.CustomId;
+
         if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of an interaction of custom ID '{Id}' failed with an exception", interaction.Data.CustomId);
+            logger.LogError(exceptionResult.Exception, "Execution of an interaction of custom ID '{Id}' failed with an exception", customId);
         else
-            logger.LogDebug("Execution of an interaction of custom ID '{Id}' failed with '{Message}'", interaction.Data.CustomId, resultMessage);
+            logger.LogDebug("Execution of an interaction of custom ID '{Id}' failed with '{Message}'", customId, failResult.Message);
 
-        var messageProperties = await GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
+        var response = await GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
 
-        await interaction.SendResponseAsync(InteractionCallback.Message(messageProperties)).ConfigureAwait(false);
+        await interaction.SendResponseAsync(InteractionCallback.Message(response)).ConfigureAwait(false);
     }
 
     public virtual ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, TContext context, IServiceProvider services)

@@ -37,18 +37,18 @@ public class ApplicationCommandResultHandler<TContext>
         if (result is not IFailResult failResult)
             return;
 
-        var resultMessage = failResult.Message;
-
         var interaction = context.Interaction;
 
+        var commandName = interaction.Data.Name;
+
         if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of an application command of name '{Name}' failed with an exception", interaction.Data.Name);
+            logger.LogError(exceptionResult.Exception, "Execution of an application command of name '{Name}' failed with an exception", commandName);
         else
-            logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", interaction.Data.Name, resultMessage);
+            logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", commandName, failResult.Message);
 
-        var messageProperties = await GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
+        var response = await GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
 
-        await interaction.SendResponseAsync(InteractionCallback.Message(messageProperties)).ConfigureAwait(false);
+        await interaction.SendResponseAsync(InteractionCallback.Message(response)).ConfigureAwait(false);
     }
 
     public virtual ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, TContext context, IServiceProvider services)

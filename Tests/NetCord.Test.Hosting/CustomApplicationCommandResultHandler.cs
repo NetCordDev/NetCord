@@ -11,7 +11,7 @@ internal class CustomApplicationCommandResultHandler : ApplicationCommandResultH
     {
         var message = await base.GetFailMessageAsync(failResult, context, services).ConfigureAwait(false);
 
-        message.WithFlags(MessageFlags.Ephemeral);
+        message.Flags = MessageFlags.Ephemeral;
 
         return message;
     }

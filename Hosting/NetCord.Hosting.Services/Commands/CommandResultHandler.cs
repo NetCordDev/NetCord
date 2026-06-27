@@ -23,14 +23,16 @@ public class CommandResultHandler<TContext> : ICommandResultHandler<TContext>
 
         var message = context.Message;
 
+        var messageContent = message.Content;
+
         if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of a command with content '{Content}' failed with an exception", message.Content);
+            logger.LogError(exceptionResult.Exception, "Execution of a command with content '{Content}' failed with an exception", messageContent);
         else
-            logger.LogDebug("Execution of a command with content '{Content}' failed with '{Message}'", message.Content, failResult.Message);
+            logger.LogDebug("Execution of a command with content '{Content}' failed with '{Message}'", messageContent, failResult.Message);
 
-        var messageProperties = await GetFailMessage(failResult, context, services).ConfigureAwait(false);
+        var response = await GetFailMessage(failResult, context, services).ConfigureAwait(false);
 
-        await message.SendAsync(messageProperties).ConfigureAwait(false);
+        await message.SendAsync(response).ConfigureAwait(false);
     }
 
     public virtual ValueTask<MessageProperties> GetFailMessage(IFailResult failResult, TContext context, IServiceProvider services)
