@@ -217,10 +217,18 @@ jobs:
       - name: Setup dev environment
         run: 'true'
 
+      - name: Restore
+        run: >
+          dotnet restore Natives/NetCord.Natives/NetCord.Natives.slnx
+          -v ${{ env.DotnetVerbose }}
+          ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
+
       - name: Pack Natives NuGet Package
         id: pack_step
         run: >
-          dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }}
+          dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj
+          --no-restore
+          -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
           -p:VcpkgArtifactsRoot=${{ github.workspace }}/artifacts/natives-build/
           -o ${{ github.workspace }}/
