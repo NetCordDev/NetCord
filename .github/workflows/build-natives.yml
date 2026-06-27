@@ -91,7 +91,7 @@ jobs:
       VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
       VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}
       GITHUB_PACKAGES_FEED: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-      VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
+      VCPKG_BINARY_SOURCES: "clear;nugetconfig,${{ github.workspace }}/Natives/NetCord.Natives/vcpkg-nuget.config,readwrite"
       Configuration: Release
       TargetRID: ${{ matrix.rid }}
       DotnetVerbose: ${{ github.event.inputs.MSBuildVerbosity || inputs.MSBuildVerbosity || 'Minimal' }}
@@ -132,10 +132,12 @@ jobs:
             -UserName "${{ github.repository_owner }}" `
             -Password "${{ secrets.VCPKG_NUGET_TOKEN }}" `
             -StorePasswordInClearText
+            -ConfigFile "${{ github.workspace }}\Natives\NetCord.Natives\vcpkg-nuget.config"
 
           # Set the api key for the GitHub Packages feed
           & $nugetPath setapikey "${{ secrets.VCPKG_NUGET_TOKEN }}" `
-            -Source "${{ env.GITHUB_PACKAGES_FEED }}"
+            -Source "${{ env.GITHUB_PACKAGES_FEED }}" `
+            -ConfigFile "${{ github.workspace }}\Natives\NetCord.Natives\vcpkg-nuget.config"
 
       - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
@@ -144,18 +146,20 @@ jobs:
           "${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh" -disableMetrics
 
           # Capture the nuget.exe path to a local variable
-          NUGET_PATH=$("${{ env.VCPKG_ROOT }}/vcpkg" fetch nuget | tail -n 1)
+          export NUGET_PATH=$("${{ env.VCPKG_ROOT }}/vcpkg" fetch nuget | tail -n 1)
 
           mono "$NUGET_PATH" sources add \
             -Source "${{ env.GITHUB_PACKAGES_FEED }}" \
             -Name "GithubPackages" \
             -UserName "${{ github.repository_owner }}" \
             -Password "${{ secrets.VCPKG_NUGET_TOKEN }}" \
-            -StorePasswordInClearText
+            -StorePasswordInClearText \
+            -ConfigFile "${{ github.workspace }}/Natives/NetCord.Natives/vcpkg-nuget.config"
 
           # Set the api key for the GitHub Packages feed
           mono "$NUGET_PATH" setapikey "${{ secrets.VCPKG_NUGET_TOKEN }}" \
-            -Source "${{ env.GITHUB_PACKAGES_FEED }}"
+            -Source "${{ env.GITHUB_PACKAGES_FEED }}" \
+            -ConfigFile "${{ github.workspace }}/Natives/NetCord.Natives/vcpkg-nuget.config"
 
       - name: Setup .NET Core SDK (Windows)
         if: ${{ !matrix.use-nix }}
