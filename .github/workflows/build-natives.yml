@@ -227,6 +227,7 @@ jobs:
         id: pack_step
         run: >
           dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj
+          --no-build
           --no-restore
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
