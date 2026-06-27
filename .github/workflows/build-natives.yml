@@ -140,6 +140,11 @@ jobs:
             -Source "${{ env.GITHUB_PACKAGES_FEED }}" `
             -ConfigFile "${{ github.workspace }}\Natives\NetCord.Natives\vcpkg-nuget.config"
 
+          # Tell NuGet to use this feed by default for push operations
+          & $nugetPath config `
+            -ConfigFile "${{ github.workspace }}\Natives\NetCord.Natives\vcpkg-nuget.config" `
+            -Set defaultPushSource="${{ env.GITHUB_PACKAGES_FEED }}"
+
       - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
         run: |
@@ -162,6 +167,11 @@ jobs:
           mono "$NUGET_PATH" setapikey "${{ secrets.VCPKG_NUGET_TOKEN }}" \
             -Source "${{ env.GITHUB_PACKAGES_FEED }}" \
             -ConfigFile "${{ github.workspace }}/Natives/NetCord.Natives/vcpkg-nuget.config"
+
+          # Tell NuGet to use this feed by default for push operations
+          mono "$NUGET_PATH" config \
+            -ConfigFile "${{ github.workspace }}/Natives/NetCord.Natives/vcpkg-nuget.config" \
+            -Set defaultPushSource="${{ env.GITHUB_PACKAGES_FEED }}"
 
       - name: Setup .NET Core SDK (Windows)
         if: ${{ !matrix.use-nix }}
