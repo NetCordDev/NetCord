@@ -7,22 +7,20 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-public class ComponentInteractionResultHandler<TContext>
-    : IComponentInteractionResultHandler<TContext>
+public class ComponentInteractionResultHandler<TContext> : IComponentInteractionResultHandler<TContext>
     where TContext : IComponentInteractionContext
 {
     public static ComponentInteractionResultHandler<TContext> Default => new();
 
-    public static ComponentInteractionResultHandler<TContext> Ephemeral => new EphemeralComponentInteractionResultHandler<TContext>();
+    public static ComponentInteractionResultHandler<TContext> Ephemeral => new EphemeralComponentInteractionResultHandler();
 
     protected ComponentInteractionResultHandler()
     {
     }
 
-    private sealed class EphemeralComponentInteractionResultHandler<T> : ComponentInteractionResultHandler<T>
-        where T : IComponentInteractionContext
+    private sealed class EphemeralComponentInteractionResultHandler : ComponentInteractionResultHandler<TContext>
     {
-        public override ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, T context, IServiceProvider services)
+        public override ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, TContext context, IServiceProvider services)
         {
             return new(new InteractionMessageProperties
             {

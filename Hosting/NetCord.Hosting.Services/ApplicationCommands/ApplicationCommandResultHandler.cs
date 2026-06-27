@@ -7,22 +7,20 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-public class ApplicationCommandResultHandler<TContext>
-    : IApplicationCommandResultHandler<TContext>
+public class ApplicationCommandResultHandler<TContext> : IApplicationCommandResultHandler<TContext>
     where TContext : IApplicationCommandContext
 {
     public static ApplicationCommandResultHandler<TContext> Default => new();
 
-    public static ApplicationCommandResultHandler<TContext> Ephemeral => new EphemeralApplicationCommandResultHandler<TContext>();
+    public static ApplicationCommandResultHandler<TContext> Ephemeral => new EphemeralApplicationCommandResultHandler();
 
     protected ApplicationCommandResultHandler()
     {
     }
 
-    private sealed class EphemeralApplicationCommandResultHandler<T> : ApplicationCommandResultHandler<T>
-        where T : IApplicationCommandContext
+    private sealed class EphemeralApplicationCommandResultHandler : ApplicationCommandResultHandler<TContext>
     {
-        public override ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, T context, IServiceProvider services)
+        public override ValueTask<InteractionMessageProperties> GetFailMessageAsync(IFailResult failResult, TContext context, IServiceProvider services)
         {
             return new(new InteractionMessageProperties
             {
