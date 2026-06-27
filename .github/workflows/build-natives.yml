@@ -119,19 +119,20 @@ jobs:
 
       - name: Setup vcpkg (Windows)
         if: ${{ !matrix.use-nix }}
-        shell: pwsh
         run: |
           & "${{ env.VCPKG_ROOT }}\bootstrap-vcpkg.bat" -disableMetrics
 
           # Fetch the nuget path, filter out any warning lines, and run it
           $nugetPath = & "${{ env.VCPKG_ROOT }}\vcpkg" fetch nuget | Select-Object -Last 1
 
+          Write-Host "NuGet path: $nugetPath"
+
           & $nugetPath sources add `
             -Source "${{ env.GITHUB_PACKAGES_FEED }}" `
             -Name "GithubPackages" `
             -UserName "${{ github.repository_owner }}" `
             -Password "${{ secrets.VCPKG_NUGET_TOKEN }}" `
-            -StorePasswordInClearText
+            -StorePasswordInClearText `
             -ConfigFile "${{ github.workspace }}\Natives\NetCord.Natives\vcpkg-nuget.config"
 
           # Set the api key for the GitHub Packages feed
@@ -141,12 +142,13 @@ jobs:
 
       - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
-        shell: bash
         run: |
           "${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh" -disableMetrics
 
           # Capture the nuget.exe path to a local variable
           export NUGET_PATH=$("${{ env.VCPKG_ROOT }}/vcpkg" fetch nuget | tail -n 1)
+
+          echo "NuGet path: $NUGET_PATH"
 
           mono "$NUGET_PATH" sources add \
             -Source "${{ env.GITHUB_PACKAGES_FEED }}" \
