@@ -49,7 +49,7 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
 
         _getCommandTextAsync = GetGetCommandTextAsyncDelegate(optionsValue);
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>(_commandService.Configuration.ServiceResolverProvider);
-        _resultHandler = optionsValue.ResultHandler ?? new CommandResultHandler<TContext>();
+        _resultHandler = optionsValue.ResultHandler ?? CommandResultHandler<TContext>.Default;
         _preExecutionHandler = optionsValue.PreExecutionHandler ?? new CommandPreExecutionHandler<TContext>();
         _client = client;
     }

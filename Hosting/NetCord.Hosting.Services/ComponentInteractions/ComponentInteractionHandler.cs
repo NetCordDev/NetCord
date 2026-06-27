@@ -49,7 +49,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
             _handleAsync = &HandleInteractionAsync;
 
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>(_componentInteractionService.Configuration.ServiceResolverProvider);
-        _resultHandler = optionsValue.ResultHandler ?? new ComponentInteractionResultHandler<TContext>();
+        _resultHandler = optionsValue.ResultHandler ?? ComponentInteractionResultHandler<TContext>.Default;
         _preExecutionHandler = optionsValue.PreExecutionHandler ?? new ComponentInteractionPreExecutionHandler<TContext>();
         _client = client;
     }
