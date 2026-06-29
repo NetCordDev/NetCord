@@ -39,17 +39,16 @@ public class SlashCommandMention(ulong id, string name) : Entity, IEquatable<Sla
     {
         var subCommandGroupName = SubCommandGroupName;
         var subCommandName = SubCommandName;
-        var name = Name;
 
         if (subCommandGroupName is null)
         {
             if (subCommandName is null)
-                return Mention.TryFormatApplicationCommand(destination, out charsWritten, Id, name);
+                return Mention.TryFormatApplicationCommand(destination, out charsWritten, Id, Name);
             else
-                return Mention.TryFormatApplicationCommand(destination, out charsWritten, Id, name, subCommandName);
+                return Mention.TryFormatApplicationCommand(destination, out charsWritten, Id, Name, subCommandName);
         }
         else
-            return Mention.TryFormatApplicationCommand(destination, out charsWritten, Id, name, subCommandGroupName, subCommandName!);
+            return Mention.TryFormatApplicationCommand(destination, out charsWritten, Id, Name, subCommandGroupName, subCommandName!);
     }
 
     public static bool operator ==(SlashCommandMention? left, SlashCommandMention? right) => left is null ? right is null : Equals(left, right);
