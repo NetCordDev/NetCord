@@ -69,21 +69,6 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
 
     public override string ToString() => $"</{Name}:{Id}>";
 
-    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
-    {
-        var requiredLength = 5 + Name.Length;
-        if (destination.Length < requiredLength || !Id.TryFormat(destination[(3 + Name.Length)..^1], out int length))
-        {
-            charsWritten = 0;
-            return false;
-        }
-
-        "</".CopyTo(destination);
-        Name.CopyTo(destination[2..]);
-        destination[2 + Name.Length] = ':';
-        destination[3 + Name.Length + length] = '>';
-
-        charsWritten = 4 + Name.Length + length;
-        return true;
-    }
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) =>
+        Mention.TryFormatSlashCommand(destination, out charsWritten, Id, Name);
 }

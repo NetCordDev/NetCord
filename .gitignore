@@ -365,3 +365,6 @@ FodyWeavers.xsd
 # Settings file
 appsettings.json
 !Documentation/**/appsettings.json
+
+# Intellij configuration files (eg. Jetbrains Rider)
+.idea/

@@ -167,6 +167,24 @@ public static class Mention
         return TryFormat(destination, out charsWritten, id, "<@&", ">");
     }
 
+    public static bool TryFormatSlashCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> fullName)
+    {
+        var requiredLength = 5 + fullName.Length;
+        if (destination.Length < requiredLength || !id.TryFormat(destination[(3 + fullName.Length)..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        fullName.CopyTo(destination[2..]);
+        destination[2 + fullName.Length] = ':';
+        destination[3 + fullName.Length + length] = '>';
+
+        charsWritten = 4 + fullName.Length + length;
+        return true;
+    }
+
     private static bool TryFormat(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> prefix, ReadOnlySpan<char> suffix)
     {
         if (destination.Length <= prefix.Length + suffix.Length || !id.TryFormat(destination[prefix.Length..^suffix.Length], out int length))
