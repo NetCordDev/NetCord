@@ -32,7 +32,7 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static string UserToString(ulong userId) => $"<@{userId}>";
+    public static string User(ulong userId) => $"<@{userId}>";
 
     public static bool TryFormatChannel(Span<char> destination, out int charsWritten, ulong id)
     {
@@ -60,7 +60,7 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static string ChannelToString(ulong channelId) => $"<#{channelId}>";
+    public static string Channel(ulong channelId) => $"<#{channelId}>";
 
     public static bool TryFormatRole(Span<char> destination, out int charsWritten, ulong id)
     {
@@ -88,7 +88,7 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static string RoleToString(ulong roleId) => $"<@&{roleId}>";
+    public static string Role(ulong roleId) => $"<@&{roleId}>";
 
     public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> fullName)
     {
@@ -163,7 +163,7 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static string ApplicationCommandToString(string fullName, ulong id)
+    public static string ApplicationCommand(string fullName, ulong id)
     {
         return string.Create(
             length: 4 + fullName.Length + CountDigits(id),
@@ -172,7 +172,7 @@ public static class Mention
         );
     }
 
-    public static string ApplicationCommandToString(string name, string subCommandName, ulong id)
+    public static string ApplicationCommand(string name, string subCommandName, ulong id)
     {
         return string.Create(
             length: 5 + name.Length + subCommandName.Length + CountDigits(id),
@@ -181,7 +181,7 @@ public static class Mention
         );
     }
 
-    public static string ApplicationCommandToString(string name, string subCommandGroupName, string subCommandName, ulong id)
+    public static string ApplicationCommand(string name, string subCommandGroupName, string subCommandName, ulong id)
     {
         return string.Create(
             length: 6 + name.Length + subCommandGroupName.Length + subCommandName.Length + CountDigits(id),

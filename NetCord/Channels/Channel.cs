@@ -13,7 +13,7 @@ public abstract partial class Channel(JsonChannel jsonModel, RestClient client) 
 
     Permissions IInteractionChannel.Permissions => _jsonModel.Permissions.GetValueOrDefault();
 
-    public override string ToString() => Mention.ChannelToString(Id);
+    public override string ToString() => Mention.Channel(Id);
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 

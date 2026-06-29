@@ -11,7 +11,7 @@ public class ThreadUser(JsonModels.JsonThreadUser jsonModel, RestClient client) 
     public DateTimeOffset JoinTimestamp => jsonModel.JoinTimestamp;
     public int Flags => jsonModel.Flags;
 
-    public override string ToString() => Mention.UserToString(Id);
+    public override string ToString() => Mention.User(Id);
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatUser(destination, out charsWritten, Id);
 }

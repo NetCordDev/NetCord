@@ -103,7 +103,7 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     /// <returns>An <see cref="ImageUrl"/> pointing to the role's icon. If the role does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetIconUrl(ImageFormat format) => IconHash is string hash ? ImageUrl.RoleIcon(Id, hash, format) : null;
 
-    public override string ToString() => Mention.RoleToString(Id);
+    public override string ToString() => Mention.Role(Id);
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatRole(destination, out charsWritten, Id);
 }

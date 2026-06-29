@@ -27,12 +27,12 @@ public class SlashCommandMention(ulong id, string name) : Entity, IEquatable<Sla
         if (subCommandGroupName is null)
         {
             if (subCommandName is null)
-                return Mention.ApplicationCommandToString(Name, Id);
+                return Mention.ApplicationCommand(Name, Id);
             else
-                return Mention.ApplicationCommandToString(Name, subCommandName, Id);
+                return Mention.ApplicationCommand(Name, subCommandName, Id);
         }
         else
-            return Mention.ApplicationCommandToString(Name, subCommandGroupName, subCommandName!, Id);
+            return Mention.ApplicationCommand(Name, subCommandGroupName, subCommandName!, Id);
     }
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
