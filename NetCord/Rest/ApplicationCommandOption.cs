@@ -94,10 +94,10 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
             Options = options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId)).ToArray();
     }
 
-    public override string ToString() => $"</{_fullName}:{_parentId}>";
+    public override string ToString() => Mention.ApplicationCommandToString(_fullName, _parentId);
 
     public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) =>
-        Mention.TryFormatSlashCommand(destination, out charsWritten, _parentId, _fullName);
+        Mention.TryFormatApplicationCommand(destination, out charsWritten, _parentId, _fullName);
 }

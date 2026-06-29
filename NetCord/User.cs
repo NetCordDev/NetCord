@@ -256,7 +256,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <summary>
     /// Converts the ID of this user into its string representation, using Discord's mention syntax (<c>&lt;@803169206115237908&gt;</c>).
     /// </summary>
-    public override string ToString() => $"<@{Id}>";
+    public override string ToString() => Mention.UserToString(Id);
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatUser(destination, out charsWritten, Id);
 }

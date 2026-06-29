@@ -4,6 +4,11 @@ namespace NetCord;
 
 public static class Mention
 {
+    public static bool TryFormatUser(Span<char> destination, out int charsWritten, ulong id)
+    {
+        return TryFormat(destination, out charsWritten, id, "<@", ">");
+    }
+
     public static bool TryParseUser(ReadOnlySpan<char> mention, out ulong id)
     {
         if (mention is ['<', '@', _, .., '>'])
@@ -27,6 +32,13 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
+    public static string UserToString(ulong userId) => $"<@{userId}>";
+
+    public static bool TryFormatChannel(Span<char> destination, out int charsWritten, ulong id)
+    {
+        return TryFormat(destination, out charsWritten, id, "<#", ">");
+    }
+
     public static bool TryParseChannel(ReadOnlySpan<char> mention, out ulong id)
     {
         if (mention is ['<', '#', .., '>'])
@@ -48,6 +60,13 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
+    public static string ChannelToString(ulong channelId) => $"<#{channelId}>";
+
+    public static bool TryFormatRole(Span<char> destination, out int charsWritten, ulong id)
+    {
+        return TryFormat(destination, out charsWritten, id, "<@&", ">");
+    }
+
     public static bool TryParseRole(ReadOnlySpan<char> mention, out ulong id)
     {
         if (mention is ['<', '@', '&', .., '>'])
@@ -67,6 +86,23 @@ public static class Mention
             return id;
         else
             throw new FormatException("Cannot parse the mention.");
+    }
+
+    public static string RoleToString(ulong roleId) => $"<@&{roleId}>";
+
+    public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> fullName)
+    {
+        return TryFormatApplicationCommandCore(destination, out charsWritten, id, fullName);
+    }
+
+    public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandName)
+    {
+        return TryFormatApplicationCommandCore(destination, out charsWritten, id, name, subCommandName);
+    }
+
+    public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandGroupName, ReadOnlySpan<char> subCommandName)
+    {
+        return TryFormatApplicationCommandCore(destination, out charsWritten, id, name, subCommandGroupName, subCommandName);
     }
 
     public static bool TryParseSlashCommand(ReadOnlySpan<char> mention, [MaybeNullWhen(false)] out SlashCommandMention result)
@@ -94,6 +130,7 @@ public static class Mention
                     s[i] = names[..x].ToString();
                     names = names[(x + 1)..];
                 }
+
                 i++;
             }
 
@@ -126,6 +163,33 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
+    public static string ApplicationCommandToString(string fullName, ulong id)
+    {
+        return string.Create(
+            length: 4 + fullName.Length + CountDigits(id),
+            state: (Id: id, FullName: fullName),
+            action: static (destination, state) => TryFormatApplicationCommand(destination, out _, state.Id, state.FullName)
+        );
+    }
+
+    public static string ApplicationCommandToString(string name, string subCommandName, ulong id)
+    {
+        return string.Create(
+            length: 5 + name.Length + subCommandName.Length + CountDigits(id),
+            state: (Id: id, Name: name, SubCommandName: subCommandName),
+            action: static (destination, state) => TryFormatApplicationCommand(destination, out _, state.Id, state.Name, state.SubCommandName)
+        );
+    }
+
+    public static string ApplicationCommandToString(string name, string subCommandGroupName, string subCommandName, ulong id)
+    {
+        return string.Create(
+            length: 6 + name.Length + subCommandGroupName.Length + subCommandName.Length + CountDigits(id),
+            state: (Id: id, Name: name, SubCommandGroupName: subCommandGroupName, SubCommandName: subCommandName),
+            action: static (destination, state) => TryFormatApplicationCommand(destination, out _, state.Id, state.Name, state.SubCommandGroupName, state.SubCommandName)
+        );
+    }
+
     public static bool TryParseTimestamp(ReadOnlySpan<char> mention, out Timestamp result)
     {
         return Timestamp.TryParse(mention, out result);
@@ -152,39 +216,6 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static bool TryFormatUser(Span<char> destination, out int charsWritten, ulong id)
-    {
-        return TryFormat(destination, out charsWritten, id, "<@", ">");
-    }
-
-    public static bool TryFormatChannel(Span<char> destination, out int charsWritten, ulong id)
-    {
-        return TryFormat(destination, out charsWritten, id, "<#", ">");
-    }
-
-    public static bool TryFormatRole(Span<char> destination, out int charsWritten, ulong id)
-    {
-        return TryFormat(destination, out charsWritten, id, "<@&", ">");
-    }
-
-    public static bool TryFormatSlashCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> fullName)
-    {
-        var requiredLength = 5 + fullName.Length;
-        if (destination.Length < requiredLength || !id.TryFormat(destination[(3 + fullName.Length)..^1], out int length))
-        {
-            charsWritten = 0;
-            return false;
-        }
-
-        "</".CopyTo(destination);
-        fullName.CopyTo(destination[2..]);
-        destination[2 + fullName.Length] = ':';
-        destination[3 + fullName.Length + length] = '>';
-
-        charsWritten = 4 + fullName.Length + length;
-        return true;
-    }
-
     private static bool TryFormat(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> prefix, ReadOnlySpan<char> suffix)
     {
         if (destination.Length <= prefix.Length + suffix.Length || !id.TryFormat(destination[prefix.Length..^suffix.Length], out int length))
@@ -197,5 +228,77 @@ public static class Mention
         suffix.CopyTo(destination[(prefix.Length + length)..]);
         charsWritten = prefix.Length + length + suffix.Length;
         return true;
+    }
+
+    private static bool TryFormatApplicationCommandCore(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> fullName)
+    {
+        var pathLength = fullName.Length;
+        var idOffset = 3 + pathLength;
+        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        fullName.CopyTo(destination[2..]);
+        destination[2 + pathLength] = ':';
+        destination[idOffset + length] = '>';
+        charsWritten = idOffset + length + 1;
+        return true;
+    }
+
+    private static bool TryFormatApplicationCommandCore(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandName)
+    {
+        var nameLength = name.Length;
+        var subCommandNameLength = subCommandName.Length;
+        var pathLength = nameLength + subCommandNameLength + 1;
+        var idOffset = 3 + pathLength;
+        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        name.CopyTo(destination[2..]);
+        destination[2 + nameLength] = ' ';
+        subCommandName.CopyTo(destination[(3 + nameLength)..]);
+        destination[3 + nameLength + subCommandNameLength] = ':';
+        destination[idOffset + length] = '>';
+        charsWritten = idOffset + length + 1;
+        return true;
+    }
+
+    private static bool TryFormatApplicationCommandCore(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandGroupName, ReadOnlySpan<char> subCommandName)
+    {
+        var nameLength = name.Length;
+        var subCommandGroupNameLength = subCommandGroupName.Length;
+        var subCommandNameLength = subCommandName.Length;
+        var pathLength = nameLength + subCommandGroupNameLength + subCommandNameLength + 2;
+        var idOffset = 3 + pathLength;
+        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        name.CopyTo(destination[2..]);
+        destination[2 + nameLength] = ' ';
+        subCommandGroupName.CopyTo(destination[(3 + nameLength)..]);
+        destination[3 + nameLength + subCommandGroupNameLength] = ' ';
+        subCommandName.CopyTo(destination[(4 + nameLength + subCommandGroupNameLength)..]);
+        destination[4 + nameLength + subCommandGroupNameLength + subCommandNameLength] = ':';
+        destination[idOffset + length] = '>';
+        charsWritten = idOffset + length + 1;
+        return true;
+    }
+
+    private static int CountDigits(ulong value)
+    {
+        var result = 1;
+        while ((value /= 10) != 0) result++;
+        return result;
     }
 }

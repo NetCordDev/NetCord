@@ -67,8 +67,8 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// </summary>
     public ulong Version => _jsonModel.Version;
 
-    public override string ToString() => $"</{Name}:{Id}>";
+    public override string ToString() => Mention.ApplicationCommandToString(Name, Id);
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) =>
-        Mention.TryFormatSlashCommand(destination, out charsWritten, Id, Name);
+        Mention.TryFormatApplicationCommand(destination, out charsWritten, Id, Name);
 }
