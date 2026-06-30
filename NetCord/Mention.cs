@@ -4,6 +4,8 @@ namespace NetCord;
 
 public static class Mention
 {
+    public static string User(ulong userId) => $"<@{userId}>";
+
     public static bool TryFormatUser(Span<char> destination, out int charsWritten, ulong id)
     {
         return TryFormat(destination, out charsWritten, id, "<@", ">");
@@ -32,7 +34,7 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static string User(ulong userId) => $"<@{userId}>";
+    public static string Channel(ulong channelId) => $"<#{channelId}>";
 
     public static bool TryFormatChannel(Span<char> destination, out int charsWritten, ulong id)
     {
@@ -60,7 +62,7 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static string Channel(ulong channelId) => $"<#{channelId}>";
+    public static string Role(ulong roleId) => $"<@&{roleId}>";
 
     public static bool TryFormatRole(Span<char> destination, out int charsWritten, ulong id)
     {
@@ -88,11 +90,17 @@ public static class Mention
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static string Role(ulong roleId) => $"<@&{roleId}>";
+    public static string ApplicationCommand(string name, ulong id) => ApplicationCommandCore(name, id);
 
-    public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> fullName)
+    internal static string ApplicationCommandCore(string fullName, ulong id) => $"</{fullName}:{id}>";
+
+    public static string ApplicationCommand(string name, string subCommandName, ulong id) => $"</{name} {subCommandName}:{id}>";
+
+    public static string ApplicationCommand(string name, string subCommandGroupName, string subCommandName, ulong id) => $"</{name} {subCommandGroupName} {subCommandName}:{id}>";
+
+    public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name)
     {
-        return TryFormatApplicationCommandCore(destination, out charsWritten, id, fullName);
+        return TryFormatApplicationCommandCore(destination, out charsWritten, id, name);
     }
 
     public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandName)
@@ -161,33 +169,6 @@ public static class Mention
             return result;
         else
             throw new FormatException("Cannot parse the mention.");
-    }
-
-    public static string ApplicationCommand(string fullName, ulong id)
-    {
-        return string.Create(
-            length: 4 + fullName.Length + CountDigits(id),
-            state: (Id: id, FullName: fullName),
-            action: static (destination, state) => TryFormatApplicationCommand(destination, out _, state.Id, state.FullName)
-        );
-    }
-
-    public static string ApplicationCommand(string name, string subCommandName, ulong id)
-    {
-        return string.Create(
-            length: 5 + name.Length + subCommandName.Length + CountDigits(id),
-            state: (Id: id, Name: name, SubCommandName: subCommandName),
-            action: static (destination, state) => TryFormatApplicationCommand(destination, out _, state.Id, state.Name, state.SubCommandName)
-        );
-    }
-
-    public static string ApplicationCommand(string name, string subCommandGroupName, string subCommandName, ulong id)
-    {
-        return string.Create(
-            length: 6 + name.Length + subCommandGroupName.Length + subCommandName.Length + CountDigits(id),
-            state: (Id: id, Name: name, SubCommandGroupName: subCommandGroupName, SubCommandName: subCommandName),
-            action: static (destination, state) => TryFormatApplicationCommand(destination, out _, state.Id, state.Name, state.SubCommandGroupName, state.SubCommandName)
-        );
     }
 
     public static bool TryParseTimestamp(ReadOnlySpan<char> mention, out Timestamp result)
@@ -295,10 +276,4 @@ public static class Mention
         return true;
     }
 
-    private static int CountDigits(ulong value)
-    {
-        var result = 1;
-        while ((value /= 10) != 0) result++;
-        return result;
-    }
 }

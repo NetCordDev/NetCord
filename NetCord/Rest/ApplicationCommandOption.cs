@@ -94,7 +94,7 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
             Options = options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId)).ToArray();
     }
 
-    public override string ToString() => Mention.ApplicationCommand(_fullName, _parentId);
+    public override string ToString() => Mention.ApplicationCommandCore(_fullName, _parentId);
 
     public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
 

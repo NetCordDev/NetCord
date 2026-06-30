@@ -13,8 +13,6 @@ public class TryFormat
 
     private static readonly IReadOnlyList<SlashCommandMention> _slashCommandMentions = _ids.SelectMany<ulong, SlashCommandMention>(id => [new(id, "name"), new(id, "name", "name2"), new(id, "name", "name2", "name3")]).ToArray();
 
-    private static readonly IReadOnlyList<(ulong Id, string FullName)> _slashCommandMentionValues = _ids.SelectMany<ulong, (ulong, string)>(id => [(id, "name"), (id, "name name2"), (id, "name name2 name3")]).ToArray();
-
     private static readonly IReadOnlyList<Timestamp> _timestamps = _ids.SelectMany<ulong, Timestamp>(id =>
     {
         var timestamp = Snowflake.Timestamp(id);
@@ -99,15 +97,6 @@ public class TryFormat
         TestTryFormat(TryFormat, _slashCommandMentions, m => m.ToString());
 
         static bool TryFormat(Span<char> destination, out int charsWritten, SlashCommandMention value) => value.TryFormat(destination, out charsWritten);
-    }
-
-    [TestMethod]
-    public void SlashCommandMention()
-    {
-        TestTryFormat(TryFormat, _slashCommandMentionValues, m => $"</{m.FullName}:{m.Id}>");
-
-        static bool TryFormat(Span<char> destination, out int charsWritten, (ulong Id, string FullName) value) =>
-            Mention.TryFormatApplicationCommand(destination, out charsWritten, value.Id, value.FullName);
     }
 
     [TestMethod]
