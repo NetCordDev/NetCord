@@ -100,17 +100,67 @@ public static class Mention
 
     public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name)
     {
-        return TryFormatApplicationCommandCore(destination, out charsWritten, id, name);
+        var pathLength = name.Length;
+        var idOffset = 3 + pathLength;
+        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        name.CopyTo(destination[2..]);
+        destination[2 + pathLength] = ':';
+        destination[idOffset + length] = '>';
+        charsWritten = idOffset + length + 1;
+        return true;
     }
 
     public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandName)
     {
-        return TryFormatApplicationCommandCore(destination, out charsWritten, id, name, subCommandName);
+        var nameLength = name.Length;
+        var subCommandNameLength = subCommandName.Length;
+        var pathLength = nameLength + subCommandNameLength + 1;
+        var idOffset = 3 + pathLength;
+        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        name.CopyTo(destination[2..]);
+        destination[2 + nameLength] = ' ';
+        subCommandName.CopyTo(destination[(3 + nameLength)..]);
+        destination[3 + nameLength + subCommandNameLength] = ':';
+        destination[idOffset + length] = '>';
+        charsWritten = idOffset + length + 1;
+        return true;
     }
 
     public static bool TryFormatApplicationCommand(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandGroupName, ReadOnlySpan<char> subCommandName)
     {
-        return TryFormatApplicationCommandCore(destination, out charsWritten, id, name, subCommandGroupName, subCommandName);
+        var nameLength = name.Length;
+        var subCommandGroupNameLength = subCommandGroupName.Length;
+        var subCommandNameLength = subCommandName.Length;
+        var pathLength = nameLength + subCommandGroupNameLength + subCommandNameLength + 2;
+        var idOffset = 3 + pathLength;
+        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        name.CopyTo(destination[2..]);
+        destination[2 + nameLength] = ' ';
+        subCommandGroupName.CopyTo(destination[(3 + nameLength)..]);
+        destination[3 + nameLength + subCommandGroupNameLength] = ' ';
+        subCommandName.CopyTo(destination[(4 + nameLength + subCommandGroupNameLength)..]);
+        destination[4 + nameLength + subCommandGroupNameLength + subCommandNameLength] = ':';
+        destination[idOffset + length] = '>';
+        charsWritten = idOffset + length + 1;
+        return true;
     }
 
     public static bool TryParseSlashCommand(ReadOnlySpan<char> mention, [MaybeNullWhen(false)] out SlashCommandMention result)
@@ -210,70 +260,4 @@ public static class Mention
         charsWritten = prefix.Length + length + suffix.Length;
         return true;
     }
-
-    private static bool TryFormatApplicationCommandCore(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> fullName)
-    {
-        var pathLength = fullName.Length;
-        var idOffset = 3 + pathLength;
-        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
-        {
-            charsWritten = 0;
-            return false;
-        }
-
-        "</".CopyTo(destination);
-        fullName.CopyTo(destination[2..]);
-        destination[2 + pathLength] = ':';
-        destination[idOffset + length] = '>';
-        charsWritten = idOffset + length + 1;
-        return true;
-    }
-
-    private static bool TryFormatApplicationCommandCore(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandName)
-    {
-        var nameLength = name.Length;
-        var subCommandNameLength = subCommandName.Length;
-        var pathLength = nameLength + subCommandNameLength + 1;
-        var idOffset = 3 + pathLength;
-        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
-        {
-            charsWritten = 0;
-            return false;
-        }
-
-        "</".CopyTo(destination);
-        name.CopyTo(destination[2..]);
-        destination[2 + nameLength] = ' ';
-        subCommandName.CopyTo(destination[(3 + nameLength)..]);
-        destination[3 + nameLength + subCommandNameLength] = ':';
-        destination[idOffset + length] = '>';
-        charsWritten = idOffset + length + 1;
-        return true;
-    }
-
-    private static bool TryFormatApplicationCommandCore(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> name, ReadOnlySpan<char> subCommandGroupName, ReadOnlySpan<char> subCommandName)
-    {
-        var nameLength = name.Length;
-        var subCommandGroupNameLength = subCommandGroupName.Length;
-        var subCommandNameLength = subCommandName.Length;
-        var pathLength = nameLength + subCommandGroupNameLength + subCommandNameLength + 2;
-        var idOffset = 3 + pathLength;
-        if (destination.Length < 5 + pathLength || !id.TryFormat(destination[idOffset..^1], out int length))
-        {
-            charsWritten = 0;
-            return false;
-        }
-
-        "</".CopyTo(destination);
-        name.CopyTo(destination[2..]);
-        destination[2 + nameLength] = ' ';
-        subCommandGroupName.CopyTo(destination[(3 + nameLength)..]);
-        destination[3 + nameLength + subCommandGroupNameLength] = ' ';
-        subCommandName.CopyTo(destination[(4 + nameLength + subCommandGroupNameLength)..]);
-        destination[4 + nameLength + subCommandGroupNameLength + subCommandNameLength] = ':';
-        destination[idOffset + length] = '>';
-        charsWritten = idOffset + length + 1;
-        return true;
-    }
-
 }
