@@ -4,37 +4,28 @@ namespace NetCord.Hosting.Gateway;
 
 public interface IGatewayHandler;
 
-internal interface IDelegateGatewayHandlerBase : IGatewayHandler
+internal interface IDelegateGatewayHandler
 {
-    internal string Name { get; }
+    public ValueTask HandleAsync(IServiceProvider services);
 }
 
-internal interface IDelegateGatewayHandler : IDelegateGatewayHandlerBase
+internal interface IDelegateGatewayHandler<T>
 {
-    public ValueTask HandleAsync();
+    public ValueTask HandleAsync(T arg, IServiceProvider services);
 }
 
-internal interface IDelegateGatewayHandler<T> : IDelegateGatewayHandlerBase
-{
-    public ValueTask HandleAsync(T arg);
-}
-
-internal class DelegateGatewayHandler(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayHandler
+internal class DelegateGatewayHandler(Delegate handler) : IDelegateGatewayHandler
 {
     private readonly Func<IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<IServiceProvider, ValueTask>>(handler, []);
 
-    string IDelegateGatewayHandlerBase.Name => name;
-
-    public ValueTask HandleAsync() => _handler(services);
+    public ValueTask HandleAsync(IServiceProvider services) => _handler(services);
 }
 
-internal class DelegateGatewayHandler<T>(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayHandler<T>
+internal class DelegateGatewayHandler<T>(Delegate handler) : IDelegateGatewayHandler<T>
 {
     private readonly Func<T, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<T, IServiceProvider, ValueTask>>(handler, [typeof(T)]);
 
-    string IDelegateGatewayHandlerBase.Name => name;
-
-    public ValueTask HandleAsync(T arg) => _handler(arg, services);
+    public ValueTask HandleAsync(T arg, IServiceProvider services) => _handler(arg, services);
 }
 
 public interface IShardedGatewayHandler;
