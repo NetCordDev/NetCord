@@ -20,14 +20,6 @@ internal partial class ShardedGatewayClientHostedService(IServiceProvider servic
                 RegisterDelegateShardedHandler(services, client, (DelegateShardedGatewayHandlerMetadata)handlerMetadata);
         }
 
-        // foreach (var handler in services.GetServices<IShardedGatewayHandler>())
-        // {
-        //     if (handler is IDelegateShardedGatewayHandlerBase delegateHandler)
-        //         RegisterDelegateShardedHandler(client, delegateHandler);
-        //     else
-        //         RegisterClassShardedHandler(client, handler);
-        // }
-
         var options = services.GetRequiredService<IOptions<ShardedGatewayClientOptions>>().Value;
 
         return options.AutoStartStop.GetValueOrDefault(true)
