@@ -8,40 +8,6 @@ using NetCord.Gateway;
 
 namespace NetCord.Hosting.Gateway;
 
-internal abstract class GatewayHandlerMetadata(bool isSingleton)
-{
-    public bool IsSingleton => isSingleton;
-}
-
-internal sealed class ClassGatewayHandlerMetadata(Type handlerType, bool isSingleton) : GatewayHandlerMetadata(isSingleton)
-{
-    public Type HandlerType => handlerType;
-}
-
-internal sealed class DelegateGatewayHandlerMetadata(Delegate handler, GatewayEventId eventId, bool isSingleton) : GatewayHandlerMetadata(isSingleton)
-{
-    public Delegate Handler => handler;
-
-    public GatewayEventId EventId => eventId;
-}
-
-internal abstract class ShardedGatewayHandlerMetadata(bool isSingleton)
-{
-    public bool IsSingleton => isSingleton;
-}
-
-internal sealed class ClassShardedGatewayHandlerMetadata(Type handlerType, bool isSingleton) : ShardedGatewayHandlerMetadata(isSingleton)
-{
-    public Type HandlerType => handlerType;
-}
-
-internal sealed class DelegateShardedGatewayHandlerMetadata(Delegate handler, GatewayEventId eventId, bool isSingleton) : ShardedGatewayHandlerMetadata(isSingleton)
-{
-    public Delegate Handler => handler;
-
-    public GatewayEventId EventId => eventId;
-}
-
 public static class GatewayHandlerServiceCollectionExtensions
 {
     /// <summary>
@@ -49,6 +15,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="IGatewayHandler"/> to add.</typeparam>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> to.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IGatewayHandler
     {
@@ -64,6 +31,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <typeparam name="T">The type of the <see cref="IGatewayHandler"/> to add.</typeparam>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> to.</param>
     /// <param name="implementationFactory">The factory that creates the <see cref="IGatewayHandler"/>.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IGatewayHandler
     {
@@ -78,6 +46,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> to.</param>
     /// <param name="handlerType">The type of the <see cref="IGatewayHandler"/> to add.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
@@ -93,6 +62,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> to.</param>
     /// <param name="gatewayEvent">The gateway event.</param>
     /// <param name="handler">The delegate that represents the handler.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler(this IServiceCollection services, GatewayEvent gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
@@ -111,6 +81,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> to.</param>
     /// <param name="gatewayEvent">The gateway event.</param>
     /// <param name="handler">The delegate that represents the handler.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<T>(this IServiceCollection services, GatewayEvent<T> gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
@@ -127,6 +98,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> implementations to.</param>
     /// <param name="assembly">The assembly to scan for <see cref="IGatewayHandler"/> implementations.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IGatewayHandler"/> implementations.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     [RequiresUnreferencedCode("Types might be removed")]
     public static IServiceCollection AddGatewayHandlers(this IServiceCollection services, Assembly assembly, ServiceLifetime lifetime = ServiceLifetime.Singleton)
@@ -142,6 +114,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="IShardedGatewayHandler"/> to add.</typeparam>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IShardedGatewayHandler"/> to.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IShardedGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IShardedGatewayHandler
     {
@@ -157,6 +130,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <typeparam name="T">The type of the <see cref="IShardedGatewayHandler"/> to add.</typeparam>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IShardedGatewayHandler"/> to.</param>
     /// <param name="implementationFactory">The factory that creates the <see cref="IShardedGatewayHandler"/>.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IShardedGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IShardedGatewayHandler
     {
@@ -171,6 +145,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IShardedGatewayHandler"/> to.</param>
     /// <param name="handlerType">The type of the <see cref="IShardedGatewayHandler"/> to add.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IShardedGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
@@ -186,6 +161,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IShardedGatewayHandler"/> to.</param>
     /// <param name="gatewayEvent">The gateway event.</param>
     /// <param name="handler">The delegate that represents the handler.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IShardedGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler(this IServiceCollection services, GatewayEvent gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
@@ -204,6 +180,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IShardedGatewayHandler"/> to.</param>
     /// <param name="gatewayEvent">The gateway event.</param>
     /// <param name="handler">The delegate that represents the handler.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IShardedGatewayHandler"/>.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<T>(this IServiceCollection services, GatewayEvent<T> gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
@@ -220,6 +197,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IShardedGatewayHandler"/> implementations to.</param>
     /// <param name="assembly">The assembly to scan for <see cref="IShardedGatewayHandler"/> implementations.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IShardedGatewayHandler"/> implementations.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     [RequiresUnreferencedCode("Types might be removed")]
     public static IServiceCollection AddShardedGatewayHandlers(this IServiceCollection services, Assembly assembly, ServiceLifetime lifetime = ServiceLifetime.Singleton)
