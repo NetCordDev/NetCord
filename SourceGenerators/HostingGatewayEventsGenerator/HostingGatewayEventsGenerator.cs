@@ -294,7 +294,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.Write(" = (global::System.Func<");
 
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
-            if (eventType.Arity is 2)
+            if (eventType.Arity is not 1)
             {
                 stringWriter.Write(eventType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
                 stringWriter.Write(", ");
@@ -323,7 +323,12 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("services)");
 
             stringWriter.WriteIndentation(5);
-            stringWriter.WriteLine(eventType.Arity is 1 ? ": async () =>" : ": async (arg) =>");
+            stringWriter.Write(": async (");
+
+            if (eventType.Arity is not 1)
+                stringWriter.Write("arg");
+
+            stringWriter.WriteLine(") =>");
 
             stringWriter.WriteIndentation(5);
             stringWriter.WriteLine("{");
@@ -350,70 +355,6 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
         stringWriter.WriteIndentation(2);
         stringWriter.WriteLine("}");
-
-        // stringWriter.WriteIndentation(2);
-        // stringWriter.WriteLine("var handler = handlerMetadata.Handler;");
-        //
-        // stringWriter.WriteIndentation(2);
-        // stringWriter.WriteLine("var isSingleton = handlerMetadata.IsSingleton;");
-
-        // int i = 0;
-        // foreach (var group in events.GroupBy(e => e.Type, SymbolEqualityComparer.Default))
-        // {
-        //     var eventType = (INamedTypeSymbol)group.Key!;
-        //
-        //     stringWriter.WriteLine();
-        //
-        //     stringWriter.WriteIndentation(2);
-        //     stringWriter.Write("if (handler is global::System.Func<");
-        //     if (eventType.Arity is 2)
-        //     {
-        //         stringWriter.Write(eventType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-        //         stringWriter.Write(", ");
-        //     }
-        //
-        //     stringWriter.Write("global::System.IServiceProvider, global::System.Threading.Tasks.ValueTask> typedHandler");
-        //     stringWriter.Write(i);
-        //     stringWriter.WriteLine(")");
-        //
-        //     stringWriter.WriteIndentation(2);
-        //     stringWriter.WriteLine("{");
-        //
-        //     stringWriter.WriteIndentation(3);
-        //     stringWriter.Write("switch (handlerMetadata.EventName)");
-        //
-        //     stringWriter.WriteIndentation(3);
-        //     stringWriter.WriteLine("{");
-        //
-        //     foreach (var eventSymbol in group)
-        //     {
-        //         stringWriter.WriteIndentation(4);
-        //         stringWriter.Write("case \"");
-        //         stringWriter.Write(eventSymbol.Name);
-        //         stringWriter.WriteLine("\":");
-        //
-        //         stringWriter.WriteIndentation(5);
-        //         stringWriter.Write("client.");
-        //         stringWriter.Write(eventSymbol.Name);
-        //         stringWriter.Write(eventType.Arity is 1 ? " += () => typedHandler" : " += (arg) => typedHandler");
-        //         stringWriter.Write(i);
-        //         stringWriter.Write(eventType.Arity is 1 ? "(services);" : "(arg, services);");
-        //
-        //         stringWriter.WriteIndentation(5);
-        //         stringWriter.WriteLine("break;");
-        //     }
-        //
-        //     stringWriter.WriteIndentation(3);
-        //     stringWriter.WriteLine("}");
-        //
-        //     stringWriter.WriteIndentation(3);
-        //     stringWriter.WriteLine("return;");
-        //
-        //     stringWriter.WriteIndentation(2);
-        //     stringWriter.WriteLine("}");
-        //
-        //     i++;
-        // }
 
         stringWriter.WriteIndentation(1);
         stringWriter.WriteLine("}");
@@ -475,52 +416,15 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(5);
             stringWriter.Write("await ((global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.WriteLine(eventType.Arity is 1
-                    ? "GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(scope.ServiceProvider, handlerMetadata.HandlerType)).HandleAsync();"
-                    : "GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(scope.ServiceProvider, handlerMetadata.HandlerType)).HandleAsync(arg);");
+            stringWriter.Write("GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(scope.ServiceProvider, handlerMetadata.HandlerType)).HandleAsync(");
+
+            if (eventType.Arity is not 1)
+                stringWriter.Write("arg");
+
+            stringWriter.WriteLine(");");
 
             stringWriter.WriteIndentation(4);
             stringWriter.WriteLine("};");
-
-            // stringWriter.WriteIndentation(3);
-            // stringWriter.WriteLine("if (lifetime is global::Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton)");
-            //
-            // stringWriter.WriteIndentation(4);
-            // stringWriter.Write("client.");
-            // stringWriter.Write(eventSymbol.Name);
-            // stringWriter.Write(" += ((global::NetCord.Hosting.Gateway.I");
-            // stringWriter.Write(eventSymbol.Name);
-            // stringWriter.WriteLine("GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(services, handlerMetadata.HandlerType)).HandleAsync;");
-            //
-            // stringWriter.WriteIndentation(3);
-            // stringWriter.WriteLine("else");
-            //
-            // stringWriter.WriteIndentation(3);
-            // stringWriter.WriteLine("{");
-            //
-            // stringWriter.WriteIndentation(4);
-            // stringWriter.Write("client.");
-            // stringWriter.Write(eventSymbol.Name);
-            // stringWriter.WriteLine(eventType.Arity is 1 ? " += async () =>" : " += async (arg) =>");
-            //
-            // stringWriter.WriteIndentation(4);
-            // stringWriter.WriteLine("{");
-            //
-            // stringWriter.WriteIndentation(5);
-            // stringWriter.WriteLine("await using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
-            //
-            // stringWriter.WriteIndentation(5);
-            // stringWriter.Write("await ((global::NetCord.Hosting.Gateway.I");
-            // stringWriter.Write(eventSymbol.Name);
-            // stringWriter.WriteLine(eventType.Arity is 1
-            //         ? "GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(scope.ServiceProvider, handlerMetadata.HandlerType)).HandleAsync();"
-            //         : "GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(scope.ServiceProvider, handlerMetadata.HandlerType)).HandleAsync(arg);");
-            //
-            // stringWriter.WriteIndentation(4);
-            // stringWriter.WriteLine("};");
-
-            // stringWriter.WriteIndentation(3);
-            // stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(2);
             stringWriter.WriteLine("}");
