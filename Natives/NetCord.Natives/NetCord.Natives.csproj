@@ -280,15 +280,19 @@
                 <PackagePath>licenses\%(NativeLibLic.Identity)_LICENSE.txt</PackagePath>
             </Content>
 
-            <_BuildFiles Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets" />
-            <_BuildFiles Include="$(MSBuildProjectName).Symlinking.targets" />
+            <_BuildFiles Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets">
+                <PkgPath>$(PackageId)</PkgPath>
+            </_BuildFiles>
+            <_BuildFiles Include="$(MSBuildProjectName).Symlinking.targets">
+                <PkgPath>$(PackageId).Symlinking</PkgPath>
+            </_BuildFiles>
 
             <None Include="@(_BuildFiles)">
-                <PackagePath>build\$(PackageId)%(Extension)</PackagePath>
+                <PackagePath>build\%(_BuildFiles.PkgPath)%(_BuildFiles.Extension)</PackagePath>
                 <Pack>true</Pack>
             </None>
             <None Include="@(_BuildFiles)">
-                <PackagePath>buildTransitive\$(PackageId)%(Extension)</PackagePath>
+                <PackagePath>buildTransitive\%(_BuildFiles.PkgPath)%(_BuildFiles.Extension)</PackagePath>
                 <Pack>true</Pack>
             </None>
         </ItemGroup>
