@@ -87,6 +87,9 @@ jobs:
         shell: ${{ matrix.shell_command }}
     env:
       CI: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+      MSBUILD_TELEMETRY_OPTOUT: 1
       VCPKG_ROOT: ${{ github.workspace }}/Natives/NetCord.Natives/vcpkg
       VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
       VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}

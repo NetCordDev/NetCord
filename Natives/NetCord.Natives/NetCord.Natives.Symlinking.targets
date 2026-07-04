@@ -11,7 +11,7 @@
             <_Symlink Include="@(FileWrites)"
                       Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.dylib$'))">
                 <RealName>%(Filename)%(Extension)</RealName>
-                <SoName>$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '^(.*?\.\d+)\..*\.dylib$').Groups[1].Value + '.dylib')</SoName>
+                <SoName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^(.*?\.\d+)\..*\.dylib$', '$1.dylib'))</SoName>
                 <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib$', '.dylib'))</LinkerName>
             </_Symlink>
         </ItemGroup>
