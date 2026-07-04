@@ -84,7 +84,8 @@ public class NativesBuildTests
         // 2. Parse MSBuild Global Properties into a Dictionary
         var globalProperties = new Dictionary<string, string>
         {
-            { "Configuration", configuration }
+            { "Configuration", configuration },
+            { "CI", "false" }
         };
 
         var pairs = propsAttr?.Split([';', ','], StringSplitOptions.RemoveEmptyEntries) ?? [];
