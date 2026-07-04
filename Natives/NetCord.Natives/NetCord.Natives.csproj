@@ -5,7 +5,8 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <IncludeSymbols>false</IncludeSymbols>
-        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+        <SuppressDependenciesWhenPacking Condition="'$(_IsPackingNative)' == 'true'">true</SuppressDependenciesWhenPacking>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
 
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..'))</RepositoryRoot>
     </PropertyGroup>
@@ -54,6 +55,10 @@
         <VcpkgOutputPath_Static Condition="'$(VcpkgBuildOS)' == 'win'">$(VcpkgOutputPath_Static)-static</VcpkgOutputPath_Static>
         <_VcpkgStatusFile>$(VcpkgInstalledDir)\vcpkg\status</_VcpkgStatusFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <NativeDepsPacked Include="Dave;Sodium;Opus;Zstandard" />
+    </ItemGroup>
 
     <ItemGroup Condition="'$(PackageNativeDep)' == 'Dave' or '$(PackageNativeDep)' == ''">
         <NativeLibSet Include="libdave;dave" />
@@ -150,7 +155,7 @@
     </Target>
 
     <Target Name="GetDynamicVcpkgVersions" BeforeTargets="PackageNatives"
-            Condition="Exists('$(_VcpkgStatusFile)')">
+            Condition="Exists('$(_VcpkgStatusFile)') and '$(_IsPackingNative)' == 'true'">
 
         <!-- 1. Read the entire status file into a property -->
         <ReadLinesFromFile File="$(_VcpkgStatusFile)">
@@ -198,7 +203,7 @@
             </_CopyOutput>
             <None Include="@(_CopyOutput)" Condition="Exists('%(_CopyOutput.Identity)')" />
         </ItemGroup>
-		<Message Text="$(MSBuildProjectName): %(_CopyOutput.Identity) -> %(_CopyOutput.TargetPath)" Importance="high" />
+        <Message Text="$(MSBuildProjectName) runtime: $([System.IO.Path]::GetRelativePath('$(MSBuildProjectDirectory)', '%(_CopyOutput.Identity)'))" Importance="high" />
     </Target>
 
     <Import Project="NetCord.Natives.Symlinking.targets" Condition="Exists('NetCord.Natives.Symlinking.targets')" />
@@ -209,26 +214,32 @@
         <CallTarget Targets="_ExecNativeSymlinks" />
     </Target>
 
-    <Target Name="PackagePerNative" BeforeTargets="Pack" DependsOnTargets="PrepareVcpkg" Condition="'$(_IsPackingNative)' != 'true'">
-
-        <ItemGroup>
-            <NativeDepsPacked Include="Dave;Sodium;Opus;Zstandard" />
-        </ItemGroup>
+    <PropertyGroup>
+        <GenerateNuspecDependsOn>PackagePerNative</GenerateNuspecDependsOn>
+    </PropertyGroup>
+    <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg" 
+            Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' != 'true'">
 
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Pack"
                  Properties="NoBuild=true;_IsPackingNative=true;PackageNativeDep=%(NativeDepsPacked.Identity)" />
+
+        <Message Text="Restoring for meta packaging..." Importance="high" />
+
+        <MSBuild Projects="$(MSBuildProjectFullPath)"
+                 Targets="Restore"
+                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(PackageOutputPath)" />
     </Target>
 
-    <PropertyGroup>
-        <GenerateNuspecDependsOn>SkipBasePackage</GenerateNuspecDependsOn>
-    </PropertyGroup>
-    <Target Name="SkipBasePackage" Condition="'$(_IsPackingNative)' != 'true'">
+    <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences" 
+            Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' == 'true'">
 
-        <Message Text="Skipping base package creation for $(PackageId) since we are packing each native dependencies." Importance="high" />
-        <PropertyGroup>
-            <ContinuePackingAfterGeneratingNuspec>false</ContinuePackingAfterGeneratingNuspec>
-        </PropertyGroup>
+        <Message Text="$(PackageId) meta package dependency: $(PackageId).%(NativeDepsPacked.Identity) [$(_NativePkgVer)]" Importance="high" />
+
+        <ItemGroup>
+            <PackageReference Include="NetCord.Natives.%(NativeDepsPacked.Identity)" />
+            <PackageVersion Include="NetCord.Natives.%(NativeDepsPacked.Identity)" Version="$(_NativePkgVer)" />
+        </ItemGroup>
     </Target>
 
     <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles" DependsOnTargets="PrepareVcpkg"
