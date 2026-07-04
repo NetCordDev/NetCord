@@ -181,8 +181,8 @@
         </PropertyGroup>
 
         <!-- Optional: Debugging message to see it working in the build log -->
-        <Message Importance="high" Text="Vcpkg Sync: %(_VcpkgPkg.Identity) version is [%(_VcpkgPkg.Version)]"
-                 Condition="'%(_VcpkgPkg.Identity)' != ''"/>
+        <Message Text="$(MSBuildProjectName).$(PackageNativeDep) libs: %(_VcpkgPkg.Identity) [%(_VcpkgPkg.Version)]"
+                 Importance="high" Condition="'%(_VcpkgPkg.Identity)' != ''"/>
     </Target>
 
     <Target Name="_AddNativeRuntimeCopyItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareVcpkg"
@@ -220,15 +220,25 @@
     <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg" 
             Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' != 'true'">
 
-        <MSBuild Projects="$(MSBuildProjectFullPath)"
-                 Targets="Pack"
-                 Properties="NoBuild=true;_IsPackingNative=true;PackageNativeDep=%(NativeDepsPacked.Identity)" />
+        <ItemGroup>
+            <ProjectsToPack Include="$(MSBuildProjectFullPath)">
+                <AdditionalProperties>NoBuild=true;_IsPackingNative=true;PackageNativeDep=%(NativeDepsPacked.Identity)</AdditionalProperties>
+            </ProjectsToPack>
+        </ItemGroup>
 
-        <Message Text="Restoring for meta packaging..." Importance="high" />
+        <MSBuild Projects="@(ProjectsToPack)"
+                Targets="Pack"
+                BuildInParallel="true" />
+
+        <PropertyGroup>
+            <RestoreOutputPath>$(RestoreOutputPath)/meta-nuget</RestoreOutputPath>
+        </PropertyGroup>
+
+        <Message Text="Restoring for meta packaging to $(RestoreOutputPath)." Importance="high" />
 
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Restore"
-                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(PackageOutputPath)" />
+                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(PackageOutputPath);RestoreOutputPath=$(RestoreOutputPath)" />
     </Target>
 
     <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences" 
@@ -312,8 +322,7 @@
     <Target Name="_PackagedFilesInfo" AfterTargets="_GetPackageFiles" BeforeTargets="GenerateNuspec"
             Condition="'$(_IsPackingNative)' == 'true'">
 
-        <Message Text="$(PackageId) packaged items:" Importance="high" />
-        <Message Text="  %(_PackageFiles.Identity) -&gt; [pkg].\%(PackagePath)" Importance="high" />
+        <Message Text="$(PackageId) packaged: %(_PackageFiles.Identity) -&gt; [pkg].\%(PackagePath)" Importance="high" />
     </Target>
 
 </Project>
