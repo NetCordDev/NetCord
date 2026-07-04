@@ -1,0 +1,28 @@
+<Project>
+
+    <Target Name="_ExecNativeSymlinks">
+        <ItemGroup>
+            <_Symlink Include="@(FileWrites)"
+                      Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.so\.\d+'))">
+                <RealName>%(Filename)%(Extension)</RealName>
+                <SoName>$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*?\.so\.\d+').Value)</SoName>
+                <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.so\..*', '.so'))</LinkerName>
+            </_Symlink>
+            <_Symlink Include="@(FileWrites)"
+                      Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.dylib$'))">
+                <RealName>%(Filename)%(Extension)</RealName>
+                <SoName>$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '^(.*?\.\d+)\..*\.dylib$').Groups[1].Value + '.dylib')</SoName>
+                <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib$', '.dylib'))</LinkerName>
+            </_Symlink>
+        </ItemGroup>
+
+        <Exec Command="ln -sf %(_Symlink.RealName) %(_Symlink.SoName)"
+            WorkingDirectory="%(_Symlink.RootDir)%(_Symlink.Directory)"
+            Condition="'%(_Symlink.RealName)' != '%(_Symlink.SoName)' and '%(_Symlink.SoName)' != ''" />
+
+        <Exec Command="ln -sf %(_Symlink.SoName) %(_Symlink.LinkerName)"
+            WorkingDirectory="%(_Symlink.RootDir)%(_Symlink.Directory)"
+            Condition="'%(_Symlink.SoName)' != '%(_Symlink.LinkerName)' and '%(_Symlink.SoName)' != '' and '%(_Symlink.LinkerName)' != ''" />
+    </Target>
+
+</Project>

@@ -55,21 +55,21 @@
         <_VcpkgStatusFile>$(VcpkgInstalledDir)\vcpkg\status</_VcpkgStatusFile>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(PackageNativeDep)' == 'Dave'">
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Dave' or '$(PackageNativeDep)' == ''">
         <NativeLibSet Include="libdave;dave" />
         <NativeLibSet Include="mlspp;bytes;tls_syntax;hpke" />
         <NativeLibSet Include="libcrypto;crypto;libssl;ssl" />
         <NativeLibLic Include="libdave;mlspp;openssl" />
     </ItemGroup>
-    <ItemGroup Condition="'$(PackageNativeDep)' == 'Sodium'">
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Sodium' or '$(PackageNativeDep)' == ''">
         <NativeLibSet Include="libsodium;sodium" />
         <NativeLibLic Include="libsodium" />
     </ItemGroup>
-    <ItemGroup Condition="'$(PackageNativeDep)' == 'Opus'">
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Opus' or '$(PackageNativeDep)' == ''">
         <NativeLibSet Include="libopus;opus" />
         <NativeLibLic Include="opus" />
     </ItemGroup>
-    <ItemGroup Condition="'$(PackageNativeDep)' == 'Zstandard'">
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Zstandard' or '$(PackageNativeDep)' == ''">
         <NativeLibSet Include="libzstd;zstd" />
         <NativeLibLic Include="zstd" />
     </ItemGroup>
@@ -198,38 +198,15 @@
             </_CopyOutput>
             <None Include="@(_CopyOutput)" Condition="Exists('%(_CopyOutput.Identity)')" />
         </ItemGroup>
-		<Message Text="Copying native from: %(_CopyOutput.Identity)" Importance="high" />
+		<Message Text="$(MSBuildProjectName): %(_CopyOutput.Identity) -> %(_CopyOutput.TargetPath)" Importance="high" />
     </Target>
 
-    <Target Name="CreateNativeSymlinks" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="CopyFilesToOutputDirectory">
-        <ItemGroup>
-            <_NativeFiles Include="$(OutDir)**\lib%(NativeLibSet.Identity)*.so.*" />
-            <_NativeFiles Include="$(OutDir)**\lib%(NativeLibSet.Identity)*.dylib" />
+    <Import Project="NetCord.Natives.Symlinking.targets" Condition="Exists('NetCord.Natives.Symlinking.targets')" />
 
-            <SymlinkTask Include="@(_NativeFiles)"
-                         Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.so\.\d+')) or ($([System.String]::new('%(Extension)').Equals('.dylib')) and $([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)', '\.\d+')))">
-                <IsMac>$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.dylib'))</IsMac>
-            </SymlinkTask>
+    <Target Name="CreateNativeSymlinks" AfterTargets="CopyFilesToOutputDirectory"
+            Condition="'$(OS)' != 'Windows_NT' and Exists('NetCord.Natives.Symlinking.targets')">
 
-            <SymlinkTask>
-                <MajorTarget>%(Filename)%(Extension)</MajorTarget>
-                <MajorLink Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*\.so\.\d+'))</MajorLink>
-                <MajorLink Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^([a-zA-Z0-9_-]+\.\d+)\..*', '$1%(Extension)'))</MajorLink>
-
-                <BaseTarget Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*\.so\.\d+'))</BaseTarget>
-                <BaseTarget Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^([a-zA-Z0-9_-]+\.\d+)\..*', '$1%(Extension)'))</BaseTarget>
-                <BaseLink Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.so\..*', '.so'))</BaseLink>
-                <BaseLink Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib', '.dylib'))</BaseLink>
-            </SymlinkTask>
-        </ItemGroup>
-
-		<Message Text="Symlinking in /%(SymlinkTask.Directory): [%(SymlinkTask.MajorLink) -> %(SymlinkTask.MajorTarget)], [%(SymlinkTask.BaseLink) -> %(SymlinkTask.BaseTarget)]"
-				 Importance="high"
-				 Condition="'@(SymlinkTask)' != ''" />
-
-        <Exec Command="{ [ '%(SymlinkTask.MajorTarget)' = '%(SymlinkTask.MajorLink)' ] || ln -sf %(SymlinkTask.MajorTarget) %(SymlinkTask.MajorLink); } &amp;&amp; ln -sf %(SymlinkTask.BaseTarget) %(SymlinkTask.BaseLink)"
-              WorkingDirectory="%(SymlinkTask.RootDir)%(SymlinkTask.Directory)"
-              Condition="'@(SymlinkTask)' != ''" />
+        <CallTarget Targets="_ExecNativeSymlinks" />
     </Target>
 
     <Target Name="PackagePerNative" BeforeTargets="Pack" DependsOnTargets="PrepareVcpkg" Condition="'$(_IsPackingNative)' != 'true'">
@@ -303,15 +280,16 @@
                 <PackagePath>licenses\%(NativeLibLic.Identity)_LICENSE.txt</PackagePath>
             </Content>
 
-            <_BuildFiles Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets">
-                <Pack>true</Pack>
-            </_BuildFiles>
+            <_BuildFiles Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets" />
+            <_BuildFiles Include="$(MSBuildProjectName).Symlinking.targets" />
 
             <None Include="@(_BuildFiles)">
                 <PackagePath>build\$(PackageId)%(Extension)</PackagePath>
+                <Pack>true</Pack>
             </None>
             <None Include="@(_BuildFiles)">
                 <PackagePath>buildTransitive\$(PackageId)%(Extension)</PackagePath>
+                <Pack>true</Pack>
             </None>
         </ItemGroup>
     </Target>

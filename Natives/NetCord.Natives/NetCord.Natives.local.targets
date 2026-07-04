@@ -5,14 +5,12 @@
 	<Target Name="ProcessNetCordNatives_Local" BeforeTargets="GetNetCordNativesItems">
 	
 		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
-				 Targets="GetStaticBuildDir"
-				 Properties="CI=false">
+				 Targets="GetStaticBuildDir">
 			<Output TaskParameter="TargetOutputs" ItemName="_NetCordStaticDir" />
 		</MSBuild>
 
 		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
-				 Targets="_AddNativeRuntimeCopyItems"
-				 Properties="CI=false">
+				 Targets="_AddNativeRuntimeCopyItems">
 			<Output TaskParameter="TargetOutputs" ItemName="_NetCordRuntimesDir" />
 		</MSBuild>
 
@@ -28,7 +26,6 @@
 			DependsOnTargets="GetNetCordNativesItems"
 			AfterTargets="ComputeResolvedFilesToPublishList"
 			BeforeTargets="ComputeFilesToPublish">
-
 		<ItemGroup>
 			<ResolvedFileToPublish Remove="%(_RunExclude.FullPath)" />
 		</ItemGroup>

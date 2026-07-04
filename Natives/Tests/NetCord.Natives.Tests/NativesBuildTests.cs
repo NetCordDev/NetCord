@@ -13,6 +13,13 @@ namespace NetCord.Natives.Tests;
 [TestClass]
 public class NativesBuildTests
 {
+    private static readonly IReadOnlyDictionary<string, string> TelemetryOptOutEnvironment = new Dictionary<string, string>
+    {
+        ["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1",
+        ["DOTNET_NOLOGO"] = "1",
+        ["MSBUILD_TELEMETRY_OPTOUT"] = "1",
+    };
+
     [TestMethod]
     [DataRow("libdave")]
     [DataRow("libsodium")]
@@ -55,6 +62,8 @@ public class NativesBuildTests
 
     private static void MSBuildNativeAotPublish(string libNames)
     {
+        using var _ = new EnvironmentVariableScope(TelemetryOptOutEnvironment);
+
         // 1. Get properties from AssemblyMetadata attributes
         var assembly = typeof(NativesBuildTests).Assembly;
 
@@ -194,5 +203,27 @@ public class NativesBuildTests
             aotProcess.WaitForExit();
 
         Assert.AreEqual(0, aotProcess.ExitCode, $"Native AoT app failed to run for '{libNames}'.");
+    }
+
+    private sealed class EnvironmentVariableScope : IDisposable
+    {
+        private readonly Dictionary<string, string?> _originalValues = new(StringComparer.Ordinal);
+
+        public EnvironmentVariableScope(IReadOnlyDictionary<string, string> variables)
+        {
+            foreach (var pair in variables)
+            {
+                _originalValues[pair.Key] = Environment.GetEnvironmentVariable(pair.Key);
+                Environment.SetEnvironmentVariable(pair.Key, pair.Value);
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var pair in _originalValues)
+            {
+                Environment.SetEnvironmentVariable(pair.Key, pair.Value);
+            }
+        }
     }
 }

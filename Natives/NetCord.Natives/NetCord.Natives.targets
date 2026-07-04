@@ -4,43 +4,43 @@
 		<ItemGroup>
 			<!-- Order matters, dependencies come last -->
 			<!-- 1. Top-level application libraries (The Consumers) -->
-			<_NetCordStaticLink Include="libsodium;sodium" 
+			<_NetCordStaticLink Include="sodium"
 								Condition="'%(DirectPInvoke.Identity)' == 'libsodium'" />
-			<_NetCordStaticLink Include="libdave;dave" 
+			<_NetCordStaticLink Include="dave"
 								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
 
 			<!-- 2. Middleware / Intermediate dependencies -->
-			<_NetCordStaticLink Include="mlspp;hpke;bytes;tls_syntax" 
+			<_NetCordStaticLink Include="mlspp;hpke;bytes;tls_syntax"
 								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
 
 			<!-- 3. General purpose utility libraries -->
-			<_NetCordStaticLink Include="opus;zstd" 
+			<_NetCordStaticLink Include="opus;zstd"
 								Condition="'%(DirectPInvoke.Identity)' == 'opus' or '%(DirectPInvoke.Identity)' == 'zstd'" />
 
 			<!-- 4. Low-level providers (The Leaf Dependencies) - These MUST be last -->
-			<_NetCordStaticLink Include="libcrypto;crypto;libssl;ssl" 
+			<_NetCordStaticLink Include="crypto"
 								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
 
 			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*" />
 			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*;" />
 
-			<_NetCordExcluded Include="$(NetCordExcludeNatives)" 
+			<_NetCordExcluded Include="$(NetCordExcludeNatives)"
 							  Condition="'$(NetCordExcludeNatives)' != ''" />
-			<_NetCordExcluded Include="libcrypto" 
+			<_NetCordExcluded Include="crypto;ssl"
 							  Condition="$(NetCordExcludeNatives.Contains('libdave'))" />
 
-			<_NetCordExcluded Include="@(_NetCordStaticLink)" 
+			<_NetCordExcluded Include="@(_NetCordStaticLink)"
 							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
 
-			<_RunExclude Include="$(NetCordNativesRuntimesDir)\%(_NetCordExcluded.Identity)*.*" 
+			<_RunExclude Include="$(NetCordNativesRuntimesDir)\%(_NetCordExcluded.Identity)*.*"
 						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
-			<_RunExclude Include="$(NetCordNativesRuntimesDir)\lib%(_NetCordExcluded.Identity)*.*" 
+			<_RunExclude Include="$(NetCordNativesRuntimesDir)\lib%(_NetCordExcluded.Identity)*.*"
 						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
 
 		</ItemGroup>
 	</Target>
 
-	<Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'" 
+	<Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'"
 			DependsOnTargets="GetNetCordNativesItems"
 	 	    AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
 
@@ -50,7 +50,7 @@
 		
 		<PropertyGroup>
 			<!-- Set property if any DirectPInvoke.Identity is 'libdave' -->
-			<LinkStandardCPlusPlusLibrary 
+			<LinkStandardCPlusPlusLibrary
 				Condition="'$(LinkStandardCPlusPlusLibrary)' == '' and '%(DirectPInvoke.Identity)' == 'libdave'"
 				>true</LinkStandardCPlusPlusLibrary>
 		</PropertyGroup>
@@ -66,32 +66,12 @@
 		</ItemGroup>
 	</Target>
 
-	<Target Name="CreateNativeSymlinks" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="CopyFilesToOutputDirectory">
-		<ItemGroup>
-			<_NativeLibNames Include="dave;mlspp;bytes;tls_syntax;hpke;crypto;sodium;opus;zstd" />
-			<_NativeFiles Include="$(OutDir)**\lib%(_NativeLibNames.Identity)*.so.*" />
-			<_NativeFiles Include="$(OutDir)**\lib%(_NativeLibNames.Identity)*.dylib" />
+	<Import Project="NetCord.Natives.Symlinking.targets" Condition="Exists('NetCord.Natives.Symlinking.targets')" />
 
-			<SymlinkTask Include="@(_NativeFiles)"
-                         Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.so\.\d+')) or ($([System.String]::new('%(Extension)').Equals('.dylib')) and $([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)', '\.\d+')))">
-				<IsMac>$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.dylib'))</IsMac>
-			</SymlinkTask>
+	<Target Name="CreateNativeSymlinks" AfterTargets="CopyFilesToOutputDirectory"
+			Condition="'$(OS)' != 'Windows_NT'">
 
-			<SymlinkTask>
-				<MajorTarget>%(Filename)%(Extension)</MajorTarget>
-				<MajorLink Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*\.so\.\d+'))</MajorLink>
-				<MajorLink Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^([a-zA-Z0-9_-]+\.\d+)\..*', '$1%(Extension)'))</MajorLink>
-
-				<BaseTarget Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*\.so\.\d+'))</BaseTarget>
-				<BaseTarget Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^([a-zA-Z0-9_-]+\.\d+)\..*', '$1%(Extension)'))</BaseTarget>
-				<BaseLink Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.so\..*', '.so'))</BaseLink>
-				<BaseLink Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib', '.dylib'))</BaseLink>
-			</SymlinkTask>
-		</ItemGroup>
-
-		<Exec Command="{ [ '%(SymlinkTask.MajorTarget)' = '%(SymlinkTask.MajorLink)' ] || ln -sf %(SymlinkTask.MajorTarget) %(SymlinkTask.MajorLink); } &amp;&amp; ln -sf %(SymlinkTask.BaseTarget) %(SymlinkTask.BaseLink)" 
-			  WorkingDirectory="%(SymlinkTask.RootDir)%(SymlinkTask.Directory)" 
-			  Condition="'@(SymlinkTask)' != ''" />
+        <CallTarget Targets="_ExecNativeSymlinks" />
 	</Target>
 
 </Project>
