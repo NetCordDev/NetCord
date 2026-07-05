@@ -58,12 +58,14 @@
 
     <ItemGroup>
         <NativeDepsPacked Include="Dave;Sodium;Opus;Zstandard" />
+
+        <_ZVcpkgInstallManifestDependenciesInputs Include="natives-ports\**;natives-triplets\**" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(PackageNativeDep)' == 'Dave' or '$(PackageNativeDep)' == ''">
         <NativeLibSet Include="libdave;dave" />
         <NativeLibSet Include="mlspp;bytes;tls_syntax;hpke" />
-        <NativeLibSet Include="libcrypto;crypto;libssl;ssl" />
+        <NativeLibSet Include="libcrypto;crypto" />
         <NativeLibLic Include="libdave;mlspp;openssl" />
     </ItemGroup>
     <ItemGroup Condition="'$(PackageNativeDep)' == 'Sodium' or '$(PackageNativeDep)' == ''">
@@ -85,13 +87,6 @@
     <!-- When not on Windows, refer to this file -->
     <Import Project="vcpkg-non-windows.targets"
             Condition="'$(VcpkgBuildOS)' != 'win' and Exists('vcpkg-non-windows.targets')" />
-
-    <Target Name="GetStaticBuildDir" Returns="@(_StaticFullPath)">
-        <ItemGroup>
-            <_StaticFullPath Include="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(VcpkgOutputPath_Static)'))" />
-        </ItemGroup>
-        <Message Text="Static build output path: @(_StaticFullPath)" Importance="high" />
-    </Target>
 
     <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection">
 
@@ -117,20 +112,20 @@
             </_BuiltRid>
 
             <_BuiltRid Include="linux-%(_LibArchs.Identity)">
-                <BinPath>%(_LibArchs.Identity)-linux-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
-                <LibPath>%(_LibArchs.Identity)-linux\lib\lib%(_LibArchs.LibName)</LibPath>
+                <BinPath>%(_LibArchs.Identity)-linux-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-linux/lib/lib%(_LibArchs.LibName)</LibPath>
                 <Ext>so</Ext>
             </_BuiltRid>
 
             <_BuiltRid Include="linux-musl-%(_LibArchs.Identity)">
-                <BinPath>%(_LibArchs.Identity)-linux-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
-                <LibPath>%(_LibArchs.Identity)-linux\lib\lib%(_LibArchs.LibName)</LibPath>
+                <BinPath>%(_LibArchs.Identity)-linux-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-linux/lib/lib%(_LibArchs.LibName)</LibPath>
                 <Ext>so</Ext>
             </_BuiltRid>
 
             <_BuiltRid Include="osx-%(_LibArchs.Identity)">
-                <BinPath>%(_LibArchs.Identity)-osx-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
-                <LibPath>%(_LibArchs.Identity)-osx\lib\lib%(_LibArchs.LibName)</LibPath>
+                <BinPath>%(_LibArchs.Identity)-osx-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-osx/lib/lib%(_LibArchs.LibName)</LibPath>
                 <Ext>dylib</Ext>
             </_BuiltRid>
 
@@ -152,6 +147,79 @@
         <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ClCompile"
                  Properties="VcpkgUseStatic=true;GeneratePackageOnBuild=false"
                  Condition="'$(VcpkgUseStatic)' != 'true'" />
+    </Target>
+
+    <Target Name="_ListsBuiltNatives" AfterTargets="ClCompile" DependsOnTargets="PrepareVcpkg"
+            Condition="'$(_IsPackingNative)' != 'true' and '$(VcpkgUseStatic)' != 'true'">
+
+        <CallTarget Targets="GetSharedBuild;GetStaticBuild">
+            <Output TaskParameter="TargetOutputs" ItemName="NativesBuilt" />
+        </CallTarget>
+
+        <Message Text="$(MSBuildProjectName) -> %(NativesBuilt.FullPath)" Importance="high" 
+                 Condition="Exists('%(NativesBuilt.FullPath)')" />
+    </Target>
+
+    <Target Name="_AddRuntimesCopyItems" Condition="'$(VcpkgUseStatic)' != 'true'"
+            AfterTargets="ClCompile" BeforeTargets="AssignTargetPaths" DependsOnTargets="GetSharedBuild">
+        <ItemGroup>
+            <None Include="@(NativesRuntime)" Condition="Exists('%(NativesRuntime.FullPath)')">
+                <TargetPath>%(NativesRuntime.Filename)%(NativesRuntime.Extension)</TargetPath>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            </None>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="GetSharedBuild" DependsOnTargets="PrepareVcpkg"
+            Condition="'$(VcpkgUseStatic)' != 'true'"
+            Returns="@(NativesRuntime)">
+
+        <Exec Condition="'$(VcpkgBuildOS)' != 'win'"
+              Command="find '$(MSBuildProjectDirectory)/$(VcpkgOutputPath)/lib' -type l -print"
+              ConsoleToMsBuild="true"
+              StandardOutputImportance="Low"
+              StandardErrorImportance="Low">
+            <Output TaskParameter="ConsoleOutput" ItemName="_SymlinksToRemove" />
+        </Exec>
+
+        <ItemGroup>
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
+                            Condition="'%(_BuiltRid.Ext)' == 'so'">
+                <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
+            </NativesRuntime>
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
+                            Condition="'%(_BuiltRid.Ext)' != 'so'">
+                <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
+            </NativesRuntime>
+
+            <NativesRuntime Remove="@(_SymlinksToRemove)" MatchOnMetadata="FullPath" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="GetStaticBuild" DependsOnTargets="PrepareVcpkg"
+            Returns="@(NativesStatic)">
+        <ItemGroup>
+            <!-- Static libraries -->
+            <NativesStatic Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives-static\%(_BuiltRid.LibPath).*">
+                <PackPath>staticlibs\%(_BuiltRid.Identity)\</PackPath>
+            </NativesStatic>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="GetSharedBuildDir" DependsOnTargets="PrepareVcpkg"
+            Returns="@(_RuntimesPath)">
+        <ItemGroup>
+            <_RuntimesPath Include="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(VcpkgOutputPath)'))" />
+        </ItemGroup>
+        <Message Text="Shared build output path: @(_RuntimesPath)" Importance="high" />
+    </Target>
+
+    <Target Name="GetStaticBuildDir" DependsOnTargets="PrepareVcpkg"
+            Returns="@(_StaticFullPath)">
+        <ItemGroup>
+            <_StaticFullPath Include="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(VcpkgOutputPath_Static)'))" />
+        </ItemGroup>
+        <Message Text="Static build output path: @(_StaticFullPath)" Importance="high" />
     </Target>
 
     <Target Name="GetDynamicVcpkgVersions" BeforeTargets="PackageNatives"
@@ -185,39 +253,12 @@
                  Importance="high" Condition="'%(_VcpkgPkg.Identity)' != ''"/>
     </Target>
 
-    <Target Name="_AddNativeRuntimeCopyItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareVcpkg"
-            Returns="@(_CopyOutput)">
-        <ItemGroup>
-            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
-                            Condition="'%(_BuiltRid.Ext)' == 'so'" />
-            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
-                            Condition="'%(_BuiltRid.Ext)' != 'so'" />
-
-            <_SymlinksToRemoveRuntime Include="@(NativesRuntime)"
-                                     Condition="Exists('%(FullPath)') and ($([MSBuild]::BitwiseAnd($([System.IO.File]::GetAttributes('%(FullPath)')), 1024)) == 1024)" />
-            <NativesRuntime Remove="@(_SymlinksToRemoveRuntime)" />
-
-            <_CopyOutput Include="%(NativesRuntime.FullPath)">
-                <TargetPath>%(NativesRuntime.Filename)%(NativesRuntime.Extension)</TargetPath>
-                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            </_CopyOutput>
-            <None Include="@(_CopyOutput)" Condition="Exists('%(_CopyOutput.Identity)')" />
-        </ItemGroup>
-        <Message Text="$(MSBuildProjectName) runtime: $([System.IO.Path]::GetRelativePath('$(MSBuildProjectDirectory)', '%(_CopyOutput.Identity)'))" Importance="high" />
-    </Target>
-
     <Import Project="NetCord.Natives.Symlinking.targets" Condition="Exists('NetCord.Natives.Symlinking.targets')" />
-
-    <Target Name="CreateNativeSymlinks" AfterTargets="CopyFilesToOutputDirectory"
-            Condition="'$(OS)' != 'Windows_NT' and Exists('NetCord.Natives.Symlinking.targets')">
-
-        <CallTarget Targets="_ExecNativeSymlinks" />
-    </Target>
 
     <PropertyGroup>
         <GenerateNuspecDependsOn>PackagePerNative</GenerateNuspecDependsOn>
     </PropertyGroup>
-    <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg" 
+    <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg"
             Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' != 'true'">
 
         <ItemGroup>
@@ -227,8 +268,8 @@
         </ItemGroup>
 
         <MSBuild Projects="@(ProjectsToPack)"
-                Targets="Pack"
-                BuildInParallel="true" />
+                 Targets="Pack"
+                 BuildInParallel="true" />
 
         <PropertyGroup>
             <RestoreOutputPath>$(RestoreOutputPath)/meta-nuget</RestoreOutputPath>
@@ -238,13 +279,14 @@
 
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Restore"
-                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(PackageOutputPath);RestoreOutputPath=$(RestoreOutputPath)" />
+                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(MSBuildProjectDirectory)/$(PackageOutputPath);RestoreOutputPath=$(RestoreOutputPath)" />
     </Target>
 
     <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences" 
             Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' == 'true'">
 
-        <Message Text="$(PackageId) meta package dependency: $(PackageId).%(NativeDepsPacked.Identity) [$(_NativePkgVer)]" Importance="high" />
+        <Message Text="$(PackageId) meta package dependency: $(PackageId).%(NativeDepsPacked.Identity) [$(_NativePkgVer)]" 
+                 Importance="high" />
 
         <ItemGroup>
             <PackageReference Include="NetCord.Natives.%(NativeDepsPacked.Identity)" />
@@ -252,12 +294,12 @@
         </ItemGroup>
     </Target>
 
-    <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles" DependsOnTargets="PrepareVcpkg"
+    <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles"
             Condition="'$(_IsPackingNative)' == 'true' and '$(PackageNativeDep)' != ''">
 
         <ItemGroup>
             <_NativeLicenseSource Include="$(VcpkgOutputPath_Static)\share\%(NativeLibLic.Identity)\copyright"
-                        Condition="Exists('$(VcpkgOutputPath_Static)\share\%(NativeLibLic.Identity)\copyright')">
+                                  Condition="Exists('$(VcpkgOutputPath_Static)\share\%(NativeLibLic.Identity)\copyright')">
                 <TargetPath>$(VcpkgOutputPath_Static)\licenses\%(NativeLibLic.Identity)_LICENSE.txt</TargetPath>
             </_NativeLicenseSource>
         </ItemGroup>
@@ -269,27 +311,11 @@
             <PackageId>$(PackageId).$(PackageNativeDep)</PackageId>
         </PropertyGroup>
 
+        <CallTarget Targets="GetSharedBuild;GetStaticBuild">
+            <Output TaskParameter="TargetOutputs" ItemName="NativesBuilt" />
+        </CallTarget>
+
         <ItemGroup>
-            <!-- Linux: Version is appended after extension, i.e. *.so.* -->
-            <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
-                          Condition="'%(_BuiltRid.Ext)' == 'so'">
-                <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
-            </NativesBuilt>
-            <!-- Windows: DLL files & macOS: Version is before extension, i.e. *.*.dylib -->
-            <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
-                          Condition="'%(_BuiltRid.Ext)' != 'so'">
-                <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
-            </NativesBuilt>
-
-            <!-- Static libraries -->
-            <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives-static\%(_BuiltRid.LibPath).*">
-                <PackPath>staticlibs\%(_BuiltRid.Identity)\</PackPath>
-            </NativesBuilt>
-
-            <_SymlinksToRemoveBuilt Include="@(NativesBuilt)"
-                                   Condition="Exists('%(FullPath)') and ($([MSBuild]::BitwiseAnd($([System.IO.File]::GetAttributes('%(FullPath)')), 1024)) == 1024)" />
-            <NativesBuilt Remove="@(_SymlinksToRemoveBuilt)" />
-
             <Content Include="@(NativesBuilt)" Condition="Exists('%(NativesBuilt.Identity)')">
                 <Pack>true</Pack>
                 <PackagePath>%(NativesBuilt.PackPath)%(NativesBuilt.Filename)%(NativesBuilt.Extension)</PackagePath>
@@ -302,19 +328,14 @@
             </Content>
 
             <_BuildFiles Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets">
-                <PkgPath>$(PackageId)</PkgPath>
-            </_BuildFiles>
-            <_BuildFiles Include="$(MSBuildProjectName).Symlinking.targets">
-                <PkgPath>$(PackageId).Symlinking</PkgPath>
+                <Pack>true</Pack>
             </_BuildFiles>
 
             <None Include="@(_BuildFiles)">
-                <PackagePath>build\%(_BuildFiles.PkgPath)%(_BuildFiles.Extension)</PackagePath>
-                <Pack>true</Pack>
+                <PackagePath>build\$(PackageId)%(_BuildFiles.Extension)</PackagePath>
             </None>
             <None Include="@(_BuildFiles)">
-                <PackagePath>buildTransitive\%(_BuildFiles.PkgPath)%(_BuildFiles.Extension)</PackagePath>
-                <Pack>true</Pack>
+                <PackagePath>buildTransitive\$(PackageId)%(_BuildFiles.Extension)</PackagePath>
             </None>
         </ItemGroup>
     </Target>

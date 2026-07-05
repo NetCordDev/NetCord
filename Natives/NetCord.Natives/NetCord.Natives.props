@@ -9,7 +9,7 @@
             -->
         <NetCordExcludeNativesDynamic />
 
-        <NetCordNativesRuntimesDir Condition="'$(NetCordNativesRuntimesDir)' == ''">$(MSBuildThisFileDirectory)..\runtimes\$(RuntimeIdentifier)\native</NetCordNativesRuntimesDir>
+        <NetCordNativesSharedDir Condition="'$(NetCordNativesSharedDir)' == ''">$(MSBuildThisFileDirectory)..\runtimes\$(RuntimeIdentifier)\native</NetCordNativesSharedDir>
         <NetCordNativesStaticDir Condition="'$(NetCordNativesStaticDir)' == ''">$(MSBuildThisFileDirectory)..\staticlibs\$(RuntimeIdentifier)</NetCordNativesStaticDir>
     </PropertyGroup>
 

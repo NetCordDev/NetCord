@@ -2,6 +2,9 @@
 
 	<Target Name="GetNetCordNativesItems">
 		<ItemGroup>
+			<_NativesRuntime Include="$(NetCordNativesSharedDir)\**"
+						 	 Condition="'$(NetCordNativesSharedDir)' != ''" />
+
 			<!-- Order matters, dependencies come last -->
 			<!-- 1. Top-level application libraries (The Consumers) -->
 			<_NetCordStaticLink Include="sodium"
@@ -26,17 +29,16 @@
 
 			<_NetCordExcluded Include="$(NetCordExcludeNatives)"
 							  Condition="'$(NetCordExcludeNatives)' != ''" />
-			<_NetCordExcluded Include="crypto;ssl"
+			<_NetCordExcluded Include="crypto"
 							  Condition="$(NetCordExcludeNatives.Contains('libdave'))" />
 
 			<_NetCordExcluded Include="@(_NetCordStaticLink)"
 							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
 
-			<_RunExclude Include="$(NetCordNativesRuntimesDir)\%(_NetCordExcluded.Identity)*.*"
-						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
-			<_RunExclude Include="$(NetCordNativesRuntimesDir)\lib%(_NetCordExcluded.Identity)*.*"
-						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
-
+			<_RunExclude Include="$(NetCordNativesSharedDir)\%(_NetCordExcluded.Identity)*.*"
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
+			<_RunExclude Include="$(NetCordNativesSharedDir)\lib%(_NetCordExcluded.Identity)*.*"
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
 		</ItemGroup>
 	</Target>
 
@@ -66,12 +68,44 @@
 		</ItemGroup>
 	</Target>
 
-	<Import Project="NetCord.Natives.Symlinking.targets" Condition="Exists('NetCord.Natives.Symlinking.targets')" />
+	<Target Name="NetCordNativesSymlinks" Condition="'$(OS)' != 'Windows_NT'"
+			AfterTargets="CopyFilesToOutputDirectory"
+			BeforeTargets="IncrementalCleanDependsOn">
+		<ItemGroup>
+			<_CopiedNonNatives Include="@(_SourceItemsToCopyToOutputDirectory)" 
+							   Exclude="@(_NativesRuntime)" />
+			<_CopiedNatives Include="@(_SourceItemsToCopyToOutputDirectory)" 
+							Exclude="@(_CopiedNonNatives)" />
+			<_NativesShared Include="$(OutDir)%(_CopiedNatives.TargetPath)" />
 
-	<Target Name="CreateNativeSymlinks" AfterTargets="CopyFilesToOutputDirectory"
-			Condition="'$(OS)' != 'Windows_NT'">
+            <_Symlink Include="@(_NativesShared)"
+                      Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.so\.\d+'))">
+                <RealName>%(Filename)%(Extension)</RealName>
+                <SoName>$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*?\.so\.\d+').Value)</SoName>
+                <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.so\..*', '.so'))</LinkerName>
+            </_Symlink>
+            <_Symlink Include="@(_NativesShared)"
+                      Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.dylib$'))">
+                <RealName>%(Filename)%(Extension)</RealName>
+                <SoName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^(.*?\.\d+)\..*\.dylib$', '$1.dylib'))</SoName>
+                <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib$', '.dylib'))</LinkerName>
+            </_Symlink>
+		</ItemGroup>
 
-        <CallTarget Targets="_ExecNativeSymlinks" />
+		<Exec Command="ln -sf %(_Symlink.RealName) %(_Symlink.SoName)"
+              WorkingDirectory="$(OutputPath)"
+              Condition="'%(_Symlink.RealName)' != '%(_Symlink.SoName)' and '%(_Symlink.SoName)' != ''" />
+
+        <Exec Command="ln -sf %(_Symlink.SoName) %(_Symlink.LinkerName)"
+              WorkingDirectory="$(OutputPath)"
+              Condition="'%(_Symlink.SoName)' != '%(_Symlink.LinkerName)' and '%(_Symlink.SoName)' != '' and '%(_Symlink.LinkerName)' != ''" />
+
+        <Message Text="$(MSBuildProjectName) symlinking -> $(OutDir)[%(_Symlink.LinkerName) -> %(_Symlink.SoName) -> %(_Symlink.RealName)]"
+                 Importance="high" Condition="'@(_Symlink)' != ''" />
+
+        <ItemGroup>
+            <FileWrites Include="$(OutDir)%(_Symlink.SoName)" />
+            <FileWrites Include="$(OutDir)%(_Symlink.LinkerName)" />
+        </ItemGroup>
 	</Target>
-
 </Project>

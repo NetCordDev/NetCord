@@ -6,23 +6,22 @@
 	
 		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
 				 Targets="GetStaticBuildDir">
-			<Output TaskParameter="TargetOutputs" ItemName="_NetCordStaticDir" />
+			<Output TaskParameter="TargetOutputs" ItemName="_NativeStaticDir" />
 		</MSBuild>
 
 		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
-				 Targets="_AddNativeRuntimeCopyItems">
-			<Output TaskParameter="TargetOutputs" ItemName="_NetCordRuntimesDir" />
+				 Targets="GetSharedBuildDir">
+			<Output TaskParameter="TargetOutputs" ItemName="_NativeSharedDir" />
 		</MSBuild>
 
 		<PropertyGroup>
-			<NetCordNativesStaticDir>%(_NetCordStaticDir.Identity)\lib</NetCordNativesStaticDir>
-			<NetCordNativesRuntimesDir Condition="'%(_NetCordRuntimesDir.FullPath)' != ''"
-				>$([System.IO.Path]::GetDirectoryName('%(_NetCordRuntimesDir.FullPath)'))</NetCordNativesRuntimesDir>
+			<NetCordNativesStaticDir>%(_NativeStaticDir.FullPath)\lib</NetCordNativesStaticDir>
+			<NetCordNativesSharedDir>%(_NativeSharedDir.FullPath)\lib</NetCordNativesSharedDir>
 		</PropertyGroup>
 
 	</Target>
 
-	<Target Name="ExcludeStaticLinkedLibPrjCopyPublish" Condition="'$(PublishAot)' == 'true'" 
+	<Target Name="ExcludeSharedFromFilesToPublish" Condition="'$(PublishAot)' == 'true'" 
 			DependsOnTargets="GetNetCordNativesItems"
 			AfterTargets="ComputeResolvedFilesToPublishList"
 			BeforeTargets="ComputeFilesToPublish">
@@ -31,4 +30,12 @@
 		</ItemGroup>
 	</Target>
 
+	<Target Name="ExcludeSharedFromCopyToOutput"
+			DependsOnTargets="GetNetCordNativesItems"
+			AfterTargets="GetCopyToOutputDirectoryItems"
+			BeforeTargets="_CopyOutOfDateSourceItemsToOutputDirectory">
+		<ItemGroup>
+			<_SourceItemsToCopyToOutputDirectory Remove="%(_RunExclude.FullPath)" />
+		</ItemGroup>
+	</Target>
 </Project>
