@@ -129,7 +129,7 @@
                 <Ext>dylib</Ext>
             </_BuiltRid>
 
-            <_BuiltRid Remove="%(Identity)" Condition="'$(PackageNativeDep)' == '' and '%(Identity)' != '$(VcpkgBuildOS)-$(VcpkgPlatformTarget)'" />
+            <_BuiltRid Remove="%(Identity)" Condition="'$(_IsPackingNative)' != 'true' and '%(Identity)' != '$(VcpkgBuildOS)-$(VcpkgPlatformTarget)'" />
         </ItemGroup>
     </Target>
 
@@ -177,29 +177,54 @@
         </ItemGroup>
     </Target>
 
-    <Target Name="GetSharedBuild" DependsOnTargets="PrepareVcpkg"
+    <Target Name="GetSharedBuild" 
+            DependsOnTargets="_FindScopedSymlinks"
             Condition="'$(VcpkgUseStatic)' != 'true'"
             Returns="@(NativesRuntime)">
 
-        <Exec Condition="'$(VcpkgBuildOS)' != 'win'"
-              Command="find '$(MSBuildProjectDirectory)/$(VcpkgOutputPath)/lib' -type l -print"
-              ConsoleToMsBuild="true"
-              StandardOutputImportance="Low"
-              StandardErrorImportance="Low">
-            <Output TaskParameter="ConsoleOutput" ItemName="_SymlinksToRemove" />
-        </Exec>
-
         <ItemGroup>
-            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)/%(_BuiltRid.Identity)/natives/%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
                             Condition="'%(_BuiltRid.Ext)' == 'so'">
                 <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
             </NativesRuntime>
-            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)/%(_BuiltRid.Identity)/natives/%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
                             Condition="'%(_BuiltRid.Ext)' != 'so'">
                 <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
             </NativesRuntime>
+        </ItemGroup>
 
-            <NativesRuntime Remove="@(_SymlinksToRemove)" MatchOnMetadata="FullPath" />
+        <ItemGroup>
+            <NativesRuntime Remove="@(_ScopedSymlinksToRemove)" MatchOnMetadata="FullPath" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="_FindScopedSymlinks" DependsOnTargets="PrepareVcpkg">
+        <ItemGroup>
+            <_BuiltRidBinDir Include="$([System.IO.Path]::GetFullPath('$(VcpkgArtifactsRoot)/%(_BuiltRid.Identity)/natives/'))$([System.IO.Path]::GetDirectoryName('%(_BuiltRid.BinPath)'))" />
+        </ItemGroup>
+
+        <RemoveDuplicates Inputs="@(_BuiltRidBinDir)">
+            <Output TaskParameter="Filtered" ItemName="_TargetSearchDir" />
+        </RemoveDuplicates>
+
+        <Exec Condition="'$(OS)' != 'Windows_NT' and Exists('%(_TargetSearchDir.Identity)')"
+              Command="find '%(_TargetSearchDir.Identity)' -maxdepth 1 -type l -print"
+              ConsoleToMsBuild="true"
+              StandardOutputImportance="Low"
+              StandardErrorImportance="Low">
+            <Output TaskParameter="ConsoleOutput" ItemName="_RawScopedSymlinks" />
+        </Exec>
+
+        <Exec Condition="'$(OS)' == 'Windows_NT' and Exists('%(_TargetSearchDir.Identity)')"
+              Command="powershell -NoProfile -Command &quot;Get-ChildItem '%(_TargetSearchDir.Identity)' | Where-Object { $_.Attributes -match 'ReparsePoint' } | ForEach-Object { $_.FullName }&quot;"
+              ConsoleToMsBuild="true"
+              StandardOutputImportance="Low"
+              StandardErrorImportance="Low">
+            <Output TaskParameter="ConsoleOutput" ItemName="_RawScopedSymlinks" />
+        </Exec>
+
+        <ItemGroup>
+            <_ScopedSymlinksToRemove Include="@(_RawScopedSymlinks)" Condition="'@(_RawScopedSymlinks)' != ''" />
         </ItemGroup>
     </Target>
 
@@ -260,8 +285,6 @@
                  Importance="high" Condition="'%(_VcpkgPkg.Identity)' != ''"/>
     </Target>
 
-    <Import Project="NetCord.Natives.Symlinking.targets" Condition="Exists('NetCord.Natives.Symlinking.targets')" />
-
     <PropertyGroup>
         <GenerateNuspecDependsOn>PackagePerNative</GenerateNuspecDependsOn>
     </PropertyGroup>
@@ -279,14 +302,15 @@
                  BuildInParallel="true" />
 
         <PropertyGroup>
-            <RestoreOutputPath>$(RestoreOutputPath)/meta-nuget</RestoreOutputPath>
+            <_MetaRestoreOutputPath>$(RestoreOutputPath)\meta-nuget\</_MetaRestoreOutputPath>
+            <_MetaRestoreSource>$([System.IO.Path]::GetFullPath('$(PackageOutputPath)'))</_MetaRestoreSource>
         </PropertyGroup>
 
-        <Message Text="Restoring for meta packaging to $(RestoreOutputPath)." Importance="high" />
+        <Message Text="Restoring for meta packaging to $(_MetaRestoreOutputPath)." Importance="high" />
 
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Restore"
-                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(MSBuildProjectDirectory)/$(PackageOutputPath);RestoreOutputPath=$(RestoreOutputPath)" />
+                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(_MetaRestoreSource);RestoreOutputPath=$(_MetaRestoreOutputPath)" />
     </Target>
 
     <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences"
