@@ -34,48 +34,56 @@ jobs:
             vcpkg-os-target: windows
             vcpkg-platform-target: x64
             use-nix: false
+            musl: false
             shell_command: pwsh
           - rid: win-arm64
             runs-on: windows-11-arm
             vcpkg-os-target: windows
             vcpkg-platform-target: arm64
             use-nix: false
+            musl: false
             shell_command: pwsh
           - rid: osx-x64
             runs-on: macos-15-intel
             vcpkg-os-target: osx
             vcpkg-platform-target: x64
             use-nix: true
+            musl: false
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
           - rid: osx-arm64
             runs-on: macos-15
             vcpkg-os-target: osx
             vcpkg-platform-target: arm64
             use-nix: true
+            musl: false
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
           - rid: linux-x64
             runs-on: ubuntu-latest
             vcpkg-os-target: linux
             vcpkg-platform-target: x64
             use-nix: true
+            musl: false
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
           - rid: linux-arm64
             runs-on: ubuntu-24.04-arm
             vcpkg-os-target: linux
             vcpkg-platform-target: arm64
             use-nix: true
+            musl: false
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
           - rid: linux-musl-x64
             runs-on: ubuntu-latest
             vcpkg-os-target: linux-musl
             vcpkg-platform-target: x64
             use-nix: true
+            musl: true
             shell_command: nix develop .#natives-musl -c bash -eo pipefail {0}
           - rid: linux-musl-arm64
             runs-on: ubuntu-24.04-arm
             vcpkg-os-target: linux-musl
             vcpkg-platform-target: arm64
             use-nix: true
+            musl: true
             shell_command: nix develop .#natives-musl --option max-jobs 1 --option cores 3 -c bash -eo pipefail {0}
 
     runs-on: ${{ matrix.runs-on }}
@@ -109,7 +117,7 @@ jobs:
         uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
       - name: Magic Nix Cache
-        if: ${{ matrix.use-nix }}
+        if: ${{ matrix.use-nix && matrix.musl }}
         uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
       - name: Setup dev environment (Nix)
