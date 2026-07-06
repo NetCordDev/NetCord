@@ -109,13 +109,13 @@ public static partial class NativeProbes
     }
 
     /*
-     * This method is not working on macOS due to System.Diagnostics.ProcessModule 
+     * This method is not working on macOS due to System.Diagnostics.ProcessModule
      * not listing native libraries loaded by the runtime's dynamic library loader (dyld).
-     * This is likely because dyld does not expose these libraries to the process in the 
-     * same way that LoadLibrary on Windows or dlopen on Linux does, and as a result they 
-     * do not appear in the list of modules for the process. This is a known limitation 
-     * when trying to inspect loaded native libraries on macOS using .NET, and may require 
-     * platform-specific workarounds or tools to verify the presence of native libraries 
+     * This is likely because dyld does not expose these libraries to the process in the
+     * same way that LoadLibrary on Windows or dlopen on Linux does, and as a result they
+     * do not appear in the list of modules for the process. This is a known limitation
+     * when trying to inspect loaded native libraries on macOS using .NET, and may require
+     * platform-specific workarounds or tools to verify the presence of native libraries
      * on that platform.
     */
     internal static IntPtr GetLoadedNativeModuleHandle(string libName)

@@ -201,7 +201,7 @@ jobs:
           --no-restore
           --no-build
           -v ${{ env.DotnetVerbose }}
-          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog -p:NativeAotBinLogPath="$PWD/nativeaotapptest.binlog"' || '' }}
+          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
           --logger "console;verbosity=detailed"
           --logger GitHubActions
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}

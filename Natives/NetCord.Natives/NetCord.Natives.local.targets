@@ -16,9 +16,9 @@
 
 		<PropertyGroup>
 			<NetCordNativesStaticDir>%(_NativeStaticDir.FullPath)\lib</NetCordNativesStaticDir>
-			<NetCordNativesSharedDir>%(_NativeSharedDir.FullPath)\lib</NetCordNativesSharedDir>
+			<NetCordNativesSharedDir Condition="'$(OS)' == 'Windows_NT'">%(_NativeSharedDir.FullPath)\bin</NetCordNativesSharedDir>
+			<NetCordNativesSharedDir Condition="'$(OS)' != 'Windows_NT'">%(_NativeSharedDir.FullPath)\lib</NetCordNativesSharedDir>
 		</PropertyGroup>
-
 	</Target>
 
 	<Target Name="ExcludeSharedFromFilesToPublish" Condition="'$(PublishAot)' == 'true'" 

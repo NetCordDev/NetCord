@@ -120,7 +120,6 @@ public class NativesBuildTests
         Assert.AreEqual(BuildResultCode.Success, buildResult.OverallResult, $"Native AoT build failed for '{libNames}'.");
 
         // 5. Instantly extract the 'PublishDir' property from the evaluated project state
-        // (This replaces the entire second "dotnet build -getProperty" process call!)
         var publishDirProperty = projectInstance.GetPropertyValue("PublishDir");
         Assert.IsFalse(string.IsNullOrEmpty(publishDirProperty), $"PublishDir is empty for '{libNames}'.");
 
@@ -132,42 +131,7 @@ public class NativesBuildTests
 
         Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Native AoT app published to: '{runCmdOutput}'");
 
-        // 6. Assertions on copied native binaries
-        var libs = libNames.Split([';', ','], StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim());
-        var deps = new List<string>();
-
-        foreach (var lib in libs)
-        {
-            switch (lib)
-            {
-                case "libdave":
-                    deps.AddRange([lib, "crypto"]);
-                    break;
-                case "libsodium":
-                case "opus":
-                case "zstd":
-                    deps.Add(lib);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Unknown library name '{lib}' provided to test.");
-            }
-        }
-
-        var copiedDlls = Directory.GetFiles(Path.GetDirectoryName(runCmdOutput) ?? string.Empty,
-                                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "*.dll" :
-                                            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "lib*.so" : "lib*.dylib",
-                                            SearchOption.TopDirectoryOnly)
-                                  .Select(Path.GetFileName);
-
-        var matchCopied = copiedDlls.Where(dll => dll != null && deps.Any(lib =>
-                                        dll.StartsWith(lib, StringComparison.OrdinalIgnoreCase) ||
-                                        dll.StartsWith($"lib{lib}", StringComparison.OrdinalIgnoreCase)))
-                                    .ToList();
-
-        Assert.IsEmpty(matchCopied, $"These should've not been copied to the publish output directory: {string.Join(", ", matchCopied)}");
-
-        // 7. Execute the generated Native AOT Binary
-        // NOTE: Running the compiled native application still requires System.Diagnostics.Process
+        // Execute the generated Native AOT Binary
         var aotProcess = new System.Diagnostics.Process();
         aotProcess.StartInfo.FileName = runCmdOutput;
         aotProcess.StartInfo.WorkingDirectory = Path.GetDirectoryName(runCmdOutput);

@@ -2,7 +2,7 @@
 
     <ItemGroup Condition="'$(VcpkgEnabled)' == 'true' and '$(VcpkgEnableManifest)' == 'true' and '$(VcpkgBuildOS)' != 'win'" >
         <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgManifestFileLocation)"/>
-        <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgConfigurationFileLocation)" 
+        <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgConfigurationFileLocation)"
                                                   Condition="Exists('$(_ZVcpkgConfigurationFileLocation)')"/>
     </ItemGroup>
 
@@ -10,11 +10,11 @@
           Condition="'$(VcpkgEnabled)' == 'true' and '$(VcpkgEnableManifest)' == 'true' and '$(VcpkgBuildOS)' != 'win'"
           Inputs="@(_ZVcpkgInstallManifestDependenciesInputs)"
           Outputs="$(_ZVcpkgMSBuildStampFile)">
-        
+
         <PropertyGroup>
             <!-- This is set inside the target because $(TLogLocation) may not be set yet when parsing the .targets on VS2015 -->
             <_ZVcpkgTLogFileLocation>$(TLogLocation)VcpkgInstallManifest$(VcpkgTriplet).$(_ZVcpkgHostTripletSuffix)read.1u.tlog</_ZVcpkgTLogFileLocation>
-            
+
             <_ZVcpkgExecutable Condition="Exists('$(_ZVcpkgRoot)vcpkg')">$(_ZVcpkgRoot)vcpkg</_ZVcpkgExecutable>
             <_ZVcpkgExecutable Condition="'$(_ZVcpkgExecutable)' == ''">vcpkg</_ZVcpkgExecutable>
         </PropertyGroup>

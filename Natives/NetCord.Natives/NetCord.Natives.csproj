@@ -118,8 +118,8 @@
             </_BuiltRid>
 
             <_BuiltRid Include="linux-musl-%(_LibArchs.Identity)">
-                <BinPath>%(_LibArchs.Identity)-linux-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
-                <LibPath>%(_LibArchs.Identity)-linux/lib/lib%(_LibArchs.LibName)</LibPath>
+                <BinPath>%(_LibArchs.Identity)-linux-musl-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-linux-musl/lib/lib%(_LibArchs.LibName)</LibPath>
                 <Ext>so</Ext>
             </_BuiltRid>
 
@@ -139,6 +139,13 @@
 
         <Error Condition="('$(VcpkgBuildOS)' == 'win' and !Exists('$(VcpkgRoot)\vcpkg.exe')) or ('$(VcpkgBuildOS)' != 'win' and !Exists('$(VcpkgRoot)/vcpkg'))"
                Text="Vcpkg executable not found in $(VcpkgRoot). Ensure vcpkg is installed and the path is correct. (i.e., run '$(VcpkgRoot)/bootstrap-vcpkg.{bat/sh})'" />
+
+        <PropertyGroup>
+            <_FullVcpkgRoot>$([System.IO.Path]::GetFullPath('$(VcpkgRoot)'))</_FullVcpkgRoot>
+        </PropertyGroup>
+
+        <Warning Code="NCN0010" Condition="$(_FullVcpkgRoot.Length) &gt; 260 and '$(VcpkgBuildOS)' == 'win'"
+                 Text="The VcpkgRoot path length ($(_FullVcpkgRoot.Length) characters) exceeds the 260 character limit. Path: $(_FullVcpkgRoot)" />
     </Target>
 
     <Target Name="ClCompile" BeforeTargets="BeforeBuild" DependsOnTargets="PrepareVcpkg"
@@ -156,7 +163,7 @@
             <Output TaskParameter="TargetOutputs" ItemName="NativesBuilt" />
         </CallTarget>
 
-        <Message Text="$(MSBuildProjectName) -> %(NativesBuilt.FullPath)" Importance="high" 
+        <Message Text="$(MSBuildProjectName) -> %(NativesBuilt.FullPath)" Importance="high"
                  Condition="Exists('%(NativesBuilt.FullPath)')" />
     </Target>
 
@@ -282,10 +289,10 @@
                  Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(MSBuildProjectDirectory)/$(PackageOutputPath);RestoreOutputPath=$(RestoreOutputPath)" />
     </Target>
 
-    <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences" 
+    <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences"
             Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' == 'true'">
 
-        <Message Text="$(PackageId) meta package dependency: $(PackageId).%(NativeDepsPacked.Identity) [$(_NativePkgVer)]" 
+        <Message Text="$(PackageId) meta package dependency: $(PackageId).%(NativeDepsPacked.Identity) [$(_NativePkgVer)]"
                  Importance="high" />
 
         <ItemGroup>

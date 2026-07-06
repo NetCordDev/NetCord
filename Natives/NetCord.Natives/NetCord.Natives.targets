@@ -72,9 +72,9 @@
 			AfterTargets="CopyFilesToOutputDirectory"
 			BeforeTargets="IncrementalCleanDependsOn">
 		<ItemGroup>
-			<_CopiedNonNatives Include="@(_SourceItemsToCopyToOutputDirectory)" 
+			<_CopiedNonNatives Include="@(_SourceItemsToCopyToOutputDirectory)"
 							   Exclude="@(_NativesRuntime)" />
-			<_CopiedNatives Include="@(_SourceItemsToCopyToOutputDirectory)" 
+			<_CopiedNatives Include="@(_SourceItemsToCopyToOutputDirectory)"
 							Exclude="@(_CopiedNonNatives)" />
 			<_NativesShared Include="$(OutDir)%(_CopiedNatives.TargetPath)" />
 
