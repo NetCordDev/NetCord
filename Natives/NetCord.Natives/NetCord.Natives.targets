@@ -90,15 +90,13 @@
                 <SoName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^(.*?\.\d+)\..*\.dylib$', '$1.dylib'))</SoName>
                 <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib$', '.dylib'))</LinkerName>
             </_Symlink>
+			<_Symlink Remove="%(Identity)" Condition="'%(RealName)' == '' or '%(SoName)' == '' or '%(LinkerName)' == ''" />
+			<_Symlink Remove="%(Identity)" Condition="'%(RealName)' == '%(SoName)' or '%(SoName)' == '' or '%(LinkerName)' == '' or '%(LinkerName)' == '%(RealName)'" />
 		</ItemGroup>
 
-		<Exec Command="ln -sf %(_Symlink.RealName) %(_Symlink.SoName)"
-              WorkingDirectory="$(OutputPath)"
-              Condition="'%(_Symlink.RealName)' != '%(_Symlink.SoName)' and '%(_Symlink.SoName)' != ''" />
+		<Exec Command="ln -sf %(_Symlink.RealName) %(_Symlink.SoName)" WorkingDirectory="$(OutputPath)" Condition="'@(_Symlink)' != ''" />
 
-        <Exec Command="ln -sf %(_Symlink.SoName) %(_Symlink.LinkerName)"
-              WorkingDirectory="$(OutputPath)"
-              Condition="'%(_Symlink.SoName)' != '%(_Symlink.LinkerName)' and '%(_Symlink.SoName)' != '' and '%(_Symlink.LinkerName)' != ''" />
+        <Exec Command="ln -sf %(_Symlink.SoName) %(_Symlink.LinkerName)" WorkingDirectory="$(OutputPath)" Condition="'@(_Symlink)' != ''" />
 
         <Message Text="$(MSBuildProjectName) symlinking -> $(OutDir)[%(_Symlink.LinkerName) -> %(_Symlink.SoName) -> %(_Symlink.RealName)]"
                  Importance="high" Condition="'@(_Symlink)' != ''" />
