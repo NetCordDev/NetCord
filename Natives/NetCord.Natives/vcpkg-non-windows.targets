@@ -1,5 +1,4 @@
 <Project>
-
     <ItemGroup Condition="'$(VcpkgEnabled)' == 'true' and '$(VcpkgEnableManifest)' == 'true' and '$(VcpkgBuildOS)' != 'win'" >
         <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgManifestFileLocation)"/>
         <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgConfigurationFileLocation)"
@@ -45,10 +44,4 @@
             <Output TaskParameter="ValueSetByTask" PropertyName="Link_MinimalRebuildFromTracking" />
         </CreateProperty>
     </Target>
-
-    <Target Name="BootstrapVcpkg" BeforeTargets="PrepareVcpkg" Condition="'$(VcpkgOSTarget)' != 'windows' and !Exists('$(VcpkgRoot)/vcpkg')">
-        <Message Importance="high" Text="Bootstrapping vcpkg..." />
-        <Exec Command="$(VcpkgRoot)/bootstrap-vcpkg.sh -disableMetrics" />
-    </Target>
-
 </Project>

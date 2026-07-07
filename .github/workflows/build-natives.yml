@@ -100,7 +100,6 @@ jobs:
       GITHUB_PACKAGES_FEED: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
       VCPKG_BINARY_SOURCES: "clear;nugetconfig,${{ github.workspace }}/Natives/NetCord.Natives/vcpkg-nuget.config,readwrite"
       Configuration: Release
-      TargetRID: ${{ matrix.rid }}
       DotnetVerbose: ${{ github.event.inputs.MSBuildVerbosity || inputs.MSBuildVerbosity || 'Minimal' }}
       GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
 
@@ -198,13 +197,13 @@ jobs:
           dotnet build Natives/NetCord.Natives.slnx --no-restore
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && format('-bl:build.binlog -p:NativeAotBinLogPath={0}/nativeaotapptest.binlog', github.workspace) || '' }}
-          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.TargetRID }}"
-          -p:GeneratePackageOnBuild=false -p:CI=false
-          ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
+          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ matrix.rid }}%3BVcpkgOSTarget=${{ env.VcpkgOSTarget }}%3BVcpkgPlatformTarget=${{ env.VcpkgPlatformTarget }}"
+          -p:GeneratePackageOnBuild=false
+          ${{ env.VcpkgOSTarget == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
-          ${{ matrix.vcpkg-os-target == 'linux-musl' && 'docker run --rm -v $PWD:$PWD -w $PWD -e Configuration -e VCPKG_ROOT -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
@@ -212,7 +211,6 @@ jobs:
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
           --logger "console;verbosity=detailed"
           --logger GitHubActions
-          ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always() }}
@@ -225,8 +223,8 @@ jobs:
       - name: Clean Symbollic Links (Nix)
         if: ${{ matrix.use-nix }}
         run: |
-          find Natives/NetCord.Natives/bin/${{ matrix.rid }}/natives/${{ matrix.vcpkg-platform-target }}-${{ matrix.vcpkg-os-target }}-dynamic/lib/ -type l -exec rm {} \;
-          find Natives/NetCord.Natives/bin/${{ matrix.rid }}/natives-static/${{ matrix.vcpkg-platform-target }}-${{ matrix.vcpkg-os-target }}/lib/ -type l -exec rm {} \;
+          find Natives/NetCord.Natives/bin/${{ matrix.rid }}/natives/${{ env.VcpkgPlatformTarget }}-${{ env.VcpkgOSTarget }}-dynamic/lib/ -type l -exec rm {} \;
+          find Natives/NetCord.Natives/bin/${{ matrix.rid }}/natives-static/${{ env.VcpkgPlatformTarget }}-${{ env.VcpkgOSTarget }}/lib/ -type l -exec rm {} \;
 
       - name: Upload Natives Artifact
         if: ${{ always() && steps.build_step.outcome == 'success' }}

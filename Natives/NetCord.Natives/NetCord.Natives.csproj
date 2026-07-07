@@ -28,6 +28,7 @@
         <VcpkgArtifactsRoot Condition="'$(VcpkgArtifactsRoot)' == ''">bin</VcpkgArtifactsRoot>
 
         <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
+        <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(MSBuildProjectDirectory)\vcpkg</VcpkgRoot>
         <VcpkgMsbuildPath>$(VcpkgRoot)\scripts\buildsystems\msbuild\vcpkg</VcpkgMsbuildPath>
 
         <VcpkgConfiguration>Release</VcpkgConfiguration>

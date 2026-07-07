@@ -76,7 +76,7 @@ public class NativesBuildTests
         var globalProperties = new Dictionary<string, string>
         {
             { "Configuration", configuration },
-            { "CI", "false" }
+            { "NoBuild", "true" }
         };
 
         var pairs = propsAttr?.Split([';', ','], StringSplitOptions.RemoveEmptyEntries) ?? [];
@@ -101,26 +101,42 @@ public class NativesBuildTests
             loggers.Add(new BinaryLogger { Parameters = binlogpath });
         }
 
-        // 4. Evaluate and Execute the "Publish" target programmatically
-        Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Building Native AoT app in ({projectDirectory}) via MSBuild API...");
-
-        using var projectCollection = new ProjectCollection();
-        var projectInstance = new ProjectInstance(projectFile, globalProperties, null, projectCollection);
-
         var buildParameters = new BuildParameters
         {
             Loggers = loggers,
             EnableNodeReuse = false,
         };
-        var buildRequest = new BuildRequestData(projectInstance, ["Publish"]);
 
-        var buildResult = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequest);
+        // Evaluate and Execute the "Restore" target first
+        Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Restoring Native AoT app dependencies...");
+
+        using (var restoreCollection = new ProjectCollection())
+        {
+            var restoreInstance = new ProjectInstance(projectFile, globalProperties, null, restoreCollection);
+            var restoreRequest = new BuildRequestData(restoreInstance, ["Restore"]);
+            
+            var restoreResult = BuildManager.DefaultBuildManager.Build(buildParameters, restoreRequest);
+            Assert.AreEqual(BuildResultCode.Success, restoreResult.OverallResult, $"Native AoT restore failed for '{libNames}'.");
+        }
+
+        // Clear internal MSBuild engine caches so the next build sees the restored assets
+        BuildManager.DefaultBuildManager.ResetCaches();
+
+        // Evaluate and Execute the "Publish" target programmatically
+        Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Building and Publishing Native AoT app in ({projectDirectory}) via MSBuild API...");
+
+        // We use a fresh collection so it reads the newly generated project.assets.json from disk
+        using var publishCollection = new ProjectCollection();
+        var publishInstance = new ProjectInstance(projectFile, globalProperties, null, publishCollection);
+        var publishRequest = new BuildRequestData(publishInstance, ["Publish"]);
+
+        var buildResult = BuildManager.DefaultBuildManager.Build(buildParameters, publishRequest);
 
         // Assert build success
         Assert.AreEqual(BuildResultCode.Success, buildResult.OverallResult, $"Native AoT build failed for '{libNames}'.");
 
-        // 5. Instantly extract the 'PublishDir' property from the evaluated project state
-        var publishDirProperty = projectInstance.GetPropertyValue("PublishDir");
+        // Instantly extract the 'PublishDir' property from the freshly evaluated project state
+        var publishDirProperty = publishInstance.GetPropertyValue("PublishDir");
         Assert.IsFalse(string.IsNullOrEmpty(publishDirProperty), $"PublishDir is empty for '{libNames}'.");
 
         // sanitize back-slash

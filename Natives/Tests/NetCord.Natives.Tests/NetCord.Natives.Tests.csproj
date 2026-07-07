@@ -32,7 +32,7 @@
     <NativeAotAppProps>NetCordNativesDir=$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</NativeAotAppProps>
 
     <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
-    <NativeAotAppProps>$(NativeAotAppProps);VcpkgRoot=$(VcpkgRoot)</NativeAotAppProps>
+    <NativeAotAppProps Condition="'$(VcpkgRoot)' != ''">$(NativeAotAppProps);VcpkgRoot=$(VcpkgRoot)</NativeAotAppProps>
 
     <NativeAotAppProps Condition="'$(AppendNativeAotAppProps)' != ''">$(NativeAotAppProps);$(AppendNativeAotAppProps)</NativeAotAppProps>
   </PropertyGroup>

@@ -11,9 +11,18 @@ endif()
 
 set(VCPKG_LIBRARY_LINKAGE static)
 
+vcpkg_cmake_get_vars(cmake_vars_file)
+include("${cmake_vars_file}")
+
 set(EXTRA_OPTIONS -DDISABLE_GREASE=ON -DTESTING=OFF -DBUILD_TESTING=OFF -DMLS_CXX_NAMESPACE="mlspp")
 if(VCPKG_HOST_IS_LINUX)
-    list(APPEND EXTRA_OPTIONS -DCMAKE_CXX_FLAGS="-Wno-error=uninitialized")
+    if(VCPKG_DETECTED_CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # Safe for GCC: Apply both flags safely as a single quoted string
+        list(APPEND EXTRA_OPTIONS "-DCMAKE_CXX_FLAGS=-Wno-error=maybe-uninitialized -Wno-error=uninitialized")
+    else()
+        # Safe for Clang: Only apply the base uninitialized flag
+        list(APPEND EXTRA_OPTIONS "-DCMAKE_CXX_FLAGS=-Wno-error=uninitialized")
+    endif()
 endif()
 
 vcpkg_cmake_configure(
