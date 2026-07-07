@@ -289,7 +289,7 @@
     <PropertyGroup>
         <GenerateNuspecDependsOn>PackagePerNative</GenerateNuspecDependsOn>
     </PropertyGroup>
-    <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg"
+    <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg;MinVer"
             Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' != 'true'">
 
         <ItemGroup>
@@ -303,15 +303,14 @@
                  BuildInParallel="true" />
 
         <PropertyGroup>
-            <_MetaRestoreOutputPath>$(RestoreOutputPath)\meta-nuget\</_MetaRestoreOutputPath>
             <_MetaRestoreSource>$([System.IO.Path]::GetFullPath('$(PackageOutputPath)'))</_MetaRestoreSource>
         </PropertyGroup>
 
-        <Message Text="Restoring for meta packaging to $(_MetaRestoreOutputPath)." Importance="high" />
+        <Message Text="Restoring for top-level meta package..." Importance="high" />
 
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Restore"
-                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(_MetaRestoreSource);RestoreOutputPath=$(_MetaRestoreOutputPath)" />
+                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(_MetaRestoreSource)" />
     </Target>
 
     <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences"
@@ -324,6 +323,10 @@
             <PackageReference Include="NetCord.Natives.%(NativeDepsPacked.Identity)" />
             <PackageVersion Include="NetCord.Natives.%(NativeDepsPacked.Identity)" Version="$(_NativePkgVer)" />
         </ItemGroup>
+
+        <PropertyGroup>
+            <PackageDescription>$(PackageDescription)&#x0A;(Includes: @(NativeDepsPacked->'%(Identity)', ', '))</PackageDescription>
+        </PropertyGroup>
     </Target>
 
     <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles"
