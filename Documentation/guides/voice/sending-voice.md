@@ -28,7 +28,7 @@ The voice stream also supports configuration options, such as disabling the spee
 
 Discord uses the Opus codec for voice communication. To send audio to a voice channel, you need to encode your audio data in Opus format. NetCord provides @NetCord.Gateway.Voice.OpusEncodeStream, which allows you to encode PCM audio data into Opus format that can be sent to Discord. It uses @NetCord.Gateway.Voice.OpusEncoder internally, which can be used directly if you need more control over the encoding process.
 
-When you can create an @NetCord.Gateway.Voice.OpusEncodeStream, you need to specify the PCM format, the number of channels, as well as the Opus application. The supported PCM formats are 16-bit signed integer (@"NetCord.Gateway.Voice.PcmFormat.Short") and 32-bit floating point (@"NetCord.Gateway.Voice.PcmFormat.Float"). @NetCord.Gateway.Voice.PcmFormat.Float is generally preferred for high-quality audio. The number of channels can be either 1 (@"NetCord.Gateway.Voice.VoiceChannels.Mono") or 2 (@"NetCord.Gateway.Voice.VoiceChannels.Stereo"). The Opus application can be either @NetCord.Gateway.Voice.OpusApplication.Voip, @NetCord.Gateway.Voice.OpusApplication.Audio, @NetCord.Gateway.Voice.OpusApplication.RestrictedLowdelay, @NetCord.Gateway.Voice.OpusApplication.RestrictedSilk, or @NetCord.Gateway.Voice.OpusApplication.RestrictedCelt, depending on your use case. For music bots, you should use @NetCord.Gateway.Voice.OpusApplication.Audio, as it is optimized for music streaming. Feel free to refer to @NetCord.Gateway.Voice.OpusApplication for more details on the different Opus applications and their use cases.
+When you create an @NetCord.Gateway.Voice.OpusEncodeStream, you need to specify the PCM format, the number of channels, as well as the Opus application. The supported PCM formats are 16-bit signed integer (@"NetCord.Gateway.Voice.PcmFormat.Short") and 32-bit floating point (@"NetCord.Gateway.Voice.PcmFormat.Float"). @NetCord.Gateway.Voice.PcmFormat.Float is generally preferred for high-quality audio. The number of channels can be either 1 (@"NetCord.Gateway.Voice.VoiceChannels.Mono") or 2 (@"NetCord.Gateway.Voice.VoiceChannels.Stereo"). The Opus application can be either @NetCord.Gateway.Voice.OpusApplication.Voip, @NetCord.Gateway.Voice.OpusApplication.Audio, @NetCord.Gateway.Voice.OpusApplication.RestrictedLowdelay, @NetCord.Gateway.Voice.OpusApplication.RestrictedSilk, or @NetCord.Gateway.Voice.OpusApplication.RestrictedCelt, depending on your use case. For music bots, you should use @NetCord.Gateway.Voice.OpusApplication.Audio, as it is optimized for music streaming. Feel free to refer to @NetCord.Gateway.Voice.OpusApplication for more details on the different Opus applications and their use cases.
 
 [!code-cs[Creating Opus Encode Stream](SendingVoice/Examples.cs#L25-L28)]
 
@@ -48,7 +48,7 @@ You can use for example [FFmpeg](https://ffmpeg.org) to convert various audio fo
 
 Now, it's time to finally... add a `/play` command to our bot! This command plays an audio file in the voice channel the bot is currently connected to.
 
-[!code-cs[Play Command](Voice/Program.cs#L149-L220)]
+[!code-cs[Play Command](Voice/Program.cs#L150-L221)]
 
 Now, our bot can finally play audio files! You can test it out by using the `/play` command. Please note that you need to use the `/join` command to have the bot join a voice channel before you can use the `/play` command.
 

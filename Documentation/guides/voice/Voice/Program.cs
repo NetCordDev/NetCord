@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 
 using NetCord;
+using NetCord.Gateway;
 using NetCord.Gateway.Voice;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services.ApplicationCommands;
@@ -19,7 +20,7 @@ builder.Services
     {
         o.ResultHandler = ApplicationCommandResultHandler<ApplicationCommandContext>.Ephemeral;
     })
-    .AddDiscordGateway();
+    .AddDiscordGateway(o => o.Intents = GatewayIntents.Guilds | GatewayIntents.GuildVoiceStates);
 
 var host = builder.Build();
 

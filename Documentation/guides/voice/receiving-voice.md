@@ -32,6 +32,12 @@ Also keep in mind that the @NetCord.Gateway.Voice.VoiceClient.VoiceReceive event
 
 [!code-cs[Buffering Received Audio](ReceivingVoice/Examples.cs#L43-L64)]
 
+### Handling Packet Loss and Sequencing
+
+Because Discord sends voice data over UDP, audio packets can sometimes arrive out of order, get delayed, or drop completely. To handle disorganized packets, you might want to implement an audio sequencer or a jitter buffer. For packets that are lost entirely, you can take advantage of Opus features like Forward Error Correction (FEC) and Packet Loss Concealment (PLC).
+
+While building these mechanisms is beyond the scope of this guide, NetCord provides the data you need to do so. You can use @NetCord.Gateway.Voice.VoiceReceiveEventArgs.SequenceNumber to sort packets into their correct order and detect missing ones, and @NetCord.Gateway.Voice.VoiceReceiveEventArgs.Timestamp to determine precise audio timing.
+
 ## Opus Decoding
 
 Discord sends audio in Opus format, which you may need to decode to PCM for processing. NetCord provides @NetCord.Gateway.Voice.OpusDecodeStream, which decodes Opus-encoded audio data that gets written into PCM format and writes the PCM data to the stream passed into its constructor. It uses @NetCord.Gateway.Voice.OpusDecoder internally, which can be used directly if you need more control over the decoding process.
@@ -42,9 +48,11 @@ When creating the @NetCord.Gateway.Voice.OpusDecodeStream you need to specify th
 
 ## Updating Our Bot
 
-Now it's time to add a `/record` command to our bot that records what a user is saying in a voice channel and sends it to the channel where the command was used, either when a max file size is triggered or when the bot leaves the voice channel. This command will use the knowledge we have gained about receiving audio to capture the user's audio and save it to a file.
+Now it's time to finally add a `/record` command to our bot! It records what a user is saying in a voice channel and sends it to the channel where the command was used, either when a max file size is triggered or when the bot leaves the voice channel.
 
-[!code-cs[Record Command](Voice/Program.cs#L222-L358)]
+[!code-cs[Record Command](Voice/Program.cs#L223-L359)]
+
+Now, our bot can finally record voice! You can test it out by using the `/record` command. Please note that you need to use the `/join` command to have the bot join a voice channel before you can use the `/record` command.
 
 ---
 

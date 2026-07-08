@@ -28,8 +28,7 @@ To connect to a voice channel using the high-level API, you can simply use the @
 
 The low-level API requires you to write the connection logic yourself, instead of relying on @NetCord.Gateway.Voice.GatewayClientExtensions.JoinVoiceChannelAsync* which does it for you. You need to:
 - Update the bot's voice state to join the channel using @NetCord.Gateway.GatewayClient.UpdateVoiceStateAsync*.
-- Listen for the @NetCord.Gateway.GatewayClient.VoiceStateUpdate event to get the voice state of the bot, which contains the session ID and the endpoint.
-- Listen for the @NetCord.Gateway.GatewayClient.VoiceServerUpdate event to get the token needed to connect to the voice server.
+- Listen for the @NetCord.Gateway.GatewayClient.VoiceStateUpdate event to get the voice state of the bot, which contains the session ID and the endpoint and simultaneously listen for the @NetCord.Gateway.GatewayClient.VoiceServerUpdate event to get the token needed to connect to the voice server.
 - Create a @NetCord.Gateway.Voice.VoiceClient instance with that data.
 - Call @NetCord.Gateway.Voice.VoiceClient.StartAsync* to establish the connection.
 
@@ -49,7 +48,7 @@ It is important to understand the difference between a voice connection and a vo
 
 You can update the bot's voice state using @NetCord.Gateway.GatewayClient.UpdateVoiceStateAsync*, you can specify the channel ID to join a channel, or set it to null to leave. The last one is useful for leaving a channel, since the @NetCord.Gateway.Voice.VoiceClient manages the voice connection, not the voice state. If you call @NetCord.Gateway.WebSocketClient.CloseAsync*, the voice connection will be closed, but the bot will still have a voice state in the channel for some time, unless you explicitly update the voice state to leave.
 
-Below you can see an example of how to leave a voice channel with updating the voice state so that the bot doesn't appear as still being in the channel.
+Below you can see an example of leaving a voice channel while updating the voice state so that the bot doesn't appear as still being in the channel.
 
 [!code-cs[Leaving Voice Channel](VoiceConnection/Examples.cs#L21-L23)]
 
@@ -59,13 +58,13 @@ Let's use our knowledge of voice connections to update our bot so that it can jo
 
 Below you can see the implementation of the `/join` command, which uses the high-level API to join a voice channel. It accepts an optional channel parameter - if provided, the bot joins that specific channel; otherwise, it joins the voice channel that the user is currently in. It also registers a disconnect handler to clean up resources when the connection is closed.
 
-[!code-cs[Joining Command](Voice/Program.cs#L28-L116)]
+[!code-cs[Joining Command](Voice/Program.cs#L29-L117)]
 
 The `/leave` command checks if the bot is currently connected to a voice channel in the guild. If connected, it extracts the voice connection, closes the @NetCord.Gateway.Voice.VoiceClient using @NetCord.Gateway.WebSocketClient.CloseAsync*, disposes the voice connection instance, and updates the voice state.
 
-[!code-cs[Leaving Command](Voice/Program.cs#L118-L147)]
+[!code-cs[Leaving Command](Voice/Program.cs#L119-L148)]
 
-That's it! Now your bot can join and leave voice channels. You can test the commands in your Discord server to see them in action. For now, the bot doesn't do anything once it's connected, refer to [Sending Voice](sending-voice.md) and [Receiving Voice](receiving-voice.md) sections to learn how to send and receive audio in voice channels.
+That's it! Now your bot can join and leave voice channels. You can test the commands in your Discord server to see them in action. For now, the bot doesn't do anything once it's connected, refer to [Sending Voice](sending-voice.md) and [Receiving Voice](receiving-voice.md) guides to learn how to send and receive audio in voice channels.
 
 ## Maintaining Voice Connections
 
