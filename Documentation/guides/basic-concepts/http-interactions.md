@@ -10,7 +10,7 @@ This guide will show you how to receive and handle Discord interactions, like sl
 
 ## Required Dependencies
 
-Before you get started, ensure that you've installed the necessary native dependencies. Follow the [installation guide](installing-native-dependencies.md) to set them up.
+Before you get started, ensure that you've installed the necessary native dependencies. Follow the [installation guide](../installing-native-dependencies.md) to set them up.
 
 ## Setting Up HTTP Interactions in C#
 
