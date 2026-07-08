@@ -4,7 +4,7 @@ Working with audio can sometimes introduce unexpected issues. Below are common p
 
 ## Missing Native Dependencies
 
-If you encounter a @System.DllNotFoundException, it usually indicates missing or incompatible native dependencies. Refer to the [Native Dependencies](../basic-concepts/installing-native-dependencies.md) guide for steps on resolving this.
+If you encounter a @System.DllNotFoundException, it usually indicates missing or incompatible native dependencies. Refer to the [Native Dependencies](../installing-native-dependencies.md) guide for steps on resolving this.
 
 ---
 

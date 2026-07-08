@@ -12,6 +12,10 @@ modified_time: '2026-02-12T00:00:00Z'
 
 Discord allows you to connect to voice channels and stream audio in real-time. With NetCord, you can create powerful voice bots that can play music, record conversations, and process voice data. This guide covers the essentials of working with Discord voice channels, including connecting, streaming audio and recording.
 
+## Required Dependencies
+
+Before you get started, ensure that you've installed the necessary native dependencies. Follow the [installation guide](../installing-native-dependencies.md) to set them up.
+
 ## Resulting Project
 
 By the end of the voice section, you will have a fully functional music bot that can join voice channels, play audio, and record voice of connected users. Of course you don't need to follow it exactly, for example if you skip [Receiving Voice](receiving-voice.md), then your bot won't be able to record. Same for [Sending Voice](sending-voice.md). You likely don't want to skip [Voice Connection](voice-connection.md), as without it your bot won't be able to connect to voice channels, even if you implement the playback and recording.
