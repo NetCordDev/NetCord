@@ -295,7 +295,7 @@ host.AddSlashCommand("record", "Records audio", async (ApplicationCommandContext
 
     var ffmpegRunning = true;
 
-    const int MaxFileSize = 10 * 1024 * 1024; // 10 MB
+    const int MaxFileSize = 10 * 1024 * 1024; // 10 MiB
 
     try
     {
