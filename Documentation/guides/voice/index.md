@@ -16,14 +16,7 @@ Discord allows you to connect to voice channels and stream audio in real-time. W
 
 By the end of this guide (the whole voice section), you will have a fully functional music bot that can join voice channels, play audio, and record voice conversations. Of course you can skip for example [Voice Recording](receiving-voice.md), then your bot won't be able to record. Same for [Voice Playback](sending-voice.md). You likely don't want to skip [Voice Connection](voice-connection.md), as without it you won't be able to connect to voice channels, even if you implement the playback and recording.
 
-The project will use functions demonstrated in:
-- General Gateway Guide
-- Gateway Events Guide
-- ApplicationCommandService Guide
-
-so make sure to check them out before starting this guide.
-
-Below you can see the setup of the project. It will be needed in the following guides of the this section. Of course you don't need to follow the guides exactly, the project is just a demonstration of how to use the library, you can implement the features in your own way. The important part is that you understand the concepts and how to use the library to achieve your goals.
+Below you can see the setup of the project. It will be needed in the following guides of this section. Of course you don't need to follow the guides exactly, the project is just a demonstration of how to use the library, you can implement the features in your own way. The important part is that you understand the concepts and how to use the library to achieve your goals.
 
 #### Program.cs
 [!code-cs[Program.cs](VoiceSetup/Program.cs#L3-L30)]
@@ -49,5 +42,4 @@ When working with Discord voice, ensure your bot complies with [Discord's Terms 
 - [Sending Voice](sending-voice.md) - Stream audio to voice channels
 - [Receiving Voice](receiving-voice.md) - Receive voice from users
 - [Gateway Intents](../events/intents.md) - Configure required intents
-- [Dependency Injection](../services-framework/dependency-injection.md) - Manage VoiceClient with DI
 - [Discord Docs: Voice Connections](https://discord.com/developers/docs/topics/voice-connections)
