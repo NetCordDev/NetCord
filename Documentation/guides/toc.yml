@@ -20,8 +20,6 @@
       href: basic-concepts/http-interactions.md
     - name: Sharding
       href: basic-concepts/sharding.md
-    - name: Voice
-      href: basic-concepts/voice.md
 - name: Voice
   items:
     - name: Overview
