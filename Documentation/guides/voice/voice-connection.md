@@ -82,3 +82,4 @@ The newly created @NetCord.Gateway.Voice.VoiceClient instance is completely inde
 
 - [Sending Voice](sending-voice.md) - Stream audio to voice channels
 - [Receiving Voice](receiving-voice.md) - Receive and record voice channel audio
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions

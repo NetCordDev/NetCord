@@ -58,3 +58,4 @@ Now, our bot can finally play audio files! You can test it out by using the `/pl
 
 - [Voice Connection](voice-connection.md) - Join and manage voice channels
 - [Receiving Voice](receiving-voice.md) - Receive and record voice
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions

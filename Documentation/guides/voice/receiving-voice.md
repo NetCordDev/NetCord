@@ -60,3 +60,4 @@ Now, our bot can finally record voice! You can test it out by using the `/record
 
 - [Voice Connection](voice-connection.md) - Join and manage voice channels
 - [Sending Voice](sending-voice.md) - Send audio to voice channels
+- [Troubleshooting](troubleshooting.md) - Common issues and solutions
