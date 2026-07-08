@@ -17,7 +17,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddApplicationCommands(o =>
     {
-        o.ResultHandler = new ApplicationCommandResultHandler<ApplicationCommandContext>(MessageFlags.Ephemeral);
+        o.ResultHandler = ApplicationCommandResultHandler<ApplicationCommandContext>.Ephemeral;
     })
     .AddDiscordGateway();
 
