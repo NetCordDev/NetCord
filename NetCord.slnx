@@ -59,6 +59,14 @@
     <Project Path="Documentation/guides/services/text-commands/IntroductionHosting/IntroductionHosting.csproj" />
     <Project Path="Documentation/guides/services/text-commands/Parameters/Parameters.csproj" />
   </Folder>
+  <Folder Name="/Documentation/guides/voice/">
+    <Project Path="Documentation/guides/voice/ReceivingVoice/ReceivingVoice.csproj" />
+    <Project Path="Documentation/guides/voice/SendingVoice/SendingVoice.csproj" />
+    <Project Path="Documentation/guides/voice/Voice/Voice.csproj" />
+    <Project Path="Documentation/guides/voice/VoiceSetup/VoiceSetup.csproj" />
+    <Project Path="Documentation/guides/voice/VoiceConnection/VoiceConnection.csproj" />
+    <Project Path="Documentation/guides/voice/Troubleshooting/Troubleshooting.csproj" />
+  </Folder>
   <Folder Name="/Hosting/">
     <Project Path="Hosting/NetCord.Hosting.AspNetCore/NetCord.Hosting.AspNetCore.csproj" />
     <Project Path="Hosting/NetCord.Hosting.Services/NetCord.Hosting.Services.csproj" />

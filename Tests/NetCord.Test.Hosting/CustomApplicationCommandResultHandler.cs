@@ -9,7 +9,7 @@ namespace NetCord.Test.Hosting;
 
 internal class CustomApplicationCommandResultHandler : IApplicationCommandResultHandler<ApplicationCommandContext>
 {
-    private static readonly ApplicationCommandResultHandler<ApplicationCommandContext> _defaultHandler = new(MessageFlags.Ephemeral);
+    private static readonly ApplicationCommandResultHandler<ApplicationCommandContext> _defaultHandler = ApplicationCommandResultHandler<ApplicationCommandContext>.Ephemeral;
 
     public ValueTask HandleResultAsync(IExecutionResult result, ApplicationCommandContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
