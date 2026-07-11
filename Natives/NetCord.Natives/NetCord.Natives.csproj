@@ -1,0 +1,380 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Pre-built native libraries for NetCord, $(Description)</Description>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IncludeSymbols>false</IncludeSymbols>
+        <SuppressDependenciesWhenPacking Condition="'$(_IsPackingNative)' == 'true'">true</SuppressDependenciesWhenPacking>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..'))</RepositoryRoot>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="vcpkg\**" />
+        <None Remove="vcpkg\**;**\*.*log" />
+        <None Include="$(VcpkgMsbuildPath).*" Condition="Exists('$(VcpkgMsbuildPath).props')">
+            <Link>vcpkg\%(Filename)%(Extension)</Link>
+        </None>
+    </ItemGroup>
+
+    <!-- Use vcpkg integration with MSBuild Platform (normalize AnyCPU to x64). -->
+    <PropertyGroup>
+        <_IsPackingNative Condition="'$(_IsPackingNative)' == ''">false</_IsPackingNative>
+
+        <DebugDefinedDir Condition="'$(Configuration)' == 'Debug'">debug</DebugDefinedDir>
+
+        <VcpkgArtifactsRoot Condition="'$(VcpkgArtifactsRoot)' == ''">bin</VcpkgArtifactsRoot>
+
+        <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
+        <VcpkgMsbuildPath>$(VcpkgRoot)\scripts\buildsystems\msbuild\vcpkg</VcpkgMsbuildPath>
+
+        <VcpkgConfiguration>Release</VcpkgConfiguration>
+        <VcpkgEnableManifest>true</VcpkgEnableManifest>
+
+        <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Windows_NT'">windows</VcpkgOSTarget>
+        <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and $([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">osx</VcpkgOSTarget>
+        <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix'">linux</VcpkgOSTarget>
+
+        <VcpkgBuildOS>$(VcpkgOSTarget)</VcpkgBuildOS>
+        <VcpkgBuildOS Condition="'$(VcpkgOSTarget)' == 'windows'">win</VcpkgBuildOS>
+
+        <!-- Prevent vcpkg msbuild target from installing packages. We do our own Exec -->
+        <VcpkgManifestInstall Condition="'$(VcpkgBuildOS)' != 'win'">false</VcpkgManifestInstall>
+
+        <VcpkgPlatformTarget Condition="'$(VcpkgPlatformTarget)' == '' and
+            ('$(Platform)' == 'Any CPU' or '$(Platform)' == 'AnyCPU')">x64</VcpkgPlatformTarget>
+        <VcpkgPlatformTarget Condition="'$(VcpkgPlatformTarget)' == ''">$(Platform)</VcpkgPlatformTarget>
+
+        <VcpkgInstalledDirBase>$(VcpkgArtifactsRoot)\$(VcpkgBuildOS)-$(VcpkgPlatformTarget)\natives</VcpkgInstalledDirBase>
+        <VcpkgInstalledDir>$(VcpkgInstalledDirBase)</VcpkgInstalledDir>
+        <VcpkgInstalledDir Condition="'$(VcpkgUseStatic)' == 'true'">$(VcpkgInstalledDir)-static</VcpkgInstalledDir>
+
+        <VcpkgOutputPath_Static>$(VcpkgInstalledDirBase)-static\$(VcpkgPlatformTarget)-$(VcpkgOSTarget)</VcpkgOutputPath_Static>
+        <VcpkgOutputPath_Static Condition="'$(VcpkgBuildOS)' == 'win'">$(VcpkgOutputPath_Static)-static</VcpkgOutputPath_Static>
+        <_VcpkgStatusFile>$(VcpkgInstalledDir)\vcpkg\status</_VcpkgStatusFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <NativeDepsPacked Include="Dave;Sodium;Opus;Zstandard" />
+
+        <_ZVcpkgInstallManifestDependenciesInputs Include="natives-ports\**;natives-triplets\**" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Dave' or '$(PackageNativeDep)' == ''">
+        <NativeLibSet Include="libdave;dave" />
+        <NativeLibSet Include="mlspp;bytes;tls_syntax;hpke" />
+        <NativeLibSet Include="libcrypto;crypto" />
+        <NativeLibLic Include="libdave;mlspp;openssl" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Sodium' or '$(PackageNativeDep)' == ''">
+        <NativeLibSet Include="libsodium;sodium" />
+        <NativeLibLic Include="libsodium" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Opus' or '$(PackageNativeDep)' == ''">
+        <NativeLibSet Include="libopus;opus" />
+        <NativeLibLic Include="opus" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(PackageNativeDep)' == 'Zstandard' or '$(PackageNativeDep)' == ''">
+        <NativeLibSet Include="libzstd;zstd" />
+        <NativeLibLic Include="zstd" />
+    </ItemGroup>
+
+    <Import Project="$(VcpkgMsbuildPath).props" Condition="Exists('$(VcpkgMsbuildPath).props')" />
+    <Import Project="$(VcpkgMsbuildPath).targets" Condition="Exists('$(VcpkgMsbuildPath).targets')" />
+
+    <!-- When not on Windows, refer to this file -->
+    <Import Project="vcpkg-non-windows.targets"
+            Condition="'$(VcpkgBuildOS)' != 'win' and Exists('vcpkg-non-windows.targets')" />
+
+    <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection">
+
+        <PropertyGroup Condition="'$(VcpkgBuildOS)' != 'win'">
+            <VcpkgTriplet>$(VcpkgPlatformTarget)-$(VcpkgOSTarget)</VcpkgTriplet>
+            <VcpkgTriplet Condition="'$(VcpkgUseStatic)' != 'true'">$(VcpkgTriplet)-dynamic</VcpkgTriplet>
+
+            <_ZVcpkgMSBuildStampFile>$(_ZVcpkgInstalledDir).msbuildstamp-$(VcpkgTriplet).$(_ZVcpkgHostTripletSuffix)stamp</_ZVcpkgMSBuildStampFile>
+        </PropertyGroup>
+        <PropertyGroup>
+            <VcpkgOutputPath>$(VcpkgInstalledDir)\$(VcpkgTriplet)</VcpkgOutputPath>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <_LibArchs Include="x64;arm64">
+                <LibName>%(NativeLibSet.Identity)</LibName>
+            </_LibArchs>
+
+            <_BuiltRid Include="win-%(_LibArchs.Identity)">
+                <BinPath>%(_LibArchs.Identity)-windows\bin\%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-windows-static\lib\%(_LibArchs.LibName)</LibPath>
+                <Ext>dll</Ext>
+            </_BuiltRid>
+
+            <_BuiltRid Include="linux-%(_LibArchs.Identity)">
+                <BinPath>%(_LibArchs.Identity)-linux-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-linux/lib/lib%(_LibArchs.LibName)</LibPath>
+                <Ext>so</Ext>
+            </_BuiltRid>
+
+            <_BuiltRid Include="linux-musl-%(_LibArchs.Identity)">
+                <BinPath>%(_LibArchs.Identity)-linux-musl-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-linux-musl/lib/lib%(_LibArchs.LibName)</LibPath>
+                <Ext>so</Ext>
+            </_BuiltRid>
+
+            <_BuiltRid Include="osx-%(_LibArchs.Identity)">
+                <BinPath>%(_LibArchs.Identity)-osx-dynamic/lib/lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-osx/lib/lib%(_LibArchs.LibName)</LibPath>
+                <Ext>dylib</Ext>
+            </_BuiltRid>
+
+            <_BuiltRid Remove="%(Identity)" Condition="'$(_IsPackingNative)' != 'true' and '%(Identity)' != '$(VcpkgBuildOS)-$(VcpkgPlatformTarget)'" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="CheckVcpkg" BeforeTargets="VcpkgInstallManifestDependencies">
+        <Error Text="Make sure VCPKG_ROOT environment variable is set, or set &lt;VcpkgRoot&gt; property to your vcpkg installation."
+               Condition="!Exists('$(VcpkgMsbuildPath).targets')" />
+
+        <Error Condition="('$(VcpkgBuildOS)' == 'win' and !Exists('$(VcpkgRoot)\vcpkg.exe')) or ('$(VcpkgBuildOS)' != 'win' and !Exists('$(VcpkgRoot)/vcpkg'))"
+               Text="Vcpkg executable not found in $(VcpkgRoot). Ensure vcpkg is installed and the path is correct. (i.e., run '$(VcpkgRoot)/bootstrap-vcpkg.{bat/sh})'" />
+
+        <PropertyGroup>
+            <_FullVcpkgRoot>$([System.IO.Path]::GetFullPath('$(VcpkgRoot)'))</_FullVcpkgRoot>
+        </PropertyGroup>
+
+        <Warning Code="NCN0010" Condition="$(_FullVcpkgRoot.Length) &gt; 260 and '$(VcpkgBuildOS)' == 'win'"
+                 Text="The VcpkgRoot path length ($(_FullVcpkgRoot.Length) characters) exceeds the 260 character limit. Path: $(_FullVcpkgRoot)" />
+    </Target>
+
+    <Target Name="ClCompile" BeforeTargets="BeforeBuild" DependsOnTargets="PrepareVcpkg"
+            Condition="'$(NoBuild)' != 'true' and Exists('$(VcpkgMsbuildPath).targets')">
+
+        <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ClCompile"
+                 Properties="VcpkgUseStatic=true;GeneratePackageOnBuild=false"
+                 Condition="'$(VcpkgUseStatic)' != 'true'" />
+    </Target>
+
+    <Target Name="_ListsBuiltNatives" AfterTargets="ClCompile" DependsOnTargets="PrepareVcpkg"
+            Condition="'$(_IsPackingNative)' != 'true' and '$(VcpkgUseStatic)' != 'true'">
+
+        <CallTarget Targets="GetSharedBuild;GetStaticBuild">
+            <Output TaskParameter="TargetOutputs" ItemName="NativesBuilt" />
+        </CallTarget>
+
+        <Message Text="$(MSBuildProjectName) -> %(NativesBuilt.FullPath)" Importance="high"
+                 Condition="Exists('%(NativesBuilt.FullPath)')" />
+    </Target>
+
+    <Target Name="_AddRuntimesCopyItems" Condition="'$(VcpkgUseStatic)' != 'true'"
+            AfterTargets="ClCompile" BeforeTargets="AssignTargetPaths" DependsOnTargets="GetSharedBuild">
+        <ItemGroup>
+            <None Include="@(NativesRuntime)" Condition="Exists('%(NativesRuntime.FullPath)')">
+                <TargetPath>%(NativesRuntime.Filename)%(NativesRuntime.Extension)</TargetPath>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            </None>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="GetSharedBuild" 
+            DependsOnTargets="_FindScopedSymlinks"
+            Condition="'$(VcpkgUseStatic)' != 'true'"
+            Returns="@(NativesRuntime)">
+
+        <ItemGroup>
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)/%(_BuiltRid.Identity)/natives/%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
+                            Condition="'%(_BuiltRid.Ext)' == 'so'">
+                <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
+            </NativesRuntime>
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)/%(_BuiltRid.Identity)/natives/%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
+                            Condition="'%(_BuiltRid.Ext)' != 'so'">
+                <PackPath>runtimes\%(_BuiltRid.Identity)\native\</PackPath>
+            </NativesRuntime>
+        </ItemGroup>
+
+        <ItemGroup>
+            <NativesRuntime Remove="@(_ScopedSymlinksToRemove)" MatchOnMetadata="FullPath" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="_FindScopedSymlinks" DependsOnTargets="PrepareVcpkg">
+        <ItemGroup>
+            <_BuiltRidBinDir Include="$([System.IO.Path]::GetFullPath('$(VcpkgArtifactsRoot)/%(_BuiltRid.Identity)/natives/'))$([System.IO.Path]::GetDirectoryName('%(_BuiltRid.BinPath)'))" />
+        </ItemGroup>
+
+        <RemoveDuplicates Inputs="@(_BuiltRidBinDir)">
+            <Output TaskParameter="Filtered" ItemName="_TargetSearchDir" />
+        </RemoveDuplicates>
+
+        <Exec Condition="'$(OS)' != 'Windows_NT' and Exists('%(_TargetSearchDir.Identity)')"
+              Command="find '%(_TargetSearchDir.Identity)' -maxdepth 1 -type l -print"
+              ConsoleToMsBuild="true"
+              StandardOutputImportance="Low"
+              StandardErrorImportance="Low">
+            <Output TaskParameter="ConsoleOutput" ItemName="_RawScopedSymlinks" />
+        </Exec>
+
+        <Exec Condition="'$(OS)' == 'Windows_NT' and Exists('%(_TargetSearchDir.Identity)')"
+              Command="powershell -NoProfile -Command &quot;Get-ChildItem '%(_TargetSearchDir.Identity)' | Where-Object { $_.Attributes -match 'ReparsePoint' } | ForEach-Object { $_.FullName }&quot;"
+              ConsoleToMsBuild="true"
+              StandardOutputImportance="Low"
+              StandardErrorImportance="Low">
+            <Output TaskParameter="ConsoleOutput" ItemName="_RawScopedSymlinks" />
+        </Exec>
+
+        <ItemGroup>
+            <_ScopedSymlinksToRemove Include="@(_RawScopedSymlinks)" Condition="'@(_RawScopedSymlinks)' != ''" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="GetStaticBuild" DependsOnTargets="PrepareVcpkg"
+            Returns="@(NativesStatic)">
+        <ItemGroup>
+            <!-- Static libraries -->
+            <NativesStatic Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives-static\%(_BuiltRid.LibPath).*">
+                <PackPath>staticlibs\%(_BuiltRid.Identity)\</PackPath>
+            </NativesStatic>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="GetSharedBuildDir" DependsOnTargets="PrepareVcpkg"
+            Returns="@(_RuntimesPath)">
+        <ItemGroup>
+            <_RuntimesPath Include="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(VcpkgOutputPath)'))" />
+        </ItemGroup>
+        <Message Text="Shared build output path: @(_RuntimesPath)" Importance="high" />
+    </Target>
+
+    <Target Name="GetStaticBuildDir" DependsOnTargets="PrepareVcpkg"
+            Returns="@(_StaticFullPath)">
+        <ItemGroup>
+            <_StaticFullPath Include="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(VcpkgOutputPath_Static)'))" />
+        </ItemGroup>
+        <Message Text="Static build output path: @(_StaticFullPath)" Importance="high" />
+    </Target>
+
+    <Target Name="GetDynamicVcpkgVersions" BeforeTargets="PackageNatives"
+            Condition="Exists('$(_VcpkgStatusFile)') and '$(_IsPackingNative)' == 'true'">
+
+        <!-- 1. Read the entire status file into a property -->
+        <ReadLinesFromFile File="$(_VcpkgStatusFile)">
+            <Output TaskParameter="Lines" ItemName="StatusLines" />
+        </ReadLinesFromFile>
+
+        <PropertyGroup Condition="'@(StatusLines)' != ''">
+            <!-- Join lines with a newline character for multi-line regex matching -->
+            <StatusText>@(StatusLines, '&#x0A;')</StatusText>
+        </PropertyGroup>
+
+        <!-- 2. Use Item Transformation to find the version for each library -->
+        <ItemGroup Condition="'$(StatusText)' != ''">
+            <_VcpkgPkg Include="@(NativeLibLic)">
+                <!-- This Regex looks for 'Package: [name]' then skips lines until 'Version: [value]' -->
+                <Version>$([System.Text.RegularExpressions.Regex]::Match('$(StatusText)', 'Package: %(Identity)\n(?:.*\n)*?Version: (.*?)\n').Groups[1].Value)</Version>
+            </_VcpkgPkg>
+        </ItemGroup>
+
+        <!-- 3. Inject them into the Package Description -->
+        <PropertyGroup Condition="'@(_VcpkgPkg)' != ''">
+            <PackageDescription>$(PackageDescription)&#x0A;(Includes: @(_VcpkgPkg->'%(Identity) v%(Version)', ', '))</PackageDescription>
+        </PropertyGroup>
+
+        <!-- Optional: Debugging message to see it working in the build log -->
+        <Message Text="$(MSBuildProjectName).$(PackageNativeDep) libs: %(_VcpkgPkg.Identity) [%(_VcpkgPkg.Version)]"
+                 Importance="high" Condition="'%(_VcpkgPkg.Identity)' != ''"/>
+    </Target>
+
+    <PropertyGroup>
+        <GenerateNuspecDependsOn>PackagePerNative</GenerateNuspecDependsOn>
+    </PropertyGroup>
+    <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg"
+            Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' != 'true'">
+
+        <ItemGroup>
+            <ProjectsToPack Include="$(MSBuildProjectFullPath)">
+                <AdditionalProperties>NoBuild=true;_IsPackingNative=true;PackageNativeDep=%(NativeDepsPacked.Identity)</AdditionalProperties>
+            </ProjectsToPack>
+        </ItemGroup>
+
+        <MSBuild Projects="@(ProjectsToPack)"
+                 Targets="Pack"
+                 BuildInParallel="true" />
+
+        <PropertyGroup>
+            <_MetaRestoreOutputPath>$(RestoreOutputPath)\meta-nuget\</_MetaRestoreOutputPath>
+            <_MetaRestoreSource>$([System.IO.Path]::GetFullPath('$(PackageOutputPath)'))</_MetaRestoreSource>
+        </PropertyGroup>
+
+        <Message Text="Restoring for meta packaging to $(_MetaRestoreOutputPath)." Importance="high" />
+
+        <MSBuild Projects="$(MSBuildProjectFullPath)"
+                 Targets="Restore"
+                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(_MetaRestoreSource);RestoreOutputPath=$(_MetaRestoreOutputPath)" />
+    </Target>
+
+    <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences"
+            Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' == 'true'">
+
+        <Message Text="$(PackageId) meta package dependency: $(PackageId).%(NativeDepsPacked.Identity) [$(_NativePkgVer)]"
+                 Importance="high" />
+
+        <ItemGroup>
+            <PackageReference Include="NetCord.Natives.%(NativeDepsPacked.Identity)" />
+            <PackageVersion Include="NetCord.Natives.%(NativeDepsPacked.Identity)" Version="$(_NativePkgVer)" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles"
+            Condition="'$(_IsPackingNative)' == 'true' and '$(PackageNativeDep)' != ''">
+
+        <ItemGroup>
+            <_NativeLicenseSource Include="$(VcpkgOutputPath_Static)\share\%(NativeLibLic.Identity)\copyright"
+                                  Condition="Exists('$(VcpkgOutputPath_Static)\share\%(NativeLibLic.Identity)\copyright')">
+                <TargetPath>$(VcpkgOutputPath_Static)\licenses\%(NativeLibLic.Identity)_LICENSE.txt</TargetPath>
+            </_NativeLicenseSource>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(_NativeLicenseSource)" DestinationFiles="@(_NativeLicenseSource->'%(TargetPath)')"
+              SkipUnchangedFiles="true" Condition="'@(_NativeLicenseSource)' != ''" />
+
+        <PropertyGroup>
+            <PackageId>$(PackageId).$(PackageNativeDep)</PackageId>
+        </PropertyGroup>
+
+        <CallTarget Targets="GetSharedBuild;GetStaticBuild">
+            <Output TaskParameter="TargetOutputs" ItemName="NativesBuilt" />
+        </CallTarget>
+
+        <ItemGroup>
+            <Content Include="@(NativesBuilt)" Condition="Exists('%(NativesBuilt.Identity)')">
+                <Pack>true</Pack>
+                <PackagePath>%(NativesBuilt.PackPath)%(NativesBuilt.Filename)%(NativesBuilt.Extension)</PackagePath>
+            </Content>
+
+            <Content Include="$(VcpkgOutputPath_Static)\licenses\%(NativeLibLic.Identity)_LICENSE.txt"
+                     Condition="Exists('$(VcpkgOutputPath_Static)\licenses\%(NativeLibLic.Identity)_LICENSE.txt')">
+                <Pack>true</Pack>
+                <PackagePath>licenses\%(NativeLibLic.Identity)_LICENSE.txt</PackagePath>
+            </Content>
+
+            <_BuildFiles Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets">
+                <Pack>true</Pack>
+            </_BuildFiles>
+
+            <None Include="@(_BuildFiles)">
+                <PackagePath>build\$(PackageId)%(_BuildFiles.Extension)</PackagePath>
+            </None>
+            <None Include="@(_BuildFiles)">
+                <PackagePath>buildTransitive\$(PackageId)%(_BuildFiles.Extension)</PackagePath>
+            </None>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="_PackagedFilesInfo" AfterTargets="_GetPackageFiles" BeforeTargets="GenerateNuspec"
+            Condition="'$(_IsPackingNative)' == 'true'">
+
+        <Message Text="$(PackageId) packaged: %(_PackageFiles.Identity) -&gt; [pkg].\%(PackagePath)" Importance="high" />
+    </Target>
+
+</Project>

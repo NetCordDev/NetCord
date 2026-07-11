@@ -23,6 +23,9 @@
     <PackageVersion Include="MSTest.TestAdapter" Version="4.3.0" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.3.0" />
     <PackageVersion Include="PolySharp" Version="1.16.0" />
+    <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
+    <PackageVersion Include="Microsoft.Build" Version="18.7.1" />
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
   </ItemGroup>
 
 </Project>

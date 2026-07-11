@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StripSymbols>false</StripSymbols>
+
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <SelfContained>true</SelfContained>
+
+    <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\NetCord.Natives</NetCordNativesDir>
+  </PropertyGroup>
+
+  <!-- for Nix issue -->
+  <PropertyGroup>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <Target Name="NativeAotRemoveLinkerArgs" AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
+    <ItemGroup>
+      <LinkerArg Remove="-licucore" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\NativeProbes.cs" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<DirectPInvoke Include="libdave" />
+		<DirectPInvoke Include="libsodium" />
+		<DirectPInvoke Include="opus" />
+		<DirectPInvoke Include="zstd" />
+		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+		<ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
+	</ItemGroup>
+
+  <Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
+
+</Project>

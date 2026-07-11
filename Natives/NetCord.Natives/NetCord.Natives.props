@@ -1,0 +1,16 @@
+<Project>
+
+	<PropertyGroup>
+        <!-- Populate this with dynamic (.dll/.so/.dylib) native libraries you want to exclude
+            i.e. <NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>
+            will exclude them from being copied to output, empty will copy all dynamic libraries.
+            When <DirectPInvoke> is populated with the native libraries for static linking,
+            their dynamic libraries are automatically excluded.
+            -->
+        <NetCordExcludeNativesDynamic />
+
+        <NetCordNativesSharedDir Condition="'$(NetCordNativesSharedDir)' == ''">$(MSBuildThisFileDirectory)..\runtimes\$(RuntimeIdentifier)\native</NetCordNativesSharedDir>
+        <NetCordNativesStaticDir Condition="'$(NetCordNativesStaticDir)' == ''">$(MSBuildThisFileDirectory)..\staticlibs\$(RuntimeIdentifier)</NetCordNativesStaticDir>
+    </PropertyGroup>
+
+</Project>

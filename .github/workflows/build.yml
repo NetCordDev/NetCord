@@ -1,6 +1,7 @@
 name: Build
 
 on:
+  workflow_call:
   pull_request:
     branches:
       - main
@@ -31,24 +32,26 @@ jobs:
 
       - name: Restore dependencies
         shell: *dev-shell
-        run: dotnet restore
+        run: |
+          dotnet restore NetCord.slnx
 
       - name: Build
         shell: *dev-shell
-        run: dotnet build -c Release --no-restore --warnaserror
+        run: |
+          dotnet build NetCord.slnx -c Release --no-restore --warnaserror
 
       - name: Test
         shell: *dev-shell
-        run: dotnet test -c Release --no-build --verbosity normal
+        run: dotnet test NetCord.slnx -c Release --no-build --verbosity normal
 
       - name: Pack Packages
         shell: *dev-shell
         run: |
-          dotnet pack NetCord -c Release --no-build
-          dotnet pack NetCord.Services -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.Services -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
+          dotnet pack NetCord -c Release --no-build -o pkgs/
+          dotnet pack NetCord.Services -c Release --no-build -o pkgs/
+          dotnet pack Hosting/NetCord.Hosting -c Release --no-build -o pkgs/
+          dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build -o pkgs/
+          dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build -o pkgs/
 
       - name: Setup docs environment
         shell: &docs-shell 'nix develop .#docs -c bash -eo pipefail {0}'
@@ -63,6 +66,20 @@ jobs:
           npm run test
           npm run build
 
+      - name: Upload NuGet Package Artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: NuGet Packages
+          path: |
+            pkgs/*.nupkg
+            pkgs/*.snupkg
+
+      - name: Upload Documentation Artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Documentation Artifacts
+          path: Documentation/_site
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -73,9 +90,3 @@ jobs:
             Hosting/NetCord.Hosting/bin/Release
             Hosting/NetCord.Hosting.Services/bin/Release
             Hosting/NetCord.Hosting.AspNetCore/bin/Release
-
-      - name: Upload Documentation Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: Documentation Artifacts
-          path: Documentation/_site

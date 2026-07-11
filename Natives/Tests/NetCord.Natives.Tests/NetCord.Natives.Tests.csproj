@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\NativeProbes.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="GitHubActionsTestLogger" />
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Locator" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <NetCordNativesDir>..\..\NetCord.Natives\</NetCordNativesDir>
+    <NativeAotAppProps>NetCordNativesDir=$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</NativeAotAppProps>
+
+    <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
+    <NativeAotAppProps>$(NativeAotAppProps);VcpkgRoot=$(VcpkgRoot)</NativeAotAppProps>
+
+    <NativeAotAppProps Condition="'$(AppendNativeAotAppProps)' != ''">$(NativeAotAppProps);$(AppendNativeAotAppProps)</NativeAotAppProps>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\NetCord\NetCord.csproj" />
+    <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
+      <_Parameter1>NativeAotAppDir</_Parameter1>
+      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../NativeAotApp'))</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
+      <_Parameter1>NativeAotAppProps</_Parameter1>
+      <_Parameter2>$(NativeAotAppProps)</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
+      <_Parameter1>NativeAotBinLogPath</_Parameter1>
+      <_Parameter2>$(NativeAotBinLogPath)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
+
+</Project>

@@ -1,0 +1,111 @@
+<Project>
+
+	<Target Name="GetNetCordNativesItems">
+		<ItemGroup>
+			<_NativesRuntime Include="$(NetCordNativesSharedDir)\**"
+						 	 Condition="'$(NetCordNativesSharedDir)' != ''" />
+
+			<!-- Order matters, dependencies come last -->
+			<!-- 1. Top-level application libraries (The Consumers) -->
+			<_NetCordStaticLink Include="sodium"
+								Condition="'%(DirectPInvoke.Identity)' == 'libsodium'" />
+			<_NetCordStaticLink Include="dave"
+								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
+			<!-- 2. Middleware / Intermediate dependencies -->
+			<_NetCordStaticLink Include="mlspp;hpke;bytes;tls_syntax"
+								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
+			<!-- 3. General purpose utility libraries -->
+			<_NetCordStaticLink Include="opus;zstd"
+								Condition="'%(DirectPInvoke.Identity)' == 'opus' or '%(DirectPInvoke.Identity)' == 'zstd'" />
+
+			<!-- 4. Low-level providers (The Leaf Dependencies) - These MUST be last -->
+			<_NetCordStaticLink Include="crypto"
+								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*" />
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*;" />
+
+			<_NetCordExcluded Include="$(NetCordExcludeNatives)"
+							  Condition="'$(NetCordExcludeNatives)' != ''" />
+			<_NetCordExcluded Include="crypto"
+							  Condition="$(NetCordExcludeNatives.Contains('libdave'))" />
+
+			<_NetCordExcluded Include="@(_NetCordStaticLink)"
+							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
+
+			<_RunExclude Include="$(NetCordNativesSharedDir)\%(_NetCordExcluded.Identity)*.*"
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
+			<_RunExclude Include="$(NetCordNativesSharedDir)\lib%(_NetCordExcluded.Identity)*.*"
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'"
+			DependsOnTargets="GetNetCordNativesItems"
+	 	    AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
+
+		<ItemGroup>
+			<NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />
+		</ItemGroup>
+		
+		<PropertyGroup>
+			<!-- Set property if any DirectPInvoke.Identity is 'libdave' -->
+			<LinkStandardCPlusPlusLibrary
+				Condition="'$(LinkStandardCPlusPlusLibrary)' == '' and '%(DirectPInvoke.Identity)' == 'libdave'"
+				>true</LinkStandardCPlusPlusLibrary>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="ExcludeStaticLinkedLibFromCopy" DependsOnTargets="ProcessNetCordNativeAot"
+			AfterTargets="ResolvePackageAssets"
+			BeforeTargets="ResolveLockFileCopyLocalFiles">
+
+		<ItemGroup>
+			<ResolvedFileToPublish Remove="%(_RunExclude.FullPath)" />
+			<RuntimeTargetsCopyLocalItems Remove="%(_RunExclude.FullPath)" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="NetCordNativesSymlinks" Condition="'$(OS)' != 'Windows_NT'"
+			AfterTargets="CopyFilesToOutputDirectory"
+			BeforeTargets="IncrementalCleanDependsOn">
+		<ItemGroup>
+			<_CopiedNonNatives Include="@(_SourceItemsToCopyToOutputDirectory)"
+							   Exclude="@(_NativesRuntime)" />
+			<_CopiedNatives Include="@(_SourceItemsToCopyToOutputDirectory)"
+							Exclude="@(_CopiedNonNatives)" />
+			<_NativesShared Include="$(OutDir)%(_CopiedNatives.TargetPath)" />
+
+            <_Symlink Include="@(_NativesShared)"
+                      Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.so\.\d+'))">
+                <RealName>%(Filename)%(Extension)</RealName>
+                <SoName>$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*?\.so\.\d+').Value)</SoName>
+                <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.so\..*', '.so'))</LinkerName>
+            </_Symlink>
+            <_Symlink Include="@(_NativesShared)"
+                      Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.dylib$'))">
+                <RealName>%(Filename)%(Extension)</RealName>
+                <SoName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^(.*?\.\d+)\..*\.dylib$', '$1.dylib'))</SoName>
+                <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib$', '.dylib'))</LinkerName>
+            </_Symlink>
+		</ItemGroup>
+
+		<Exec Command="ln -sf %(_Symlink.RealName) %(_Symlink.SoName)"
+              WorkingDirectory="$(OutputPath)"
+              Condition="'%(_Symlink.RealName)' != '%(_Symlink.SoName)' and '%(_Symlink.SoName)' != ''" />
+
+        <Exec Command="ln -sf %(_Symlink.SoName) %(_Symlink.LinkerName)"
+              WorkingDirectory="$(OutputPath)"
+              Condition="'%(_Symlink.SoName)' != '%(_Symlink.LinkerName)' and '%(_Symlink.SoName)' != '' and '%(_Symlink.LinkerName)' != ''" />
+
+        <Message Text="$(MSBuildProjectName) symlinking -> $(OutDir)[%(_Symlink.LinkerName) -> %(_Symlink.SoName) -> %(_Symlink.RealName)]"
+                 Importance="high" Condition="'@(_Symlink)' != ''" />
+
+        <ItemGroup>
+            <FileWrites Include="$(OutDir)%(_Symlink.SoName)" />
+            <FileWrites Include="$(OutDir)%(_Symlink.LinkerName)" />
+        </ItemGroup>
+	</Target>
+</Project>
