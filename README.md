@@ -32,7 +32,7 @@ You can install NetCord packages via NuGet package manager:
 | **[NetCord.Hosting](https://www.nuget.org/packages/NetCord.Hosting)**                       | Provides .NET Generic Host extensions for the NetCord package.          |
 | **[NetCord.Hosting.Services](https://www.nuget.org/packages/NetCord.Hosting.Services)**     | Provides .NET Generic Host extensions for the NetCord.Services package. |
 | **[NetCord.Hosting.AspNetCore](https://www.nuget.org/packages/NetCord.Hosting.AspNetCore)** | Provides ASP.NET Core extensions for seamless handling of HTTP events.  |
-| NetCord.Natives.&lt;RuntimeId&gt;                                                           | Provides pre-built native runtime dependencies binary.<br/>[See Native Dependencies Installation Guide.](https://netcord.dev/guides/basic-concepts/installing-native-dependencies.html) |
+| **[NetCord.Natives](https://www.nuget.org/packages/NetCord.Natives)**                                                           | Provides pre-built native dependency library binaries.<br/>[See Native Dependencies Installation Guide.](https://netcord.dev/guides/basic-concepts/installing-native-dependencies.html) |
 
 ## 2. 🚀 Showcase
 

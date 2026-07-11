@@ -1,44 +1,50 @@
 <Project>
+	<!-- 
+		Populate this property with the native libraries you want to exclude.
+		i.e.:
+			<NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>
+		will exclude them from being copied to output and from being static linked for nativeaot.
+		
+		When <DirectPInvoke> itemgroup is populated with the native libraries for static linking,
+		their dynamic libraries are automatically excluded.
+	-->
 
-	<Target Name="GetNetCordNativesItems">
+	<Target Name="GetNetCordNativesItems_$(MSBuildThisFileName)"
+			BeforeTargets="GetNetCordNativesItems">
+		<PropertyGroup>
+			<_SharedDirToUse>$(MSBuildThisFileDirectory)..\runtimes\$(RuntimeIdentifier)\native</_SharedDirToUse>
+			<_StaticDirToUse>$(MSBuildThisFileDirectory)..\staticlibs\$(RuntimeIdentifier)</_StaticDirToUse>
+		</PropertyGroup>
+
+		<ItemGroup Condition="'$(PublishAot)' == 'true'">
+			<_ThisPkgStaticLink Include="dave;mlspp;hpke;bytes;tls_syntax;crypto"
+								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Dave' and '%(DirectPInvoke.Identity)' == 'libdave'" />
+			<_ThisPkgStaticLink Include="sodium"
+								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Sodium' and '%(DirectPInvoke.Identity)' == 'libsodium'" />
+			<_ThisPkgStaticLink Include="opus"
+								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Opus' and '%(DirectPInvoke.Identity)' == 'opus'" />
+			<_ThisPkgStaticLink Include="zstd"
+								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Zstandard' and '%(DirectPInvoke.Identity)' == 'zstd'" />
+		</ItemGroup>
+
 		<ItemGroup>
-			<_NativesRuntime Include="$(NetCordNativesSharedDir)\**"
-						 	 Condition="'$(NetCordNativesSharedDir)' != ''" />
-
-			<!-- Order matters, dependencies come last -->
-			<!-- 1. Top-level application libraries (The Consumers) -->
-			<_NetCordStaticLink Include="sodium"
-								Condition="'%(DirectPInvoke.Identity)' == 'libsodium'" />
-			<_NetCordStaticLink Include="dave"
-								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
-
-			<!-- 2. Middleware / Intermediate dependencies -->
-			<_NetCordStaticLink Include="mlspp;hpke;bytes;tls_syntax"
-								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
-
-			<!-- 3. General purpose utility libraries -->
-			<_NetCordStaticLink Include="opus;zstd"
-								Condition="'%(DirectPInvoke.Identity)' == 'opus' or '%(DirectPInvoke.Identity)' == 'zstd'" />
-
-			<!-- 4. Low-level providers (The Leaf Dependencies) - These MUST be last -->
-			<_NetCordStaticLink Include="crypto"
-								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
-
-			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*" />
-			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*;" />
-
-			<_NetCordExcluded Include="$(NetCordExcludeNatives)"
-							  Condition="'$(NetCordExcludeNatives)' != ''" />
+			<_NetCordExcluded Include="$(NetCordExcludeNatives)" Condition="'$(NetCordExcludeNatives)' != ''" />
 			<_NetCordExcluded Include="crypto"
-							  Condition="$(NetCordExcludeNatives.Contains('libdave'))" />
+							  Condition="'$(NetCordExcludeNatives)' != '' and $(NetCordExcludeNatives.Contains('libdave'))" />
+			<_NetCordExcluded Include="@(_ThisPkgStaticLink)"
+							  Condition="'$(PublishAot)' == 'true' and '%(_ThisPkgStaticLink.Identity)' != ''" />
 
-			<_NetCordExcluded Include="@(_NetCordStaticLink)"
-							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
+			<_RunExclude Include="$(_SharedDirToUse)\%(_NetCordExcluded.Identity)*.*"
+						 Condition="Exists('$(_SharedDirToUse)') and '%(_NetCordExcluded.Identity)' != ''" />
+			<_RunExclude Include="$(_SharedDirToUse)\lib%(_NetCordExcluded.Identity)*.*"
+						 Condition="Exists('$(_SharedDirToUse)') and '%(_NetCordExcluded.Identity)' != ''" />
 
-			<_RunExclude Include="$(NetCordNativesSharedDir)\%(_NetCordExcluded.Identity)*.*"
-						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
-			<_RunExclude Include="$(NetCordNativesSharedDir)\lib%(_NetCordExcluded.Identity)*.*"
-						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
+			<_NativesRuntime Include="$(_SharedDirToUse)\**" Condition="Exists('$(_SharedDirToUse)')" />
+
+			<NativeLibToLink Include="$(_StaticDirToUse)\lib%(_ThisPkgStaticLink.Identity).*"
+							 Condition="Exists('$(_StaticDirToUse)') and '%(_ThisPkgStaticLink.Identity)' != ''" />
+			<NativeLibToLink Include="$(_StaticDirToUse)\%(_ThisPkgStaticLink.Identity).*"
+							 Condition="Exists('$(_StaticDirToUse)') and '%(_ThisPkgStaticLink.Identity)' != ''" />
 		</ItemGroup>
 	</Target>
 

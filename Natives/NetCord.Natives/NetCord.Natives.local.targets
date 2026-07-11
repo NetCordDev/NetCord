@@ -21,6 +21,44 @@
 		</PropertyGroup>
 	</Target>
 
+	<!-- Overrides the empty stub from NetCord.Natives.targets for local / all-libs dev builds -->
+	<Target Name="GetNetCordNativesItems">
+		<ItemGroup>
+			<!-- Order matters, dependencies come last -->
+			<!-- 1. Top-level application libraries (The Consumers) -->
+			<_NetCordStaticLink Include="sodium" Condition="'%(DirectPInvoke.Identity)' == 'libsodium'" />
+			<_NetCordStaticLink Include="dave" Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
+			<!-- 2. Middleware / Intermediate dependencies -->
+			<_NetCordStaticLink Include="mlspp;hpke;bytes;tls_syntax" Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
+			<!-- 3. General purpose utility libraries -->
+			<_NetCordStaticLink Include="opus;zstd"
+								Condition="'%(DirectPInvoke.Identity)' == 'opus' or '%(DirectPInvoke.Identity)' == 'zstd'" />
+
+			<!-- 4. Low-level providers (The Leaf Dependencies) - These MUST be last -->
+			<_NetCordStaticLink Include="crypto" Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
+			<_NetCordExcluded Include="$(NetCordExcludeNatives)" Condition="'$(NetCordExcludeNatives)' != ''" />
+			<_NetCordExcluded Include="crypto"
+							  Condition="'$(NetCordExcludeNatives)' != '' and $(NetCordExcludeNatives.Contains('libdave'))" />
+			<_NetCordExcluded Include="@(_NetCordStaticLink)"
+							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
+
+			<_RunExclude Include="$(NetCordNativesSharedDir)\%(_NetCordExcluded.Identity)*.*"
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
+			<_RunExclude Include="$(NetCordNativesSharedDir)\lib%(_NetCordExcluded.Identity)*.*"
+						 Condition="'%(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesSharedDir)' != ''" />
+
+			<_NativesRuntime Include="$(NetCordNativesSharedDir)\**" Condition="'$(NetCordNativesSharedDir)' != ''" />
+
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*"
+							 Condition="'$(NetCordNativesStaticDir)' != '' and '%(_NetCordStaticLink.Identity)' != ''" />
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*"
+							 Condition="'$(NetCordNativesStaticDir)' != '' and '%(_NetCordStaticLink.Identity)' != ''" />
+		</ItemGroup>
+	</Target>
+
 	<Target Name="ExcludeSharedFromFilesToPublish" Condition="'$(PublishAot)' == 'true'" 
 			DependsOnTargets="GetNetCordNativesItems"
 			AfterTargets="ComputeResolvedFilesToPublishList"

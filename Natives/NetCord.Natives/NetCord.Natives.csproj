@@ -362,15 +362,13 @@
                 <PackagePath>licenses\%(NativeLibLic.Identity)_LICENSE.txt</PackagePath>
             </Content>
 
-            <_BuildFiles Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets">
+            <None Include="$(MSBuildProjectName).targets">
                 <Pack>true</Pack>
-            </_BuildFiles>
-
-            <None Include="@(_BuildFiles)">
-                <PackagePath>build\$(PackageId)%(_BuildFiles.Extension)</PackagePath>
+                <PackagePath>build\$(PackageId).targets</PackagePath>
             </None>
-            <None Include="@(_BuildFiles)">
-                <PackagePath>buildTransitive\$(PackageId)%(_BuildFiles.Extension)</PackagePath>
+            <None Include="$(MSBuildProjectName).targets">
+                <Pack>true</Pack>
+                <PackagePath>buildTransitive\$(PackageId).targets</PackagePath>
             </None>
         </ItemGroup>
     </Target>
