@@ -108,5 +108,5 @@ All necessary licenses and copyright notices from the original native project so
 | **Opus**      | BSD-3-Clause | Audio codec                 |
 | **Zstd**      | BSD-3-Clause | Compression                 |
 
-### How It’s Built
+### How It's Built
 *   **Reproducible builds**: Dependencies are strictly pinned using [vcpkg](https://github.com/microsoft/vcpkg) baselines. This means every build result should be identical, regardless of who or what runs the build.
