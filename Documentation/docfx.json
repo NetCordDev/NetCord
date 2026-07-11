@@ -35,7 +35,7 @@
     ],
     "resource": [
       {
-        "files": [ "images/**", "robots.txt" ]
+        "files": [ "images/**", "sounds/**", "robots.txt" ]
       }
     ],
     "overwrite": [
