@@ -1,9 +1,17 @@
+using NetCord.JsonModels;
+
 namespace NetCord;
 
-public class ThreadCurrentUser(JsonModels.JsonThreadCurrentUser jsonModel) : IJsonModel<JsonModels.JsonThreadCurrentUser>
+/// <summary>
+/// A minimal <see cref="ThreadUser"/>, sent for threads within the <see cref="Gateway.GatewayClient.GuildCreate"/> event.
+/// </summary>
+public class ThreadCurrentUser(JsonThreadCurrentUser jsonModel) : IJsonModel<JsonThreadCurrentUser>
 {
-    JsonModels.JsonThreadCurrentUser IJsonModel<JsonModels.JsonThreadCurrentUser>.JsonModel => jsonModel;
+    JsonThreadCurrentUser IJsonModel<JsonThreadCurrentUser>.JsonModel => jsonModel;
 
+    /// <inheritdoc cref="ThreadUser.JoinTimestamp"/>
     public DateTimeOffset JoinTimestamp => jsonModel.JoinTimestamp;
+
+    /// <inheritdoc cref="ThreadUser.Flags"/>
     public int Flags => jsonModel.Flags;
 }

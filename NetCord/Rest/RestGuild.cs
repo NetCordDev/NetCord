@@ -98,7 +98,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the <see cref="RestGuild"/>'s icon.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated icons).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated icons).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild's icon. If the guild does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetIconUrl(ImageFormat? format = null) => IconHash is string hash ? ImageUrl.GuildIcon(Id, hash, format) : null;
 
@@ -262,7 +262,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the <see cref="RestGuild"/>'s banner.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated icons).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated icons).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild's banner. If the guild does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetBannerUrl(ImageFormat? format = null) => BannerHash is string hash ? ImageUrl.GuildBanner(Id, hash, format) : null;
 

@@ -9,7 +9,7 @@ public enum ChannelFlags
     GuildFeedRemoved = 1 << 0,
 
     /// <summary>
-    /// Post is pinned to its forum channel.
+    /// Whether a thread is pinned to the top of its parent <see cref="ForumGuildChannel"/> or <see cref="MediaForumGuildChannel"/>.
     /// </summary>
     Pinned = 1 << 1,
 
@@ -19,7 +19,7 @@ public enum ChannelFlags
     ActiveChannelsRemoved = 1 << 2,
 
     /// <summary>
-    /// Forum requires a tag for posts.
+    /// Whether a tag is required to be specified when creating a thread in a <see cref="ForumGuildChannel"/> or <see cref="MediaForumGuildChannel"/>.
     /// </summary>
     RequireTag = 1 << 4,
 
@@ -69,7 +69,7 @@ public enum ChannelFlags
     Broadcasting = 1 << 14,
 
     /// <summary>
-    /// Channel has no download options for media, media channel exclusive.
+    /// Hides the embedded media download options. Available only for media channels.
     /// </summary>
     HideMediaDownloadOptions = 1 << 15,
 }

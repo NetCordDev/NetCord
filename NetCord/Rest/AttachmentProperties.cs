@@ -4,6 +4,7 @@ using System.Text.Json;
 
 namespace NetCord.Rest;
 
+/// <inheritdoc cref="Attachment"/>
 [GenerateMethodsForProperties]
 public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable<AttachmentProperties, int>
 {
@@ -13,37 +14,31 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
     private static readonly JsonEncodedText _description = JsonEncodedText.Encode("description");
 
     /// <summary>
-    /// 
+    /// Creates an attachment from the provided stream, with the given filename.
     /// </summary>
-    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-    /// <param name="stream">Content of the file.</param>
+    /// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+    /// <param name="stream">A stream containing the attachment's contents.</param>
     public AttachmentProperties(string fileName, Stream stream) : this(fileName)
     {
         _stream = stream;
     }
 
     /// <summary>
-    /// 
+    /// Creates an empty attachment with the given filename.
     /// </summary>
-    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
+    /// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
     protected AttachmentProperties(string fileName)
     {
         FileName = fileName;
     }
 
-    /// <summary>
-    /// Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).
-    /// </summary>
+    /// <inheritdoc cref="Attachment.FileName"/>
     public string FileName { get; set; }
 
-    /// <summary>
-    /// Title of the attachment.
-    /// </summary>
+    /// <inheritdoc cref="Attachment.Title"/>
     public string? Title { get; set; }
 
-    /// <summary>
-    /// Description for the file (max 1024 characters for attachments sent by message, max 200 characters for attachments used for sticker creation).
-    /// </summary>
+    /// <inheritdoc cref="Attachment.Description"/>
     public string? Description { get; set; }
 
     protected Stream? GetStream()
@@ -96,10 +91,10 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
 }
 
 /// <summary>
-/// 
+/// Represents an attachment with Base64 encoded contents.
 /// </summary>
-/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-/// <param name="stream">Content of the file encoded in Base64.</param>
+/// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+/// <param name="stream">A stream containing the attachment's contents, encoded in Base64.</param>
 [GenerateMethodsForProperties]
 public partial class Base64AttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
@@ -112,10 +107,10 @@ public partial class Base64AttachmentProperties(string fileName, Stream stream) 
 }
 
 /// <summary>
-/// 
+/// Represents an attachment with quoted-printable encoded contents.
 /// </summary>
-/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-/// <param name="stream">Content of the file encoded in Quoted-Printable.</param>
+/// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+/// <param name="stream">A stream containing the attachment's contents, encoded in quoted-printable.</param>
 [GenerateMethodsForProperties]
 public partial class QuotedPrintableAttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
@@ -128,17 +123,17 @@ public partial class QuotedPrintableAttachmentProperties(string fileName, Stream
 }
 
 /// <summary>
-/// 
+/// Represents an attachment hosted on Google Cloud.
 /// </summary>
-/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-/// <param name="uploadedFileName">Name of the upload.</param>
+/// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+/// <param name="uploadedFileName"><inheritdoc cref="UploadedFileName" path="/summary"/></param>
 [GenerateMethodsForProperties]
 public partial class GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : AttachmentProperties(fileName)
 {
     private static readonly JsonEncodedText _uploadedFileName = JsonEncodedText.Encode("uploaded_filename");
 
     /// <summary>
-    /// Name of the upload.
+    /// The filename to use for the upload.
     /// </summary>
     public string UploadedFileName { get; set; } = uploadedFileName;
 
