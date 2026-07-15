@@ -34,10 +34,17 @@
 		<DirectPInvoke Include="libsodium" />
 		<DirectPInvoke Include="opus" />
 		<DirectPInvoke Include="zstd" />
-		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
 		<ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
+		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj"
+                      Condition="'$(TestWithPackageVer)' == ''" />
 	</ItemGroup>
 
-  <Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
+  <ItemGroup Condition="'$(TestWithPackageVer)' != ''">
+    <PackageReference Include="NetCord.Natives" />
+    <PackageVersion Include="NetCord.Natives" Version="$(TestWithPackageVer)" />
+  </ItemGroup>
+
+  <Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets"
+          Condition="'$(TestWithPackageVer)' == ''" />
 
 </Project>

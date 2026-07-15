@@ -55,6 +55,10 @@
       <_Parameter1>NativeAotBinLogPath</_Parameter1>
       <_Parameter2>$(NativeAotBinLogPath)</_Parameter2>
     </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
+      <_Parameter1>NetCordNativesPath</_Parameter1>
+      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/$(NetCordNativesDir)/NetCord.Natives.csproj'))</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup>

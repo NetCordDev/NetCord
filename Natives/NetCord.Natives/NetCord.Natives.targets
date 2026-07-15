@@ -60,7 +60,16 @@
             <_CurrentStaticDir>%(_NetCordNativesPackage.PackageDir)staticlibs</_CurrentStaticDir>
         </PropertyGroup>
 
-        <ItemGroup>
+        <ItemGroup Condition="'$(RuntimeIdentifier)' != ''">
+            <_RunExclude Include="$(_CurrentSharedDir)\$(RuntimeIdentifier)\native\%(_NetCordExcluded.Identity)*.*" Condition="'%(_NetCordExcluded.Identity)' != ''" />
+            <_RunExclude Include="$(_CurrentSharedDir)\$(RuntimeIdentifier)\native\lib%(_NetCordExcluded.Identity)*.*" Condition="'%(_NetCordExcluded.Identity)' != ''" />
+
+            <_NativesRuntime Include="$(_CurrentSharedDir)\$(RuntimeIdentifier)\native\**" />
+
+            <NativeLibToLink Include="$(_CurrentStaticDir)\$(RuntimeIdentifier)\lib%(_StaticLinking.Identity).*" Condition="'%(_StaticLinking.Identity)' != ''" />
+            <NativeLibToLink Include="$(_CurrentStaticDir)\$(RuntimeIdentifier)\%(_StaticLinking.Identity).*" Condition="'%(_StaticLinking.Identity)' != ''" />
+        </ItemGroup>
+        <ItemGroup Condition="'$(RuntimeIdentifier)' == ''">
             <_RunExclude Include="$(_CurrentSharedDir)\*\native\%(_NetCordExcluded.Identity)*.*" Condition="'%(_NetCordExcluded.Identity)' != ''" />
             <_RunExclude Include="$(_CurrentSharedDir)\*\native\lib%(_NetCordExcluded.Identity)*.*" Condition="'%(_NetCordExcluded.Identity)' != ''" />
 
@@ -71,12 +80,12 @@
         </ItemGroup>
     </Target>
 
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(MSBuildThisFileName)' != 'NetCord.Natives'">
         <ProcessNetCordNativeAot_DependsOn>$(ProcessNetCordNativeAot_DependsOn);GetNetCordNativesItems_PerPackage</ProcessNetCordNativeAot_DependsOn>
     </PropertyGroup>
     <Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'"
             DependsOnTargets="$(ProcessNetCordNativeAot_DependsOn)"
-             AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
+            BeforeTargets="SetupOSSpecificProps">
 
         <ItemGroup>
             <NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />

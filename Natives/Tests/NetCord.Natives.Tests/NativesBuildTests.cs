@@ -44,16 +44,32 @@ public class NativesBuildTests
         Assert.IsEmpty(missingExports, $"The following entry points were not found in '{libName}': {string.Join(", ", missingExports)}");
     }
 
+    [AssemblyInitialize]
+    public static void AssemblyInit(TestContext context)
+    {
+        // This is guaranteed to run before any test method
+        MSBuildLocator.RegisterDefaults();
+    }
+
     const string NativeAotAppLogTag = nameof(NativeAotStaticLinking);
+
     [TestMethod]
+    [DoNotParallelize]
     [DataRow("libdave;libsodium;opus;zstd")]
     public void NativeAotStaticLinking(string libNames)
     {
-        MSBuildLocator.RegisterDefaults();
-        MSBuildNativeAotPublish(libNames);
+        MSBuildNativeAotPublish(libNames, false);
     }
 
-    private static void MSBuildNativeAotPublish(string libNames)
+    [TestMethod]
+    [DoNotParallelize]
+    [DataRow("libdave;libsodium;opus;zstd")]
+    public void NativeAotStaticLinking_WithPackageVer(string libNames)
+    {
+        MSBuildNativeAotPublish(libNames, true);
+    }
+
+    private static void MSBuildNativeAotPublish(string libNames, bool testWithPackageVer)
     {
         // 1. Get properties from AssemblyMetadata attributes
         var assembly = typeof(NativesBuildTests).Assembly;
@@ -75,8 +91,7 @@ public class NativesBuildTests
         // 2. Parse MSBuild Global Properties into a Dictionary
         var globalProperties = new Dictionary<string, string>
         {
-            { "Configuration", configuration },
-            { "NoBuild", "true" }
+            { "Configuration", configuration }
         };
 
         var pairs = propsAttr?.Split([';', ','], StringSplitOptions.RemoveEmptyEntries) ?? [];
@@ -98,7 +113,8 @@ public class NativesBuildTests
 
         if (!string.IsNullOrEmpty(binlogpath))
         {
-            loggers.Add(new BinaryLogger { Parameters = binlogpath });
+            var withverbinlogpath = Path.GetFileNameWithoutExtension(binlogpath) + (testWithPackageVer ? "_with_pkg_ver" : "") + Path.GetExtension(binlogpath);
+            loggers.Add(new BinaryLogger { Parameters = testWithPackageVer ? withverbinlogpath : binlogpath });
         }
 
         var buildParameters = new BuildParameters
@@ -107,6 +123,29 @@ public class NativesBuildTests
             EnableNodeReuse = false,
         };
 
+        if (testWithPackageVer)
+            // Get the version of NetCord.Natives from the project file
+            using (var prjVerCollection = new ProjectCollection())
+            {
+                var prjPath = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                                    .FirstOrDefault(a => a.Key == "NetCordNativesPath")?.Value;
+                Assert.IsNotNull(prjPath, "NetCordNativesPath metadata attribute is not defined.");
+
+                var prjVerInstance = new ProjectInstance(prjPath, globalProperties, null, prjVerCollection);
+                var prjVerRequest = new BuildRequestData(prjVerInstance, ["GetAssemblyVersion"]);
+
+                var prjVerResult = BuildManager.DefaultBuildManager.Build(buildParameters, prjVerRequest);
+                Assert.AreEqual(BuildResultCode.Success, prjVerResult.OverallResult, $"Failed to get NetCord.Natives version from '{prjPath}'.");
+
+                var prjVer = prjVerInstance.GetPropertyValue("Version");
+                globalProperties["TestWithPackageVer"] = prjVer;
+
+                Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Using NetCord.Natives version '{prjVer}' for PackageReference testing.");
+            }
+
+        // Clear internal MSBuild engine caches
+        BuildManager.DefaultBuildManager.ResetCaches();
+
         // Evaluate and Execute the "Restore" target first
         Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Restoring Native AoT app dependencies...");
 
@@ -114,7 +153,7 @@ public class NativesBuildTests
         {
             var restoreInstance = new ProjectInstance(projectFile, globalProperties, null, restoreCollection);
             var restoreRequest = new BuildRequestData(restoreInstance, ["Restore"]);
-            
+
             var restoreResult = BuildManager.DefaultBuildManager.Build(buildParameters, restoreRequest);
             Assert.AreEqual(BuildResultCode.Success, restoreResult.OverallResult, $"Native AoT restore failed for '{libNames}'.");
         }
