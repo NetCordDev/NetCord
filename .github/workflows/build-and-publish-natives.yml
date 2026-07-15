@@ -18,6 +18,8 @@ jobs:
   publish:
     needs: [build-natives]
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
 
     steps:
       - name: Download All NuGet Package Artifacts
@@ -30,6 +32,9 @@ jobs:
       - name: Publish packages
         env:
           KEY: ${{ secrets.NUGET_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           dotnet nuget push artifacts/pkgs/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
           dotnet nuget push artifacts/pkgs/*.snupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/pkgs/*.nupkg -k $GH_TOKEN -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
+          dotnet nuget push artifacts/pkgs/*.snupkg -k $GH_TOKEN -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate

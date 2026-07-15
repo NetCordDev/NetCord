@@ -39,8 +39,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\NetCord\NetCord.csproj" />
-    <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj"
+                      Condition="'$(NoNativesBuild)' != 'true'" />
+	</ItemGroup>
+
+  <ItemGroup Condition="'$(TestWithPackageVer)' != ''">
+    <PackageReference Include="NetCord.Natives" />
+    <PackageVersion Include="NetCord.Natives" Version="$(TestWithPackageVer)" />
   </ItemGroup>
+
+  <Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets"
+          Condition="'$(NoNativesBuild)' != 'true'" />
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
@@ -64,7 +73,5 @@
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
-
-	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
 
 </Project>
