@@ -1,73 +1,39 @@
-using NetCord.Gateway;
-
 namespace NetCord.Hosting.Gateway;
 
 public interface IGatewayHandler;
 
-internal interface IDelegateGatewayHandlerBase : IGatewayHandler
-{
-    internal string Name { get; }
-}
-
-internal interface IDelegateGatewayHandler : IDelegateGatewayHandlerBase
-{
-    public ValueTask HandleAsync();
-}
-
-internal interface IDelegateGatewayHandler<T> : IDelegateGatewayHandlerBase
-{
-    public ValueTask HandleAsync(T arg);
-}
-
-internal class DelegateGatewayHandler(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayHandler
-{
-    private readonly Func<IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<IServiceProvider, ValueTask>>(handler, []);
-
-    string IDelegateGatewayHandlerBase.Name => name;
-
-    public ValueTask HandleAsync() => _handler(services);
-}
-
-internal class DelegateGatewayHandler<T>(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayHandler<T>
-{
-    private readonly Func<T, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<T, IServiceProvider, ValueTask>>(handler, [typeof(T)]);
-
-    string IDelegateGatewayHandlerBase.Name => name;
-
-    public ValueTask HandleAsync(T arg) => _handler(arg, services);
-}
-
 public interface IShardedGatewayHandler;
 
-internal interface IDelegateShardedGatewayHandlerBase : IShardedGatewayHandler
+internal abstract class GatewayHandlerMetadata(bool isSingleton)
 {
-    internal string Name { get; }
+    public bool IsSingleton => isSingleton;
 }
 
-internal interface IDelegateShardedGatewayHandler : IDelegateShardedGatewayHandlerBase
+internal sealed class ClassGatewayHandlerMetadata(Type handlerType, bool isSingleton) : GatewayHandlerMetadata(isSingleton)
 {
-    public ValueTask HandleAsync(GatewayClient client);
+    public Type HandlerType => handlerType;
 }
 
-internal interface IDelegateShardedGatewayHandler<T> : IDelegateShardedGatewayHandlerBase
+internal sealed class DelegateGatewayHandlerMetadata(Delegate handler, GatewayEventId eventId, bool isSingleton) : GatewayHandlerMetadata(isSingleton)
 {
-    public ValueTask HandleAsync(GatewayClient client, T arg);
+    public Delegate Handler => handler;
+
+    public GatewayEventId EventId => eventId;
 }
 
-internal class DelegateShardedGatewayHandler(string name, IServiceProvider services, Delegate handler) : IDelegateShardedGatewayHandler
+internal abstract class ShardedGatewayHandlerMetadata(bool isSingleton)
 {
-    private readonly Func<GatewayClient, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<GatewayClient, IServiceProvider, ValueTask>>(handler, [typeof(GatewayClient)]);
-
-    string IDelegateShardedGatewayHandlerBase.Name => name;
-
-    public ValueTask HandleAsync(GatewayClient client) => _handler(client, services);
+    public bool IsSingleton => isSingleton;
 }
 
-internal class DelegateShardedGatewayHandler<T>(string name, IServiceProvider services, Delegate handler) : IDelegateShardedGatewayHandler<T>
+internal sealed class ClassShardedGatewayHandlerMetadata(Type handlerType, bool isSingleton) : ShardedGatewayHandlerMetadata(isSingleton)
 {
-    private readonly Func<GatewayClient, T, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<GatewayClient, T, IServiceProvider, ValueTask>>(handler, [typeof(GatewayClient), typeof(T)]);
+    public Type HandlerType => handlerType;
+}
 
-    string IDelegateShardedGatewayHandlerBase.Name => name;
+internal sealed class DelegateShardedGatewayHandlerMetadata(Delegate handler, GatewayEventId eventId, bool isSingleton) : ShardedGatewayHandlerMetadata(isSingleton)
+{
+    public Delegate Handler => handler;
 
-    public ValueTask HandleAsync(GatewayClient client, T arg) => _handler(client, arg, services);
+    public GatewayEventId EventId => eventId;
 }

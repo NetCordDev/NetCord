@@ -12,12 +12,12 @@ internal partial class GatewayClientHostedService(IServiceProvider services) : I
     {
         var client = services.GetRequiredService<GatewayClient>();
 
-        foreach (var handler in services.GetServices<IGatewayHandler>())
+        foreach (var handlerMetadata in services.GetServices<GatewayHandlerMetadata>())
         {
-            if (handler is IDelegateGatewayHandlerBase delegateHandler)
-                RegisterDelegateHandler(client, delegateHandler);
+            if (handlerMetadata is ClassGatewayHandlerMetadata classHandlerMetadata)
+                RegisterClassHandler(services, client, classHandlerMetadata);
             else
-                RegisterClassHandler(client, handler);
+                RegisterDelegateHandler(services, client, (DelegateGatewayHandlerMetadata)handlerMetadata);
         }
 
         var options = services.GetRequiredService<IOptions<GatewayClientOptions>>().Value;
