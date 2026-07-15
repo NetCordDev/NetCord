@@ -197,21 +197,20 @@ jobs:
           dotnet build Natives/NetCord.Natives.slnx --no-restore
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && format('-bl:build.binlog -p:NativeAotBinLogPath={0}/nativeaotapptest.binlog', github.workspace) || '' }}
-          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ matrix.rid }}%3BVcpkgOSTarget=${{ env.VcpkgOSTarget }}%3BVcpkgPlatformTarget=${{ env.VcpkgPlatformTarget }}"
+          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ matrix.rid }}"
           -p:GeneratePackageOnBuild=false
-          ${{ env.VcpkgOSTarget == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
-          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
-          dotnet test Natives/NetCord.Natives.slnx
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          bash -c "dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
-          --filter "FullyQualifiedName!~NativeAotStaticLinking_WithPackageVer"
+          --filter 'FullyQualifiedName!~NativeAotStaticLinking_WithPackageVer'
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
-          --logger "console;verbosity=detailed"
-          --logger GitHubActions
+          --logger 'console;verbosity=detailed'
+          --logger GitHubActions"
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always() }}
