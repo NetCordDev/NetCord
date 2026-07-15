@@ -21,6 +21,9 @@
 		</PropertyGroup>
 	</Target>
 
+	<PropertyGroup>
+		<ProcessNetCordNativeAot_DependsOn>$(ProcessNetCordNativeAot_DependsOn);GetNetCordNativesItems</ProcessNetCordNativeAot_DependsOn>
+	</PropertyGroup>
 	<!-- Overrides the empty stub from NetCord.Natives.targets for local / all-libs dev builds -->
 	<Target Name="GetNetCordNativesItems">
 		<ItemGroup>
@@ -59,7 +62,7 @@
 		</ItemGroup>
 	</Target>
 
-	<Target Name="ExcludeSharedFromFilesToPublish" Condition="'$(PublishAot)' == 'true'" 
+	<Target Name="ExcludeSharedFromFilesToPublish"
 			DependsOnTargets="GetNetCordNativesItems"
 			AfterTargets="ComputeResolvedFilesToPublishList"
 			BeforeTargets="ComputeFilesToPublish">

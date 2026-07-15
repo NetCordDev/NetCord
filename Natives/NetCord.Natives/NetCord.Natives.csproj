@@ -290,6 +290,7 @@
         <GenerateNuspecDependsOn>PackagePerNative</GenerateNuspecDependsOn>
     </PropertyGroup>
     <Target Name="PackagePerNative" DependsOnTargets="PrepareVcpkg;MinVer"
+            BeforeTargets="_GetAbsoluteOutputPathsForPack"
             Condition="'$(_IsPackingNative)' != 'true' and '$(_MetaNativePkg)' != 'true'">
 
         <ItemGroup>
@@ -304,13 +305,15 @@
 
         <PropertyGroup>
             <_MetaRestoreSource>$([System.IO.Path]::GetFullPath('$(PackageOutputPath)'))</_MetaRestoreSource>
+            <RestoreOutputPath>$([System.IO.Path]::GetFullPath('$(RestoreOutputPath)\meta-restore'))</RestoreOutputPath>
         </PropertyGroup>
 
         <Message Text="Restoring for top-level meta package..." Importance="high" />
 
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Restore"
-                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(_MetaRestoreSource)" />
+                 RemoveProperties="NoRestore"
+                 Properties="_NativePkgVer=$(PackageVersion);_MetaNativePkg=true;RestoreSources=$(_MetaRestoreSource);RestoreOutputPath=$(RestoreOutputPath)" />
     </Target>
 
     <Target Name="InjectPkgRef" BeforeTargets="CollectPackageReferences"

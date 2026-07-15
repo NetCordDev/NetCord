@@ -1,88 +1,121 @@
 <Project>
-	<!-- 
-		Populate this property with the native libraries you want to exclude.
-		i.e.:
-			<NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>
-		will exclude them from being copied to output and from being static linked for nativeaot.
-		
-		When <DirectPInvoke> itemgroup is populated with the native libraries for static linking,
-		their dynamic libraries are automatically excluded.
-	-->
+    <!--
+        Assign this property with the native libraries you want to exclude:
+            <NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>
+        This will exclude them from being copied to output and from being static linked for nativeaot.
+        Note: convenient if you reference the meta-package 'NetCord.Natives'.
 
-	<Target Name="GetNetCordNativesItems_$(MSBuildThisFileName)"
-			BeforeTargets="GetNetCordNativesItems">
-		<PropertyGroup>
-			<_SharedDirToUse>$(MSBuildThisFileDirectory)..\runtimes\$(RuntimeIdentifier)\native</_SharedDirToUse>
-			<_StaticDirToUse>$(MSBuildThisFileDirectory)..\staticlibs\$(RuntimeIdentifier)</_StaticDirToUse>
-		</PropertyGroup>
+        Add to this item group the native libraries to be static linked (NativeAot):
+            <DirectPInvoke Include="libdave" />
+            <DirectPInvoke Include="libsodium" />
+            <DirectPInvoke Include="opus" />
+            <DirectPInvoke Include="zstd" />
+        Their dynamic libraries will automatically be excluded.
+    -->
+    <ItemGroup Condition="'$(MSBuildThisFileName)' != 'NetCord.Natives'">
+        <_NetCordNativesPackage Include="$(MSBuildThisFileName)">
+            <PackageDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</PackageDir>
+        </_NetCordNativesPackage>
+    </ItemGroup>
 
-		<ItemGroup Condition="'$(PublishAot)' == 'true'">
-			<_ThisPkgStaticLink Include="dave;mlspp;hpke;bytes;tls_syntax;crypto"
-								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Dave' and '%(DirectPInvoke.Identity)' == 'libdave'" />
-			<_ThisPkgStaticLink Include="sodium"
-								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Sodium' and '%(DirectPInvoke.Identity)' == 'libsodium'" />
-			<_ThisPkgStaticLink Include="opus"
-								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Opus' and '%(DirectPInvoke.Identity)' == 'opus'" />
-			<_ThisPkgStaticLink Include="zstd"
-								Condition="'$(MSBuildThisFileName)' == 'NetCord.Natives.Zstandard' and '%(DirectPInvoke.Identity)' == 'zstd'" />
-		</ItemGroup>
+    <Target Name="PopulateNetCordNativesItems">
+        <ItemGroup Condition="'$(PublishAot)' == 'true'">
+            <!-- Order matters, dependencies come last -->
+            <!-- 1. Top-level application libraries (The Consumers) -->
+            <_StaticLinking Include="libsodium;sodium"
+                            Condition="!$(NetCordExcludeNatives.Contains('libsodium')) and '%(DirectPInvoke.Identity)' == 'libsodium'" />
+            <_StaticLinking Include="libdave;dave"
+                            Condition="!$(NetCordExcludeNatives.Contains('libdave')) and '%(DirectPInvoke.Identity)' == 'libdave'" />
 
-		<ItemGroup>
-			<_NetCordExcluded Include="$(NetCordExcludeNatives)" Condition="'$(NetCordExcludeNatives)' != ''" />
-			<_NetCordExcluded Include="crypto"
-							  Condition="'$(NetCordExcludeNatives)' != '' and $(NetCordExcludeNatives.Contains('libdave'))" />
-			<_NetCordExcluded Include="@(_ThisPkgStaticLink)"
-							  Condition="'$(PublishAot)' == 'true' and '%(_ThisPkgStaticLink.Identity)' != ''" />
+            <!-- 2. Middleware / Intermediate dependencies -->
+            <_StaticLinking Include="libmlspp;mlspp;libhpke;hpke;libbytes;bytes;libtls_syntax;tls_syntax"
+                            Condition="!$(NetCordExcludeNatives.Contains('libdave')) and '%(DirectPInvoke.Identity)' == 'libdave'" />
 
-			<_RunExclude Include="$(_SharedDirToUse)\%(_NetCordExcluded.Identity)*.*"
-						 Condition="Exists('$(_SharedDirToUse)') and '%(_NetCordExcluded.Identity)' != ''" />
-			<_RunExclude Include="$(_SharedDirToUse)\lib%(_NetCordExcluded.Identity)*.*"
-						 Condition="Exists('$(_SharedDirToUse)') and '%(_NetCordExcluded.Identity)' != ''" />
+            <!-- 3. General purpose utility libraries -->
+            <_StaticLinking Include="libopus;opus"
+                            Condition="!$(NetCordExcludeNatives.Contains('opus')) and '%(DirectPInvoke.Identity)' == 'opus'" />
+            <_StaticLinking Include="libzstd;zstd"
+                            Condition="!$(NetCordExcludeNatives.Contains('zstd')) and '%(DirectPInvoke.Identity)' == 'zstd'" />
 
-			<_NativesRuntime Include="$(_SharedDirToUse)\**" Condition="Exists('$(_SharedDirToUse)')" />
+            <!-- 4. Low-level providers (The Leaf Dependencies) - These MUST be last -->
+            <_StaticLinking Include="libcrypto;crypto"
+                            Condition="!$(NetCordExcludeNatives.Contains('libdave')) and '%(DirectPInvoke.Identity)' == 'libdave'" />
 
-			<NativeLibToLink Include="$(_StaticDirToUse)\lib%(_ThisPkgStaticLink.Identity).*"
-							 Condition="Exists('$(_StaticDirToUse)') and '%(_ThisPkgStaticLink.Identity)' != ''" />
-			<NativeLibToLink Include="$(_StaticDirToUse)\%(_ThisPkgStaticLink.Identity).*"
-							 Condition="Exists('$(_StaticDirToUse)') and '%(_ThisPkgStaticLink.Identity)' != ''" />
-		</ItemGroup>
-	</Target>
+            <__StaticsToLink Include="@(_StaticLinking)" Condition="'%(_StaticLinking.Identity)' != ''" />
+        </ItemGroup>
 
-	<Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'"
-			DependsOnTargets="GetNetCordNativesItems"
-	 	    AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
+        <ItemGroup>
+            <_NetCordExcluded Include="$(NetCordExcludeNatives)" Condition="'$(NetCordExcludeNatives)' != ''" />
+            <_NetCordExcluded Include="@(_StaticLinking)"
+                              Condition="'$(PublishAot)' == 'true' and '%(_StaticLinking.Identity)' != ''" />
+        </ItemGroup>
+    </Target>
 
-		<ItemGroup>
-			<NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />
-		</ItemGroup>
-		
-		<PropertyGroup>
-			<!-- Set property if any DirectPInvoke.Identity is 'libdave' -->
-			<LinkStandardCPlusPlusLibrary
-				Condition="'$(LinkStandardCPlusPlusLibrary)' == '' and '%(DirectPInvoke.Identity)' == 'libdave'"
-				>true</LinkStandardCPlusPlusLibrary>
-		</PropertyGroup>
-	</Target>
+    <Target Name="GetNetCordNativesItems_PerPackage"
+            DependsOnTargets="PopulateNetCordNativesItems"
+            Inputs="%(_NetCordNativesPackage.Identity)" Outputs="%(Identity)\Dummy"
+            Condition="'@(_NetCordNativesPackage)' != ''">
+        <PropertyGroup>
+            <_CurrentSharedDir>%(_NetCordNativesPackage.PackageDir)runtimes</_CurrentSharedDir>
+            <_CurrentStaticDir>%(_NetCordNativesPackage.PackageDir)staticlibs</_CurrentStaticDir>
+        </PropertyGroup>
 
-	<Target Name="ExcludeStaticLinkedLibFromCopy" DependsOnTargets="ProcessNetCordNativeAot"
-			AfterTargets="ResolvePackageAssets"
-			BeforeTargets="ResolveLockFileCopyLocalFiles">
+        <ItemGroup>
+            <_RunExclude Include="$(_CurrentSharedDir)\*\native\%(_NetCordExcluded.Identity)*.*" Condition="'%(_NetCordExcluded.Identity)' != ''" />
+            <_RunExclude Include="$(_CurrentSharedDir)\*\native\lib%(_NetCordExcluded.Identity)*.*" Condition="'%(_NetCordExcluded.Identity)' != ''" />
 
-		<ItemGroup>
-			<ResolvedFileToPublish Remove="%(_RunExclude.FullPath)" />
-			<RuntimeTargetsCopyLocalItems Remove="%(_RunExclude.FullPath)" />
-		</ItemGroup>
-	</Target>
+            <_NativesRuntime Include="$(_CurrentSharedDir)\*\native\**" />
 
-	<Target Name="NetCordNativesSymlinks" Condition="'$(OS)' != 'Windows_NT'"
-			AfterTargets="CopyFilesToOutputDirectory"
-			BeforeTargets="IncrementalCleanDependsOn">
-		<ItemGroup>
-			<_CopiedNonNatives Include="@(_SourceItemsToCopyToOutputDirectory)"
-							   Exclude="@(_NativesRuntime)" />
-			<_CopiedNatives Include="@(_SourceItemsToCopyToOutputDirectory)"
-							Exclude="@(_CopiedNonNatives)" />
-			<_NativesShared Include="$(OutDir)%(_CopiedNatives.TargetPath)" />
+            <NativeLibToLink Include="$(_CurrentStaticDir)\*\lib%(_StaticLinking.Identity).*" Condition="'%(_StaticLinking.Identity)' != ''" />
+            <NativeLibToLink Include="$(_CurrentStaticDir)\*\%(_StaticLinking.Identity).*" Condition="'%(_StaticLinking.Identity)' != ''" />
+        </ItemGroup>
+    </Target>
+
+    <PropertyGroup>
+        <ProcessNetCordNativeAot_DependsOn>$(ProcessNetCordNativeAot_DependsOn);GetNetCordNativesItems_PerPackage</ProcessNetCordNativeAot_DependsOn>
+    </PropertyGroup>
+    <Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'"
+            DependsOnTargets="$(ProcessNetCordNativeAot_DependsOn)"
+             AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
+
+        <ItemGroup>
+            <NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />
+        </ItemGroup>
+
+        <PropertyGroup>
+            <!-- Set property if any DirectPInvoke.Identity is 'libdave' -->
+            <LinkStandardCPlusPlusLibrary
+                Condition="'$(LinkStandardCPlusPlusLibrary)' == '' and '%(DirectPInvoke.Identity)' == 'libdave'"
+                >true</LinkStandardCPlusPlusLibrary>
+        </PropertyGroup>
+    </Target>
+
+    <Target Name="ExcludeSharedFromCopyToOutput"
+            DependsOnTargets="GetNetCordNativesItems_PerPackage"
+            AfterTargets="ResolveLockFileCopyLocalFiles"
+            BeforeTargets="_CopyFilesMarkedCopyLocal">
+        <ItemGroup>
+            <ReferenceCopyLocalPaths Remove="%(_RunExclude.FullPath)" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="NetCordNativesSymlinks"
+            AfterTargets="CopyFilesToOutputDirectory"
+            BeforeTargets="$(IncrementalCleanDependsOn)">
+        <ItemGroup>
+            <_CopiedNonNetCord Include="@(ReferenceCopyLocalPaths)"
+                               Exclude="@(_NativesRuntime)" />
+            <_CopiedNonNetCord Include="@(_SourceItemsToCopyToOutputDirectory)"
+                               Exclude="@(_NativesRuntime)" />
+
+            <_CopiedNatives Include="@(ReferenceCopyLocalPaths)"
+                            Exclude="@(_CopiedNonNetCord)" />
+            <_CopiedNatives Include="@(_SourceItemsToCopyToOutputDirectory)"
+                            Exclude="@(_CopiedNonNetCord)" />
+
+            <_NativesShared Include="$(OutDir)%(_CopiedNatives.DestinationSubDirectory)%(_CopiedNatives.Filename)%(_CopiedNatives.Extension)">
+                <DestinationSubDirectory>%(_CopiedNatives.DestinationSubDirectory)</DestinationSubDirectory>
+            </_NativesShared>
 
             <_Symlink Include="@(_NativesShared)"
                       Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.so\.\d+'))">
@@ -96,20 +129,43 @@
                 <SoName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^(.*?\.\d+)\..*\.dylib$', '$1.dylib'))</SoName>
                 <LinkerName>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib$', '.dylib'))</LinkerName>
             </_Symlink>
-			<_Symlink Remove="%(Identity)" Condition="'%(RealName)' == '' or '%(SoName)' == '' or '%(LinkerName)' == ''" />
-			<_Symlink Remove="%(Identity)" Condition="'%(RealName)' == '%(SoName)' or '%(SoName)' == '' or '%(LinkerName)' == '' or '%(LinkerName)' == '%(RealName)'" />
-		</ItemGroup>
+            <_Symlink Remove="%(Identity)" Condition="'%(RealName)' == '' or '%(SoName)' == '' or '%(LinkerName)' == ''" />
+            <_Symlink Remove="%(Identity)" Condition="'%(RealName)' == '%(SoName)' or '%(SoName)' == '' or '%(LinkerName)' == '' or '%(LinkerName)' == '%(RealName)'" />
+        </ItemGroup>
 
-		<Exec Command="ln -sf %(_Symlink.RealName) %(_Symlink.SoName)" WorkingDirectory="$(OutputPath)" Condition="'@(_Symlink)' != ''" />
+        <!-- WINDOWS: Delete existing if they exist -->
+        <Exec Command="cmd /c if exist &quot;%(_Symlink.SoName)&quot; del /f /q &quot;%(_Symlink.SoName)&quot;"
+              WorkingDirectory="$(OutDir)%(_Symlink.DestinationSubDirectory)"
+              Condition="'@(_Symlink)' != '' AND $([MSBuild]::IsOSPlatform('Windows'))" />
 
-        <Exec Command="ln -sf %(_Symlink.SoName) %(_Symlink.LinkerName)" WorkingDirectory="$(OutputPath)" Condition="'@(_Symlink)' != ''" />
+        <Exec Command="cmd /c if exist &quot;%(_Symlink.LinkerName)&quot; del /f /q &quot;%(_Symlink.LinkerName)&quot;"
+              WorkingDirectory="$(OutDir)%(_Symlink.DestinationSubDirectory)"
+              Condition="'@(_Symlink)' != '' AND $([MSBuild]::IsOSPlatform('Windows'))" />
+
+        <!-- WINDOWS: Create Symlinks -->
+        <Exec Command="cmd /c mklink &quot;%(_Symlink.SoName)&quot; &quot;%(_Symlink.RealName)&quot;"
+              WorkingDirectory="$(OutDir)%(_Symlink.DestinationSubDirectory)"
+              Condition="'@(_Symlink)' != '' AND $([MSBuild]::IsOSPlatform('Windows'))" />
+
+        <Exec Command="cmd /c mklink &quot;%(_Symlink.LinkerName)&quot; &quot;%(_Symlink.SoName)&quot;"
+              WorkingDirectory="$(OutDir)%(_Symlink.DestinationSubDirectory)"
+              Condition="'@(_Symlink)' != '' AND $([MSBuild]::IsOSPlatform('Windows'))" />
+
+        <!-- NON-WINDOWS: Standard ln -sf -->
+        <Exec Command="ln -sf %(_Symlink.RealName) %(_Symlink.SoName)"
+              WorkingDirectory="$(OutDir)%(_Symlink.DestinationSubDirectory)"
+              Condition="'@(_Symlink)' != '' AND !$([MSBuild]::IsOSPlatform('Windows'))" />
+
+        <Exec Command="ln -sf %(_Symlink.SoName) %(_Symlink.LinkerName)"
+              WorkingDirectory="$(OutDir)%(_Symlink.DestinationSubDirectory)"
+              Condition="'@(_Symlink)' != '' AND !$([MSBuild]::IsOSPlatform('Windows'))" />
 
         <Message Text="$(MSBuildProjectName) symlinking -> $(OutDir)[%(_Symlink.LinkerName) -> %(_Symlink.SoName) -> %(_Symlink.RealName)]"
                  Importance="high" Condition="'@(_Symlink)' != ''" />
 
-        <ItemGroup>
+        <ItemGroup Condition="'@(_Symlink)' != ''">
             <FileWrites Include="$(OutDir)%(_Symlink.SoName)" />
             <FileWrites Include="$(OutDir)%(_Symlink.LinkerName)" />
         </ItemGroup>
-	</Target>
+    </Target>
 </Project>
