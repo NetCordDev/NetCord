@@ -299,7 +299,7 @@ public class ChoicesAndAutocompleteTests
 
         Assert.IsNotNull(parameter.ChoicesProvider);
 
-        var choices = await parameter.ChoicesProvider.GetChoicesAsync(parameter);
+        var choices = await parameter.ChoicesProvider.GetChoicesAsync(parameter).ConfigureAwait(false);
 
         Assert.IsNotNull(choices);
 
