@@ -203,14 +203,14 @@ jobs:
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
           ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
-          bash -c "dotnet test Natives/NetCord.Natives.slnx
+          dotnet test Natives/NetCord.Natives.csproj
           --no-restore
           --no-build
-          --filter 'FullyQualifiedName!~NativeAotStaticLinking_WithPackageVer'
+          --filter "FullyQualifiedName~NativeAotStaticLinking_WithPackageVer"
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
-          --logger 'console;verbosity=detailed'
-          --logger GitHubActions"
+          --logger "console;verbosity=detailed"
+          --logger GitHubActions
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always() }}
@@ -398,7 +398,7 @@ jobs:
       - name: Test packages for ${{ matrix.rid }}
         run: >
           ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e RestoreSources mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
-          dotnet test Natives/Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj
+          dotnet test Natives/NetCord.Natives.csproj
           --no-restore
           --no-build
           --filter "FullyQualifiedName~NativeAotStaticLinking_WithPackageVer"
