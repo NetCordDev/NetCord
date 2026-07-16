@@ -202,7 +202,7 @@ jobs:
 
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
-          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
@@ -397,7 +397,7 @@ jobs:
 
       - name: Test packages for ${{ matrix.rid }}
         run: >
-          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e RestoreSources mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e RestoreSources -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
