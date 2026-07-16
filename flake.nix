@@ -69,6 +69,7 @@
             dotnet
             nuget
             pkgs.mono
+            pkgs.vcpkg-tool
             pkgs.cmake
             pkgs.ninja
             pkgs.pkg-config
@@ -89,6 +90,8 @@
 
           shellHook = ''
             export VCPKG_ROOT="$PWD/Natives/NetCord.Natives/vcpkg"
+
+            ln -sf ${pkgs.vcpkg-tool}/bin/vcpkg $VCPKG_ROOT/vcpkg
           '';
         } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
           SDKROOT = "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
@@ -103,6 +106,7 @@
             dotnet
             nuget
             pkgs.mono
+            pkgs.vcpkg-tool
             pkgs.cmake
             pkgs.ninja
             pkgs.pkg-config
@@ -123,6 +127,8 @@
 
           shellHook = ''
             export VCPKG_ROOT="$PWD/Natives/NetCord.Natives/vcpkg"
+
+            ln -sf ${pkgs.vcpkg-tool}/bin/vcpkg $VCPKG_ROOT/vcpkg
           '';
         } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
           SDKROOT = "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";

@@ -154,8 +154,6 @@ jobs:
       - name: Setup vcpkg (Nix)
         if: ${{ matrix.use-nix }}
         run: |
-          "${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh" -disableMetrics
-
           # Capture the nuget.exe path to a local variable
           export NUGET_PATH=$("${{ env.VCPKG_ROOT }}/vcpkg" fetch nuget | tail -n 1)
 
