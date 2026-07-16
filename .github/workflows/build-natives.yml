@@ -206,7 +206,7 @@ jobs:
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
-          --filter "FullyQualifiedName~NativeAotStaticLinking_WithPackageVer"
+          --filter "FullyQualifiedName!~NativeAotStaticLinking_WithPackageVer"
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
           --logger "console;verbosity=detailed"
