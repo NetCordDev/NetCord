@@ -200,7 +200,7 @@ jobs:
 
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
-          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 -e VCPKG_ROOT -e VCPKG_FORCE_SYSTEM_BINARIES=1 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot sh -c "apk add build-base cmake ninja zip unzip curl git && ./Natives/NetCord.Natives/vcpkg/bootstrap-vcpkg.sh && ' || '' }}
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 -e VCPKG_ROOT -e VCPKG_FORCE_SYSTEM_BINARIES=1 -e VcpkgOSTarget -e VcpkgPlatformTarget mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot sh -c "apk add build-base cmake ninja zip unzip curl git perl linux-headers && ./Natives/NetCord.Natives/vcpkg/bootstrap-vcpkg.sh && ' || '' }}
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
