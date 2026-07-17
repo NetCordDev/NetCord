@@ -269,7 +269,7 @@ jobs:
 
       - name: Restore
         run: >
-          dotnet restore Natives/NetCord.Natives/NetCord.Natives.slnx
+          dotnet restore Natives/NetCord.Natives/NetCord.Natives.csproj
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
 
