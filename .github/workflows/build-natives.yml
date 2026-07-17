@@ -200,15 +200,16 @@ jobs:
 
       - name: Test natives outputs for ${{ matrix.rid }}
         run: >
-          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -v /nix/store:/nix/store -w $PWD -e DotnetVerbose -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 -e VCPKG_ROOT mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 -e VCPKG_ROOT -e VCPKG_FORCE_SYSTEM_BINARIES=1 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot sh -c "apk add build-base cmake ninja zip unzip curl git && ./Natives/NetCord.Natives/vcpkg/bootstrap-vcpkg.sh && ' || '' }}
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
-          --filter "FullyQualifiedName!~NativeAotStaticLinking_WithPackageVer"
+          --filter 'FullyQualifiedName!~NativeAotStaticLinking_WithPackageVer'
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
-          --logger "console;verbosity=detailed"
+          --logger 'console;verbosity=detailed'
           --logger GitHubActions
+          ${{ matrix.musl && '"' || '' }}
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always() }}
@@ -395,15 +396,16 @@ jobs:
 
       - name: Test packages for ${{ matrix.rid }}
         run: >
-          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -v /nix/store:/nix/store -w $PWD -e DotnetVerbose -e RestoreSources -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 -e VCPKG_ROOT mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e DotnetVerbose -e RestoreSources -e Configuration -e MINVERVERSIONOVERRIDE=1.0.0 -e VCPKG_ROOT -e VCPKG_FORCE_SYSTEM_BINARIES=1 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot sh -c "apk add build-base cmake ninja zip unzip curl git && ./Natives/NetCord.Natives/vcpkg/bootstrap-vcpkg.sh && ' || '' }}
           dotnet test Natives/NetCord.Natives.slnx
           --no-restore
           --no-build
-          --filter "FullyQualifiedName~NativeAotStaticLinking_WithPackageVer"
+          --filter 'FullyQualifiedName~NativeAotStaticLinking_WithPackageVer'
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
-          --logger "console;verbosity=detailed"
+          --logger 'console;verbosity=detailed'
           --logger GitHubActions
+          ${{ matrix.musl && '"' || '' }}
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always() }}
