@@ -24,10 +24,11 @@ internal class SlashCommandEnumTypeReader<TContext>(Type enumType, FieldInfo[] f
     {
         var localizationsProvider = parameter.LocalizationsProvider;
 
-        var count = fields.Length;
+        var filteredFields = fields.Where(f => f.GetCustomAttribute<SlashCommandIgnoreAttribute>() is null).ToArray();
+        var count = filteredFields.Length;
         var choices = new ApplicationCommandOptionChoiceProperties[count];
         for (var i = 0; i < count; i++)
-            choices[i] = await CreateChoiceAsync(fields[i]).ConfigureAwait(false);
+            choices[i] = await CreateChoiceAsync(filteredFields[i]).ConfigureAwait(false);
 
         return choices;
 
