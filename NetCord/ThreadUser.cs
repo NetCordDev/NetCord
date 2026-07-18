@@ -28,7 +28,7 @@ public class ThreadUser(JsonThreadUser jsonModel, RestClient client) : ClientEnt
     /// <summary>
     /// The user's thread settings, currently only used for notifications.
     /// </summary>
-    public int Flags => jsonModel.Flags;
+    public ThreadUserFlags Flags => jsonModel.Flags;
 
     public override string ToString() => $"<@{Id}>";
 

@@ -13,5 +13,5 @@ public class ThreadCurrentUser(JsonThreadCurrentUser jsonModel) : IJsonModel<Jso
     public DateTimeOffset JoinTimestamp => jsonModel.JoinTimestamp;
 
     /// <inheritdoc cref="ThreadUser.Flags"/>
-    public int Flags => jsonModel.Flags;
+    public ThreadUserFlags Flags => jsonModel.Flags;
 }

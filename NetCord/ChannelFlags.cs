@@ -1,5 +1,8 @@
 namespace NetCord;
 
+/// <summary>
+/// Represents additional information about a channel's state.
+/// </summary>
 [Flags]
 public enum ChannelFlags
 {
@@ -49,12 +52,12 @@ public enum ChannelFlags
     MediaChannel = 1 << 10,
 
     /// <summary>
-    /// Channel is exempt from 'For You' summaries.
+    /// Channel is exempt from AI-powered summaries.
     /// </summary>
     SummariesDisabled = 1 << 11,
 
     /// <summary>
-    /// 
+    /// Private channel's recipients consented to the application shelf.
     /// </summary>
     ApplicationShelfConsent = 1 << 12,
 

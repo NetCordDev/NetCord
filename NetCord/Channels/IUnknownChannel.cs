@@ -6,7 +6,7 @@ namespace NetCord;
 public interface IUnknownChannel : IEntity, ISpanFormattable
 {
     /// <summary>
-    /// The type of the unresolved channel.
+    /// The unresolved channel's type.
     /// </summary>
     public ChannelType Type { get; }
 }

@@ -2,6 +2,9 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
+/// <summary>
+/// Represents additional configuration for a specific app installation context.
+/// </summary>
 public class ApplicationIntegrationTypeConfiguration : IJsonModel<JsonApplicationIntegrationTypeConfiguration>
 {
     private readonly JsonApplicationIntegrationTypeConfiguration _jsonModel;
@@ -17,7 +20,7 @@ public class ApplicationIntegrationTypeConfiguration : IJsonModel<JsonApplicatio
     }
 
     /// <summary>
-    /// Install params for each installation context's default in-app authorization link.
+    /// Additional installation params to apply to the specific install context.
     /// </summary>
     public ApplicationInstallParams? OAuth2InstallParams { get; }
 }

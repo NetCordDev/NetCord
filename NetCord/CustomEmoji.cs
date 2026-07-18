@@ -35,8 +35,11 @@ public abstract class CustomEmoji : Emoji, ISpanFormattable
     public bool? RequireColons => _jsonModel.RequireColons;
 
     /// <summary>
-    /// Whether the emoji is managed.
+    /// Whether the emoji is managed by an application.
     /// </summary>
+    /// <remarks>
+    /// Managed emoji can only be created by apps with the <see cref="ApplicationFlags.ManagedEmoji"/> flag set.
+    /// </remarks>
     public bool? Managed => _jsonModel.Managed;
 
     /// <summary>
