@@ -16,8 +16,6 @@
       href: basic-concepts/responding-to-interactions.md
     - name: Sending Messages
       href: basic-concepts/sending-messages.md
-    - name: HTTP Interactions
-      href: basic-concepts/http-interactions.md
     - name: Sharding
       href: basic-concepts/sharding.md
 - name: Voice
@@ -32,6 +30,14 @@
       href: voice/receiving-voice.md
     - name: Troubleshooting
       href: voice/troubleshooting.md
+- name: HTTP Events
+  items:
+    - name: Introduction
+      href: http-events/introduction.md
+    - name: AWS Lambda
+      href: http-events/aws-lambda.md
+    - name: Azure Function
+      href: http-events/azure-function.md
 - name: Services
   items:
     - name: Introduction
