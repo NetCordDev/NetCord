@@ -94,25 +94,10 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
             Options = options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId)).ToArray();
     }
 
-    public override string ToString() => $"</{_fullName}:{_parentId}>";
+    public override string ToString() => Mention.ApplicationCommandCore(_fullName, _parentId);
 
     public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
 
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
-    {
-        var requiredLength = 5 + _fullName.Length;
-        if (destination.Length < requiredLength || !_parentId.TryFormat(destination[(3 + _fullName.Length)..^1], out int length))
-        {
-            charsWritten = 0;
-            return false;
-        }
-
-        "</".CopyTo(destination);
-        _fullName.CopyTo(destination[2..]);
-        destination[2 + _fullName.Length] = ':';
-        destination[3 + _fullName.Length + length] = '>';
-
-        charsWritten = 4 + _fullName.Length + length;
-        return true;
-    }
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) =>
+        Mention.TryFormatApplicationCommand(destination, out charsWritten, _parentId, _fullName);
 }
