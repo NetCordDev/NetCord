@@ -40,9 +40,9 @@ public partial class GuildStickerProperties : IHttpSerializable
         var content = attachment.Serialize();
         content.Headers.ContentType = new(Format switch
         {
-            StickerFormat.Png or StickerFormat.Apng => "image/png",
+            StickerFormat.PNG or StickerFormat.APNG => "image/png",
             StickerFormat.Lottie => "application/json",
-            StickerFormat.Gif => "image/gif",
+            StickerFormat.GIF => "image/gif",
             _ => throw new System.ComponentModel.InvalidEnumArgumentException(null, (int)Format, typeof(StickerFormat)),
         });
 

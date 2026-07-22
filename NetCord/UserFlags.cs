@@ -59,7 +59,7 @@ public enum UserFlags : ulong
     PremiumEarlySupporter = 1uL << 9,
 
     /// <summary>
-    /// User is a team. See <see href="https://discord.com/developers/docs/topics/teams"/>.
+    /// User is a <see cref="TeamUser"/>.
     /// </summary>
     TeamPseudoUser = 1uL << 10,
 
@@ -96,12 +96,12 @@ public enum UserFlags : ulong
     VerifiedBot = 1uL << 16,
 
     /// <summary>
-    /// User has the 'Early Verified Developer' badge.
+    /// User has the 'Early Verified Bot Developer' badge.
     /// </summary>
     VerifiedDeveloper = 1uL << 17,
 
     /// <summary>
-    /// User has the 'Moderator Program Alumni' badge.
+    /// User has the 'Moderator Programs Alumni' badge.
     /// </summary>
     CertifiedModerator = 1uL << 18,
 
@@ -111,7 +111,7 @@ public enum UserFlags : ulong
     BotHttpInteractions = 1uL << 19,
 
     /// <summary>
-    /// Undocumented. User's account is flagged for spamming.
+    /// Undocumented. User's account is disabled for spamming.
     /// </summary>
     Spammer = 1uL << 20,
 
@@ -119,6 +119,11 @@ public enum UserFlags : ulong
     /// Undocumented and private. User's Nitro features are disabled.
     /// </summary>
     DisablePremium = 1uL << 21,
+
+    /// <summary>
+    /// User is an active developer.
+    /// </summary>
+    ActiveDeveloper = 1uL << 22,
 
     /// <summary>
     /// Undocumented and private. User's account has a high global rate limit.

@@ -3,25 +3,22 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <inheritdoc cref="EmbedField"/>
 [GenerateMethodsForProperties]
 public partial class EmbedFieldProperties
 {
-    /// <summary>
-    /// Name of the field.
-    /// </summary>
+    /// <inheritdoc cref="EmbedField.Name"/>
     [JsonConverter(typeof(EmptyWhenNullStringConverter))]
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 
-    /// <summary>
-    /// Value of the field.
-    /// </summary>
+    /// <inheritdoc cref="EmbedField.Value"/>
     [JsonConverter(typeof(EmptyWhenNullStringConverter))]
     [JsonPropertyName("value")]
     public string? Value { get; set; }
 
     /// <summary>
-    /// Whether or not the field should display inline.
+    /// When set alongside another field with <see cref="Inline"/> set, displays the fields side by side when supported.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("inline")]

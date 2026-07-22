@@ -9,7 +9,7 @@ public class JsonTeamUser
 
     [JsonPropertyName("team_id")]
     public ulong TeamId { get; set; }
-
+        
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }
 

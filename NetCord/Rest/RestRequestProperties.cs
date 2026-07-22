@@ -1,5 +1,8 @@
 namespace NetCord.Rest;
 
+/// <summary>
+/// A set of optional properties that can be used to customize most requests.
+/// </summary>
 [GenerateMethodsForProperties]
 public sealed partial class RestRequestProperties
 {

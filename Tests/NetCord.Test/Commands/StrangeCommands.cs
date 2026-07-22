@@ -209,7 +209,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     public async Task BotAvatar(Uri avatarUrl)
     {
         var a = await new HttpClient().GetByteArrayAsync(avatarUrl);
-        await Context.Client.Cache.User!.ModifyAsync(p => p.Avatar = new ImageProperties(ImageFormat.Png, a));
+        await Context.Client.Cache.User!.ModifyAsync(p => p.Avatar = new ImageProperties(ImageFormat.PNG, a));
     }
 
     [Command("spam")]
