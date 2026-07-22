@@ -1,7 +1,7 @@
 namespace NetCord.Gateway;
 
 /// <summary>
-/// Flags about an activity's state. Not current documented.
+/// Flags about an activity's state.
 /// </summary>
 [Flags]
 public enum UserActivityFlags

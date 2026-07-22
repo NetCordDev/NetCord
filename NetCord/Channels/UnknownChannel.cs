@@ -3,7 +3,6 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-/// <inheritdoc cref="IUnknownChannel"/>
 internal partial class UnknownChannel(JsonChannel jsonModel, RestClient client) : Channel(jsonModel, client), IUnknownChannel
 {
     public ChannelType Type => _jsonModel.Type;

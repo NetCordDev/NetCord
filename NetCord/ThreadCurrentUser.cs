@@ -3,7 +3,7 @@ using NetCord.JsonModels;
 namespace NetCord;
 
 /// <summary>
-/// A minimal <see cref="ThreadUser"/>, sent for threads within the <see cref="Gateway.GatewayClient.GuildCreate"/> event.
+/// Represents the current user within an already joined thread.
 /// </summary>
 public class ThreadCurrentUser(JsonThreadCurrentUser jsonModel) : IJsonModel<JsonThreadCurrentUser>
 {

@@ -3,7 +3,6 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-/// <inheritdoc cref="IUnknownGuildChannel"/>
 internal partial class UnknownGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : UnknownChannel(jsonModel, client), IUnknownGuildChannel
 {
     public ulong GuildId { get; } = guildId;

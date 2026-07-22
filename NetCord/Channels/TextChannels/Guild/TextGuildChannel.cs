@@ -36,6 +36,9 @@ public partial class TextGuildChannel(JsonModels.JsonChannel jsonModel, ulong gu
     /// <summary>
     /// The ID of the channel's parent category.
     /// </summary>
+    /// <remarks>
+    /// If the channel is a thread, the ID corresponds to the thread's parent channel.
+    /// </remarks>
     public ulong? ParentId => _jsonModel.ParentId;
 
     /// <summary>

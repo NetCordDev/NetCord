@@ -40,7 +40,12 @@ public partial class ForumGuildChannel : Channel, IGuildChannel
     /// </remarks>
     public ulong? LastThreadId => _jsonModel.LastMessageId;
 
-    /// <inheritdoc cref="TextGuildChannel.Slowmode"/>
+    /// <summary>
+    /// The number of seconds a user has to wait before creating another thread, between 0 and 21600 (6 hours).
+    /// </summary>
+    /// <remarks>
+    /// Bots, and users with the <see cref="Permissions.BypassSlowmode"/> permission are unaffected.
+    /// </remarks>
     public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
 
     /// <inheritdoc cref="TextGuildChannel.ParentId"/>

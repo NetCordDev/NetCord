@@ -10,7 +10,7 @@ public abstract partial class GuildThread : TextGuildChannel
     /// <summary>
     /// The ID of the <see cref="TextGuildChannel"/> this thread was created in.
     /// </summary>
-    public new ulong? ParentId => base.ParentId;
+    public new ulong ParentId => base.ParentId.GetValueOrDefault();
 
     /// <summary>
     /// The ID of the thread's creator.
@@ -51,7 +51,7 @@ public abstract partial class GuildThread : TextGuildChannel
 
         var jsonCurrentUser = jsonModel.CurrentUser;
         if (jsonCurrentUser is not null)
-            CurrentUser = new(jsonCurrentUser   );
+            CurrentUser = new(jsonCurrentUser);
     }
 
     public static new GuildThread CreateFromJson(JsonModels.JsonChannel jsonChannel, RestClient client)
