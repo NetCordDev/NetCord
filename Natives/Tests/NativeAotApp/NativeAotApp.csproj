@@ -11,19 +11,10 @@
     <PublishAot>true</PublishAot>
     <IsAotCompatible>true</IsAotCompatible>
     <SelfContained>true</SelfContained>
+    <InvariantGlobalization>true</InvariantGlobalization>
 
     <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
-
-  <!-- for Nix issue -->
-  <PropertyGroup>
-    <InvariantGlobalization>true</InvariantGlobalization>
-  </PropertyGroup>
-  <Target Name="NativeAotRemoveLinkerArgs" AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
-    <ItemGroup>
-      <LinkerArg Remove="-licucore" />
-    </ItemGroup>
-  </Target>
 
   <ItemGroup>
     <Compile Include="..\NativeProbes.cs" />

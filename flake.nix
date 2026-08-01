@@ -47,6 +47,10 @@
           libiconv
           apple-sdk
         ]);
+
+        darwinBuildInputs = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin (with pkgs; [
+          darwin.ICU
+        ]);
       in
       {
         default = pkgs.mkShell {
@@ -83,6 +87,8 @@
             pkgs.perl
             pkgs.curl
           ] ++ darwinPackages;
+
+          buildInputs = darwinBuildInputs;
 
           DOTNET_ROOT = dotnetRoot;
 
