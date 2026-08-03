@@ -16,14 +16,14 @@ public partial class GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClien
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's guild avatar.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated avatars).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's guild avatar. If the user does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetGuildAvatarUrl(ImageFormat? format = null) => GuildAvatarHash is string hash ? ImageUrl.GuildUserAvatar(guildId, Id, hash, format) : null;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's guild banner.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated banners).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's guild banner. If the user does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetGuildBannerUrl(ImageFormat? format = null) => GuildBannerHash is string hash ? ImageUrl.GuildUserBanner(guildId, Id, hash, format) : null;
 

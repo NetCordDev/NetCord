@@ -31,6 +31,12 @@ public class JsonAttachment : JsonEntity
     [JsonPropertyName("width")]
     public int? Width { get; set; }
 
+    [JsonPropertyName("placeholder")]
+    public string? Placeholder;
+
+    [JsonPropertyName("placeholder_version")]
+    public int? PlaceholderVersion { get; set; }
+
     [JsonPropertyName("ephemeral")]
     public bool Ephemeral { get; set; }
 
@@ -42,4 +48,13 @@ public class JsonAttachment : JsonEntity
 
     [JsonPropertyName("flags")]
     public AttachmentFlags Flags { get; set; }
+
+    [JsonPropertyName("clip_participants")]
+    public JsonUser[]? ClipParticipants { get; set; }
+
+    [JsonPropertyName("clip_created_at")]
+    public DateTimeOffset? ClipCreatedAt { get; set; }
+
+    [JsonPropertyName("application")]
+    public JsonApplication? Application { get; set; }
 }

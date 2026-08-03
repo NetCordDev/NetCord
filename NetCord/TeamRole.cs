@@ -3,28 +3,32 @@ using System.Text.Json.Serialization;
 namespace NetCord;
 
 /// <summary>
-/// A <see cref="TeamUser"/> can have one of four roles (Owner, <see cref="Admin"/> , <see cref="Developer"/>, and <see cref="ReadOnly"/>), and each role inherits the access of those below it.
+/// Represents a <see cref="TeamUser"/>'s role within a team, excluding owners, which are represented in the <see cref="Team.OwnerId"/> property.
 /// </summary>
 /// <remarks>
-/// The Owner role is not represented in the <see cref="TeamRole"/> enum, as it is not represented in <see cref="TeamUser"/>'s <see cref="TeamUser.Role"/> field. Instead, owners can be identified using a <see cref="Team"/>'s <see cref="Team.OwnerId"/> field. They have the most permissive role, and can take destructive, irreversible actions like deleting team-owned apps or the team itself. Teams are limited to 1 owner.
+/// <para>Each role inherits the properties of the role below it, in the order of <see cref="ReadOnly"/>, <see cref="Developer"/>, <see cref="Admin"/>.</para>
+/// <para>Only owners can take destructive, irreversible actions like deleting team-owned apps or the team itself. Teams are limited to 1 owner.</para>
 /// </remarks>
 [JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<TeamRole>))]
 public enum TeamRole : sbyte
 {
     /// <summary>
-    /// Admins have similar access to owners, except they cannot take destructive actions on the team or team-owned apps.
+    /// Admins have similar access to owners, with the exception of destructive actions, such as deleting applications.
     /// </summary>
     [JsonPropertyName("admin")]
     Admin,
 
     /// <summary>
-    /// Developers can access information about team-owned apps, like the client secret or public key. They can also take limited actions on team-owned apps, like configuring interaction endpoints or resetting the bot token. <see cref="TeamUser"/>s with the <see cref="Developer"/> role cannot manage the <see cref="Team"/> or its users, or take destructive actions on team-owned <see cref="Application"/>s.
+    /// <para>Developers have access to sensitive information, such as client secrets and public keys.</para>
+    /// <para>They can also take some limited actions, such as configuring interaction endpoints, or resetting bot tokens.</para>
+    /// <para>Developers cannot manage the team or its members.</para>
     /// </summary>
     [JsonPropertyName("developer")]
     Developer,
 
     /// <summary>
-    /// Read-only users can access information about a <see cref="Team"/> and any team-owned <see cref="Application"/>s. Some examples include getting the IDs of applications and exporting payout records. Members can also invite bots associated with team-owned apps that are marked private.
+    /// <para>Read-only users can access information about a team and its applications, such as application IDs, and payout records.</para>
+    /// <para>They can also invite private applications.</para>
     /// </summary>
     [JsonPropertyName("read-only")]
     ReadOnly,

@@ -2,16 +2,12 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-/// <summary>
-/// Url of the image.
-/// </summary>
-/// <param name="url"></param>
+/// <inheritdoc cref="EmbedImage"/>
+/// <param name="url"><inheritdoc cref="Url" path="/summary"/></param>
 [GenerateMethodsForProperties]
 public partial class EmbedImageProperties(string? url)
 {
-    /// <summary>
-    /// Url of the image.
-    /// </summary>
+    /// <inheritdoc cref="EmbedImage.Url"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; set; } = url;

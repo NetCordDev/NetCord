@@ -1,11 +1,14 @@
 namespace NetCord;
 
+/// <summary>
+/// Contains information about a role subscribed to by a user.
+/// </summary>
 public class RoleSubscriptionData(JsonModels.JsonRoleSubscriptionData jsonModel) : IJsonModel<JsonModels.JsonRoleSubscriptionData>
 {
     JsonModels.JsonRoleSubscriptionData IJsonModel<JsonModels.JsonRoleSubscriptionData>.JsonModel => jsonModel;
 
     /// <summary>
-    /// The ID of the sku and listing that the user is subscribed to.
+    /// The ID of the SKU and listing that the user is subscribed to.
     /// </summary>
     public ulong RoleSubscriptionListingId => jsonModel.RoleSubscriptionListingId;
 

@@ -4,6 +4,12 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
+    /// <summary>
+    /// Returns a collection of audit log entries for a guild, to be enumerated asynchronously.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild to acquire entries for.</param>
+    /// <param name="paginationProperties">Optional properties to customize result pagination, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAsync(ulong guildId, GuildAuditLogPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {

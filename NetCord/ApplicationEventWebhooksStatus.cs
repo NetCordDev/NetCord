@@ -1,5 +1,8 @@
 namespace NetCord;
 
+/// <summary>
+/// Specifies an application's configuration for webhook events.
+/// </summary>
 public enum ApplicationEventWebhooksStatus
 {
     /// <summary>

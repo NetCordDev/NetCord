@@ -1,5 +1,8 @@
 namespace NetCord;
 
+/// <summary>
+/// Contains additional information about a message's state.
+/// </summary>
 [Flags]
 public enum MessageFlags : uint
 {

@@ -221,7 +221,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's avatar.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated avatars).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's avatar. If the user does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetAvatarUrl(ImageFormat? format = null) => AvatarHash is string hash ? ImageUrl.UserAvatar(Id, hash, format) : null;
 
@@ -233,7 +233,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's banner.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated banners).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's banner. If the user does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetBannerUrl(ImageFormat? format = null) => BannerHash is string hash ? ImageUrl.UserBanner(Id, hash, format) : null;
 

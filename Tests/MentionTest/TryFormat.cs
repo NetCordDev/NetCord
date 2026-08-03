@@ -31,7 +31,7 @@ public class TryFormat
 
     private static readonly IReadOnlyList<char> _timestampFormats = Enum.GetValues<TimestampStyle>().Select(s => (char)s).ToArray();
 
-    private static readonly IReadOnlyList<ImageUrl> _imageUrls = _ids.Select(id => NetCord.ImageUrl.CustomEmoji(id, ImageFormat.Png)).ToArray();
+    private static readonly IReadOnlyList<ImageUrl> _imageUrls = _ids.Select(id => NetCord.ImageUrl.CustomEmoji(id, ImageFormat.PNG)).ToArray();
 
     private static readonly IReadOnlyList<string> _imageUrlSizes = ["16", "32", "64", "128", "256", "512", "1024", "2048", "4096"];
 

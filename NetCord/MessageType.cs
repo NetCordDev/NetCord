@@ -1,5 +1,8 @@
 namespace NetCord;
 
+/// <summary>
+/// Specifies additional type information for a message object.
+/// </summary>
 public enum MessageType
 {
     /// <summary>
@@ -120,6 +123,9 @@ public enum MessageType
     /// <summary>
     /// Sent when an automod action is taken.
     /// </summary>
+    /// <remarks>
+    /// Messages of this type can only be deleted using the <see cref="Permissions.ManageMessages"/> permission.
+    /// </remarks>
     AutoModerationAction = 24,
 
     /// <summary>

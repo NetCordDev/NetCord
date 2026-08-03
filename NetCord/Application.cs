@@ -45,42 +45,42 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     }
 
     /// <summary>
-    /// The ID of the application.
+    /// The application's ID..
     /// </summary>
     public override ulong Id => _jsonModel.Id;
 
     /// <summary>
-    /// The name of the application.
+    /// The application's name.
     /// </summary>
     public string Name => _jsonModel.Name;
 
     /// <summary>
-    /// The icon hash of the application.
+    /// The application's icon hash.
     /// </summary>
     public string? IconHash => _jsonModel.IconHash;
 
     /// <summary>
-    /// The description of the application.
+    /// The application's description.
     /// </summary>
     public string Description => _jsonModel.Description;
 
     /// <summary>
-    /// A list of the application's RPC origin URLs. <see langword="null"/> if RPC is disabled.
+    /// A list of the application's RPC origin URLs if enabled, otherwise <see langword="null"/>.
     /// </summary>
     public IReadOnlyList<string> RpcOrigins => _jsonModel.RpcOrigins;
 
     /// <summary>
-    /// When <see langword="false"/>, only the application owner can add the application to guilds.
+    /// Whether users other than the owner can add the application to guilds.
     /// </summary>
     public bool? BotPublic => _jsonModel.BotPublic;
 
     /// <summary>
-    /// When <see langword="true"/>, the application's bot will only join upon completion of the full OAuth2 code grant flow.
+    /// Whether the application's bot will only join upon completion of the full OAuth2 code grant flow.
     /// </summary>
     public bool? BotRequireCodeGrant => _jsonModel.BotRequireCodeGrant;
 
     /// <summary>
-    /// The partial <see cref="User"/> object of the application's bot.
+    /// The application's user object, representing its bot.
     /// </summary>
     public User? Bot { get; }
 
@@ -95,42 +95,42 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public string? PrivacyPolicyUrl => _jsonModel.PrivacyPolicyUrl;
 
     /// <summary>
-    /// The partial <see cref="User"/> object of the application's owner.
+    /// The application owner's user object.
     /// </summary>
     public User? Owner { get; }
 
     /// <summary>
-    /// The hex-encoded verification key used for HTTP interactions and the GameSDK's GetTicket.
+    /// A hex-encoded verification key, used for HTTP interactions and the GameSDK's GetTicket endpoint.
     /// </summary>
     public string VerifyKey => _jsonModel.VerifyKey;
 
     /// <summary>
-    /// The team the application belongs to. Is <see langword="null"/> if the application does not belong to a team.
+    /// The team the application belongs to, if any.
     /// </summary>
     public Team? Team { get; }
 
     /// <summary>
-    /// The ID of the guild associated with the application. For example, a developer support server.
+    /// The ID corresponding to the application's guild.
     /// </summary>
     public ulong? GuildId => _jsonModel.GuildId;
 
     /// <summary>
-    /// The partial <see cref="RestGuild"/> object of the application's associated guild.
+    /// The application guild's object.
     /// </summary>
     public RestGuild? Guild { get; }
 
     /// <summary>
-    /// The ID of the Game SKU created, if one exists. Is <see langword="null"/> if the application is not a game sold on Discord.
+    /// The ID of the appliication's Game SKU if it exists, otherwise <see langword="null"/>.
     /// </summary>
     public ulong? PrimarySkuId => _jsonModel.PrimarySkuId;
 
     /// <summary>
-    /// The URL slug that links to an application's store page. Is <see langword="null"/> if the application is not a game sold on Discord.
+    /// The URL slug that links to an application's store pageif it exists, otherwise <see langword="null"/>.
     /// </summary>
     public string? Slug => _jsonModel.Slug;
 
     /// <summary>
-    /// The cover image hash of the application's default rich presence invite.
+    /// The cover image hash for the application's default rich presence invite.
     /// </summary>
     public string? CoverImageHash => _jsonModel.CoverImageHash;
 
@@ -150,7 +150,7 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public int? ApproximateUserInstallCount => _jsonModel.ApproximateUserInstallCount;
 
     /// <summary>
-    /// The application's redirect URI list.
+    /// A list of the application's redirect URIs.
     /// </summary>
     public IReadOnlyList<string>? RedirectUris => _jsonModel.RedirectUris;
 
@@ -170,32 +170,35 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public string? EventWebhooksUrl => _jsonModel.EventWebhooksUrl;
 
     /// <summary>
-    /// The application's event webhooks status.
+    /// The application's configuration for webhook events.
     /// </summary>
     public ApplicationEventWebhooksStatus EventWebhooksStatus => _jsonModel.EventWebhooksStatus;
 
     /// <summary>
-    /// The list of event webhook types that the application supports.
+    /// A list of event webhook types that the application supports.
     /// </summary>
     public IReadOnlyList<string>? EventWebhooksTypes => _jsonModel.EventWebhooksTypes;
 
     /// <summary>
-    /// The application's tag list, describing its content and functionality. Max of 5 tags.
+    /// A list of the application's tags, describing its content and functionality.
     /// </summary>
+    /// <remarks>
+    /// A maximum of 5 tags is supported.
+    /// </remarks>
     public IReadOnlyList<string>? Tags => _jsonModel.Tags;
 
     /// <summary>
-    /// The application's default in-app authorization URL. Is <see langword="null"/> if disabled.
+    /// The application's default in-app authorization URL if enabled, otherwise <see langword="null"/>.
     /// </summary>
     public ApplicationInstallParams? InstallParams { get; }
 
     /// <summary>
-    /// The default scopes and permissions for each supported installation context.
+    /// A list of the app's default scopes and permissions, for each supported installation context.
     /// </summary>
     public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration>? IntegrationTypesConfiguration { get; }
 
     /// <summary>
-    /// The application's default custom install URL. Is <see langword="null"/> if disabled.
+    /// The application's default custom install URL if enabled, otherwise <see langword="null"/>.
     /// </summary>
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
 
