@@ -105,4 +105,8 @@ public partial class ApplicationCommandOptionProperties(ApplicationCommandOption
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("autocomplete")]
     public bool? Autocomplete { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("file_types")]
+    public IEnumerable<string>? FileTypes { get; set; }
 }

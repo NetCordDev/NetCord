@@ -97,4 +97,6 @@ public class SlashCommandParameterAttribute : Attribute
     /// </summary>
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type? AutocompleteProviderType { get; init; }
+
+    public string[]? FileTypes { get; init; }
 }

@@ -75,6 +75,8 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
     /// </summary>
     public bool Autocomplete => _jsonModel.Autocomplete;
 
+    public IReadOnlyList<string>? FileTypes => _jsonModel.FileTypes;
+
     private readonly string _fullName;
 
     private readonly ulong _parentId;
