@@ -70,6 +70,10 @@ builder.Services
 
 var host = builder.Build();
 
+host.AddSlashCommand("file_types", "File Types!", ([SlashCommandParameter(FileTypes = ["image"])] Attachment attachment) => new InteractionMessageProperties().WithContent($"File name: {attachment.FileName}").WithFlags(MessageFlags.Ephemeral));
+
+host.AddSlashCommand("file_types2", "File Types 2!", () => new ModalProperties("file_types2", "File Types 2").AddComponents(new LabelProperties("File", new FileUploadProperties("file").AddFileTypes("image"))));
+
 host.AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}");
 host.AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Select(c => c.Name)));
 host.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}");

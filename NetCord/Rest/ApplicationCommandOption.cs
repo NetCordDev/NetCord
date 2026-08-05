@@ -75,6 +75,11 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
     /// </summary>
     public bool Autocomplete => _jsonModel.Autocomplete;
 
+    /// <summary>
+    /// File types to filter for; can be <c>image</c>, <c>video</c>, <c>audio</c>, or any dot-prefixed extension such as <c>.pdf</c> (max 10).
+    /// </summary>
+    public IReadOnlyList<string>? FileTypes => _jsonModel.FileTypes;
+
     private readonly string _fullName;
 
     private readonly ulong _parentId;

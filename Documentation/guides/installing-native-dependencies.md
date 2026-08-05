@@ -52,7 +52,7 @@ When using static linking on Windows, you need to link to the static libraries (
 
     <NativeLibrary Include="C:\path\to\libsodium" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
     <DirectPInvoke Include="libsodium" />
-    
+
     <NativeLibrary Include="C:\path\to\opus" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
     <DirectPInvoke Include="opus" />
   </ItemGroup>

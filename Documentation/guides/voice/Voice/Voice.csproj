@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\NetCord\NetCord.csproj" />
+    <ProjectReference Include="..\..\..\..\NetCord.Services\NetCord.Services.csproj" />
+    <ProjectReference Include="..\..\..\..\Hosting\NetCord.Hosting\NetCord.Hosting.csproj" />
+    <ProjectReference Include="..\..\..\..\Hosting\NetCord.Hosting.Services\NetCord.Hosting.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="libsodium" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="runtimes\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
