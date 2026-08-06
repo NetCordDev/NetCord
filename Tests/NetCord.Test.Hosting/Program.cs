@@ -64,7 +64,7 @@ builder.Services
     .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger, IServiceProvider p) => logger.LogInformation("Content: {}", message.Content), ServiceLifetime.Scoped)
     .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
     .AddGatewayHandler<ConnectHandler>(ServiceLifetime.Scoped)
-    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>()
+    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>(ServiceLifetime.Scoped)
     .AddSingleton("Wzium")
     .AddKeyedSingleton("key", "Wzium2");
 

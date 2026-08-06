@@ -374,6 +374,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         stringWriter.WriteIndentation(2);
         stringWriter.WriteLine("var isSingleton = handlerMetadata.IsSingleton;");
 
+        stringWriter.WriteIndentation(2);
+        stringWriter.WriteLine("var instanceFactory = handlerMetadata.InstanceFactory;");
+
         int eventsLength = events.Length;
 
         for (int i = 0; i < eventsLength; i++)
@@ -400,7 +403,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(4);
             stringWriter.Write("? ((global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.WriteLine("GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(services, handlerMetadata.HandlerType)).HandleAsync");
+            stringWriter.WriteLine("GatewayHandler)instanceFactory(services)).HandleAsync");
 
             stringWriter.WriteIndentation(4);
             stringWriter.Write(": async (");
@@ -419,7 +422,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(5);
             stringWriter.Write("await ((global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.Write("GatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(scope.ServiceProvider, handlerMetadata.HandlerType)).HandleAsync(");
+            stringWriter.Write("GatewayHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(");
 
             if (eventType.Arity is not 1)
                 stringWriter.Write("arg");
@@ -554,6 +557,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         stringWriter.WriteIndentation(2);
         stringWriter.WriteLine("var isSingleton = handlerMetadata.IsSingleton;");
 
+        stringWriter.WriteIndentation(2);
+        stringWriter.WriteLine("var instanceFactory = handlerMetadata.InstanceFactory;");
+
         int eventsLength = events.Length;
 
         for (int i = 0; i < eventsLength; i++)
@@ -580,7 +586,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(4);
             stringWriter.Write("? ((global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.WriteLine("ShardedGatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(services, handlerMetadata.HandlerType)).HandleAsync");
+            stringWriter.WriteLine("ShardedGatewayHandler)instanceFactory(services)).HandleAsync");
 
             stringWriter.WriteIndentation(4);
             stringWriter.Write(": async (client");
@@ -599,7 +605,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(5);
             stringWriter.Write("await ((global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.Write("ShardedGatewayHandler)global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(scope.ServiceProvider, handlerMetadata.HandlerType)).HandleAsync(client");
+            stringWriter.Write("ShardedGatewayHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(client");
 
             if (eventType.Arity is not 1)
                 stringWriter.Write(", arg");

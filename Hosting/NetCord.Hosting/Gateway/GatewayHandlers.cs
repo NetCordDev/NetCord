@@ -9,9 +9,11 @@ internal abstract class GatewayHandlerMetadata(bool isSingleton)
     public bool IsSingleton => isSingleton;
 }
 
-internal sealed class ClassGatewayHandlerMetadata(Type handlerType, bool isSingleton) : GatewayHandlerMetadata(isSingleton)
+internal sealed class ClassGatewayHandlerMetadata(Type handlerType, bool isSingleton, Func<IServiceProvider, object> instanceFactory) : GatewayHandlerMetadata(isSingleton)
 {
     public Type HandlerType => handlerType;
+
+    public Func<IServiceProvider, object> InstanceFactory => instanceFactory;
 }
 
 internal sealed class DelegateGatewayHandlerMetadata(Delegate handler, GatewayEventId eventId, bool isSingleton) : GatewayHandlerMetadata(isSingleton)
@@ -26,9 +28,11 @@ internal abstract class ShardedGatewayHandlerMetadata(bool isSingleton)
     public bool IsSingleton => isSingleton;
 }
 
-internal sealed class ClassShardedGatewayHandlerMetadata(Type handlerType, bool isSingleton) : ShardedGatewayHandlerMetadata(isSingleton)
+internal sealed class ClassShardedGatewayHandlerMetadata(Type handlerType, bool isSingleton, Func<IServiceProvider, object> instanceFactory) : ShardedGatewayHandlerMetadata(isSingleton)
 {
     public Type HandlerType => handlerType;
+
+    public Func<IServiceProvider, object> InstanceFactory => instanceFactory;
 }
 
 internal sealed class DelegateShardedGatewayHandlerMetadata(Delegate handler, GatewayEventId eventId, bool isSingleton) : ShardedGatewayHandlerMetadata(isSingleton)
