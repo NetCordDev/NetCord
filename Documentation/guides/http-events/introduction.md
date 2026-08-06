@@ -15,13 +15,13 @@ Before you get started, ensure that you've installed the necessary native depend
 ## Setting Up HTTP Interactions in C#
 
 To handle HTTP interactions from Discord in your bot, you need to use @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest* to add the @NetCord.Rest.RestClient and then call @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseHttpInteractions* to map the HTTP interactions route. You can also use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceServiceCollectionExtensions.AddHttpApplicationCommands* to add the application command service with preconfigured HTTP contexts to your host builder.
-[!code-cs[Program.cs](HttpInteractions/Program.cs?highlight=8,16)]
+[!code-cs[Program.cs](Introduction/Program.cs?highlight=8,16)]
 
 ### Receiving HTTP Interactions via HTTP Interaction Handler
 
 You can also create your own @NetCord.Hosting.IHttpInteractionHandler to handle HTTP interactions manually. This allows you to have full control over the behavior of your bot when receiving HTTP interactions. You register them using @"NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)?text=AddHttpInteractionHandler".
 
-[!code-cs[HttpInteractionHandler.cs](HttpInteractions/HttpInteractionHandler.cs#L6-L14)]
+[!code-cs[HttpInteractionHandler.cs](Introduction/HttpInteractionHandler.cs#L6-L14)]
 
 ## Configuring Your Discord Bot for HTTP Interactions
 
@@ -32,7 +32,7 @@ To make your bot receive HTTP interactions from Discord, you need to store the p
 ### Specifying the Public Key in the Configuration
 
 You can for example use `appsettings.json` file for configuration. It should look like this:
-[!code-json[appsettings.json](HttpInteractions/appsettings.json?highlight=4)]
+[!code-json[appsettings.json](Introduction/appsettings.json?highlight=4)]
 
 ### Specifying the Interactions Endpoint URL
 
