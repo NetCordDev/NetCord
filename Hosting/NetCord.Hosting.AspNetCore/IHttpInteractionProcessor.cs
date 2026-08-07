@@ -21,8 +21,54 @@ internal sealed class HttpInteractionProcessor(
 {
     private readonly ILogger<HttpInteractionProcessor> _logger = services.GetRequiredService<ILogger<HttpInteractionProcessor>>();
 
-    private readonly Func<Interaction, ValueTask>[] _handlers = [.. services.GetServices<IHttpInteractionHandler>()
-                                                                            .Select<IHttpInteractionHandler, Func<Interaction, ValueTask>>(h => h.HandleAsync)];
+    private readonly Func<Interaction, ValueTask>[] _handlers = [.. services.GetServices<HttpInteractionHandlerMetadata>()
+                                                                            .Select(m => CreateInvokeDelegate(m, services))];
+
+    private static Func<Interaction, ValueTask> CreateInvokeDelegate(HttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
+    {
+        if (handlerMetadata is ClassHttpInteractionHandlerMetadata classHandlerMetadata)
+            return CreateClassInvokeDelegate(classHandlerMetadata, services);
+        else
+            return CreateDelegateInvokeDelegate((DelegateHttpInteractionHandlerMetadata)handlerMetadata, services);
+    }
+
+    private static Func<Interaction, ValueTask> CreateClassInvokeDelegate(ClassHttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
+    {
+        return handlerMetadata.IsSingleton
+            ? ((IHttpInteractionHandler)handlerMetadata.InstanceFactory(services)).HandleAsync
+            : async interaction =>
+            {
+                var scope = services.CreateAsyncScope();
+                try
+                {
+                    await ((IHttpInteractionHandler)handlerMetadata.InstanceFactory(scope.ServiceProvider)).HandleAsync(interaction).ConfigureAwait(false);
+                }
+                finally
+                {
+                    await scope.DisposeAsync().ConfigureAwait(false);
+                }
+            };
+    }
+
+    private static Func<Interaction, ValueTask> CreateDelegateInvokeDelegate(DelegateHttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
+    {
+        var handler = handlerMetadata.Handler;
+
+        return handlerMetadata.IsSingleton
+            ? interaction => handler(interaction, services)
+            : async interaction =>
+            {
+                var scope = services.CreateAsyncScope();
+                try
+                {
+                    await handler(interaction, scope.ServiceProvider).ConfigureAwait(false);
+                }
+                finally
+                {
+                    await scope.DisposeAsync().ConfigureAwait(false);
+                }
+            };
+    }
 
     protected override IInteraction GetData(HttpContext context, ReadOnlySpan<byte> body)
     {

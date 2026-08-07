@@ -31,12 +31,12 @@ internal partial class WebhookEventProcessor : HttpEventProcessor<JsonWebhookEve
     {
         StorageBuilder builder = new();
 
-        foreach (var handler in services.GetServices<IWebhookHandler>())
+        foreach (var handler in services.GetServices<WebhookHandlerMetadata>())
         {
-            if (handler is IDelegateWebhookHandlerBase delegateHandler)
-                builder.RegisterDelegateHandler(delegateHandler);
+            if (handler is ClassWebhookHandlerMetadata classHandlerMetadata)
+                builder.RegisterClassHandler(classHandlerMetadata, services);
             else
-                builder.RegisterClassHandler(handler);
+                builder.RegisterDelegateHandler((DelegateWebhookHandlerMetadata)handler, services);
         }
 
         _storage = builder.Build();

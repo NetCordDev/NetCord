@@ -10,9 +10,19 @@ public interface IHttpInteractionHandler
     public ValueTask HandleAsync(Interaction interaction);
 }
 
-internal class DelegateHttpInteractionHandler(IServiceProvider services, Delegate handler) : IHttpInteractionHandler
+internal abstract class HttpInteractionHandlerMetadata(bool isSingleton)
 {
-    private readonly Func<Interaction, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<Interaction, IServiceProvider, ValueTask>>(handler, [typeof(Interaction)]);
+    public bool IsSingleton => isSingleton;
+}
 
-    public ValueTask HandleAsync(Interaction interaction) => _handler(interaction, services);
+internal sealed class ClassHttpInteractionHandlerMetadata(Type handlerType, bool isSingleton, Func<IServiceProvider, object> instanceFactory) : HttpInteractionHandlerMetadata(isSingleton)
+{
+    public Type HandlerType => handlerType;
+
+    public Func<IServiceProvider, object> InstanceFactory => instanceFactory;
+}
+
+internal sealed class DelegateHttpInteractionHandlerMetadata(Func<Interaction, IServiceProvider, ValueTask> handler, bool isSingleton) : HttpInteractionHandlerMetadata(isSingleton)
+{
+    public Func<Interaction, IServiceProvider, ValueTask> Handler => handler;
 }

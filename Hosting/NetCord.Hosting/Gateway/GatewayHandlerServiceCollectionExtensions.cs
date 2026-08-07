@@ -9,18 +9,6 @@ namespace NetCord.Hosting.Gateway;
 
 public static class GatewayHandlerServiceCollectionExtensions
 {
-    private static Func<IServiceProvider, object> CreateInstanceFactory([DAM(DAMT.PublicConstructors)] Type handlerType, bool isSingleton)
-    {
-        if (isSingleton)
-            return services => ActivatorUtilities.CreateInstance(services, handlerType);
-        else
-        {
-            var rawFactory = ActivatorUtilities.CreateFactory(handlerType, Type.EmptyTypes);
-
-            return services => rawFactory(services, null);
-        }
-    }
-
     /// <summary>
     /// Adds an <see cref="IGatewayHandler"/> to the specified <see cref="IServiceCollection"/>.
     /// </summary>
@@ -59,7 +47,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     {
         var isSingleton = lifetime is ServiceLifetime.Singleton;
 
-        services.AddSingleton<GatewayHandlerMetadata>(new ClassGatewayHandlerMetadata(handlerType, isSingleton, CreateInstanceFactory(handlerType, isSingleton)));
+        services.AddSingleton<GatewayHandlerMetadata>(new ClassGatewayHandlerMetadata(handlerType, isSingleton, HandlerHelpers.CreateInstanceFactory(handlerType, isSingleton)));
 
         return services;
     }
@@ -155,7 +143,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     {
         var isSingleton = lifetime is ServiceLifetime.Singleton;
 
-        services.AddSingleton<ShardedGatewayHandlerMetadata>(new ClassShardedGatewayHandlerMetadata(handlerType, isSingleton, CreateInstanceFactory(handlerType, isSingleton)));
+        services.AddSingleton<ShardedGatewayHandlerMetadata>(new ClassShardedGatewayHandlerMetadata(handlerType, isSingleton, HandlerHelpers.CreateInstanceFactory(handlerType, isSingleton)));
 
         return services;
     }
