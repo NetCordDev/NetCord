@@ -97,8 +97,6 @@ public partial class GatewayHandlersTest(TestContext testContext)
             if (_cancellationTokenSource is { IsCancellationRequested: true })
                 return new(0, WebSocketMessageType.Close, true);
 
-            await Task.Yield();
-
             var message = CreateMessage(_seq++);
 
             MemoryStream stream = new();
