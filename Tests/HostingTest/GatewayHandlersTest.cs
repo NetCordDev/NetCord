@@ -31,15 +31,11 @@ public partial class GatewayHandlersTest(TestContext testContext)
                     Metadata = JsonSerializer.SerializeToElement(new JsonRequestGuildUsersRateLimitMetadata()
                     {
                         GuildId = 123,
-                    }, ConnectionSerialization.Default.JsonRequestGuildUsersRateLimitMetadata),
+                    }),
                 }),
                 Opcode = GatewayOpcode.Dispatch,
             };
         }
-
-        [JsonSerializable(typeof(JsonRateLimitedEventArgs))]
-        [JsonSerializable(typeof(JsonRequestGuildUsersRateLimitMetadata))]
-        private partial class ConnectionSerialization : JsonSerializerContext;
     }
 
     private abstract partial class MockWebSocketConnection : IWebSocketConnection
@@ -100,7 +96,7 @@ public partial class GatewayHandlersTest(TestContext testContext)
 
             MemoryStream stream = new();
 
-            JsonSerializer.Serialize(new Utf8JsonWriter(stream), message, Serialization.Default.JsonGatewayMessage);
+            JsonSerializer.Serialize(new Utf8JsonWriter(stream), message);
 
             stream.Position = 0;
 
@@ -142,9 +138,6 @@ public partial class GatewayHandlersTest(TestContext testContext)
             [JsonPropertyName("t")]
             public string? Event { get; set; }
         }
-
-        [JsonSerializable(typeof(JsonGatewayMessage))]
-        private partial class Serialization : JsonSerializerContext;
     }
 
     private sealed class MockWebSocketConnectionProvider<TConnection> : IWebSocketConnectionProvider where TConnection : IWebSocketConnection, new()
@@ -152,7 +145,7 @@ public partial class GatewayHandlersTest(TestContext testContext)
         public IWebSocketConnection CreateConnection() => new TConnection();
     }
 
-    private HostApplicationBuilder CreateMockedGatewayBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
+    private static HostApplicationBuilder CreateMockedGatewayBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
 
