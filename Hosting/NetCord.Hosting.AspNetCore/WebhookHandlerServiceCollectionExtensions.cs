@@ -61,7 +61,10 @@ public static class WebhookHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebhookHandler<T>(this IServiceCollection services, WebhookEvent<T> webhookEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<WebhookHandlerMetadata>(new DelegateWebhookHandlerMetadata(handler, webhookEvent.EventId, lifetime is ServiceLifetime.Singleton));
+        services.AddSingleton<WebhookHandlerMetadata>(new DelegateWebhookHandlerMetadata(
+            DelegateHandlerHelper.CreateHandler<Func<T, IServiceProvider, ValueTask>>(handler, [typeof(T)]),
+            webhookEvent.EventId,
+            lifetime is ServiceLifetime.Singleton));
 
         return services;
     }
