@@ -26,11 +26,11 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
                 namespace NetCord.Hosting.AspNetCore;
 
                 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-                internal class GenerateHandlerAttribute(string? rawEventName, Type eventArgs) : Attribute
+                internal class GenerateHandlerAttribute(string? rawEventName, Type? eventArgs) : Attribute
                 {
                     public string? RawEventName => rawEventName;
 
-                    public Type EventArgs => eventArgs;
+                    public Type? EventArgs => eventArgs;
                 }
 
                 """, Encoding.UTF8));
@@ -57,29 +57,32 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             context.AddSource("WebhookHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(attributesData), Encoding.UTF8));
 
-            context.AddSource("WebhookEventProcessor.g.cs", SourceText.From(GenerateWebhookEventProcessor(attributesData), Encoding.UTF8));
+            context.AddSource("WebhookEventHandlerInvoker.g.cs", SourceText.From(GenerateWebhookEventHandlerInvoker(attributesData), Encoding.UTF8));
         });
     }
 
-    private readonly record struct GenerateHandlerAttributeData(string? RawEventName, INamedTypeSymbol EventArgs)
+    private class GenerateHandlerAttributeData(string? rawEventName, INamedTypeSymbol? eventArgs)
     {
-        public string EventName
+        public string? RawEventName => rawEventName;
+
+        public string EventName { get; } = GetEventName(rawEventName);
+
+        public INamedTypeSymbol? EventArgs => eventArgs;
+
+        private static string GetEventName(string? rawEventName)
         {
-            get
-            {
-                if (RawEventName is null)
-                    return "UnknownEvent";
+            if (rawEventName is null)
+                return "UnknownEvent";
 
-                var textInfo = CultureInfo.InvariantCulture.TextInfo;
+            var textInfo = CultureInfo.InvariantCulture.TextInfo;
 
-                var result = textInfo.ToLower(RawEventName);
+            var result = textInfo.ToLower(rawEventName);
 
-                result = textInfo.ToTitleCase(result);
+            result = textInfo.ToTitleCase(result);
 
-                result = result.Replace("_", string.Empty);
+            result = result.Replace("_", string.Empty);
 
-                return result;
-            }
+            return result;
         }
     }
 
@@ -101,6 +104,8 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         StringWriter stringWriter = new();
         Setup(stringWriter);
 
+        WriteEventsEnum(stringWriter, attributesData);
+
         WriteEvents(stringWriter, attributesData);
 
         return stringWriter.ToString();
@@ -119,29 +124,50 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteLine();
 
-            stringWriter.WriteInheritDoc(eventArgs, 1);
+            if (eventArgs is not null)
+                stringWriter.WriteInheritDoc(eventArgs, 1);
 
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public static global::");
             stringWriter.Write(Namespace);
             stringWriter.Write(".WebhookEvent");
-            stringWriter.Write("<");
-            stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            stringWriter.Write("> ");
 
-            stringWriter.Write(attributeData.EventName);
-            stringWriter.Write(" => new(");
-
-            if (attributeData.RawEventName is null)
-                stringWriter.Write("null");
-            else
+            if (eventArgs is not null)
             {
-                stringWriter.Write("\"");
-                stringWriter.Write(attributeData.RawEventName);
-                stringWriter.Write("\"");
+                stringWriter.Write("<");
+                stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                stringWriter.Write("> ");
             }
 
+            var eventName = attributeData.EventName;
+
+            stringWriter.Write(eventName);
+            stringWriter.Write(" => new(global::NetCord.Hosting.AspNetCore.WebhookEventId.");
+
+            stringWriter.Write(eventName);
+
             stringWriter.WriteLine(");");
+        }
+
+        stringWriter.WriteLine("}");
+    }
+
+    private void WriteEventsEnum(StringWriter stringWriter, ImmutableArray<GenerateHandlerAttributeData> attributesData)
+    {
+        stringWriter.WriteLine();
+
+        stringWriter.WriteLine("internal enum WebhookEventId : byte");
+
+        stringWriter.WriteLine("{");
+
+        int attributeCount = attributesData.Length;
+        for (int i = 0; i < attributeCount; i++)
+        {
+            var attributeData = attributesData[i];
+
+            stringWriter.WriteIndentation(1);
+            stringWriter.Write(attributeData.EventName);
+            stringWriter.WriteLine(",");
         }
 
         stringWriter.WriteLine("}");
@@ -165,7 +191,8 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteLine();
 
-            stringWriter.WriteInheritDoc(eventArgs, 0);
+            if (eventArgs is not null)
+                stringWriter.WriteInheritDoc(eventArgs, 0);
 
             stringWriter.Write("public interface I");
             stringWriter.Write(attributeData.EventName);
@@ -176,8 +203,11 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public global::System.Threading.Tasks.ValueTask HandleAsync(");
 
-            stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            stringWriter.Write(" arg");
+            if (eventArgs is not null)
+            {
+                stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                stringWriter.Write(" arg");
+            }
 
             stringWriter.WriteLine(");");
 
@@ -185,21 +215,21 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         }
     }
 
-    private string GenerateWebhookEventProcessor(ImmutableArray<GenerateHandlerAttributeData> attributesData)
+    private string GenerateWebhookEventHandlerInvoker(ImmutableArray<GenerateHandlerAttributeData> attributesData)
     {
         StringWriter stringWriter = new();
         Setup(stringWriter);
 
-        WriteWebhookEventProcessor(stringWriter, attributesData);
+        WriteWebhookEventHandlerInvoker(stringWriter, attributesData);
 
         return stringWriter.ToString();
     }
 
-    private void WriteWebhookEventProcessor(StringWriter stringWriter, ImmutableArray<GenerateHandlerAttributeData> attributesData)
+    private void WriteWebhookEventHandlerInvoker(StringWriter stringWriter, ImmutableArray<GenerateHandlerAttributeData> attributesData)
     {
         stringWriter.WriteLine();
 
-        stringWriter.WriteLine("partial class WebhookEventProcessor");
+        stringWriter.WriteLine("partial class WebhookEventHandlerInvoker");
 
         stringWriter.Write("{");
 
@@ -242,8 +272,15 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteIndentation(2);
             stringWriter.Write("private global::System.Collections.Generic.List<global::System.Func<");
-            stringWriter.Write(attributeData.EventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            stringWriter.Write(", global::System.Threading.Tasks.ValueTask>> ");
+
+            if (attributeData.EventArgs is { } eventArgs)
+            {
+                stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                stringWriter.Write(", ");
+            }
+
+            stringWriter.Write("global::System.Threading.Tasks.ValueTask>> ");
+
             stringWriter.Write(ToInternalName(attributeData.EventName));
             stringWriter.WriteLine(" = [];");
         }
@@ -254,73 +291,118 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("public void RegisterDelegateHandler(global::NetCord.Hosting.AspNetCore.IDelegateWebhookHandlerBase handler)");
+        stringWriter.WriteLine("public void RegisterDelegateHandler(global::NetCord.Hosting.AspNetCore.DelegateWebhookHandlerMetadata handlerMetadata, IServiceProvider services)");
 
         stringWriter.WriteIndentation(2);
-        stringWriter.Write("{");
+        stringWriter.WriteLine("{");
 
-        int i = 0;
-        foreach (var group in attributesData.GroupBy(e => e.EventArgs, SymbolEqualityComparer.Default))
+        stringWriter.WriteIndentation(3);
+        stringWriter.WriteLine("var isSingleton = handlerMetadata.IsSingleton;");
+
+        stringWriter.WriteIndentation(3);
+        stringWriter.WriteLine("switch (handlerMetadata.EventId)");
+
+        stringWriter.WriteIndentation(3);
+        stringWriter.WriteLine("{");
+
+        int attributeCount = attributesData.Length;
+
+        for (var i = 0; i < attributeCount; i++)
         {
-            var eventArgs = (INamedTypeSymbol)group.Key!;
-
-            stringWriter.WriteLine();
-
-            stringWriter.WriteIndentation(3);
-            stringWriter.Write("if (handler is global::NetCord.Hosting.AspNetCore.IDelegateWebhookHandler<");
-
-            stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-
-            stringWriter.Write("> delegateWebhookHandler");
-
-            stringWriter.Write(i);
-            stringWriter.WriteLine(")");
-
-            stringWriter.WriteIndentation(3);
-            stringWriter.WriteLine("{");
+            var attributeData = attributesData[i];
 
             stringWriter.WriteIndentation(4);
-            stringWriter.Write("switch (delegateWebhookHandler");
+            stringWriter.Write("case global::NetCord.Hosting.AspNetCore.WebhookEventId.");
+            stringWriter.Write(attributeData.EventName);
+            stringWriter.WriteLine(":");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.Write("var typedHandler");
             stringWriter.Write(i);
-            stringWriter.WriteLine(".RawName)");
+            stringWriter.Write(" = (global::System.Func<");
 
-            stringWriter.WriteIndentation(4);
-            stringWriter.WriteLine("{");
-
-            foreach (var attributeData in group)
+            var eventArgs = attributeData.EventArgs;
+            if (eventArgs is not null)
             {
-                stringWriter.WriteIndentation(5);
-                stringWriter.Write("case ");
-                if (attributeData.RawEventName is null)
-                    stringWriter.WriteLine("null:");
-                else
-                {
-                    stringWriter.Write("\"");
-                    stringWriter.Write(attributeData.RawEventName);
-                    stringWriter.WriteLine("\":");
-                }
-
-                stringWriter.WriteIndentation(6);
-                stringWriter.Write(ToInternalName(attributeData.EventName));
-                stringWriter.Write(".Add(delegateWebhookHandler");
-                stringWriter.Write(i);
-                stringWriter.WriteLine(".HandleAsync);");
-
-                stringWriter.WriteIndentation(6);
-                stringWriter.WriteLine("break;");
+                stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                stringWriter.Write(", ");
             }
 
-            stringWriter.WriteIndentation(4);
+            stringWriter.WriteLine("global::System.IServiceProvider, global::System.Threading.Tasks.ValueTask>)handlerMetadata.Handler;");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.Write(ToInternalName(attributeData.EventName));
+            stringWriter.WriteLine(".Add(isSingleton");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.Write("? (");
+
+            if (eventArgs is not null)
+                stringWriter.Write("arg");
+
+            stringWriter.Write(") => typedHandler");
+            stringWriter.Write(i);
+            stringWriter.Write("(");
+
+            if (eventArgs is not null)
+                stringWriter.Write("arg, ");
+
+            stringWriter.WriteLine("services)");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.Write(": async (");
+
+            if (eventArgs is not null)
+                stringWriter.Write("arg");
+
+            stringWriter.WriteLine(") =>");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("try");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(8);
+            stringWriter.Write("await typedHandler");
+            stringWriter.Write(i);
+            stringWriter.Write("(");
+
+            if (eventArgs is not null)
+                stringWriter.Write("arg, ");
+
+            stringWriter.WriteLine("scope.ServiceProvider).ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(7);
             stringWriter.WriteLine("}");
 
-            stringWriter.WriteIndentation(4);
-            stringWriter.WriteLine("return;");
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("finally");
 
-            stringWriter.WriteIndentation(3);
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(8);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(7);
             stringWriter.WriteLine("}");
 
-            i++;
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("});");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("break;");
         }
+
+        stringWriter.WriteIndentation(3);
+        stringWriter.WriteLine("}");
 
         stringWriter.WriteIndentation(2);
         stringWriter.WriteLine("}");
@@ -331,10 +413,19 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("public void RegisterClassHandler(global::NetCord.Hosting.AspNetCore.IWebhookHandler handler)");
+        stringWriter.WriteLine("public void RegisterClassHandler(global::NetCord.Hosting.AspNetCore.ClassWebhookHandlerMetadata handlerMetadata, IServiceProvider services)");
 
         stringWriter.WriteIndentation(2);
-        stringWriter.Write("{");
+        stringWriter.WriteLine("{");
+
+        stringWriter.WriteIndentation(3);
+        stringWriter.WriteLine("var handlerType = handlerMetadata.HandlerType;");
+
+        stringWriter.WriteIndentation(3);
+        stringWriter.WriteLine("var isSingleton = handlerMetadata.IsSingleton;");
+
+        stringWriter.WriteIndentation(3);
+        stringWriter.WriteLine("var instanceFactory = handlerMetadata.InstanceFactory;");
 
         int attributeCount = attributesData.Length;
 
@@ -345,17 +436,74 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine();
 
             stringWriter.WriteIndentation(3);
-            stringWriter.Write("if (handler is global::NetCord.Hosting.AspNetCore.I");
+            stringWriter.Write("if (typeof(global::NetCord.Hosting.AspNetCore.I");
             stringWriter.Write(attributeData.EventName);
-            stringWriter.Write("WebhookHandler webhookHandler");
-            stringWriter.Write(i);
-            stringWriter.WriteLine(")");
+            stringWriter.WriteLine("WebhookHandler).IsAssignableFrom(handlerType))");
+
+            stringWriter.WriteIndentation(3);
+            stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(4);
             stringWriter.Write(ToInternalName(attributeData.EventName));
-            stringWriter.Write(".Add(webhookHandler");
-            stringWriter.Write(i);
-            stringWriter.WriteLine(".HandleAsync);");
+            stringWriter.WriteLine(".Add(isSingleton");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.Write("? ");
+
+            stringWriter.Write("((global::NetCord.Hosting.AspNetCore.I");
+            stringWriter.Write(attributeData.EventName);
+            stringWriter.WriteLine("WebhookHandler)instanceFactory(services)).HandleAsync");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.Write(": async (");
+
+            if (attributeData.EventArgs is not null)
+                stringWriter.Write("arg");
+
+            stringWriter.WriteLine(") =>");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("try");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.Write("await ((global::NetCord.Hosting.AspNetCore.I");
+            stringWriter.Write(attributeData.EventName);
+            stringWriter.Write("WebhookHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(");
+
+            if (attributeData.EventArgs is not null)
+                stringWriter.Write("arg");
+
+            stringWriter.WriteLine(").ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("finally");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("});");
+
+            stringWriter.WriteIndentation(4);
+            stringWriter.WriteLine("}");
         }
 
         stringWriter.WriteIndentation(2);
@@ -367,7 +515,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("public global::NetCord.Hosting.AspNetCore.WebhookEventProcessor.Storage Build()");
+        stringWriter.WriteLine("public global::NetCord.Hosting.AspNetCore.WebhookEventHandlerInvoker.Storage Build()");
 
         stringWriter.WriteIndentation(2);
         stringWriter.WriteLine("{");
@@ -423,8 +571,14 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteIndentation(2);
             stringWriter.Write("internal required global::System.Func<");
-            stringWriter.Write(attributeData.EventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            stringWriter.Write(", global::System.Threading.Tasks.ValueTask>[] ");
+
+            if (attributeData.EventArgs is { } eventArgs)
+            {
+                stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                stringWriter.Write(", ");
+            }
+
+            stringWriter.Write("global::System.Threading.Tasks.ValueTask>[] ");
             stringWriter.Write(ToInternalName(attributeData.EventName));
             stringWriter.WriteLine(";");
         }
@@ -435,13 +589,13 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("private global::System.Threading.Tasks.ValueTask HandleEventAsync(global::NetCord.Rest.JsonModels.JsonWebhookEventArgs data)");
+        stringWriter.WriteLine("private global::System.Threading.Tasks.ValueTask HandleEventAsync(global::NetCord.Rest.WebhookEventArgs data)");
 
         stringWriter.WriteIndentation(1);
         stringWriter.WriteLine("{");
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("return data.Event!.Type switch");
+        stringWriter.WriteLine("return data.Type switch");
 
         stringWriter.WriteIndentation(2);
         stringWriter.Write("{");
@@ -462,12 +616,14 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.Write("InvokeHandlersAsync(_storage.");
             stringWriter.Write(ToInternalName(attributeData.EventName));
-            stringWriter.Write(", () => new ");
-            stringWriter.Write(attributeData.EventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            if (attributeData.EventArgs.Constructors.First().Parameters.Length is 2)
-                stringWriter.Write("(data, _client)),");
+            if (attributeData.EventArgs is { } eventArgs)
+            {
+                stringWriter.Write(", (");
+                stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                stringWriter.Write(")data),");
+            }
             else
-                stringWriter.Write("(data)),");
+                stringWriter.Write("),");
         }
 
         stringWriter.WriteLine();

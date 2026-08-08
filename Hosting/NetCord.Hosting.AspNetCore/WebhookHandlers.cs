@@ -2,21 +2,21 @@ namespace NetCord.Hosting.AspNetCore;
 
 public interface IWebhookHandler;
 
-internal interface IDelegateWebhookHandlerBase : IWebhookHandler
+internal abstract class WebhookHandlerMetadata(bool isSingleton)
 {
-    internal string? RawName { get; }
+    public bool IsSingleton => isSingleton;
 }
 
-internal interface IDelegateWebhookHandler<T> : IDelegateWebhookHandlerBase
+internal sealed class ClassWebhookHandlerMetadata(Type handlerType, bool isSingleton, Func<IServiceProvider, object> instanceFactory) : WebhookHandlerMetadata(isSingleton)
 {
-    public ValueTask HandleAsync(T arg);
+    public Type HandlerType => handlerType;
+
+    public Func<IServiceProvider, object> InstanceFactory => instanceFactory;
 }
 
-internal class DelegateWebhookHandler<T>(string? rawName, IServiceProvider services, Delegate handler) : IDelegateWebhookHandler<T>
+internal sealed class DelegateWebhookHandlerMetadata(Delegate handler, WebhookEventId eventId, bool isSingleton) : WebhookHandlerMetadata(isSingleton)
 {
-    private readonly Func<T, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<T, IServiceProvider, ValueTask>>(handler, [typeof(T)]);
+    public Delegate Handler => handler;
 
-    string? IDelegateWebhookHandlerBase.RawName => rawName;
-
-    public ValueTask HandleAsync(T arg) => _handler(arg, services);
+    internal WebhookEventId EventId => eventId;
 }

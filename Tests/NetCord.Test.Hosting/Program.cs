@@ -61,10 +61,10 @@ builder.Services
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
     .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
     .AddCommands()
-    .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
+    .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger, IServiceProvider p) => logger.LogInformation("Content: {}", message.Content), ServiceLifetime.Scoped)
     .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
-    .AddGatewayHandler<ConnectHandler>()
-    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>()
+    .AddGatewayHandler<ConnectHandler>(ServiceLifetime.Scoped)
+    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>(ServiceLifetime.Scoped)
     .AddSingleton("Wzium")
     .AddKeyedSingleton("key", "Wzium2");
 

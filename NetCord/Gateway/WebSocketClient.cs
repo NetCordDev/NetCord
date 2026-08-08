@@ -527,6 +527,8 @@ public abstract partial class WebSocketClient : IDisposable
 
     private async Task ReadAsync(State state, ConnectionState connectionState)
     {
+        await Task.Yield();
+
         var connection = connectionState.Connection;
         try
         {

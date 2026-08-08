@@ -1,13 +1,21 @@
 namespace NetCord.Hosting.AspNetCore;
 
-public static partial class WebhookEvent;
+public partial class WebhookEvent
+{
+    internal WebhookEvent(WebhookEventId eventId)
+    {
+        EventId = eventId;
+    }
+
+    internal WebhookEventId EventId { get; }
+}
 
 public partial class WebhookEvent<T>
 {
-    internal WebhookEvent(string? rawName)
+    internal WebhookEvent(WebhookEventId eventId)
     {
-        RawName = rawName;
+        EventId = eventId;
     }
 
-    internal string? RawName { get; }
+    internal WebhookEventId EventId { get; }
 }
