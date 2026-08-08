@@ -169,13 +169,6 @@ public partial class GatewayHandlersTest(TestContext testContext)
         return builder;
     }
 
-    private class Counter
-    {
-        public int ConstructorCount { get; set; }
-
-        public int HandlerCount { get; set; }
-    }
-
     [TestMethod]
     public async ValueTask Singleton()
     {
