@@ -77,6 +77,8 @@ internal abstract class HttpEventHandlerInvoker
                 LogHandlerException(ex);
             }
         }
+
+        ArrayPool<ValueTask>.Shared.Return(tasks);
     }
 }
 
