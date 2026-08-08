@@ -34,14 +34,16 @@ internal sealed class HttpInteractionProcessor(
 
     private static Func<Interaction, ValueTask> CreateClassInvokeDelegate(ClassHttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
     {
+        var instanceFactory = handlerMetadata.InstanceFactory;
+
         return handlerMetadata.IsSingleton
-            ? ((IHttpInteractionHandler)handlerMetadata.InstanceFactory(services)).HandleAsync
+            ? ((IHttpInteractionHandler)instanceFactory(services)).HandleAsync
             : async interaction =>
             {
                 var scope = services.CreateAsyncScope();
                 try
                 {
-                    await ((IHttpInteractionHandler)handlerMetadata.InstanceFactory(scope.ServiceProvider)).HandleAsync(interaction).ConfigureAwait(false);
+                    await ((IHttpInteractionHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(interaction).ConfigureAwait(false);
                 }
                 finally
                 {
