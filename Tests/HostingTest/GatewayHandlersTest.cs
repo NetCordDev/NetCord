@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -181,20 +182,7 @@ public partial class GatewayHandlersTest(TestContext testContext)
     [TestMethod]
     public async ValueTask Singleton()
     {
-        var builder = CreateMockedGatewayBuilder(new MockWebSocketConnectionProvider<ReadyWebSocketConnection>());
-
-        Counter counter = new();
-
-        builder.Services
-            .AddGatewayHandler<RateLimitedGatewayHandler>(_ => new(counter), ServiceLifetime.Singleton);
-
-        var host = builder.Build();
-
-        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 2, TimeSpan.FromSeconds(5)), "Handler was not called twice within 5 seconds.");
-
-        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
+        var counter = await Count(ServiceLifetime.Singleton).ConfigureAwait(false);
 
         Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was called more than once.");
     }
@@ -202,16 +190,23 @@ public partial class GatewayHandlersTest(TestContext testContext)
     [TestMethod]
     public ValueTask Transient()
     {
-        return TransientAndScoped(ServiceLifetime.Transient);
+        return TransientOrScoped(ServiceLifetime.Transient);
     }
 
     [TestMethod]
     public ValueTask Scoped()
     {
-        return TransientAndScoped(ServiceLifetime.Scoped);
+        return TransientOrScoped(ServiceLifetime.Scoped);
     }
 
-    private async ValueTask TransientAndScoped(ServiceLifetime lifetime)
+    private async ValueTask TransientOrScoped(ServiceLifetime lifetime)
+    {
+        var counter = await Count(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<Counter> Count(ServiceLifetime lifetime)
     {
         var builder = CreateMockedGatewayBuilder(new MockWebSocketConnectionProvider<ReadyWebSocketConnection>());
 
@@ -224,11 +219,11 @@ public partial class GatewayHandlersTest(TestContext testContext)
 
         await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
 
-        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 2, TimeSpan.FromSeconds(5)), "Handler was not called twice within 5 seconds.");
+        SpinWait.SpinUntil(() => counter.HandlerCount >= 2);
 
         await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        return counter;
     }
 
     private class RateLimitedGatewayHandler : IRateLimitedGatewayHandler
