@@ -332,9 +332,15 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(6);
-            stringWriter.WriteLine("await using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
 
             stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("try");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
             stringWriter.Write("await typedHandler");
             stringWriter.Write(i);
             stringWriter.Write("(");
@@ -343,6 +349,21 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
                 stringWriter.Write("arg, ");
 
             stringWriter.WriteLine("scope.ServiceProvider);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("finally");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(5);
             stringWriter.WriteLine("};");
@@ -417,9 +438,15 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(5);
-            stringWriter.WriteLine("await using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
 
             stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("try");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(6);
             stringWriter.Write("await ((global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
             stringWriter.Write("GatewayHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(");
@@ -427,7 +454,22 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             if (eventType.Arity is not 1)
                 stringWriter.Write("arg");
 
-            stringWriter.WriteLine(");");
+            stringWriter.WriteLine(").ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("finally");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(4);
             stringWriter.WriteLine("};");
@@ -515,9 +557,15 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(6);
-            stringWriter.WriteLine("await using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
 
             stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("try");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
             stringWriter.Write("await typedHandler");
             stringWriter.Write(i);
             stringWriter.Write("(client, ");
@@ -526,6 +574,21 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
                 stringWriter.Write("arg, ");
 
             stringWriter.WriteLine("scope.ServiceProvider);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("finally");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(5);
             stringWriter.WriteLine("};");
@@ -600,9 +663,15 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(5);
-            stringWriter.WriteLine("await using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
 
             stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("try");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(6);
             stringWriter.Write("await ((global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
             stringWriter.Write("ShardedGatewayHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(client");
@@ -611,6 +680,21 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
                 stringWriter.Write(", arg");
 
             stringWriter.WriteLine(");");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("finally");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(5);
+            stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(4);
             stringWriter.WriteLine("};");

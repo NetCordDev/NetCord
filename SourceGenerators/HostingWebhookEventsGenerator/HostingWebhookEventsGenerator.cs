@@ -361,9 +361,15 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(7);
-            stringWriter.WriteLine("await using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
 
             stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("try");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(8);
             stringWriter.Write("await typedHandler");
             stringWriter.Write(i);
             stringWriter.Write("(");
@@ -371,7 +377,22 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             if (eventArgs is not null)
                 stringWriter.Write("arg, ");
 
-            stringWriter.WriteLine("scope.ServiceProvider);");
+            stringWriter.WriteLine("scope.ServiceProvider).ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("finally");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(8);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(6);
             stringWriter.WriteLine("});");
@@ -445,10 +466,15 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(6);
-            stringWriter.WriteLine("await using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
+            stringWriter.WriteLine("var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateAsyncScope(services);");
 
             stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("try");
 
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
             stringWriter.Write("await ((global::NetCord.Hosting.AspNetCore.I");
             stringWriter.Write(attributeData.EventName);
             stringWriter.Write("WebhookHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(");
@@ -456,7 +482,23 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             if (attributeData.EventArgs is not null)
                 stringWriter.Write("arg");
 
-            stringWriter.WriteLine(");");
+            stringWriter.WriteLine(").ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("finally");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("{");
+
+            stringWriter.WriteIndentation(7);
+            stringWriter.WriteLine("await scope.DisposeAsync().ConfigureAwait(false);");
+
+            stringWriter.WriteIndentation(6);
+            stringWriter.WriteLine("}");
+
             stringWriter.WriteIndentation(5);
             stringWriter.WriteLine("});");
 
