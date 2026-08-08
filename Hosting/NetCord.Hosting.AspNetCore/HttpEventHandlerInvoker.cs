@@ -35,36 +35,6 @@ internal abstract class HttpEventHandlerInvoker
         return HandleTasksAsync(length, tasks);
     }
 
-    protected ValueTask InvokeHandlersAsync<THandlerData>(Func<THandlerData, ValueTask>[] handlers, Func<THandlerData> dataFunc) where THandlerData : class
-    {
-        int length = handlers.Length;
-
-        if (length is 0)
-            return default;
-
-        var tasks = ArrayPool<ValueTask>.Shared.Rent(length);
-
-        var data = dataFunc();
-
-        for (int i = 0; i < length; i++)
-        {
-            try
-            {
-#pragma warning disable CA2012 // Use ValueTasks correctly
-                tasks[i] = handlers[i](data);
-#pragma warning restore CA2012 // Use ValueTasks correctly
-            }
-            catch (Exception ex)
-            {
-                LogHandlerException(ex);
-
-                tasks[i] = default;
-            }
-        }
-
-        return HandleTasksAsync(length, tasks);
-    }
-
     protected ValueTask InvokeHandlersAsync<THandlerData>(Func<THandlerData, ValueTask>[] handlers, THandlerData data)
     {
         int length = handlers.Length;
