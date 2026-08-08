@@ -57,7 +57,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             context.AddSource("WebhookHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(attributesData), Encoding.UTF8));
 
-            context.AddSource("WebhookEventProcessor.g.cs", SourceText.From(GenerateWebhookEventProcessor(attributesData), Encoding.UTF8));
+            context.AddSource("WebhookEventHandlerInvoker.g.cs", SourceText.From(GenerateWebhookEventHandlerInvoker(attributesData), Encoding.UTF8));
         });
     }
 
@@ -215,21 +215,21 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         }
     }
 
-    private string GenerateWebhookEventProcessor(ImmutableArray<GenerateHandlerAttributeData> attributesData)
+    private string GenerateWebhookEventHandlerInvoker(ImmutableArray<GenerateHandlerAttributeData> attributesData)
     {
         StringWriter stringWriter = new();
         Setup(stringWriter);
 
-        WriteWebhookEventProcessor(stringWriter, attributesData);
+        WriteWebhookEventHandlerInvoker(stringWriter, attributesData);
 
         return stringWriter.ToString();
     }
 
-    private void WriteWebhookEventProcessor(StringWriter stringWriter, ImmutableArray<GenerateHandlerAttributeData> attributesData)
+    private void WriteWebhookEventHandlerInvoker(StringWriter stringWriter, ImmutableArray<GenerateHandlerAttributeData> attributesData)
     {
         stringWriter.WriteLine();
 
-        stringWriter.WriteLine("partial class WebhookEventProcessor");
+        stringWriter.WriteLine("partial class WebhookEventHandlerInvoker");
 
         stringWriter.Write("{");
 
@@ -473,7 +473,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("public global::NetCord.Hosting.AspNetCore.WebhookEventProcessor.Storage Build()");
+        stringWriter.WriteLine("public global::NetCord.Hosting.AspNetCore.WebhookEventHandlerInvoker.Storage Build()");
 
         stringWriter.WriteIndentation(2);
         stringWriter.WriteLine("{");
@@ -547,13 +547,13 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("private global::System.Threading.Tasks.ValueTask HandleEventAsync(global::NetCord.Rest.JsonModels.JsonWebhookEventArgs data)");
+        stringWriter.WriteLine("private global::System.Threading.Tasks.ValueTask HandleEventAsync(global::NetCord.Rest.WebhookEventArgs data)");
 
         stringWriter.WriteIndentation(1);
         stringWriter.WriteLine("{");
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("return data.Event!.Type switch");
+        stringWriter.WriteLine("return data.Type switch");
 
         stringWriter.WriteIndentation(2);
         stringWriter.Write("{");
@@ -576,13 +576,9 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.Write(ToInternalName(attributeData.EventName));
             if (attributeData.EventArgs is { } eventArgs)
             {
-                stringWriter.Write(", () => new ");
+                stringWriter.Write(", (");
                 stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                stringWriter.Write("(data");
-                if (eventArgs.Constructors[0].Parameters.Length is 2)
-                    stringWriter.Write(", _client)),");
-                else
-                    stringWriter.Write(")),");
+                stringWriter.Write(")data),");
             }
             else
                 stringWriter.Write("),");
