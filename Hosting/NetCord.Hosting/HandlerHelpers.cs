@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -44,6 +45,19 @@ internal static class HandlerHelpers
             var rawFactory = ActivatorUtilities.CreateFactory(handlerType, Type.EmptyTypes);
 
             return services => rawFactory(services, null);
+        }
+    }
+
+    public static void EnsureHandlerTypeIsValid(Type handlerType, Type baseType)
+    {
+        if (!baseType.IsAssignableFrom(handlerType))
+            ThrowInvalidHandler(handlerType, baseType);
+
+        [DoesNotReturn]
+        [StackTraceHidden]
+        static void ThrowInvalidHandler(Type handlerType, Type baseType)
+        {
+            throw new ArgumentException($"The type '{handlerType.FullName}' is not a valid '{baseType.FullName}'.", nameof(handlerType));
         }
     }
 

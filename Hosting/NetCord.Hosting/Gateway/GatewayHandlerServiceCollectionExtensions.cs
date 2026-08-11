@@ -18,7 +18,9 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IGatewayHandler
     {
-        return AddGatewayHandler(services, typeof(T), lifetime);
+        AddGatewayHandlerCore(services, typeof(T), lifetime);
+
+        return services;
     }
 
     /// <summary>
@@ -31,7 +33,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IGatewayHandler
     {
-        services.AddSingleton<GatewayHandlerMetadata>(new ClassGatewayHandlerMetadata(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithCustomFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -45,11 +47,16 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        var isSingleton = lifetime is ServiceLifetime.Singleton;
+        HandlerHelpers.EnsureHandlerTypeIsValid(handlerType, typeof(IGatewayHandler));
 
-        services.AddSingleton<GatewayHandlerMetadata>(new ClassGatewayHandlerMetadata(handlerType, isSingleton, HandlerHelpers.CreateInstanceFactory(handlerType, isSingleton)));
+        AddGatewayHandlerCore(services, handlerType, lifetime);
 
         return services;
+    }
+
+    private static void AddGatewayHandlerCore(IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
+    {
+        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>
@@ -62,7 +69,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler(this IServiceCollection services, GatewayEvent gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<GatewayHandlerMetadata>(new DelegateGatewayHandlerMetadata(
+        services.AddSingleton<IGatewayHandlerMetadata>(new DelegateHandlerMetadata<GatewayEventId>(
             DelegateHandlerHelper.CreateHandler<Func<IServiceProvider, ValueTask>>(handler, []),
             gatewayEvent.Id,
             lifetime is ServiceLifetime.Singleton));
@@ -81,7 +88,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<T>(this IServiceCollection services, GatewayEvent<T> gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<GatewayHandlerMetadata>(new DelegateGatewayHandlerMetadata(
+        services.AddSingleton<HandlerMetadata>(new DelegateHandlerMetadata<GatewayEventId>(
             DelegateHandlerHelper.CreateHandler<Func<T, IServiceProvider, ValueTask>>(handler, [typeof(T)]),
             gatewayEvent.Id,
             lifetime is ServiceLifetime.Singleton));
@@ -100,7 +107,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     public static IServiceCollection AddGatewayHandlers(this IServiceCollection services, Assembly assembly, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
         foreach (var type in HandlerHelpers.GetHandlers(typeof(IGatewayHandler), assembly))
-            AddGatewayHandler(services, type, lifetime);
+            AddGatewayHandlerCore(services, type, lifetime);
 
         return services;
     }
@@ -114,7 +121,9 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IShardedGatewayHandler
     {
-        return AddShardedGatewayHandler(services, typeof(T), lifetime);
+        AddShardedGatewayHandlerCore(services, typeof(T), lifetime);
+
+        return services;
     }
 
     /// <summary>
@@ -127,7 +136,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IShardedGatewayHandler
     {
-        services.AddSingleton<ShardedGatewayHandlerMetadata>(new ClassShardedGatewayHandlerMetadata(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithCustomFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -141,11 +150,16 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        var isSingleton = lifetime is ServiceLifetime.Singleton;
+        HandlerHelpers.EnsureHandlerTypeIsValid(handlerType, typeof(IShardedGatewayHandler));
 
-        services.AddSingleton<ShardedGatewayHandlerMetadata>(new ClassShardedGatewayHandlerMetadata(handlerType, isSingleton, HandlerHelpers.CreateInstanceFactory(handlerType, isSingleton)));
+        AddShardedGatewayHandlerCore(services, handlerType, lifetime);
 
         return services;
+    }
+
+    private static void AddShardedGatewayHandlerCore(IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
+    {
+        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>
@@ -158,7 +172,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler(this IServiceCollection services, GatewayEvent gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<ShardedGatewayHandlerMetadata>(new DelegateShardedGatewayHandlerMetadata(
+        services.AddSingleton<IShardedGatewayHandlerMetadata>(new DelegateHandlerMetadata<GatewayEventId>(
             DelegateHandlerHelper.CreateHandler<Func<GatewayClient, IServiceProvider, ValueTask>>(handler, [typeof(GatewayClient)]),
             gatewayEvent.Id,
             lifetime is ServiceLifetime.Singleton));
@@ -177,7 +191,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<T>(this IServiceCollection services, GatewayEvent<T> gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<ShardedGatewayHandlerMetadata>(new DelegateShardedGatewayHandlerMetadata(
+        services.AddSingleton<IShardedGatewayHandlerMetadata>(new DelegateHandlerMetadata<GatewayEventId>(
             DelegateHandlerHelper.CreateHandler<Func<GatewayClient, T, IServiceProvider, ValueTask>>(handler, [typeof(GatewayClient), typeof(T)]),
             gatewayEvent.Id,
             lifetime is ServiceLifetime.Singleton));
@@ -196,7 +210,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     public static IServiceCollection AddShardedGatewayHandlers(this IServiceCollection services, Assembly assembly, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
         foreach (var type in HandlerHelpers.GetHandlers(typeof(IShardedGatewayHandler), assembly))
-            AddShardedGatewayHandler(services, type, lifetime);
+            AddShardedGatewayHandlerCore(services, type, lifetime);
 
         return services;
     }
