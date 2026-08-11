@@ -14,7 +14,7 @@ internal partial class GatewayClientHostedService(IServiceProvider services) : I
 
         foreach (var handlerMetadata in services.GetServices<GatewayHandlerMetadata>())
         {
-            if (handlerMetadata is ClassGatewayHandlerMetadata classHandlerMetadata)
+            if (handlerMetadata is ClassHandlerMetadata classHandlerMetadata)
                 RegisterClassHandler(services, client, classHandlerMetadata);
             else
                 RegisterDelegateHandler(services, client, (DelegateGatewayHandlerMetadata)handlerMetadata);
