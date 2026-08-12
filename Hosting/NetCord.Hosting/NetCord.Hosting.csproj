@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
     <ProjectReference Include="..\..\SourceGenerators\HostingGatewayEventsGenerator\HostingGatewayEventsGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     <ProjectReference Include="..\..\SourceGenerators\Shared\Shared.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\..\SourceGenerators\HandlerGenerator.Common\HandlerGenerator.Common.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>

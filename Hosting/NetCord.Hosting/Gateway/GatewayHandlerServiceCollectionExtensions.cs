@@ -33,7 +33,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IGatewayHandler
     {
-        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithCustomFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -136,7 +136,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IShardedGatewayHandler
     {
-        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithCustomFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }

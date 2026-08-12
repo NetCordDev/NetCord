@@ -12,12 +12,12 @@ internal partial class ShardedGatewayClientHostedService(IServiceProvider servic
     {
         var client = services.GetRequiredService<ShardedGatewayClient>();
 
-        foreach (var handlerMetadata in services.GetServices<ShardedGatewayHandlerMetadata>())
+        foreach (var handlerMetadata in services.GetServices<IShardedGatewayHandlerMetadata>())
         {
-            if (handlerMetadata is ClassShardedGatewayHandlerMetadata classHandlerMetadata)
+            if (handlerMetadata is ClassHandlerMetadata classHandlerMetadata)
                 RegisterClassShardedHandler(services, client, classHandlerMetadata);
             else
-                RegisterDelegateShardedHandler(services, client, (DelegateShardedGatewayHandlerMetadata)handlerMetadata);
+                RegisterDelegateShardedHandler(services, client, (DelegateHandlerMetadata<GatewayEventId>)handlerMetadata);
         }
 
         var options = services.GetRequiredService<IOptions<ShardedGatewayClientOptions>>().Value;

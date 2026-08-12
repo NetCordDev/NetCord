@@ -78,6 +78,7 @@
   <Folder Name="/SourceGenerators/">
     <File Path="SourceGenerators/Directory.Build.props" />
     <File Path="SourceGenerators/Directory.Build.targets" />
+    <Project Path="SourceGenerators/HandlerGenerator.Common/HandlerGenerator.Common.csproj" />
     <Project Path="SourceGenerators/HostingGatewayEventsGenerator/HostingGatewayEventsGenerator.csproj" />
     <Project Path="SourceGenerators/HostingWebhookEventsGenerator/HostingWebhookEventsGenerator.csproj" />
     <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />

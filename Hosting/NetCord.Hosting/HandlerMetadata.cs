@@ -21,7 +21,7 @@ internal abstract class ClassHandlerMetadata(Type handlerType) : HandlerMetadata
             : new NonSingletonClassHandlerMetadata(handlerType, HandlerHelpers.GetHandlerFlags(handlerType));
     }
 
-    public static ClassHandlerMetadata CreateWithCustomFactory(Type handlerType, bool isSingleton, Func<IServiceProvider, object> instanceFactory)
+    public static ClassHandlerMetadata CreateWithFactory(Type handlerType, bool isSingleton, Func<IServiceProvider, object> instanceFactory)
     {
         if (isSingleton)
             return SingletonClassHandlerMetadata.CreateWithFactory(handlerType, instanceFactory);
