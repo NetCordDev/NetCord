@@ -21,7 +21,8 @@ public static class DelegateHandlerInvocationHelper
 
         writer.Write("handler = async (");
         Helper.WriteParameterNames(writer, handlerParameterNames);
-        writer.Write(") =>");
+        writer.WriteLine(") =>");
+
         writer.WriteLine("{");
         writer.Indent++;
 
@@ -51,6 +52,7 @@ public static class DelegateHandlerInvocationHelper
         writer.Indent--;
 
         writer.WriteLine("};");
+        writer.Indent--;
     }
 }
 

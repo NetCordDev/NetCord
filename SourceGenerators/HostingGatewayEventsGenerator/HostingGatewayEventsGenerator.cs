@@ -239,11 +239,13 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         writer.WriteLine("partial class GatewayClientHostedService");
 
         writer.Write("{");
+        writer.Indent++;
 
         WriteRegisterDelegateHandlerMethod(writer, events);
 
         WriteRegisterClassHandlerMethod(writer, events);
 
+        writer.Indent--;
         writer.WriteLine("}");
     }
 
@@ -254,11 +256,13 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         writer.WriteLine("partial class ShardedGatewayClientHostedService");
 
         writer.Write("{");
+        writer.Indent++;
 
         WriteRegisterDelegateShardedHandlerMethod(writer, events);
 
         WriteRegisterClassShardedHandlerMethod(writer, events);
 
+        writer.Indent--;
         writer.WriteLine("}");
     }
 
@@ -270,8 +274,6 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
         writer.WriteLine("{");
         writer.Indent++;
-
-        writer.WriteLine("var isSingleton = handlerMetadata.IsSingleton;");
 
         writer.WriteLine("switch (handlerMetadata.EventId)");
 
@@ -317,6 +319,8 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             writer.Indent--;
             writer.WriteLine("}");
+
+            writer.Indent--;
         }
 
         writer.Indent--;
@@ -335,6 +339,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         writer.WriteLine("{");
         writer.Indent++;
 
+        writer.WriteLine("var handlerType = handlerMetadata.HandlerType;");
+        writer.WriteLine("var instanceFactory = handlerMetadata.InstanceFactory;");
+
         int eventsLength = events.Length;
 
         for (int i = 0; i < eventsLength; i++)
@@ -342,8 +349,6 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             var eventSymbol = events[i];
 
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
-
-            writer.WriteLine();
 
             writer.Write("if (typeof(global::NetCord.Hosting.Gateway.I");
             writer.Write(eventSymbol.Name);
@@ -378,8 +383,6 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         writer.WriteLine("{");
         writer.Indent++;
 
-        writer.WriteLine("var isSingleton = handlerMetadata.IsSingleton;");
-
         writer.WriteLine("switch (handlerMetadata.EventId)");
 
         writer.WriteLine("{");
@@ -401,7 +404,6 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             writer.Indent++;
 
             writer.Write("var rawHandler");
-            writer.Write(i);
             writer.Write(" = (global::System.Func<global::NetCord.Gateway.GatewayClient, ");
             if (eventType.Arity is not 1)
             {
@@ -410,6 +412,14 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             }
 
             writer.WriteLine("global::System.IServiceProvider, global::System.Threading.Tasks.ValueTask>)handlerMetadata.Handler;");
+
+            writer.Write("global::System.Func<global::NetCord.Gateway.GatewayClient, ");
+            if (eventType.Arity is not 1)
+            {
+                writer.Write(eventType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                writer.Write(", ");
+            }
+            writer.WriteLine("global::System.Threading.Tasks.ValueTask> handler;");
 
             DelegateHandlerInvocationHelper.WriteDelegateHandlerInvocationDelegate(writer, eventType.Arity is 1 ? ["client"] : ["client", "arg"]);
 
@@ -421,12 +431,14 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             writer.Indent--;
             writer.WriteLine("}");
+
+            writer.Indent--;
         }
 
-        writer.WriteIndentation(2);
+        writer.Indent--;
         writer.WriteLine("}");
 
-        writer.WriteIndentation(1);
+        writer.Indent--;
         writer.WriteLine("}");
     }
 
@@ -439,6 +451,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         writer.WriteLine("{");
         writer.Indent++;
 
+        writer.WriteLine("var handlerType = handlerMetadata.HandlerType;");
+        writer.WriteLine("var instanceFactory = handlerMetadata.InstanceFactory;");
+
         int eventsLength = events.Length;
 
         for (int i = 0; i < eventsLength; i++)
@@ -447,8 +462,6 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
 
-            writer.WriteLine();
-
             writer.Write("if (typeof(global::NetCord.Hosting.Gateway.I");
             writer.Write(eventSymbol.Name);
             writer.WriteLine("ShardedGatewayHandler).IsAssignableFrom(handlerType))");
@@ -456,10 +469,15 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             writer.WriteLine("{");
             writer.Indent++;
 
-            writer.Write(eventType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            writer.WriteLine(" handler;");
+            writer.Write("global::System.Func<global::NetCord.Gateway.GatewayClient, ");
+            if (eventType.Arity is not 1)
+            {
+                writer.Write(eventType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                writer.Write(", ");
+            }
+            writer.WriteLine("global::System.Threading.Tasks.ValueTask> handler;");
 
-            ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(writer, $"global::NetCord.Hosting.Gateway.I{eventSymbol.Name}ShardedGatewayHandler", eventType.Arity is 2 ? ["client"] : ["client", "arg"]);
+            ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(writer, $"global::NetCord.Hosting.Gateway.I{eventSymbol.Name}ShardedGatewayHandler", eventType.Arity is 1 ? ["client"] : ["client", "arg"]);
 
             writer.Write("client.");
             writer.Write(eventSymbol.Name);

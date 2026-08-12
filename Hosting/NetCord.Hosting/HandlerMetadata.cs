@@ -30,11 +30,13 @@ internal abstract class ClassHandlerMetadata(Type handlerType) : HandlerMetadata
     }
 
     public Type HandlerType => handlerType;
+
+    public abstract Func<IServiceProvider, object> InstanceFactory { get; }
 }
 
 internal class SingletonClassHandlerMetadata : ClassHandlerMetadata
 {
-    public Func<IServiceProvider, object> InstanceFactory { get; }
+    public sealed override Func<IServiceProvider, object> InstanceFactory { get; }
 
     protected object? _instance;
 
@@ -115,7 +117,7 @@ internal class SingletonClassHandlerMetadata : ClassHandlerMetadata
 
 internal sealed class NonSingletonClassHandlerMetadata : ClassHandlerMetadata
 {
-    public Func<IServiceProvider, object> InstanceFactory { get; }
+    public override Func<IServiceProvider, object> InstanceFactory { get; }
 
     public HandlerFlags Flags { get; }
 
