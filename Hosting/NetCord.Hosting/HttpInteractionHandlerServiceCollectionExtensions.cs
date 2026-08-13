@@ -16,7 +16,9 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IHttpInteractionHandler
     {
-        return AddHttpInteractionHandler(services, typeof(T), lifetime);
+        AddHttpInteractionHandlerCore(services, typeof(T), lifetime);
+
+        return services;
     }
 
     /// <summary>
@@ -29,7 +31,7 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IHttpInteractionHandler
     {
-        services.AddSingleton<HttpInteractionHandlerMetadata>(new ClassHttpInteractionHandlerMetadata(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(ClassHandlerMetadata<IHttpInteractionHandler>.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -43,11 +45,16 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        var isSingleton = lifetime is ServiceLifetime.Singleton;
+        HandlerHelpers.EnsureHandlerTypeIsValid(handlerType, typeof(IHttpInteractionHandler));
 
-        services.AddSingleton<HttpInteractionHandlerMetadata>(new ClassHttpInteractionHandlerMetadata(handlerType, isSingleton, HandlerHelpers.CreateInstanceFactory(handlerType, isSingleton)));
+        AddHttpInteractionHandlerCore(services, handlerType, lifetime);
 
         return services;
+    }
+
+    private static void AddHttpInteractionHandlerCore(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
+    {
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(ClassHandlerMetadata<IHttpInteractionHandler>.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>
@@ -59,8 +66,9 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler(this IServiceCollection services, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<HttpInteractionHandlerMetadata>(new DelegateHttpInteractionHandlerMetadata(
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(new DelegateHandlerMetadata<object?>(
             DelegateHandlerHelper.CreateHandler<Func<Interaction, IServiceProvider, ValueTask>>(handler, [typeof(Interaction)]),
+            null,
             lifetime is ServiceLifetime.Singleton));
 
         return services;
@@ -71,14 +79,13 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IHttpInteractionHandler"/> implementations to.</param>
     /// <param name="assembly">The assembly to scan for <see cref="IHttpInteractionHandler"/> implementations.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IHttpInteractionHandler"/> implementations.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     [RequiresUnreferencedCode("Types might be removed")]
-    public static IServiceCollection AddHttpInteractionHandlers(this IServiceCollection services, Assembly assembly)
+    public static IServiceCollection AddHttpInteractionHandlers(this IServiceCollection services, Assembly assembly, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        var handlerBase = typeof(IHttpInteractionHandler);
-
-        foreach (var handler in HandlerHelpers.GetHandlers(handlerBase, assembly))
-            AddHttpInteractionHandler(services, handler);
+        foreach (var handler in HandlerHelpers.GetHandlers(typeof(IHttpInteractionHandler), assembly))
+            AddHttpInteractionHandlerCore(services, handler, lifetime);
 
         return services;
     }

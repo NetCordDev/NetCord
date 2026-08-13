@@ -16,7 +16,7 @@ public static class WebhookHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebhookHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IWebhookHandler
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata.Create(typeof(T), lifetime is ServiceLifetime.Singleton));
+        AddWebhookHandlerCore(services, typeof(T), lifetime);
 
         return services;
     }
@@ -31,7 +31,7 @@ public static class WebhookHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebhookHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IWebhookHandler
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata<IWebhookHandler>.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -54,7 +54,7 @@ public static class WebhookHandlerServiceCollectionExtensions
 
     private static void AddWebhookHandlerCore(IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
+        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata<IWebhookHandler>.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public static class WebhookHandlerServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IWebhookHandler"/> implementations to.</param>
     /// <param name="assembly">The assembly to scan for <see cref="IWebhookHandler"/> implementations.</param>
-    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IWebhookHandler"/>.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IWebhookHandler"/> implementations.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     [RequiresUnreferencedCode("Types might be removed")]
     public static IServiceCollection AddWebhookHandlers(this IServiceCollection services, Assembly assembly, ServiceLifetime lifetime = ServiceLifetime.Singleton)

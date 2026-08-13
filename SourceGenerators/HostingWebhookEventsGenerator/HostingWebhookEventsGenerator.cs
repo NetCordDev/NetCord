@@ -18,6 +18,8 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 {
     private const string Namespace = "NetCord.Hosting.AspNetCore";
 
+    private const string HandlerBaseTypeName = "global::NetCord.Hosting.AspNetCore.IWebhookHandler";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(context =>
@@ -205,7 +207,8 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             writer.Write("public interface I");
             writer.Write(attributeData.EventName);
-            writer.WriteLine("WebhookHandler : global::NetCord.Hosting.AspNetCore.IWebhookHandler");
+            writer.Write("WebhookHandler : ");
+            writer.WriteLine(HandlerBaseTypeName);
 
             writer.WriteLine("{");
             writer.Indent++;
@@ -323,25 +326,9 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             writer.WriteLine("{");
             writer.Indent++;
 
-            writer.Write("var rawHandler");
-            writer.Write(" = (global::System.Func<");
-            var eventArgs = attributeData.EventArgs;
-            if (eventArgs is not null)
-            {
-                writer.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                writer.Write(", ");
-            }
-            writer.WriteLine("global::System.IServiceProvider, global::System.Threading.Tasks.ValueTask>)handlerMetadata.Handler;");
-
-            writer.Write("global::System.Func<");
-            if (eventArgs is not null)
-            {
-                writer.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                writer.Write(", ");
-            }
-            writer.WriteLine("global::System.Threading.Tasks.ValueTask> handler;");
-
-            DelegateHandlerInvocationHelper.WriteDelegateHandlerInvocationDelegate(writer, eventArgs is null ? [] : ["arg"]);
+            DelegateHandlerInvocationHelper.WriteDelegateHandlerInvocationDelegate(
+                writer,
+                attributeData.EventArgs is { } arg ? [new("arg", arg)] : []);
 
             writer.Write(ToInternalName(attributeData.EventName));
             writer.WriteLine(".Add(handler);");
@@ -365,7 +352,9 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
     {
         writer.WriteLine();
 
-        writer.WriteLine("public void RegisterClassHandler(global::NetCord.Hosting.ClassHandlerMetadata handlerMetadata, IServiceProvider services)");
+        writer.Write("public void RegisterClassHandler(global::NetCord.Hosting.ClassHandlerMetadata<");
+        writer.Write(HandlerBaseTypeName);
+        writer.WriteLine("> handlerMetadata, IServiceProvider services)");
 
         writer.WriteLine("{");
         writer.Indent++;
@@ -389,17 +378,11 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             writer.WriteLine("{");
             writer.Indent++;
 
-            var eventArgs = attributeData.EventArgs;
-
-            writer.Write("global::System.Func<");
-            if (eventArgs is not null)
-            {
-                writer.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                writer.Write(", ");
-            }
-            writer.WriteLine("global::System.Threading.Tasks.ValueTask> handler;");
-
-            ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(writer, $"global::NetCord.Hosting.AspNetCore.I{attributeData.EventName}WebhookHandler", eventArgs is null ? [] : ["arg"]);
+            ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(
+                writer,
+                $"global::NetCord.Hosting.AspNetCore.I{attributeData.EventName}WebhookHandler",
+                HandlerBaseTypeName,
+                attributeData.EventArgs is { } arg ? [new("arg", arg)] : []);
 
             writer.Write(ToInternalName(attributeData.EventName));
             writer.WriteLine(".Add(handler);");

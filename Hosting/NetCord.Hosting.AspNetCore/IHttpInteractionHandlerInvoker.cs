@@ -13,55 +13,15 @@ public interface IHttpInteractionHandlerInvoker
     public ValueTask InvokeAsync(Interaction interaction);
 }
 
-internal sealed class HttpInteractionHandlerInvoker(ILogger<HttpInteractionHandlerInvoker> logger, IEnumerable<HttpInteractionHandlerMetadata> handlerMetadata, IServiceProvider services) : HttpEventHandlerInvoker, IHttpInteractionHandlerInvoker
+internal sealed partial class HttpInteractionHandlerInvoker(ILogger<HttpInteractionHandlerInvoker> logger, IEnumerable<IHttpInteractionHandlerMetadata> handlerMetadata, IServiceProvider services) : HttpEventHandlerInvoker, IHttpInteractionHandlerInvoker
 {
     private readonly Func<Interaction, ValueTask>[] _handlers = [.. handlerMetadata.Select(m => CreateInvokeDelegate(m, services))];
 
-    private static Func<Interaction, ValueTask> CreateInvokeDelegate(HttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
+    private static Func<Interaction, ValueTask> CreateInvokeDelegate(IHttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
     {
-        return handlerMetadata is ClassHttpInteractionHandlerMetadata classHandlerMetadata
+        return handlerMetadata is ClassHandlerMetadata<IHttpInteractionHandler> classHandlerMetadata
             ? CreateClassInvokeDelegate(classHandlerMetadata, services)
-            : CreateDelegateInvokeDelegate((DelegateHttpInteractionHandlerMetadata)handlerMetadata, services);
-    }
-
-    private static Func<Interaction, ValueTask> CreateClassInvokeDelegate(ClassHttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
-    {
-        var instanceFactory = handlerMetadata.InstanceFactory;
-
-        return handlerMetadata.IsSingleton
-            ? ((IHttpInteractionHandler)instanceFactory(services)).HandleAsync
-            : async interaction =>
-            {
-                var scope = services.CreateAsyncScope();
-                try
-                {
-                    await ((IHttpInteractionHandler)instanceFactory(scope.ServiceProvider)).HandleAsync(interaction).ConfigureAwait(false);
-                }
-                finally
-                {
-                    await scope.DisposeAsync().ConfigureAwait(false);
-                }
-            };
-    }
-
-    private static Func<Interaction, ValueTask> CreateDelegateInvokeDelegate(DelegateHttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
-    {
-        var handler = handlerMetadata.Handler;
-
-        return handlerMetadata.IsSingleton
-            ? interaction => handler(interaction, services)
-            : async interaction =>
-            {
-                var scope = services.CreateAsyncScope();
-                try
-                {
-                    await handler(interaction, scope.ServiceProvider).ConfigureAwait(false);
-                }
-                finally
-                {
-                    await scope.DisposeAsync().ConfigureAwait(false);
-                }
-            };
+            : CreateDelegateInvokeDelegate((DelegateHandlerMetadata<object?>)handlerMetadata, services);
     }
 
     public ValueTask InvokeAsync(Interaction data)

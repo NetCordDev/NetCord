@@ -30,7 +30,7 @@ internal sealed partial class WebhookEventHandlerInvoker : HttpEventHandlerInvok
 
         foreach (var handlerMetadata in handlersMetadata)
         {
-            if (handlerMetadata is ClassHandlerMetadata classHandlerMetadata)
+            if (handlerMetadata is ClassHandlerMetadata<IWebhookHandler> classHandlerMetadata)
                 builder.RegisterClassHandler(classHandlerMetadata, services);
             else
                 builder.RegisterDelegateHandler((DelegateHandlerMetadata<WebhookEventId>)handlerMetadata, services);

@@ -23,7 +23,7 @@ internal sealed class HttpInteractionProcessor(IServiceProvider services) : IHtt
             ?? new HttpInteractionParser(services.GetRequiredService<RestClient>(), services.GetRequiredService<IOptions<IDiscordOptions>>());
 
     private readonly IHttpInteractionHandlerInvoker _invoker = services.GetService<IHttpInteractionHandlerInvoker>()
-            ?? new HttpInteractionHandlerInvoker(services.GetRequiredService<ILogger<HttpInteractionHandlerInvoker>>(), services.GetServices<HttpInteractionHandlerMetadata>(), services);
+            ?? new HttpInteractionHandlerInvoker(services.GetRequiredService<ILogger<HttpInteractionHandlerInvoker>>(), services.GetServices<IHttpInteractionHandlerMetadata>(), services);
 
     public async ValueTask ProcessAsync(HttpContext context)
     {

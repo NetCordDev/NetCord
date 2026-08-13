@@ -1,18 +1,31 @@
 using System.CodeDom.Compiler;
 
+using Microsoft.CodeAnalysis;
+
 namespace HandlerGenerator.Common;
 
 public static class DelegateHandlerInvocationHelper
 {
-    public static void WriteDelegateHandlerInvocationDelegate(IndentedTextWriter writer, IReadOnlyList<string> handlerParameterNames)
+    public static void WriteDelegateHandlerInvocationDelegate(IndentedTextWriter writer, IReadOnlyList<HandlerParameter> handlerParameters)
     {
+        writer.Write("var rawHandler = ");
+        Helper.WriteUnsafeAs(writer, w =>
+        {
+            w.Write("global::System.Func<");
+            Helper.WriteParametersWithCommaAtEnd(w, handlerParameters.Select(p => p.Type));
+            w.Write("global::System.IServiceProvider, global::System.Threading.Tasks.ValueTask>");
+        }, "handlerMetadata.Handler");
+        writer.WriteLine(";");
+
+        Helper.WriteHandlerDefinition(writer, handlerParameters.Select(p => p.Type));
+
         writer.WriteLine("if (handlerMetadata.IsSingleton)");
         writer.Indent++;
 
         writer.Write("handler = (");
-        Helper.WriteParameterNames(writer, handlerParameterNames);
+        Helper.WriteParameters(writer, handlerParameters.Select(p => p.Name));
         writer.Write(") => rawHandler(");
-        Helper.WriteParameterNames(writer, [.. handlerParameterNames, "services"]);
+        Helper.WriteParameters(writer, [.. handlerParameters.Select(p => p.Name), "services"]);
         writer.WriteLine(");");
         writer.Indent--;
 
@@ -20,7 +33,7 @@ public static class DelegateHandlerInvocationHelper
         writer.Indent++;
 
         writer.Write("handler = async (");
-        Helper.WriteParameterNames(writer, handlerParameterNames);
+        Helper.WriteParameters(writer, handlerParameters.Select(p => p.Name));
         writer.WriteLine(") =>");
 
         writer.WriteLine("{");
@@ -34,7 +47,7 @@ public static class DelegateHandlerInvocationHelper
         writer.Indent++;
 
         writer.Write("await rawHandler(");
-        Helper.WriteParameterNames(writer, [.. handlerParameterNames, "scope.ServiceProvider"]);
+        Helper.WriteParameters(writer, [.. handlerParameters.Select(p => p.Name), "scope.ServiceProvider"]);
         writer.WriteLine(").ConfigureAwait(false);");
         writer.Indent--;
 
@@ -55,4 +68,3 @@ public static class DelegateHandlerInvocationHelper
         writer.Indent--;
     }
 }
-
