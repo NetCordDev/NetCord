@@ -162,6 +162,25 @@ public partial class GatewayHandlersTest(TestContext testContext)
         return builder;
     }
 
+    private static HostApplicationBuilder CreateMockedShardedGatewayBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
+    {
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+
+        builder.Logging.AddSimpleConsole();
+
+        builder.Services
+            .AddDiscordShardedGateway(o =>
+            {
+                o.WebSocketConnectionProvider = webSocketConnectionProvider;
+                o.Compression = new UncompressedGatewayCompression();
+                o.Token = "NO.T.A.REAL.TOKEN";
+                o.TotalShardCount = 1;
+                o.MaxConcurrency = 1;
+            });
+
+        return builder;
+    }
+
     [TestMethod]
     public async ValueTask Singleton()
     {
@@ -202,7 +221,54 @@ public partial class GatewayHandlersTest(TestContext testContext)
 
         await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
 
-        SpinWait.SpinUntil(() => counter.HandlerCount >= 10);
+        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handler was not called enough times for 10 seconds.");
+
+        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    [TestMethod]
+    public async ValueTask ShardedSingleton()
+    {
+        var counter = await ShardedCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was called more than once.");
+    }
+
+    [TestMethod]
+    public ValueTask ShardedTransient()
+    {
+        return ShardedTransientOrScopedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ShardedScoped()
+    {
+        return ShardedTransientOrScopedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ShardedTransientOrScopedAsync(ServiceLifetime lifetime)
+    {
+        var counter = await ShardedCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<Counter> ShardedCountAsync(ServiceLifetime lifetime)
+    {
+        var builder = CreateMockedShardedGatewayBuilder(new MockWebSocketConnectionProvider<ReadyWebSocketConnection>());
+
+        Counter counter = new();
+
+        builder.Services
+            .AddShardedGatewayHandler<RateLimitedShardedGatewayHandler>(_ => new(counter), lifetime);
+
+        var host = builder.Build();
+
+        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
+
+        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handler was not called enough times for 10 seconds.");
 
         await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
 
@@ -221,6 +287,25 @@ public partial class GatewayHandlersTest(TestContext testContext)
         }
 
         public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        {
+            _counter.HandlerCount++;
+
+            return default;
+        }
+    }
+
+    private class RateLimitedShardedGatewayHandler : IRateLimitedShardedGatewayHandler
+    {
+        private readonly Counter _counter;
+
+        public RateLimitedShardedGatewayHandler(Counter counter)
+        {
+            _counter = counter;
+
+            counter.ConstructorCount++;
+        }
+
+        public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)
         {
             _counter.HandlerCount++;
 
