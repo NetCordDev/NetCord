@@ -23,7 +23,7 @@ internal sealed class WebhookEventProcessor(IServiceProvider services) : IWebhoo
             ?? new WebhookEventParser(services.GetRequiredService<RestClient>(), services.GetRequiredService<IOptions<IDiscordOptions>>());
 
     private readonly IWebhookEventHandlerInvoker _invoker = services.GetService<IWebhookEventHandlerInvoker>()
-            ?? new WebhookEventHandlerInvoker(services.GetRequiredService<ILogger<WebhookEventHandlerInvoker>>(), services.GetServices<WebhookHandlerMetadata>(), services);
+            ?? new WebhookEventHandlerInvoker(services.GetRequiredService<ILogger<WebhookEventHandlerInvoker>>(), services.GetServices<IWebhookHandlerMetadata>(), services);
 
     public async ValueTask ProcessAsync(HttpContext context)
     {

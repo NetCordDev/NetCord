@@ -24,16 +24,16 @@ internal sealed partial class WebhookEventHandlerInvoker : HttpEventHandlerInvok
 
     private readonly Storage _storage;
 
-    public WebhookEventHandlerInvoker(ILogger<WebhookEventHandlerInvoker> logger, IEnumerable<WebhookHandlerMetadata> handlersMetadata, IServiceProvider services)
+    public WebhookEventHandlerInvoker(ILogger<WebhookEventHandlerInvoker> logger, IEnumerable<IWebhookHandlerMetadata> handlersMetadata, IServiceProvider services)
     {
         StorageBuilder builder = new();
 
         foreach (var handlerMetadata in handlersMetadata)
         {
-            if (handlerMetadata is ClassWebhookHandlerMetadata classHandlerMetadata)
+            if (handlerMetadata is ClassHandlerMetadata classHandlerMetadata)
                 builder.RegisterClassHandler(classHandlerMetadata, services);
             else
-                builder.RegisterDelegateHandler((DelegateWebhookHandlerMetadata)handlerMetadata, services);
+                builder.RegisterDelegateHandler((DelegateHandlerMetadata<WebhookEventId>)handlerMetadata, services);
         }
 
         _logger = logger;

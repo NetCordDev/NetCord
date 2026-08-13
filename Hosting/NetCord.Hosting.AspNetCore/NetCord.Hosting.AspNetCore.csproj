@@ -8,6 +8,7 @@
     <ProjectReference Include="..\NetCord.Hosting\NetCord.Hosting.csproj" />
     <ProjectReference Include="..\..\SourceGenerators\HostingWebhookEventsGenerator\HostingWebhookEventsGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     <ProjectReference Include="..\..\SourceGenerators\Shared\Shared.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\..\SourceGenerators\HandlerGenerator.Common\HandlerGenerator.Common.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>
