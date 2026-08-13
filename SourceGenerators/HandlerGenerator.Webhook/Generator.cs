@@ -30,12 +30,12 @@ public class Generator : IIncrementalGenerator
 
                 namespace NetCord.Hosting.AspNetCore;
 
-                [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-                internal class GenerateHandlerAttribute(string? rawEventName, Type? eventArgs) : Attribute
+                [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = true)]
+                internal class GenerateHandlerAttribute(string? rawEventName, global::System.Type? eventArgs) : Attribute
                 {
                     public string? RawEventName => rawEventName;
 
-                    public Type? EventArgs => eventArgs;
+                    public global::System.Type? EventArgs => eventArgs;
                 }
 
                 """, Encoding.UTF8));
