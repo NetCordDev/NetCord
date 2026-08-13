@@ -344,6 +344,8 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
 
+            writer.WriteLine();
+
             writer.Write("if (typeof(global::NetCord.Hosting.Gateway.I");
             writer.Write(eventSymbol.Name);
             writer.WriteLine("GatewayHandler).IsAssignableFrom(handlerType))");
@@ -439,6 +441,8 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             var eventSymbol = events[i];
 
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
+
+            writer.WriteLine();
 
             writer.Write("if (typeof(global::NetCord.Hosting.Gateway.I");
             writer.Write(eventSymbol.Name);
