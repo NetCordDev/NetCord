@@ -11,10 +11,10 @@ using Microsoft.CodeAnalysis.Text;
 
 using Shared;
 
-namespace HostingWebhookEventsGenerator;
+namespace HandlerGenerator.Webhook;
 
 [Generator(LanguageNames.CSharp)]
-public class HostingWebhookEventsGenerator : IIncrementalGenerator
+public class Generator : IIncrementalGenerator
 {
     private const string Namespace = "NetCord.Hosting.AspNetCore";
 

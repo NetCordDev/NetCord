@@ -9,10 +9,10 @@ using Microsoft.CodeAnalysis.Text;
 
 using Shared;
 
-namespace HostingGatewayEventsGenerator;
+namespace HandlerGenerator.Gateway;
 
 [Generator(LanguageNames.CSharp)]
-public class HostingGatewayEventsGenerator : IIncrementalGenerator
+public class Generator : IIncrementalGenerator
 {
     private const string Namespace = "NetCord.Hosting.Gateway";
 

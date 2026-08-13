@@ -80,8 +80,8 @@
     <File Path="SourceGenerators/Directory.Build.targets" />
     <Project Path="SourceGenerators/HandlerGenerator.Common/HandlerGenerator.Common.csproj" />
     <Project Path="SourceGenerators/HandlerGenerator.HttpInteraction/HandlerGenerator.HttpInteraction.csproj" />
-    <Project Path="SourceGenerators/HostingGatewayEventsGenerator/HostingGatewayEventsGenerator.csproj" />
-    <Project Path="SourceGenerators/HostingWebhookEventsGenerator/HostingWebhookEventsGenerator.csproj" />
+    <Project Path="SourceGenerators/HandlerGenerator.Gateway/HandlerGenerator.Gateway.csproj" />
+    <Project Path="SourceGenerators/HandlerGenerator.Webhook/HandlerGenerator.Webhook.csproj" />
     <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />
     <Project Path="SourceGenerators/RestClientMethodAliasesGenerator/RestClientMethodAliasesGenerator.csproj" />
     <Project Path="SourceGenerators/ShardedGatewayClientEventsGenerator/ShardedGatewayClientEventsGenerator.csproj" />
