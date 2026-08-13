@@ -31,7 +31,7 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IHttpInteractionHandler
     {
-        services.AddSingleton<IHttpInteractionHandlerMetadata>(ClassHandlerMetadata<IHttpInteractionHandler>.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -54,7 +54,7 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
 
     private static void AddHttpInteractionHandlerCore(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
     {
-        services.AddSingleton<IHttpInteractionHandlerMetadata>(ClassHandlerMetadata<IHttpInteractionHandler>.Create(handlerType, lifetime is ServiceLifetime.Singleton));
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>
@@ -66,9 +66,8 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler(this IServiceCollection services, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<IHttpInteractionHandlerMetadata>(new DelegateHandlerMetadata<object?>(
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(new DelegateHandlerMetadata(
             DelegateHandlerHelper.CreateHandler<Func<Interaction, IServiceProvider, ValueTask>>(handler, [typeof(Interaction)]),
-            null,
             lifetime is ServiceLifetime.Singleton));
 
         return services;

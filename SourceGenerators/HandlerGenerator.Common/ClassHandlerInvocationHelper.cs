@@ -4,13 +4,11 @@ namespace HandlerGenerator.Common;
 
 public static class ClassHandlerInvocationHelper
 {
-    public static void WriteClassHandlerInvocationDelegate(IndentedTextWriter writer, string handlerTypeName, string handlerBaseTypeName, IReadOnlyList<HandlerParameter> handlerParameters)
+    public static void WriteClassHandlerInvocationDelegate(IndentedTextWriter writer, string handlerTypeName, IReadOnlyList<HandlerParameter> handlerParameters)
     {
         Helper.WriteHandlerDefinition(writer, handlerParameters.Select(p => p.Type));
 
-        writer.Write("if (handlerMetadata is NonSingletonClassHandlerMetadata<");
-        writer.Write(handlerBaseTypeName);
-        writer.WriteLine("> { Flags: var flags } nonSingletonHandlerMetadata)");
+        writer.WriteLine("if (handlerMetadata is NonSingletonClassHandlerMetadata { Flags: var flags } nonSingletonHandlerMetadata)");
         writer.WriteLine("{");
         writer.Indent++;
 

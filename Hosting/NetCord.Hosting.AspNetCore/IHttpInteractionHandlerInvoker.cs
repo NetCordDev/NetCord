@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace NetCord.Hosting.AspNetCore;
@@ -19,9 +18,9 @@ internal sealed partial class HttpInteractionHandlerInvoker(ILogger<HttpInteract
 
     private static Func<Interaction, ValueTask> CreateInvokeDelegate(IHttpInteractionHandlerMetadata handlerMetadata, IServiceProvider services)
     {
-        return handlerMetadata is ClassHandlerMetadata<IHttpInteractionHandler> classHandlerMetadata
+        return handlerMetadata is ClassHandlerMetadata classHandlerMetadata
             ? CreateClassInvokeDelegate(classHandlerMetadata, services)
-            : CreateDelegateInvokeDelegate((DelegateHandlerMetadata<object?>)handlerMetadata, services);
+            : CreateDelegateInvokeDelegate((DelegateHandlerMetadata)handlerMetadata, services);
     }
 
     public ValueTask InvokeAsync(Interaction data)

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 using NetCord.Rest;
-using NetCord.Rest.JsonModels;
 
 namespace NetCord.Hosting.AspNetCore;
 

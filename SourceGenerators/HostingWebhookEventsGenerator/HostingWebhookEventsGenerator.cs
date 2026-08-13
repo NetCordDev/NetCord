@@ -352,9 +352,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
     {
         writer.WriteLine();
 
-        writer.Write("public void RegisterClassHandler(global::NetCord.Hosting.ClassHandlerMetadata<");
-        writer.Write(HandlerBaseTypeName);
-        writer.WriteLine("> handlerMetadata, IServiceProvider services)");
+        writer.WriteLine("public void RegisterClassHandler(global::NetCord.Hosting.ClassHandlerMetadata handlerMetadata, IServiceProvider services)");
 
         writer.WriteLine("{");
         writer.Indent++;
@@ -381,7 +379,6 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(
                 writer,
                 $"global::NetCord.Hosting.AspNetCore.I{attributeData.EventName}WebhookHandler",
-                HandlerBaseTypeName,
                 attributeData.EventArgs is { } arg ? [new("arg", arg)] : []);
 
             writer.Write(ToInternalName(attributeData.EventName));

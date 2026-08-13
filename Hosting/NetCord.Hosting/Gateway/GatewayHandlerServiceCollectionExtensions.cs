@@ -33,7 +33,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IGatewayHandler
     {
-        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata<IGatewayHandler>.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -56,7 +56,7 @@ public static class GatewayHandlerServiceCollectionExtensions
 
     private static void AddGatewayHandlerCore(IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
     {
-        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata<IGatewayHandler>.Create(handlerType, lifetime is ServiceLifetime.Singleton));
+        services.AddSingleton<IGatewayHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddShardedGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IShardedGatewayHandler
     {
-        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata<IShardedGatewayHandler>.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -159,7 +159,7 @@ public static class GatewayHandlerServiceCollectionExtensions
 
     private static void AddShardedGatewayHandlerCore(IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
     {
-        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata<IShardedGatewayHandler>.Create(handlerType, lifetime is ServiceLifetime.Singleton));
+        services.AddSingleton<IShardedGatewayHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>

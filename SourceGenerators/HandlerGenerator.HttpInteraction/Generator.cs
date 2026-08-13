@@ -76,7 +76,7 @@ public class Generator : IIncrementalGenerator
     {
         writer.WriteLine();
 
-        writer.WriteLine("public static global::System.Func<global::NetCord.Interaction, global::System.Threading.Tasks.ValueTask> CreateDelegateInvokeDelegate(global::NetCord.Hosting.DelegateHandlerMetadata<object?> handlerMetadata, IServiceProvider services)");
+        writer.WriteLine("public static global::System.Func<global::NetCord.Interaction, global::System.Threading.Tasks.ValueTask> CreateDelegateInvokeDelegate(global::NetCord.Hosting.DelegateHandlerMetadata handlerMetadata, IServiceProvider services)");
 
         writer.WriteLine("{");
         writer.Indent++;
@@ -95,9 +95,7 @@ public class Generator : IIncrementalGenerator
     {
         writer.WriteLine();
 
-        writer.Write("public static global::System.Func<global::NetCord.Interaction, global::System.Threading.Tasks.ValueTask> CreateClassInvokeDelegate(global::NetCord.Hosting.ClassHandlerMetadata<");
-        writer.Write(HandlerBaseTypeName);
-        writer.WriteLine("> handlerMetadata, IServiceProvider services)");
+        writer.WriteLine("public static global::System.Func<global::NetCord.Interaction, global::System.Threading.Tasks.ValueTask> CreateClassInvokeDelegate(global::NetCord.Hosting.ClassHandlerMetadata handlerMetadata, IServiceProvider services)");
 
         writer.WriteLine("{");
         writer.Indent++;
@@ -108,7 +106,6 @@ public class Generator : IIncrementalGenerator
 
         ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(
             writer,
-            HandlerBaseTypeName,
             HandlerBaseTypeName,
             [new("interaction", "global::NetCord.Interaction")]);
 

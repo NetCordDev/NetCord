@@ -14,7 +14,7 @@ internal partial class ShardedGatewayClientHostedService(IServiceProvider servic
 
         foreach (var handlerMetadata in services.GetServices<IShardedGatewayHandlerMetadata>())
         {
-            if (handlerMetadata is ClassHandlerMetadata<IShardedGatewayHandler> classHandlerMetadata)
+            if (handlerMetadata is ClassHandlerMetadata classHandlerMetadata)
                 RegisterClassShardedHandler(services, client, classHandlerMetadata);
             else
                 RegisterDelegateShardedHandler(services, client, (DelegateHandlerMetadata<GatewayEventId>)handlerMetadata);

@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,54 +14,47 @@ internal interface IWebhookHandlerMetadata;
 
 internal abstract class HandlerMetadata : IGatewayHandlerMetadata, IShardedGatewayHandlerMetadata, IHttpInteractionHandlerMetadata, IWebhookHandlerMetadata;
 
-internal abstract class ClassHandlerMetadata<T> : HandlerMetadata where T : class
+internal abstract class ClassHandlerMetadata(Type handlerType) : HandlerMetadata
 {
-    public ClassHandlerMetadata(Type handlerType)
-    {
-        Debug.Assert(typeof(T).IsAssignableFrom(handlerType));
-
-        HandlerType = handlerType;
-    }
-
-    public static ClassHandlerMetadata<T> Create([DAM(DAMT.PublicConstructors)] Type handlerType, bool isSingleton)
+    public static ClassHandlerMetadata Create([DAM(DAMT.PublicConstructors)] Type handlerType, bool isSingleton)
     {
         return isSingleton
-            ? SingletonClassHandlerMetadata<T>.Create(handlerType)
-            : new NonSingletonClassHandlerMetadata<T>(handlerType, HandlerHelpers.GetHandlerFlags(handlerType));
+            ? SingletonClassHandlerMetadata.Create(handlerType)
+            : new NonSingletonClassHandlerMetadata(handlerType, HandlerHelpers.GetHandlerFlags(handlerType));
     }
 
-    public static ClassHandlerMetadata<T> CreateWithFactory(Type handlerType, bool isSingleton, Func<IServiceProvider, T> instanceFactory)
+    public static ClassHandlerMetadata CreateWithFactory(Type handlerType, bool isSingleton, Func<IServiceProvider, object> instanceFactory)
     {
         if (isSingleton)
-            return SingletonClassHandlerMetadata<T>.CreateWithFactory(handlerType, instanceFactory);
+            return SingletonClassHandlerMetadata.CreateWithFactory(handlerType, instanceFactory);
 
-        return new NonSingletonClassHandlerMetadata<T>(handlerType, instanceFactory, HandlerHelpers.GetHandlerFlags(handlerType) | HandlerFlags.IsNotConcrete);
+        return new NonSingletonClassHandlerMetadata(handlerType, instanceFactory, HandlerHelpers.GetHandlerFlags(handlerType) | HandlerFlags.IsNotConcrete);
     }
 
-    public Type HandlerType { get; }
+    public Type HandlerType { get; } = handlerType;
 
-    public required Func<IServiceProvider, T> InstanceFactory { get; init; }
+    public required Func<IServiceProvider, object> InstanceFactory { get; init; }
 }
 
-internal class SingletonClassHandlerMetadata<T> : ClassHandlerMetadata<T> where T : class
+internal class SingletonClassHandlerMetadata : ClassHandlerMetadata
 {
-    protected T? _instance;
+    protected object? _instance;
 
-    public static SingletonClassHandlerMetadata<T> Create([DAM(DAMT.PublicConstructors)] Type handlerType)
+    public static SingletonClassHandlerMetadata Create([DAM(DAMT.PublicConstructors)] Type handlerType)
     {
         var isDisposable = HandlerHelpers.IsTypeDisposable(handlerType);
         var isAsyncDisposable = HandlerHelpers.IsTypeAsyncDisposable(handlerType);
 
         return (isDisposable, isAsyncDisposable) switch
         {
-            (false, false) => new SingletonClassHandlerMetadata<T>(handlerType),
+            (false, false) => new SingletonClassHandlerMetadata(handlerType),
             (true, false) => new DisposableSingletonClassHandlerMetadata(handlerType),
             (false, true) => new AsyncDisposableSingletonClassHandlerMetadata(handlerType),
             (true, true) => new DisposableAsyncDisposableSingletonClassHandlerMetadata(handlerType),
         };
     }
 
-    public static SingletonClassHandlerMetadata<T> CreateWithFactory(Type handlerType, Func<IServiceProvider, T> instanceFactory)
+    public static SingletonClassHandlerMetadata CreateWithFactory(Type handlerType, Func<IServiceProvider, object> instanceFactory)
     {
         return new FactorySingletonClassHandlerMetadata(handlerType, instanceFactory);
     }
@@ -71,17 +62,17 @@ internal class SingletonClassHandlerMetadata<T> : ClassHandlerMetadata<T> where 
     [SetsRequiredMembers]
     private SingletonClassHandlerMetadata([DAM(DAMT.PublicConstructors)] Type handlerType) : base(handlerType)
     {
-        InstanceFactory = services => _instance ??= Unsafe.As<T>(ActivatorUtilities.CreateInstance(services, handlerType));
+        InstanceFactory = services => _instance ??= ActivatorUtilities.CreateInstance(services, handlerType);
     }
 
     [SetsRequiredMembers]
-    private SingletonClassHandlerMetadata(Type handlerType, Func<IServiceProvider, T> instanceFactory) : base(handlerType)
+    private SingletonClassHandlerMetadata(Type handlerType, Func<IServiceProvider, object> instanceFactory) : base(handlerType)
     {
         InstanceFactory = services => _instance ??= instanceFactory(services);
     }
 
     [method: SetsRequiredMembers]
-    private sealed class DisposableSingletonClassHandlerMetadata([DAM(DAMT.PublicConstructors)] Type handlerType) : SingletonClassHandlerMetadata<T>(handlerType), IDisposable
+    private sealed class DisposableSingletonClassHandlerMetadata([DAM(DAMT.PublicConstructors)] Type handlerType) : SingletonClassHandlerMetadata(handlerType), IDisposable
     {
         public void Dispose()
         {
@@ -90,13 +81,13 @@ internal class SingletonClassHandlerMetadata<T> : ClassHandlerMetadata<T> where 
     }
 
     [method: SetsRequiredMembers]
-    private sealed class AsyncDisposableSingletonClassHandlerMetadata([DAM(DAMT.PublicConstructors)] Type handlerType) : SingletonClassHandlerMetadata<T>(handlerType), IAsyncDisposable
+    private sealed class AsyncDisposableSingletonClassHandlerMetadata([DAM(DAMT.PublicConstructors)] Type handlerType) : SingletonClassHandlerMetadata(handlerType), IAsyncDisposable
     {
         public ValueTask DisposeAsync() => HandlerHelpers.DisposeInstanceAsync(_instance);
     }
 
     [method: SetsRequiredMembers]
-    private sealed class DisposableAsyncDisposableSingletonClassHandlerMetadata([DAM(DAMT.PublicConstructors)] Type handlerType) : SingletonClassHandlerMetadata<T>(handlerType), IDisposable, IAsyncDisposable
+    private sealed class DisposableAsyncDisposableSingletonClassHandlerMetadata([DAM(DAMT.PublicConstructors)] Type handlerType) : SingletonClassHandlerMetadata(handlerType), IDisposable, IAsyncDisposable
     {
         public void Dispose()
         {
@@ -107,7 +98,7 @@ internal class SingletonClassHandlerMetadata<T> : ClassHandlerMetadata<T> where 
     }
 
     [method: SetsRequiredMembers]
-    private sealed class FactorySingletonClassHandlerMetadata(Type handlerType, Func<IServiceProvider, T> instanceFactory) : SingletonClassHandlerMetadata<T>(handlerType, instanceFactory), IDisposable, IAsyncDisposable
+    private sealed class FactorySingletonClassHandlerMetadata(Type handlerType, Func<IServiceProvider, object> instanceFactory) : SingletonClassHandlerMetadata(handlerType, instanceFactory), IDisposable, IAsyncDisposable
     {
         public void Dispose()
         {
@@ -130,7 +121,7 @@ internal class SingletonClassHandlerMetadata<T> : ClassHandlerMetadata<T> where 
     }
 }
 
-internal sealed class NonSingletonClassHandlerMetadata<T> : ClassHandlerMetadata<T> where T : class
+internal sealed class NonSingletonClassHandlerMetadata : ClassHandlerMetadata
 {
     public HandlerFlags Flags { get; }
 
@@ -139,13 +130,13 @@ internal sealed class NonSingletonClassHandlerMetadata<T> : ClassHandlerMetadata
     {
         var rawFactory = ActivatorUtilities.CreateFactory(handlerType, Type.EmptyTypes);
 
-        InstanceFactory = services => Unsafe.As<T>(rawFactory(services, null));
+        InstanceFactory = services => rawFactory(services, null);
 
         Flags = flags;
     }
 
     [SetsRequiredMembers]
-    public NonSingletonClassHandlerMetadata(Type handlerType, Func<IServiceProvider, T> instanceFactory, HandlerFlags flags) : base(handlerType)
+    public NonSingletonClassHandlerMetadata(Type handlerType, Func<IServiceProvider, object> instanceFactory, HandlerFlags flags) : base(handlerType)
     {
         InstanceFactory = instanceFactory;
 
@@ -153,11 +144,14 @@ internal sealed class NonSingletonClassHandlerMetadata<T> : ClassHandlerMetadata
     }
 }
 
-internal sealed class DelegateHandlerMetadata<T>(Delegate handler, T eventId, bool isSingleton) : HandlerMetadata
+internal class DelegateHandlerMetadata(Delegate handler, bool isSingleton) : HandlerMetadata
 {
     public bool IsSingleton => isSingleton;
 
     public Delegate Handler => handler;
+}
 
+internal sealed class DelegateHandlerMetadata<T>(Delegate handler, T eventId, bool isSingleton) : DelegateHandlerMetadata(handler, isSingleton) where T : struct, Enum
+{
     public T EventId => eventId;
 }

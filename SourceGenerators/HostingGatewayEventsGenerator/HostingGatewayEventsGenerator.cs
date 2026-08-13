@@ -301,7 +301,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             writer.WriteLine("{");
             writer.Indent++;
 
-            DelegateHandlerInvocationHelper.WriteDelegateHandlerInvocationDelegate(writer, eventType.Arity is 1 ? [] : [new("arg", eventType.TypeArguments[0])]);
+            DelegateHandlerInvocationHelper.WriteDelegateHandlerInvocationDelegate(
+                writer,
+                eventType.Arity is 1 ? [] : [new("arg", eventType.TypeArguments[0])]);
 
             writer.Write("client.");
             writer.Write(eventSymbol.Name);
@@ -326,9 +328,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
     {
         writer.WriteLine();
 
-        writer.Write("private static void RegisterClassHandler(global::System.IServiceProvider services, global::NetCord.Gateway.GatewayClient client, global::NetCord.Hosting.ClassHandlerMetadata<");
-        writer.Write(HandlerBaseTypeName);
-        writer.WriteLine("> handlerMetadata)");
+        writer.WriteLine("private static void RegisterClassHandler(global::System.IServiceProvider services, global::NetCord.Gateway.GatewayClient client, global::NetCord.Hosting.ClassHandlerMetadata handlerMetadata)");
 
         writer.WriteLine("{");
         writer.Indent++;
@@ -351,7 +351,10 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             writer.WriteLine("{");
             writer.Indent++;
 
-            ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(writer, $"global::NetCord.Hosting.Gateway.I{eventSymbol.Name}GatewayHandler", HandlerBaseTypeName, eventType.Arity is 1 ? [] : [new("arg", eventType.TypeArguments[0])]);
+            ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(
+                writer,
+                $"global::NetCord.Hosting.Gateway.I{eventSymbol.Name}GatewayHandler",
+                eventType.Arity is 1 ? [] : [new("arg", eventType.TypeArguments[0])]);
 
             writer.Write("client.");
             writer.Write(eventSymbol.Name);
@@ -394,7 +397,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             writer.WriteLine("{");
             writer.Indent++;
 
-            DelegateHandlerInvocationHelper.WriteDelegateHandlerInvocationDelegate(writer, eventType.Arity is 1 ? [new("client", "global::NetCord.Gateway.GatewayClient")] : [new("client", "global::NetCord.Gateway.GatewayClient"), new("arg", eventType.TypeArguments[0])]);
+            DelegateHandlerInvocationHelper.WriteDelegateHandlerInvocationDelegate(
+                writer,
+                eventType.Arity is 1 ? [new("client", "global::NetCord.Gateway.GatewayClient")] : [new("client", "global::NetCord.Gateway.GatewayClient"), new("arg", eventType.TypeArguments[0])]);
 
             writer.Write("client.");
             writer.Write(eventSymbol.Name);
@@ -419,9 +424,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
     {
         writer.WriteLine();
 
-        writer.Write("private static void RegisterClassShardedHandler(global::System.IServiceProvider services, global::NetCord.Gateway.ShardedGatewayClient client, global::NetCord.Hosting.ClassHandlerMetadata<");
-        writer.Write(ShardedHandlerBaseTypeName);
-        writer.WriteLine("> handlerMetadata)");
+        writer.WriteLine("private static void RegisterClassShardedHandler(global::System.IServiceProvider services, global::NetCord.Gateway.ShardedGatewayClient client, global::NetCord.Hosting.ClassHandlerMetadata handlerMetadata)");
 
         writer.WriteLine("{");
         writer.Indent++;
@@ -447,7 +450,6 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             ClassHandlerInvocationHelper.WriteClassHandlerInvocationDelegate(
                 writer,
                 $"global::NetCord.Hosting.Gateway.I{eventSymbol.Name}ShardedGatewayHandler",
-                ShardedHandlerBaseTypeName,
                 eventType.Arity is 1 ? [new("client", "global::NetCord.Gateway.GatewayClient")] : [new("client", "global::NetCord.Gateway.GatewayClient"), new("arg", eventType.TypeArguments[0])]);
 
             writer.Write("client.");

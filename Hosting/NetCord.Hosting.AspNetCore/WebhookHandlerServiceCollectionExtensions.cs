@@ -31,7 +31,7 @@ public static class WebhookHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebhookHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IWebhookHandler
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata<IWebhookHandler>.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
 
         return services;
     }
@@ -54,7 +54,7 @@ public static class WebhookHandlerServiceCollectionExtensions
 
     private static void AddWebhookHandlerCore(IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata<IWebhookHandler>.Create(handlerType, lifetime is ServiceLifetime.Singleton));
+        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
     }
 
     /// <summary>
