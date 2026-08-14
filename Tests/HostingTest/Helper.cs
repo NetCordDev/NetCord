@@ -31,6 +31,8 @@ internal static class Helper
 
             await host.StopAsync(cancellationToken).ConfigureAwait(false);
         }
+
+        await Task.Delay(100, cancellationToken).ConfigureAwait(false);
     }
 }
 
