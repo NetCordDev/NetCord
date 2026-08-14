@@ -33,23 +33,27 @@ internal abstract class HttpEventParser<TRawData>
         int timestampAndBodyLength = timestampByteCount + (int)request.ContentLength.GetValueOrDefault();
 
         var timestampAndBodyArray = ArrayPool<byte>.Shared.Rent(timestampAndBodyLength);
-        var timestampAndBody = timestampAndBodyArray.AsMemory(0, timestampAndBodyLength);
 
-        Encoding.UTF8.GetBytes(timestamp, timestampAndBody.Span);
+        try
+        {
+            var timestampAndBody = timestampAndBodyArray.AsMemory(0, timestampAndBodyLength);
 
-        await request.Body.ReadExactlyAsync(timestampAndBody[timestampByteCount..]).ConfigureAwait(false);
+            Encoding.UTF8.GetBytes(timestamp, timestampAndBody.Span);
 
-        if (!_validator.Validate(signatures[0], timestampAndBody.Span))
+            await request.Body.ReadExactlyAsync(timestampAndBody[timestampByteCount..]).ConfigureAwait(false);
+
+            if (!_validator.Validate(signatures[0], timestampAndBody.Span))
+            {
+                ArrayPool<byte>.Shared.Return(timestampAndBodyArray);
+                return default;
+            }
+
+            return GetData(context, timestampAndBody.Span[timestampByteCount..]);
+        }
+        finally
         {
             ArrayPool<byte>.Shared.Return(timestampAndBodyArray);
-            return default;
         }
-
-        var value = GetData(context, timestampAndBody.Span[timestampByteCount..]);
-
-        ArrayPool<byte>.Shared.Return(timestampAndBodyArray);
-
-        return value;
     }
 
     protected abstract TRawData GetData(HttpContext context, ReadOnlySpan<byte> body);
