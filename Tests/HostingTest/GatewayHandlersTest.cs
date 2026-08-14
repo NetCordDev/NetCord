@@ -52,7 +52,7 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassFactoryGetsCalledAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
     }
 
     private ValueTask<Counter> ClassFactoryGetsCalledAsync(ServiceLifetime lifetime)
@@ -150,7 +150,7 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassCountAsync<RateLimitedGatewayHandler, RateLimitedWebSocketConnection>(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
     }
 
     private async ValueTask<Counter> ClassCountAsync<THandler, TConnection>(ServiceLifetime lifetime)
@@ -248,9 +248,9 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var (rateLimitedCounter, applicationCommandPermissionsUpdateCounter) = await ClassSingleClassMultipleHandlersSupportedAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(rateLimitedCounter.HandlerCount + applicationCommandPermissionsUpdateCounter.HandlerCount, rateLimitedCounter.ConstructorCount, "RateLimited handler constructor was not called the same amount of times as both handlers were called.");
+        Assert.AreEqual(rateLimitedCounter.HandlerCount + applicationCommandPermissionsUpdateCounter.HandlerCount, rateLimitedCounter.ConstructorCount, "RateLimited handler constructor was not called the same number of times as both handlers were called.");
 
-        Assert.AreEqual(applicationCommandPermissionsUpdateCounter.HandlerCount + rateLimitedCounter.HandlerCount, applicationCommandPermissionsUpdateCounter.ConstructorCount, "ApplicationCommandPermissionsUpdate handler constructor was not called the same amount of times as both handlers were called.");
+        Assert.AreEqual(applicationCommandPermissionsUpdateCounter.HandlerCount + rateLimitedCounter.HandlerCount, applicationCommandPermissionsUpdateCounter.ConstructorCount, "ApplicationCommandPermissionsUpdate handler constructor was not called the same number of times as both handlers were called.");
     }
 
     private async ValueTask<(Counter RateLimitedCounter, Counter ApplicationCommandPermissionsUpdateCounter)> ClassSingleClassMultipleHandlersSupportedAsync(ServiceLifetime lifetime)
@@ -298,9 +298,9 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassFactoryDisposableCountAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
 
-        Assert.AreEqual(counter.HandlerCount, counter.DisposeCount, "Handler Dispose was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeCount, "Handler Dispose was not called the same number of times as the handler was called.");
     }
 
     private async ValueTask<DisposableCounter> ClassFactoryDisposableCountAsync(ServiceLifetime lifetime)
@@ -347,9 +347,9 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassFactoryHiddenDisposableCountAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
 
-        Assert.AreEqual(counter.HandlerCount, counter.DisposeCount, "Handler Dispose was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeCount, "Handler Dispose was not called the same number of times as the handler was called.");
     }
 
     private async ValueTask<DisposableCounter> ClassFactoryHiddenDisposableCountAsync(ServiceLifetime lifetime)
@@ -396,9 +396,9 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassFactoryAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
 
-        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same number of times as the handler was called.");
     }
 
     private async ValueTask<AsyncDisposableCounter> ClassFactoryAsyncDisposableCountAsync(ServiceLifetime lifetime)
@@ -445,9 +445,9 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassFactoryHiddenAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
 
-        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same number of times as the handler was called.");
     }
 
     private async ValueTask<AsyncDisposableCounter> ClassFactoryHiddenAsyncDisposableCountAsync(ServiceLifetime lifetime)
@@ -496,11 +496,11 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassFactoryDisposableAndAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
 
         Assert.AreEqual(0, counter.DisposeCount, "Handler Dispose was called when it should not have been.");
 
-        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same number of times as the handler was called.");
     }
 
     private async ValueTask<AsyncDisposableCounter> ClassFactoryDisposableAndAsyncDisposableCountAsync(ServiceLifetime lifetime)
@@ -549,11 +549,11 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         var counter = await ClassFactoryHiddenDisposableAndAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
 
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same number of times as the handler was called.");
 
         Assert.AreEqual(0, counter.DisposeCount, "Handler Dispose was called when it should not have been.");
 
-        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same number of times as the handler was called.");
     }
 
     private async ValueTask<AsyncDisposableCounter> ClassFactoryHiddenDisposableAndAsyncDisposableCountAsync(ServiceLifetime lifetime)
