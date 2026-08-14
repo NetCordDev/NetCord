@@ -1,9 +1,26 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace HostingTest;
 
 internal static class Helper
 {
+    public static HostApplicationBuilder CreateBuilder()
+    {
+        var builder = Host.CreateEmptyApplicationBuilder(null);
+
+        builder.ConfigureContainer(new DefaultServiceProviderFactory(new()
+        {
+            ValidateScopes = true,
+            ValidateOnBuild = true,
+        }));
+
+        builder.Logging.AddSimpleConsole();
+
+        return builder;
+    }
+
     public static async ValueTask RunUntilAsync(Func<HostApplicationBuilder> getBuilder, Func<bool> completionCondition, CancellationToken cancellationToken)
     {
         using (var host = getBuilder().Build())

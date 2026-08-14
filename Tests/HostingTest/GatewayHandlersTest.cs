@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 using NetCord;
 using NetCord.Gateway;
@@ -15,9 +14,7 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
 {
     private static HostApplicationBuilder CreateBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
     {
-        var builder = Host.CreateEmptyApplicationBuilder(null);
-
-        builder.Logging.AddSimpleConsole();
+        var builder = Helper.CreateBuilder();
 
         builder.Services
             .AddDiscordGateway(o =>
