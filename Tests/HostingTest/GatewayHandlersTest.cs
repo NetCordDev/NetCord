@@ -173,6 +173,54 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
         return counter;
     }
 
+    // Class No Factory Scopes
+    [TestMethod]
+    public async ValueTask ClassSingletonIsNotScoped()
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddScoped(_ => string.Empty)
+                .AddSingleton(counter)
+                .AddGatewayHandler<RejectingStringRateLimitedGatewayHandler>(ServiceLifetime.Singleton);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public ValueTask ClassTransientIsScoped()
+    {
+        return ClassTransientOrScopedIsScopedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassScopedIsScoped()
+    {
+        return ClassTransientOrScopedIsScopedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassTransientOrScopedIsScopedAsync(ServiceLifetime lifetime)
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddScoped(_ => string.Empty)
+                .AddSingleton(counter)
+                .AddGatewayHandler<RequiringStringRateLimitedGatewayHandler>(lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+    }
+
     // Single Class Multiple Handlers
     [TestMethod]
     public async ValueTask ClassSingletonSingleClassMultipleHandlersSupported()
