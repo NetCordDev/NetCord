@@ -56,48 +56,51 @@ public class Generator : IIncrementalGenerator
 
     private string GenerateEvents(IEventSymbol[] events)
     {
-        StringWriter writer = new();
+        StringWriter stringWriter = new();
+        IndentedTextWriter writer = new(stringWriter);
+
         Setup(writer);
 
         WriteEventsEnum(writer, events);
 
         WriteEvents(writer, events);
 
-        return writer.ToString();
+        return stringWriter.ToString();
     }
 
-    private void WriteEventsEnum(StringWriter writer, IEventSymbol[] events)
+    private void WriteEventsEnum(IndentedTextWriter writer, IEventSymbol[] events)
     {
         writer.WriteLine();
 
         writer.WriteLine("internal enum GatewayEventId : byte");
 
         writer.WriteLine("{");
+        writer.Indent++;
 
         foreach (var eventSymbol in events)
         {
-            writer.WriteIndentation(1);
             writer.Write(eventSymbol.Name);
             writer.WriteLine(",");
         }
 
+        writer.Indent--;
         writer.WriteLine("}");
     }
 
-    private void WriteEvents(StringWriter writer, IEventSymbol[] events)
+    private void WriteEvents(IndentedTextWriter writer, IEventSymbol[] events)
     {
         writer.WriteLine();
 
         writer.WriteLine("partial class GatewayEvent");
         writer.Write("{");
+        writer.Indent++;
 
         foreach (var eventSymbol in events)
         {
             writer.WriteLine();
 
-            writer.WriteInheritDoc(eventSymbol, 1);
+            writer.WriteInheritDoc(eventSymbol);
 
-            writer.WriteIndentation(1);
             writer.Write("public static global::");
             writer.Write(Namespace);
             writer.Write(".GatewayEvent");
@@ -117,26 +120,28 @@ public class Generator : IIncrementalGenerator
             writer.WriteLine(");");
         }
 
+        writer.Indent--;
         writer.WriteLine("}");
     }
 
     private string GenerateHandlerInterfaces(IEventSymbol[] events)
     {
-        StringWriter writer = new();
+        StringWriter stringWriter = new();
+        IndentedTextWriter writer = new(stringWriter);
         Setup(writer);
 
         WriteGatewayHandlerInterfaces(writer, events);
 
-        return writer.ToString();
+        return stringWriter.ToString();
     }
 
-    private void WriteGatewayHandlerInterfaces(StringWriter writer, IEventSymbol[] events)
+    private void WriteGatewayHandlerInterfaces(IndentedTextWriter writer, IEventSymbol[] events)
     {
         foreach (var eventSymbol in events)
         {
             writer.WriteLine();
 
-            writer.WriteInheritDoc(eventSymbol, 0);
+            writer.WriteInheritDoc(eventSymbol);
 
             writer.Write("public interface I");
             writer.Write(eventSymbol.Name);
@@ -144,13 +149,13 @@ public class Generator : IIncrementalGenerator
             writer.WriteLine(HandlerBaseTypeName);
 
             writer.WriteLine("{");
+            writer.Indent++;
 
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
             var hasArg = eventType.Arity is 2;
 
             WriteHandleAsyncXmlDoc(writer, false, hasArg);
 
-            writer.WriteIndentation(1);
             writer.Write("public global::System.Threading.Tasks.ValueTask HandleAsync(");
 
             if (hasArg)
@@ -161,11 +166,12 @@ public class Generator : IIncrementalGenerator
 
             writer.WriteLine(");");
 
+            writer.Indent--;
             writer.WriteLine("}");
 
             writer.WriteLine();
 
-            writer.WriteInheritDoc(eventSymbol, 0);
+            writer.WriteInheritDoc(eventSymbol);
 
             writer.Write("public interface I");
             writer.Write(eventSymbol.Name);
@@ -173,10 +179,10 @@ public class Generator : IIncrementalGenerator
             writer.WriteLine(ShardedHandlerBaseTypeName);
 
             writer.WriteLine("{");
+            writer.Indent++;
 
             WriteHandleAsyncXmlDoc(writer, true, hasArg);
 
-            writer.WriteIndentation(1);
             writer.Write("public global::System.Threading.Tasks.ValueTask HandleAsync(global::NetCord.Gateway.GatewayClient client");
 
             if (hasArg)
@@ -188,32 +194,24 @@ public class Generator : IIncrementalGenerator
 
             writer.WriteLine(");");
 
+            writer.Indent--;
             writer.WriteLine("}");
         }
     }
 
-    private void WriteHandleAsyncXmlDoc(StringWriter writer, bool hasClient, bool hasArg)
+    private void WriteHandleAsyncXmlDoc(TextWriter writer, bool hasClient, bool hasArg)
     {
-        writer.WriteIndentation(1);
         writer.WriteLine("/// <summary>");
 
-        writer.WriteIndentation(1);
         writer.WriteLine("/// Handles the gateway event.");
 
-        writer.WriteIndentation(1);
         writer.WriteLine("/// </summary>");
 
         if (hasClient)
-        {
-            writer.WriteIndentation(1);
             writer.WriteLine("/// <param name=\"client\">The gateway client that represents the shard that received the event.</param>");
-        }
 
         if (hasArg)
-        {
-            writer.WriteIndentation(1);
             writer.WriteLine("/// <param name=\"arg\">The event argument.</param>");
-        }
     }
 
     private string GenerateHandlerRegistrationMethods(IEventSymbol[] events)

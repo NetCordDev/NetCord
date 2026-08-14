@@ -133,7 +133,7 @@ public class Generator : IIncrementalGenerator
             writer.WriteLine();
 
             if (eventArgs is not null)
-                writer.WriteInheritDoc(eventArgs, 1);
+                writer.WriteInheritDoc(eventArgs);
 
             writer.Write("public static global::");
             writer.Write(Namespace);
@@ -203,7 +203,7 @@ public class Generator : IIncrementalGenerator
             writer.WriteLine();
 
             if (eventArgs is not null)
-                writer.WriteInheritDoc(eventArgs, 0);
+                writer.WriteInheritDoc(eventArgs);
 
             writer.Write("public interface I");
             writer.Write(attributeData.EventName);
