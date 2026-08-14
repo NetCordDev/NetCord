@@ -25,7 +25,7 @@ public static class SymbolExtensions
             using StringReader stringReader = new(xmlNode.OuterXml);
 
             while (stringReader.ReadLine() is { } line)
-                lines.Add(line);
+                lines.Add($"/// {line}");
         }
 
         return lines;
