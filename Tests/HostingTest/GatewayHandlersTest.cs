@@ -507,23 +507,20 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
 
     private async ValueTask<Counter> DelegateCountAsync(ServiceLifetime lifetime)
     {
-        var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
-
         Counter counter = new();
 
-        builder.Services
-            .AddGatewayHandler(GatewayEvent.RateLimited, () =>
-            {
-                counter.HandlerCount++;
-            }, lifetime);
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
-        var host = builder.Build();
+            builder.Services
+                .AddGatewayHandler(GatewayEvent.RateLimited, () =>
+                {
+                    counter.HandlerCount++;
+                }, lifetime);
 
-        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handler was not called enough times for 10 seconds.");
-
-        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
 
         return counter;
     }
