@@ -8,7 +8,7 @@ public static class ClassHandlerInvocationHelper
     {
         Helper.WriteHandlerDefinition(writer, handlerParameters.Select(p => p.Type));
 
-        writer.WriteLine("if (handlerMetadata is NonSingletonClassHandlerMetadata { Flags: var flags } nonSingletonHandlerMetadata)");
+        writer.WriteLine("if (handlerMetadata is NonSingletonClassHandlerMetadata { Flags: var flags })");
         writer.WriteLine("{");
         writer.Indent++;
 
