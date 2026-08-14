@@ -31,7 +31,12 @@ public static class WebhookHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebhookHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IWebhookHandler
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata.CreateWithFactory(typeof(T), lifetime is ServiceLifetime.Singleton, implementationFactory));
+        var handlerMetadata = ClassHandlerMetadata.CreateWithFactory(
+            typeof(T),
+            lifetime is ServiceLifetime.Singleton,
+            implementationFactory);
+
+        services.AddSingleton<IWebhookHandlerMetadata>(_ => handlerMetadata);
 
         return services;
     }
@@ -54,7 +59,32 @@ public static class WebhookHandlerServiceCollectionExtensions
 
     private static void AddWebhookHandlerCore(IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(ClassHandlerMetadata.Create(handlerType, lifetime is ServiceLifetime.Singleton));
+        var handlerMetadata = ClassHandlerMetadata.Create(
+            handlerType,
+            lifetime is ServiceLifetime.Singleton);
+
+        services.AddSingleton<IWebhookHandlerMetadata>(_ => handlerMetadata);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="IWebhookHandler"/> to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IWebhookHandler"/> to.</param>
+    /// <param name="webhookEvent">The webhook event.</param>
+    /// <param name="handler">The delegate that represents the handler.</param>
+    /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the <see cref="IWebhookHandler"/>.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddWebhookHandler(this IServiceCollection services, WebhookEvent webhookEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
+    {
+        var handlerMetadata = DelegateHandlerMetadata<WebhookEventId>.Create<Func<IServiceProvider, ValueTask>>(
+            handler,
+            webhookEvent.EventId,
+            lifetime is ServiceLifetime.Singleton,
+            []);
+
+        services.AddSingleton<IWebhookHandlerMetadata>(handlerMetadata);
+
+        return services;
     }
 
     /// <summary>
@@ -68,7 +98,13 @@ public static class WebhookHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebhookHandler<T>(this IServiceCollection services, WebhookEvent<T> webhookEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        services.AddSingleton<IWebhookHandlerMetadata>(new DelegateHandlerMetadata<WebhookEventId>(handler, webhookEvent.EventId, lifetime is ServiceLifetime.Singleton));
+        var handlerMetadata = DelegateHandlerMetadata<WebhookEventId>.Create<Func<T, IServiceProvider, ValueTask>>(
+            handler,
+            webhookEvent.EventId,
+            lifetime is ServiceLifetime.Singleton,
+            [typeof(T)]);
+
+        services.AddSingleton<IWebhookHandlerMetadata>(handlerMetadata);
 
         return services;
     }

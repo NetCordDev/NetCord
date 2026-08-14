@@ -144,14 +144,38 @@ internal sealed class NonSingletonClassHandlerMetadata : ClassHandlerMetadata
     }
 }
 
-internal class DelegateHandlerMetadata(Delegate handler, bool isSingleton) : HandlerMetadata
+internal class DelegateHandlerMetadata : HandlerMetadata
 {
-    public bool IsSingleton => isSingleton;
+    protected DelegateHandlerMetadata(Delegate handler, bool isSingleton)
+    {
+        Handler = handler;
+        IsSingleton = isSingleton;
+    }
 
-    public Delegate Handler => handler;
+    public bool IsSingleton { get; }
+
+    public Delegate Handler { get; }
+
+    public static DelegateHandlerMetadata Create<THandler>(Delegate handler, bool isSingleton, IEnumerable<Type> parameterTypes) where THandler : Delegate
+    {
+        return new DelegateHandlerMetadata(DelegateHandlerHelper.CreateHandler<THandler>(handler, parameterTypes),
+                                           isSingleton);
+    }
 }
 
-internal sealed class DelegateHandlerMetadata<T>(Delegate handler, T eventId, bool isSingleton) : DelegateHandlerMetadata(handler, isSingleton) where T : struct, Enum
+internal sealed class DelegateHandlerMetadata<T> : DelegateHandlerMetadata where T : struct, Enum
 {
-    public T EventId => eventId;
+    private DelegateHandlerMetadata(Delegate handler, T eventId, bool isSingleton) : base(handler, isSingleton)
+    {
+        EventId = eventId;
+    }
+
+    public T EventId { get; }
+
+    public static DelegateHandlerMetadata<T> Create<THandler>(Delegate handler, T eventId, bool isSingleton, IEnumerable<Type> parameterTypes) where THandler : Delegate
+    {
+        return new DelegateHandlerMetadata<T>(DelegateHandlerHelper.CreateHandler<THandler>(handler, parameterTypes),
+                                              eventId,
+                                              isSingleton);
+    }
 }
