@@ -5,36 +5,83 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.Gateway.WebSockets;
 using NetCord.Hosting.Gateway;
+using NetCord.JsonModels;
 
 namespace HostingTest;
 
 [TestClass]
 public partial class GatewayHandlersTest(TestContext testContext)
 {
-    private sealed partial class RateLimitedWebSocketConnection : MockWebSocketConnection
+    private class JsonGatewayMessage
     {
+        [JsonPropertyName("op")]
+        public GatewayOpcode Opcode { get; set; }
+
+        [JsonPropertyName("d")]
+        public JsonElement? Data { get; set; }
+
+        [JsonPropertyName("s")]
+        public int? SequenceNumber { get; set; }
+
+        [JsonPropertyName("t")]
+        public string? Event { get; set; }
+    }
+
+    private static JsonGatewayMessage CreateRateLimitedMessage(int seq)
+    {
+        return new()
+        {
+            SequenceNumber = seq,
+            Event = "RATE_LIMITED",
+            Data = JsonSerializer.SerializeToElement(new JsonRateLimitedEventArgs()
+            {
+                Opcode = GatewayOpcode.RequestGuildUsers,
+                RetryAfter = 1,
+                Metadata = JsonSerializer.SerializeToElement(new JsonRequestGuildUsersRateLimitMetadata()
+                {
+                    GuildId = 123,
+                }),
+            }),
+            Opcode = GatewayOpcode.Dispatch,
+        };
+    }
+
+    private static JsonGatewayMessage CreateApplicationCommandPermissionsUpdateMessage(int seq)
+    {
+        return new()
+        {
+            SequenceNumber = seq,
+            Event = "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
+            Data = JsonSerializer.SerializeToElement(new JsonApplicationCommandGuildPermission()
+            {
+                Id = 123,
+                Type = ApplicationCommandGuildPermissionType.Role,
+                Permission = true,
+            }),
+            Opcode = GatewayOpcode.Dispatch,
+        };
+    }
+
+    private sealed class RateLimitedWebSocketConnection : MockWebSocketConnection
+    {
+        protected override JsonGatewayMessage CreateMessage(int seq) => CreateRateLimitedMessage(seq);
+    }
+
+    private sealed class ByTurnsWebSocketConnection : MockWebSocketConnection
+    {
+        private int _turn;
+
         protected override JsonGatewayMessage CreateMessage(int seq)
         {
-            return new()
-            {
-                SequenceNumber = seq,
-                Event = "RATE_LIMITED",
-                Data = JsonSerializer.SerializeToElement(new JsonRateLimitedEventArgs()
-                {
-                    Opcode = GatewayOpcode.RequestGuildUsers,
-                    RetryAfter = 1,
-                    Metadata = JsonSerializer.SerializeToElement(new JsonRequestGuildUsersRateLimitMetadata()
-                    {
-                        GuildId = 123,
-                    }),
-                }),
-                Opcode = GatewayOpcode.Dispatch,
-            };
+            return Interlocked.Increment(ref _turn) % 2 is 0
+                ? CreateRateLimitedMessage(seq)
+                : CreateApplicationCommandPermissionsUpdateMessage(seq);
         }
     }
 
@@ -122,21 +169,6 @@ public partial class GatewayHandlersTest(TestContext testContext)
         public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageType messageType, WebSocketMessageFlags messageFlags, CancellationToken cancellationToken = default)
         {
             return default;
-        }
-
-        protected class JsonGatewayMessage
-        {
-            [JsonPropertyName("op")]
-            public GatewayOpcode Opcode { get; set; }
-
-            [JsonPropertyName("d")]
-            public JsonElement? Data { get; set; }
-
-            [JsonPropertyName("s")]
-            public int? SequenceNumber { get; set; }
-
-            [JsonPropertyName("t")]
-            public string? Event { get; set; }
         }
     }
 
@@ -226,6 +258,57 @@ public partial class GatewayHandlersTest(TestContext testContext)
         await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
 
         return counter;
+    }
+
+    [TestMethod]
+    public async ValueTask ClassSingletonSingleClassMultipleHandlersSupported()
+    {
+        var (rateLimitedCounter, applicationCommandPermissionsUpdateCounter) = await ClassSingleClassMultipleHandlersSupportedAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, rateLimitedCounter.ConstructorCount, "RateLimited handler constructor was called more than once.");
+        Assert.AreEqual(1, applicationCommandPermissionsUpdateCounter.ConstructorCount, "ApplicationCommandPermissionsUpdate handler constructor was called more than once.");
+    }
+
+    [TestMethod]
+    public ValueTask ClassTransientSingleClassMultipleHandlersSupported()
+    {
+        return ClassTransientOrScopedSingleClassMultipleHandlersSupportedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassScopedSingleClassMultipleHandlersSupported()
+    {
+        return ClassTransientOrScopedSingleClassMultipleHandlersSupportedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassTransientOrScopedSingleClassMultipleHandlersSupportedAsync(ServiceLifetime lifetime)
+    {
+        var (rateLimitedCounter, applicationCommandPermissionsUpdateCounter) = await ClassSingleClassMultipleHandlersSupportedAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(rateLimitedCounter.HandlerCount + applicationCommandPermissionsUpdateCounter.HandlerCount, rateLimitedCounter.ConstructorCount, "RateLimited handler constructor was not called the same amount of times as both handlers were called.");
+
+        Assert.AreEqual(applicationCommandPermissionsUpdateCounter.HandlerCount + rateLimitedCounter.HandlerCount, applicationCommandPermissionsUpdateCounter.ConstructorCount, "ApplicationCommandPermissionsUpdate handler constructor was not called the same amount of times as both handlers were called.");
+    }
+
+    private async ValueTask<(Counter RateLimitedCounter, Counter ApplicationCommandPermissionsUpdateCounter)> ClassSingleClassMultipleHandlersSupportedAsync(ServiceLifetime lifetime)
+    {
+        var builder = CreateMockedGatewayBuilder(new MockWebSocketConnectionProvider<ByTurnsWebSocketConnection>());
+
+        Counter rateLimitedCounter = new();
+        Counter applicationCommandPermissionsUpdateCounter = new();
+
+        builder.Services
+            .AddGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler>(_ => new(rateLimitedCounter, applicationCommandPermissionsUpdateCounter), lifetime);
+
+        var host = builder.Build();
+
+        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
+
+        Assert.IsTrue(SpinWait.SpinUntil(() => rateLimitedCounter.HandlerCount >= 10 && applicationCommandPermissionsUpdateCounter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handlers were not called enough times for 10 seconds.");
+
+        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
+
+        return (rateLimitedCounter, applicationCommandPermissionsUpdateCounter);
     }
 
     [TestMethod]
@@ -404,6 +487,35 @@ public partial class GatewayHandlersTest(TestContext testContext)
         public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)
         {
             _counter.HandlerCount++;
+
+            return default;
+        }
+    }
+
+    private class RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler : IRateLimitedGatewayHandler, IApplicationCommandPermissionsUpdateGatewayHandler
+    {
+        private readonly Counter _rateLimitedCounter;
+        private readonly Counter _applicationCommandPermissionsUpdateCounter;
+
+        public RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler(Counter rateLimitedCounter, Counter applicationCommandPermissionsUpdateCounter)
+        {
+            _rateLimitedCounter = rateLimitedCounter;
+            _applicationCommandPermissionsUpdateCounter = applicationCommandPermissionsUpdateCounter;
+
+            rateLimitedCounter.ConstructorCount++;
+            applicationCommandPermissionsUpdateCounter.ConstructorCount++;
+        }
+
+        public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        {
+            _rateLimitedCounter.HandlerCount++;
+
+            return default;
+        }
+
+        public ValueTask HandleAsync(ApplicationCommandPermission arg)
+        {
+            _applicationCommandPermissionsUpdateCounter.HandlerCount++;
 
             return default;
         }
