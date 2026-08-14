@@ -27,7 +27,7 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
         return builder;
     }
 
-    // Factory
+    // Class Factory
     [TestMethod]
     public async ValueTask ClassFactorySingletonGetsCalledAndIsSingleton()
     {
@@ -60,6 +60,52 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
         return ClassCountFactoryAsync<RateLimitedGatewayHandler, RateLimitedWebSocketConnection>(c => new(c), lifetime);
     }
 
+    // Class Factory Scopes
+    [TestMethod]
+    public async ValueTask ClassFactorySingletonIsNotScoped()
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddScoped(_ => string.Empty)
+                .AddGatewayHandler<RejectingStringRateLimitedGatewayHandler>(services => new(counter, services), ServiceLifetime.Singleton);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryTransientIsScoped()
+    {
+        return ClassFactoryTransientOrScopedIsScopedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryScopedIsScoped()
+    {
+        return ClassFactoryTransientOrScopedIsScopedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryTransientOrScopedIsScopedAsync(ServiceLifetime lifetime)
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddScoped(_ => string.Empty)
+                .AddGatewayHandler<RequiringStringRateLimitedGatewayHandler>(services => new(counter, services), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+    }
+
     private async ValueTask<Counter> ClassCountFactoryAsync<THandler, TConnection>(Func<Counter, THandler> createHandler, ServiceLifetime lifetime)
         where THandler : class, IGatewayHandler
         where TConnection : IWebSocketConnection, new()
@@ -79,7 +125,7 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
         return counter;
     }
 
-    // No Factory
+    // Class No Factory
     [TestMethod]
     public async ValueTask ClassSingletonGetsCalledAndIsSingleton()
     {
@@ -536,6 +582,67 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
         return DelegateWithParametersGetsCalledAsync(ServiceLifetime.Scoped);
     }
 
+    // Delegate Scopes
+    [TestMethod]
+    public async ValueTask DelegateSingletonIsNotScoped()
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddScoped(_ => string.Empty)
+                .AddGatewayHandler(GatewayEvent.RateLimited, (IServiceProvider services) =>
+                {
+                    try
+                    {
+                        _ = services.GetRequiredService<string>();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        counter.HandlerCount++;
+                    }
+                }, ServiceLifetime.Singleton);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public ValueTask DelegateTransientIsScoped()
+    {
+        return DelegateTransientOrScopedIsScopedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask DelegateScopedIsScoped()
+    {
+        return DelegateTransientOrScopedIsScopedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask DelegateTransientOrScopedIsScopedAsync(ServiceLifetime lifetime)
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddScoped(_ => string.Empty)
+                .AddGatewayHandler(GatewayEvent.RateLimited, (IServiceProvider services) =>
+                {
+                    _ = services.GetRequiredService<string>();
+
+                    counter.HandlerCount++;
+                }, lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+    }
+
     private async ValueTask DelegateWithParametersGetsCalledAsync(ServiceLifetime lifetime)
     {
         var counter = await DelegateWithParametersCountAsync(lifetime).ConfigureAwait(false);
@@ -644,6 +751,57 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
         public ValueTask HandleAsync(ApplicationCommandPermission arg)
         {
             _applicationCommandPermissionsUpdateCounter.HandlerCount++;
+
+            return default;
+        }
+    }
+
+    private class RequiringStringRateLimitedGatewayHandler : IRateLimitedGatewayHandler
+    {
+        private readonly Counter _counter;
+        private readonly IServiceProvider _services;
+
+        public RequiringStringRateLimitedGatewayHandler(Counter counter, IServiceProvider services)
+        {
+            _counter = counter;
+            _services = services;
+
+            counter.ConstructorCount++;
+        }
+
+        public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        {
+            _ = _services.GetRequiredService<string>();
+
+            _counter.HandlerCount++;
+
+            return default;
+        }
+    }
+
+    private class RejectingStringRateLimitedGatewayHandler : IRateLimitedGatewayHandler
+    {
+        private readonly Counter _counter;
+        private readonly IServiceProvider _services;
+
+        public RejectingStringRateLimitedGatewayHandler(Counter counter, IServiceProvider services)
+        {
+            _counter = counter;
+            _services = services;
+
+            counter.ConstructorCount++;
+        }
+
+        public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        {
+            try
+            {
+                _ = _services.GetRequiredService<string>();
+            }
+            catch (InvalidOperationException)
+            {
+                _counter.HandlerCount++;
+            }
 
             return default;
         }

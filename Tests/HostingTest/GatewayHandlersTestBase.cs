@@ -119,6 +119,8 @@ public abstract class GatewayHandlersTestBase
 
         public async ValueTask<WebSocketConnectionReceiveResult> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
+            await Task.Delay(50, cancellationToken).ConfigureAwait(false);
+
             if (_stream is { } existingStream)
             {
                 var existingResult = Copy(buffer, existingStream);
