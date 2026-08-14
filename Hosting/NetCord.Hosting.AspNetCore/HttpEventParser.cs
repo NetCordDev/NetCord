@@ -42,13 +42,9 @@ internal abstract class HttpEventParser<TRawData>
 
             await request.Body.ReadExactlyAsync(timestampAndBody[timestampByteCount..]).ConfigureAwait(false);
 
-            if (!_validator.Validate(signatures[0], timestampAndBody.Span))
-            {
-                ArrayPool<byte>.Shared.Return(timestampAndBodyArray);
-                return default;
-            }
-
-            return GetData(context, timestampAndBody.Span[timestampByteCount..]);
+            return _validator.Validate(signatures[0], timestampAndBody.Span)
+                ? GetData(context, timestampAndBody.Span[timestampByteCount..])
+                : default;
         }
         finally
         {
