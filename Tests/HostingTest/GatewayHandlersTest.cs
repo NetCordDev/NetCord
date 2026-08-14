@@ -509,20 +509,63 @@ public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestB
     {
         Counter counter = new();
 
-        await Helper.RunUntilAsync(() =>
+        await AnyDelegateAsync(counter, () =>
+        {
+            counter.HandlerCount++;
+        }, lifetime).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // Delegate with parameters
+    [TestMethod]
+    public ValueTask DelegateWithParametersSingletonGetsCalled()
+    {
+        return DelegateWithParametersGetsCalledAsync(ServiceLifetime.Singleton);
+    }
+
+    [TestMethod]
+    public ValueTask DelegateWithParametersTransientGetsCalled()
+    {
+        return DelegateWithParametersGetsCalledAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask DelegateWithParametersScopedGetsCalled()
+    {
+        return DelegateWithParametersGetsCalledAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask DelegateWithParametersGetsCalledAsync(ServiceLifetime lifetime)
+    {
+        var counter = await DelegateWithParametersCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(0, counter.ConstructorCount);
+    }
+
+    private async ValueTask<Counter> DelegateWithParametersCountAsync(ServiceLifetime lifetime)
+    {
+        Counter counter = new();
+
+        await AnyDelegateAsync(counter, (RateLimitedEventArgs arg) =>
+        {
+            counter.HandlerCount++;
+        }, lifetime).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    private ValueTask AnyDelegateAsync(Counter counter, Delegate handler, ServiceLifetime lifetime)
+    {
+        return Helper.RunUntilAsync(() =>
         {
             var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
             builder.Services
-                .AddGatewayHandler(GatewayEvent.RateLimited, () =>
-                {
-                    counter.HandlerCount++;
-                }, lifetime);
+                .AddGatewayHandler(GatewayEvent.RateLimited, handler, lifetime);
 
             return builder;
-        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
-
-        return counter;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken);
     }
 
     private class RateLimitedGatewayHandler : IRateLimitedGatewayHandler
