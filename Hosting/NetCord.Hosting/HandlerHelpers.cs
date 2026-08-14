@@ -2,8 +2,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace NetCord.Hosting;
 
 internal static class HandlerHelpers
@@ -34,18 +32,6 @@ internal static class HandlerHelpers
             return ((IAsyncDisposable)instance).DisposeAsync();
 
         return default;
-    }
-
-    public static Func<IServiceProvider, object> CreateInstanceFactory([DAM(DAMT.PublicConstructors)] Type handlerType, bool isSingleton)
-    {
-        if (isSingleton)
-            return services => ActivatorUtilities.CreateInstance(services, handlerType);
-        else
-        {
-            var rawFactory = ActivatorUtilities.CreateFactory(handlerType, Type.EmptyTypes);
-
-            return services => rawFactory(services, null);
-        }
     }
 
     public static void EnsureHandlerTypeIsValid(Type handlerType, Type baseType)
