@@ -1,6 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,176 +5,15 @@ using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Gateway.Compression;
-using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.Gateway.WebSockets;
 using NetCord.Hosting.Gateway;
-using NetCord.JsonModels;
 
 namespace HostingTest;
 
 [TestClass]
-public partial class GatewayHandlersTest(TestContext testContext)
+public class GatewayHandlersTest(TestContext testContext) : GatewayHandlersTestBase
 {
-    private class JsonGatewayMessage
-    {
-        [JsonPropertyName("op")]
-        public GatewayOpcode Opcode { get; set; }
-
-        [JsonPropertyName("d")]
-        public JsonElement? Data { get; set; }
-
-        [JsonPropertyName("s")]
-        public int? SequenceNumber { get; set; }
-
-        [JsonPropertyName("t")]
-        public string? Event { get; set; }
-    }
-
-    private static JsonGatewayMessage CreateRateLimitedMessage(int seq)
-    {
-        return new()
-        {
-            SequenceNumber = seq,
-            Event = "RATE_LIMITED",
-            Data = JsonSerializer.SerializeToElement(new JsonRateLimitedEventArgs()
-            {
-                Opcode = GatewayOpcode.RequestGuildUsers,
-                RetryAfter = 1,
-                Metadata = JsonSerializer.SerializeToElement(new JsonRequestGuildUsersRateLimitMetadata()
-                {
-                    GuildId = 123,
-                }),
-            }),
-            Opcode = GatewayOpcode.Dispatch,
-        };
-    }
-
-    private static JsonGatewayMessage CreateApplicationCommandPermissionsUpdateMessage(int seq)
-    {
-        return new()
-        {
-            SequenceNumber = seq,
-            Event = "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
-            Data = JsonSerializer.SerializeToElement(new JsonApplicationCommandGuildPermission()
-            {
-                Id = 123,
-                Type = ApplicationCommandGuildPermissionType.Role,
-                Permission = true,
-            }),
-            Opcode = GatewayOpcode.Dispatch,
-        };
-    }
-
-    private sealed class RateLimitedWebSocketConnection : MockWebSocketConnection
-    {
-        protected override JsonGatewayMessage CreateMessage(int seq) => CreateRateLimitedMessage(seq);
-    }
-
-    private sealed class ByTurnsWebSocketConnection : MockWebSocketConnection
-    {
-        private int _turn;
-
-        protected override JsonGatewayMessage CreateMessage(int seq)
-        {
-            return Interlocked.Increment(ref _turn) % 2 is 0
-                ? CreateRateLimitedMessage(seq)
-                : CreateApplicationCommandPermissionsUpdateMessage(seq);
-        }
-    }
-
-    private abstract partial class MockWebSocketConnection : IWebSocketConnection
-    {
-        private int _seq;
-
-        private MemoryStream? _stream;
-
-        private CancellationTokenSource? _cancellationTokenSource;
-
-        public int? CloseStatus => null;
-
-        public string? CloseStatusDescription => null;
-
-        public void Abort()
-        {
-            _cancellationTokenSource?.Cancel();
-        }
-
-        public ValueTask CloseAsync(int closeStatus, string? closeStatusDescription, CancellationToken cancellationToken = default)
-        {
-            _cancellationTokenSource?.Cancel();
-
-            return default;
-        }
-
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Cancel();
-        }
-
-        public ValueTask OpenAsync(Uri uri, CancellationToken cancellationToken = default)
-        {
-            _seq = 0;
-            _cancellationTokenSource = new();
-
-            return default;
-        }
-
-        protected abstract JsonGatewayMessage CreateMessage(int seq);
-
-        public async ValueTask<WebSocketConnectionReceiveResult> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-        {
-            if (_stream is { } existingStream)
-            {
-                var existingResult = Copy(buffer, existingStream);
-
-                if (existingResult.EndOfMessage)
-                    _stream = null;
-
-                return existingResult;
-            }
-
-            if (_cancellationTokenSource is { IsCancellationRequested: true })
-                return new(0, WebSocketMessageType.Close, true);
-
-            var message = CreateMessage(_seq++);
-
-            MemoryStream stream = new();
-
-            JsonSerializer.Serialize(new Utf8JsonWriter(stream), message);
-
-            stream.Position = 0;
-
-            var result = Copy(buffer, stream);
-
-            if (!result.EndOfMessage)
-                _stream = stream;
-
-            return result;
-
-            static WebSocketConnectionReceiveResult Copy(Memory<byte> buffer, MemoryStream stream)
-            {
-                var remainingBytes = (int)(stream.Length - stream.Position);
-
-                var length = Math.Min(buffer.Length, remainingBytes);
-
-                stream.ReadExactly(buffer.Span[..length]);
-
-                return new(length, WebSocketMessageType.Text, remainingBytes <= buffer.Length);
-            }
-        }
-
-        public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageType messageType, WebSocketMessageFlags messageFlags, CancellationToken cancellationToken = default)
-        {
-            return default;
-        }
-    }
-
-    private sealed class MockWebSocketConnectionProvider<TConnection> : IWebSocketConnectionProvider where TConnection : IWebSocketConnection, new()
-    {
-        public IWebSocketConnection CreateConnection() => new TConnection();
-    }
-
-    private static HostApplicationBuilder CreateMockedGatewayBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
+    private static HostApplicationBuilder CreateBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
 
@@ -194,78 +30,114 @@ public partial class GatewayHandlersTest(TestContext testContext)
         return builder;
     }
 
-    private static HostApplicationBuilder CreateMockedShardedGatewayBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
+    // Factory
+    [TestMethod]
+    public async ValueTask ClassFactorySingletonGetsCalledAndIsSingleton()
     {
-        var builder = Host.CreateEmptyApplicationBuilder(null);
+        var counter = await ClassFactoryGetsCalledAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
 
-        builder.Logging.AddSimpleConsole();
-
-        builder.Services
-            .AddDiscordShardedGateway(o =>
-            {
-                o.WebSocketConnectionProvider = webSocketConnectionProvider;
-                o.Compression = new UncompressedGatewayCompression();
-                o.Token = "NO.T.A.REAL.TOKEN";
-                o.TotalShardCount = 1;
-                o.MaxConcurrency = 1;
-            });
-
-        return builder;
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
     }
 
     [TestMethod]
+    public ValueTask ClassFactoryTransientGetsCalledAndIsNotSingleton()
+    {
+        return ClassFactoryTransientOrScopedGetsCalledAndIsNotSingleton(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryScopedGetsCalledAndIsNotSingleton()
+    {
+        return ClassFactoryTransientOrScopedGetsCalledAndIsNotSingleton(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryTransientOrScopedGetsCalledAndIsNotSingleton(ServiceLifetime lifetime)
+    {
+        var counter = await ClassFactoryGetsCalledAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+    }
+
+    private ValueTask<Counter> ClassFactoryGetsCalledAsync(ServiceLifetime lifetime)
+    {
+        return ClassCountFactoryAsync<RateLimitedGatewayHandler, RateLimitedWebSocketConnection>(c => new(c), lifetime);
+    }
+
+    private async ValueTask<Counter> ClassCountFactoryAsync<THandler, TConnection>(Func<Counter, THandler> createHandler, ServiceLifetime lifetime)
+        where THandler : class, IGatewayHandler
+        where TConnection : IWebSocketConnection, new()
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<TConnection>());
+
+            builder.Services
+                .AddGatewayHandler(_ => createHandler(counter), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // No Factory
+    [TestMethod]
     public async ValueTask ClassSingletonGetsCalledAndIsSingleton()
     {
-        var counter = await ClassCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+        var counter = await ClassCountAsync<RateLimitedGatewayHandler, RateLimitedWebSocketConnection>(ServiceLifetime.Singleton).ConfigureAwait(false);
 
-        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was called more than once.");
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
     }
 
     [TestMethod]
     public ValueTask ClassTransientGetsCalledAndIsNotSingleton()
     {
-        return ClassTransientOrScopedGetsCalledAndIsNotSingleton(ServiceLifetime.Transient);
+        return ClassTransientOrScopedGetsCalledAndIsNotSingletonAsync(ServiceLifetime.Transient);
     }
 
     [TestMethod]
     public ValueTask ClassScopedGetsCalledAndIsNotSingleton()
     {
-        return ClassTransientOrScopedGetsCalledAndIsNotSingleton(ServiceLifetime.Scoped);
+        return ClassTransientOrScopedGetsCalledAndIsNotSingletonAsync(ServiceLifetime.Scoped);
     }
 
-    private async ValueTask ClassTransientOrScopedGetsCalledAndIsNotSingleton(ServiceLifetime lifetime)
+    private async ValueTask ClassTransientOrScopedGetsCalledAndIsNotSingletonAsync(ServiceLifetime lifetime)
     {
-        var counter = await ClassCountAsync(lifetime).ConfigureAwait(false);
+        var counter = await ClassCountAsync<RateLimitedGatewayHandler, RateLimitedWebSocketConnection>(lifetime).ConfigureAwait(false);
 
         Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
     }
 
-    private async ValueTask<Counter> ClassCountAsync(ServiceLifetime lifetime)
+    private async ValueTask<Counter> ClassCountAsync<THandler, TConnection>(ServiceLifetime lifetime)
+        where THandler : class, IGatewayHandler
+        where TConnection : IWebSocketConnection, new()
     {
-        var builder = CreateMockedGatewayBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
-
         Counter counter = new();
 
-        builder.Services
-            .AddGatewayHandler<RateLimitedGatewayHandler>(_ => new(counter), lifetime);
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<TConnection>());
 
-        var host = builder.Build();
+            builder.Services
+                .AddSingleton(counter)
+                .AddGatewayHandler<THandler>(lifetime);
 
-        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handler was not called enough times for 10 seconds.");
-
-        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
 
         return counter;
     }
 
+    // Single Class Multiple Handlers
     [TestMethod]
     public async ValueTask ClassSingletonSingleClassMultipleHandlersSupported()
     {
         var (rateLimitedCounter, applicationCommandPermissionsUpdateCounter) = await ClassSingleClassMultipleHandlersSupportedAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
 
         Assert.AreEqual(1, rateLimitedCounter.ConstructorCount, "RateLimited handler constructor was called more than once.");
+
         Assert.AreEqual(1, applicationCommandPermissionsUpdateCounter.ConstructorCount, "ApplicationCommandPermissionsUpdate handler constructor was called more than once.");
     }
 
@@ -292,25 +164,325 @@ public partial class GatewayHandlersTest(TestContext testContext)
 
     private async ValueTask<(Counter RateLimitedCounter, Counter ApplicationCommandPermissionsUpdateCounter)> ClassSingleClassMultipleHandlersSupportedAsync(ServiceLifetime lifetime)
     {
-        var builder = CreateMockedGatewayBuilder(new MockWebSocketConnectionProvider<ByTurnsWebSocketConnection>());
-
         Counter rateLimitedCounter = new();
         Counter applicationCommandPermissionsUpdateCounter = new();
 
-        builder.Services
-            .AddGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler>(_ => new(rateLimitedCounter, applicationCommandPermissionsUpdateCounter), lifetime);
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<ByTurnsWebSocketConnection>());
 
-        var host = builder.Build();
+            builder.Services
+                .AddGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler>(_ => new(rateLimitedCounter, applicationCommandPermissionsUpdateCounter), lifetime);
 
-        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        Assert.IsTrue(SpinWait.SpinUntil(() => rateLimitedCounter.HandlerCount >= 10 && applicationCommandPermissionsUpdateCounter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handlers were not called enough times for 10 seconds.");
-
-        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
+            return builder;
+        }, () => rateLimitedCounter.HandlerCount >= 10 && applicationCommandPermissionsUpdateCounter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
 
         return (rateLimitedCounter, applicationCommandPermissionsUpdateCounter);
     }
 
+    // Factory Disposable
+    [TestMethod]
+    public async ValueTask ClassFactoryDisposableSingletonGetsDisposed()
+    {
+        var counter = await ClassFactoryDisposableCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
+
+        Assert.AreEqual(1, counter.DisposeCount, "Handler Dispose was not called exactly once.");
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryDisposableTransientGetsDisposed()
+    {
+        return ClassFactoryDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryDisposableScopedGetsDisposed()
+    {
+        return ClassFactoryDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime lifetime)
+    {
+        var counter = await ClassFactoryDisposableCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeCount, "Handler Dispose was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<DisposableCounter> ClassFactoryDisposableCountAsync(ServiceLifetime lifetime)
+    {
+        DisposableCounter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddGatewayHandler<DisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // Hidden Disposable
+    [TestMethod]
+    public async ValueTask ClassFactoryHiddenDisposableSingletonGetsDisposed()
+    {
+        var counter = await ClassFactoryHiddenDisposableCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
+
+        Assert.AreEqual(1, counter.DisposeCount, "Handler Dispose was not called exactly once.");
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryHiddenDisposableTransientGetsDisposed()
+    {
+        return ClassFactoryHiddenDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryHiddenDisposableScopedGetsDisposed()
+    {
+        return ClassFactoryHiddenDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryHiddenDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime lifetime)
+    {
+        var counter = await ClassFactoryHiddenDisposableCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeCount, "Handler Dispose was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<DisposableCounter> ClassFactoryHiddenDisposableCountAsync(ServiceLifetime lifetime)
+    {
+        DisposableCounter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new DisposableRateLimitedGatewayHandler(counter), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // Factory Async Disposable
+    [TestMethod]
+    public async ValueTask ClassFactoryAsyncDisposableSingletonGetsDisposed()
+    {
+        var counter = await ClassFactoryAsyncDisposableCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
+
+        Assert.AreEqual(1, counter.DisposeAsyncCount, "Handler DisposeAsync was not called exactly once.");
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryAsyncDisposableTransientGetsDisposed()
+    {
+        return ClassFactoryAsyncDisposableTransientAndScopedGetsDisposedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryAsyncDisposableScopedGetsDisposed()
+    {
+        return ClassFactoryAsyncDisposableTransientAndScopedGetsDisposedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryAsyncDisposableTransientAndScopedGetsDisposedAsync(ServiceLifetime lifetime)
+    {
+        var counter = await ClassFactoryAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<AsyncDisposableCounter> ClassFactoryAsyncDisposableCountAsync(ServiceLifetime lifetime)
+    {
+        AsyncDisposableCounter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddGatewayHandler<AsyncDisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // Factory Hidden Async Disposable
+    [TestMethod]
+    public async ValueTask ClassFactoryHiddenAsyncDisposableSingletonGetsDisposed()
+    {
+        var counter = await ClassFactoryHiddenAsyncDisposableCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
+
+        Assert.AreEqual(1, counter.DisposeAsyncCount, "Handler DisposeAsync was not called exactly once.");
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryHiddenAsyncDisposableTransientGetsDisposed()
+    {
+        return ClassFactoryHiddenAsyncDisposableTransientAndScopedGetsDisposedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryHiddenAsyncDisposableScopedGetsDisposed()
+    {
+        return ClassFactoryHiddenAsyncDisposableTransientAndScopedGetsDisposedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryHiddenAsyncDisposableTransientAndScopedGetsDisposedAsync(ServiceLifetime lifetime)
+    {
+        var counter = await ClassFactoryHiddenAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<AsyncDisposableCounter> ClassFactoryHiddenAsyncDisposableCountAsync(ServiceLifetime lifetime)
+    {
+        AsyncDisposableCounter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new AsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // Factory Disposable and Async Disposable
+    [TestMethod]
+    public async ValueTask ClassFactoryDisposableAndAsyncDisposableSingletonGetsDisposed()
+    {
+        var counter = await ClassFactoryDisposableAndAsyncDisposableCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
+
+        Assert.AreEqual(0, counter.DisposeCount, "Handler Dispose was called when it should not have been.");
+
+        Assert.AreEqual(1, counter.DisposeAsyncCount, "Handler DisposeAsync was not called exactly once.");
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryDisposableAndAsyncDisposableTransientGetsDisposed()
+    {
+        return ClassFactoryDisposableAndAsyncDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryDisposableAndAsyncDisposableScopedGetsDisposed()
+    {
+        return ClassFactoryDisposableAndAsyncDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryDisposableAndAsyncDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime lifetime)
+    {
+        var counter = await ClassFactoryDisposableAndAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+
+        Assert.AreEqual(0, counter.DisposeCount, "Handler Dispose was called when it should not have been.");
+
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<AsyncDisposableCounter> ClassFactoryDisposableAndAsyncDisposableCountAsync(ServiceLifetime lifetime)
+    {
+        AsyncDisposableCounter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddGatewayHandler<DisposableAndAsyncDisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // Factory Hidden Disposable and Async Disposable
+    [TestMethod]
+    public async ValueTask ClassFactoryHiddenDisposableAndAsyncDisposableSingletonGetsDisposed()
+    {
+        var counter = await ClassFactoryHiddenDisposableAndAsyncDisposableCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
+
+        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was not called exactly once.");
+
+        Assert.AreEqual(0, counter.DisposeCount, "Handler Dispose was called when it should not have been.");
+
+        Assert.AreEqual(1, counter.DisposeAsyncCount, "Handler DisposeAsync was not called exactly once.");
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryHiddenDisposableAndAsyncDisposableTransientGetsDisposed()
+    {
+        return ClassFactoryHiddenDisposableAndAsyncDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Transient);
+    }
+
+    [TestMethod]
+    public ValueTask ClassFactoryHiddenDisposableAndAsyncDisposableScopedGetsDisposed()
+    {
+        return ClassFactoryHiddenDisposableAndAsyncDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime.Scoped);
+    }
+
+    private async ValueTask ClassFactoryHiddenDisposableAndAsyncDisposableTransientOrScopedGetsDisposedAsync(ServiceLifetime lifetime)
+    {
+        var counter = await ClassFactoryHiddenDisposableAndAsyncDisposableCountAsync(lifetime).ConfigureAwait(false);
+
+        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
+
+        Assert.AreEqual(0, counter.DisposeCount, "Handler Dispose was called when it should not have been.");
+
+        Assert.AreEqual(counter.HandlerCount, counter.DisposeAsyncCount, "Handler DisposeAsync was not called the same amount of times as the handler was called.");
+    }
+
+    private async ValueTask<AsyncDisposableCounter> ClassFactoryHiddenDisposableAndAsyncDisposableCountAsync(ServiceLifetime lifetime)
+    {
+        AsyncDisposableCounter counter = new();
+
+        await Helper.RunUntilAsync(() =>
+        {
+            var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+            builder.Services
+                .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new DisposableAndAsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
+
+            return builder;
+        }, () => counter.HandlerCount >= 10, testContext.CancellationToken).ConfigureAwait(false);
+
+        return counter;
+    }
+
+    // Delegate
     [TestMethod]
     public ValueTask DelegateSingletonGetsCalled()
     {
@@ -338,107 +510,12 @@ public partial class GatewayHandlersTest(TestContext testContext)
 
     private async ValueTask<Counter> DelegateCountAsync(ServiceLifetime lifetime)
     {
-        var builder = CreateMockedGatewayBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+        var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         Counter counter = new();
 
         builder.Services
             .AddGatewayHandler(GatewayEvent.RateLimited, () =>
-            {
-                counter.HandlerCount++;
-            }, lifetime);
-
-        var host = builder.Build();
-
-        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handler was not called enough times for 10 seconds.");
-
-        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        return counter;
-    }
-
-    [TestMethod]
-    public async ValueTask ShardedClassSingletonGetsCalledAndIsSingleton()
-    {
-        var counter = await ShardedCountAsync(ServiceLifetime.Singleton).ConfigureAwait(false);
-
-        Assert.AreEqual(1, counter.ConstructorCount, "Handler constructor was called more than once.");
-    }
-
-    [TestMethod]
-    public ValueTask ShardedClassTransientGetsCalledAndIsNotSingleton()
-    {
-        return ShardedClassTransientOrScopedGetsCalledAndIsNotSingletonAsync(ServiceLifetime.Transient);
-    }
-
-    [TestMethod]
-    public ValueTask ShardedClassScopedCalledAndIsNotSingleton()
-    {
-        return ShardedClassTransientOrScopedGetsCalledAndIsNotSingletonAsync(ServiceLifetime.Scoped);
-    }
-
-    private async ValueTask ShardedClassTransientOrScopedGetsCalledAndIsNotSingletonAsync(ServiceLifetime lifetime)
-    {
-        var counter = await ShardedCountAsync(lifetime).ConfigureAwait(false);
-
-        Assert.AreEqual(counter.HandlerCount, counter.ConstructorCount, "Handler constructor was not called the same amount of times as the handler was called.");
-    }
-
-    private async ValueTask<Counter> ShardedCountAsync(ServiceLifetime lifetime)
-    {
-        var builder = CreateMockedShardedGatewayBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
-
-        Counter counter = new();
-
-        builder.Services
-            .AddShardedGatewayHandler<RateLimitedShardedGatewayHandler>(_ => new(counter), lifetime);
-
-        var host = builder.Build();
-
-        await host.StartAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        Assert.IsTrue(SpinWait.SpinUntil(() => counter.HandlerCount >= 10, TimeSpan.FromSeconds(10)), "Handler was not called enough times for 10 seconds.");
-
-        await host.StopAsync(testContext.CancellationToken).ConfigureAwait(false);
-
-        return counter;
-    }
-
-    [TestMethod]
-    public ValueTask ShardedDelegateSingletonGetsCalled()
-    {
-        return ShardedDelegateGetsCalledAsync(ServiceLifetime.Singleton);
-    }
-
-    [TestMethod]
-    public ValueTask ShardedDelegateTransientGetsCalled()
-    {
-        return ShardedDelegateGetsCalledAsync(ServiceLifetime.Transient);
-    }
-
-    [TestMethod]
-    public ValueTask ShardedDelegateScopedGetsCalled()
-    {
-        return ShardedDelegateGetsCalledAsync(ServiceLifetime.Scoped);
-    }
-
-    private async ValueTask ShardedDelegateGetsCalledAsync(ServiceLifetime lifetime)
-    {
-        var counter = await ShardedDelegateCountAsync(lifetime).ConfigureAwait(false);
-
-        Assert.AreEqual(0, counter.ConstructorCount);
-    }
-
-    private async ValueTask<Counter> ShardedDelegateCountAsync(ServiceLifetime lifetime)
-    {
-        var builder = CreateMockedShardedGatewayBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
-
-        Counter counter = new();
-
-        builder.Services
-            .AddShardedGatewayHandler(GatewayEvent.RateLimited, () =>
             {
                 counter.HandlerCount++;
             }, lifetime);
@@ -473,20 +550,34 @@ public partial class GatewayHandlersTest(TestContext testContext)
         }
     }
 
-    private class RateLimitedShardedGatewayHandler : IRateLimitedShardedGatewayHandler
+    private class DisposableRateLimitedGatewayHandler(DisposableCounter counter) : RateLimitedGatewayHandler(counter), IDisposable
     {
-        private readonly Counter _counter;
-
-        public RateLimitedShardedGatewayHandler(Counter counter)
+        public void Dispose()
         {
-            _counter = counter;
+            counter.DisposeCount++;
+        }
+    }
 
-            counter.ConstructorCount++;
+    private class AsyncDisposableRateLimitedGatewayHandler(AsyncDisposableCounter counter) : RateLimitedGatewayHandler(counter), IAsyncDisposable
+    {
+        public ValueTask DisposeAsync()
+        {
+            counter.DisposeAsyncCount++;
+
+            return default;
+        }
+    }
+
+    private class DisposableAndAsyncDisposableRateLimitedGatewayHandler(AsyncDisposableCounter counter) : RateLimitedGatewayHandler(counter), IDisposable, IAsyncDisposable
+    {
+        public void Dispose()
+        {
+            counter.DisposeCount++;
         }
 
-        public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)
+        public ValueTask DisposeAsync()
         {
-            _counter.HandlerCount++;
+            counter.DisposeAsyncCount++;
 
             return default;
         }
