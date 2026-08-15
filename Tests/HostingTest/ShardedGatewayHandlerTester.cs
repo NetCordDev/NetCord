@@ -10,18 +10,20 @@ using NetCord;
 
 namespace HostingTest;
 
-public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClassMultipleHandlersSupportedHandlerTester
+public sealed class ShardedGatewayHandlerTester : GatewayHandlerTesterBase, ISingleClassMultipleHandlersSupportedHandlerTester
 {
     private static HostApplicationBuilder CreateBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
     {
         var builder = Helper.CreateBuilder();
 
         builder.Services
-            .AddDiscordGateway(o =>
+            .AddDiscordShardedGateway(o =>
             {
                 o.WebSocketConnectionProvider = webSocketConnectionProvider;
                 o.Compression = new UncompressedGatewayCompression();
                 o.Token = "NO.T.A.REAL.TOKEN";
+                o.TotalShardCount = 1;
+                o.MaxConcurrency = 1;
             });
 
         return builder;
@@ -33,7 +35,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
 
         builder.Services
             .AddSingleton(counter)
-            .AddGatewayHandler<RateLimitedGatewayHandler>(lifetime);
+            .AddShardedGatewayHandler<RateLimitedShardedGatewayHandler>(lifetime);
 
         return builder.Build();
     }
@@ -45,8 +47,8 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         builder.Services
             .AddSingleton(counter)
             .AddScoped(_ => string.Empty)
-            .AddGatewayHandler(lifetime is ServiceLifetime.Singleton ? typeof(RejectingStringRateLimitedGatewayHandler)
-                                                                     : typeof(RequiringStringRateLimitedGatewayHandler), lifetime);
+            .AddShardedGatewayHandler(lifetime is ServiceLifetime.Singleton ? typeof(RejectingStringRateLimitedShardedGatewayHandler)
+                                                                            : typeof(RequiringStringRateLimitedShardedGatewayHandler), lifetime);
 
         return builder.Build();
     }
@@ -56,7 +58,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<RateLimitedGatewayHandler>(_ => new(counter), lifetime);
+            .AddShardedGatewayHandler<RateLimitedShardedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -67,7 +69,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
 
         builder.Services
             .AddScoped(_ => string.Empty)
-            .AddGatewayHandler(_ => new RateLimitedGatewayHandler(counter), lifetime);
+            .AddShardedGatewayHandler(_ => new RateLimitedShardedGatewayHandler(counter), lifetime);
 
         return builder.Build();
     }
@@ -78,7 +80,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
 
         builder.Services
             .AddSingleton(counter)
-            .AddGatewayHandler<DisposableRateLimitedGatewayHandler>(lifetime);
+            .AddShardedGatewayHandler<DisposableRateLimitedShardedGatewayHandler>(lifetime);
 
         return builder.Build();
     }
@@ -89,7 +91,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
 
         builder.Services
             .AddSingleton(counter)
-            .AddGatewayHandler<AsyncDisposableRateLimitedGatewayHandler>(lifetime);
+            .AddShardedGatewayHandler<AsyncDisposableRateLimitedShardedGatewayHandler>(lifetime);
 
         return builder.Build();
     }
@@ -100,7 +102,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
 
         builder.Services
             .AddSingleton(counter)
-            .AddGatewayHandler<DisposableAndAsyncDisposableRateLimitedGatewayHandler>(lifetime);
+            .AddShardedGatewayHandler<DisposableAndAsyncDisposableRateLimitedShardedGatewayHandler>(lifetime);
 
         return builder.Build();
     }
@@ -110,7 +112,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<DisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
+            .AddShardedGatewayHandler<DisposableRateLimitedShardedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -120,7 +122,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<AsyncDisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
+            .AddShardedGatewayHandler<AsyncDisposableRateLimitedShardedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -130,7 +132,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<DisposableAndAsyncDisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
+            .AddShardedGatewayHandler<DisposableAndAsyncDisposableRateLimitedShardedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -140,7 +142,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new DisposableRateLimitedGatewayHandler(counter), lifetime);
+            .AddShardedGatewayHandler<IRateLimitedShardedGatewayHandler>(_ => new DisposableRateLimitedShardedGatewayHandler(counter), lifetime);
 
         return builder.Build();
     }
@@ -150,7 +152,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new AsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
+            .AddShardedGatewayHandler<IRateLimitedShardedGatewayHandler>(_ => new AsyncDisposableRateLimitedShardedGatewayHandler(counter), lifetime);
 
         return builder.Build();
     }
@@ -160,7 +162,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new DisposableAndAsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
+            .AddShardedGatewayHandler<IRateLimitedShardedGatewayHandler>(_ => new DisposableAndAsyncDisposableRateLimitedShardedGatewayHandler(counter), lifetime);
 
         return builder.Build();
     }
@@ -170,7 +172,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler(GatewayEvent.RateLimited, () =>
+            .AddShardedGatewayHandler(GatewayEvent.RateLimited, () =>
             {
                 counter.HandlerCount++;
             }, lifetime);
@@ -183,7 +185,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler(GatewayEvent.RateLimited, (RateLimitedEventArgs arg) =>
+            .AddShardedGatewayHandler(GatewayEvent.RateLimited, (GatewayClient client, RateLimitedEventArgs arg) =>
             {
                 counter.HandlerCount++;
             }, lifetime);
@@ -219,7 +221,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
 
         builder.Services
             .AddScoped(_ => string.Empty)
-            .AddGatewayHandler(GatewayEvent.RateLimited, handler, lifetime);
+            .AddShardedGatewayHandler(GatewayEvent.RateLimited, handler, lifetime);
 
         return builder.Build();
     }
@@ -231,23 +233,23 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         builder.Services
             .AddSingleton(counter1)
             .AddSingleton(counter2)
-            .AddGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler>(lifetime);
+            .AddShardedGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateShardedGatewayHandler>(lifetime);
 
         return builder.Build();
     }
 
-    private class RateLimitedGatewayHandler : IRateLimitedGatewayHandler
+    private class RateLimitedShardedGatewayHandler : IRateLimitedShardedGatewayHandler
     {
         private readonly Counter _counter;
 
-        public RateLimitedGatewayHandler(Counter counter)
+        public RateLimitedShardedGatewayHandler(Counter counter)
         {
             _counter = counter;
 
             counter.ConstructorCount++;
         }
 
-        public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)
         {
             _counter.HandlerCount++;
 
@@ -255,7 +257,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         }
     }
 
-    private class DisposableRateLimitedGatewayHandler(DisposableCounter counter) : RateLimitedGatewayHandler(counter), IDisposable
+    private class DisposableRateLimitedShardedGatewayHandler(DisposableCounter counter) : RateLimitedShardedGatewayHandler(counter), IDisposable
     {
         public void Dispose()
         {
@@ -263,7 +265,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         }
     }
 
-    private class AsyncDisposableRateLimitedGatewayHandler(AsyncDisposableCounter counter) : RateLimitedGatewayHandler(counter), IAsyncDisposable
+    private class AsyncDisposableRateLimitedShardedGatewayHandler(AsyncDisposableCounter counter) : RateLimitedShardedGatewayHandler(counter), IAsyncDisposable
     {
         public ValueTask DisposeAsync()
         {
@@ -273,7 +275,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         }
     }
 
-    private class DisposableAndAsyncDisposableRateLimitedGatewayHandler(AsyncDisposableCounter counter) : RateLimitedGatewayHandler(counter), IDisposable, IAsyncDisposable
+    private class DisposableAndAsyncDisposableRateLimitedShardedGatewayHandler(AsyncDisposableCounter counter) : RateLimitedShardedGatewayHandler(counter), IDisposable, IAsyncDisposable
     {
         public void Dispose()
         {
@@ -288,12 +290,12 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         }
     }
 
-    private class RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler : IRateLimitedGatewayHandler, IApplicationCommandPermissionsUpdateGatewayHandler
+    private class RateLimitedAndApplicationCommandPermissionsUpdateShardedGatewayHandler : IRateLimitedShardedGatewayHandler, IApplicationCommandPermissionsUpdateShardedGatewayHandler
     {
         private readonly Counter _rateLimitedCounter;
         private readonly Counter _applicationCommandPermissionsUpdateCounter;
 
-        public RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler(Counter rateLimitedCounter, Counter applicationCommandPermissionsUpdateCounter)
+        public RateLimitedAndApplicationCommandPermissionsUpdateShardedGatewayHandler(Counter rateLimitedCounter, Counter applicationCommandPermissionsUpdateCounter)
         {
             _rateLimitedCounter = rateLimitedCounter;
             _applicationCommandPermissionsUpdateCounter = applicationCommandPermissionsUpdateCounter;
@@ -302,14 +304,14 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
             applicationCommandPermissionsUpdateCounter.ConstructorCount++;
         }
 
-        public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)
         {
             _rateLimitedCounter.HandlerCount++;
 
             return default;
         }
 
-        public ValueTask HandleAsync(ApplicationCommandPermission arg)
+        public ValueTask HandleAsync(GatewayClient client, ApplicationCommandPermission arg)
         {
             _applicationCommandPermissionsUpdateCounter.HandlerCount++;
 
@@ -317,12 +319,12 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         }
     }
 
-    private class RequiringStringRateLimitedGatewayHandler : IRateLimitedGatewayHandler
+    private class RequiringStringRateLimitedShardedGatewayHandler : IRateLimitedShardedGatewayHandler
     {
         private readonly Counter _counter;
         private readonly IServiceProvider _services;
 
-        public RequiringStringRateLimitedGatewayHandler(Counter counter, IServiceProvider services)
+        public RequiringStringRateLimitedShardedGatewayHandler(Counter counter, IServiceProvider services)
         {
             _counter = counter;
             _services = services;
@@ -330,7 +332,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
             counter.ConstructorCount++;
         }
 
-        public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)
         {
             _ = _services.GetRequiredService<string>();
 
@@ -340,12 +342,12 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         }
     }
 
-    private class RejectingStringRateLimitedGatewayHandler : IRateLimitedGatewayHandler
+    private class RejectingStringRateLimitedShardedGatewayHandler : IRateLimitedShardedGatewayHandler
     {
         private readonly Counter _counter;
         private readonly IServiceProvider _services;
 
-        public RejectingStringRateLimitedGatewayHandler(Counter counter, IServiceProvider services)
+        public RejectingStringRateLimitedShardedGatewayHandler(Counter counter, IServiceProvider services)
         {
             _counter = counter;
             _services = services;
@@ -353,7 +355,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
             counter.ConstructorCount++;
         }
 
-        public ValueTask HandleAsync(RateLimitedEventArgs arg)
+        public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)
         {
             try
             {
@@ -368,3 +370,4 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         }
     }
 }
+

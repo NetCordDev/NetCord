@@ -2,6 +2,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HostingTest;
 
+[TestClass]
+public sealed class GatewayHandlerTests(TestContext context) : HandlerTests<GatewayHandlerTester>(context);
+
+[TestClass]
+public sealed class ShardedGatewayHandlerTests(TestContext context) : HandlerTests<ShardedGatewayHandlerTester>(context);
+
 public abstract class HandlerTests<TTester>(TestContext context) where TTester : IHandlerTester
 {
     protected const int HandlerCallCount = 10;
