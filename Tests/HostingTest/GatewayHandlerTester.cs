@@ -10,42 +10,7 @@ using NetCord;
 
 namespace HostingTest;
 
-public interface IHandlersTester
-{
-    public static abstract IHost CreateClassTestHost(Counter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassScopedTestHost(Counter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryTestHost(Counter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryScopedTestHost(Counter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassDisposableTestHost(DisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassAsyncDisposableTestHost(AsyncDisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassDisposableAndAsyncDisposableTestHost(AsyncDisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryDisposableTestHost(DisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryAsyncDisposableTestHost(AsyncDisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryDisposableAndAsyncDisposableTestHost(AsyncDisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryHiddenDisposableTestHost(DisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryHiddenAsyncDisposableTestHost(AsyncDisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateClassFactoryHiddenDisposableAndAsyncDisposableTestHost(AsyncDisposableCounter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateDelegateTestHost(Counter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateDelegateWithParametersTestHost(Counter counter, ServiceLifetime lifetime);
-
-    public static abstract IHost CreateDelegateScopedTestHost(Counter counter, ServiceLifetime lifetime);
-}
-
-public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleClassMultipleHandlersSupportedHandlersTester
+public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClassMultipleHandlersSupportedHandlerTester
 {
     private static HostApplicationBuilder CreateBuilder(IWebSocketConnectionProvider webSocketConnectionProvider)
     {
@@ -91,7 +56,7 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<RateLimitedGatewayHandler>(sp => new(counter), lifetime);
+            .AddGatewayHandler<RateLimitedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -145,7 +110,7 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<DisposableRateLimitedGatewayHandler>(sp => new(counter), lifetime);
+            .AddGatewayHandler<DisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -155,7 +120,7 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<AsyncDisposableRateLimitedGatewayHandler>(sp => new(counter), lifetime);
+            .AddGatewayHandler<AsyncDisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -165,7 +130,7 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<DisposableAndAsyncDisposableRateLimitedGatewayHandler>(sp => new(counter), lifetime);
+            .AddGatewayHandler<DisposableAndAsyncDisposableRateLimitedGatewayHandler>(_ => new(counter), lifetime);
 
         return builder.Build();
     }
@@ -175,7 +140,7 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<IRateLimitedGatewayHandler>(sp => new DisposableRateLimitedGatewayHandler(counter), lifetime);
+            .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new DisposableRateLimitedGatewayHandler(counter), lifetime);
 
         return builder.Build();
     }
@@ -185,7 +150,7 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<IRateLimitedGatewayHandler>(sp => new AsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
+            .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new AsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
 
         return builder.Build();
     }
@@ -195,7 +160,7 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddGatewayHandler<IRateLimitedGatewayHandler>(sp => new DisposableAndAsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
+            .AddGatewayHandler<IRateLimitedGatewayHandler>(_ => new DisposableAndAsyncDisposableRateLimitedGatewayHandler(counter), lifetime);
 
         return builder.Build();
     }
@@ -403,3 +368,4 @@ public sealed class GatewayHandlersTester : GatewayHandlersTesterBase, ISingleCl
         }
     }
 }
+

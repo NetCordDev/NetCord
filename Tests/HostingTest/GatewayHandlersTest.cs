@@ -1,7 +1,7 @@
 namespace HostingTest;
 
 [TestClass]
-public sealed class GatewayHandlersTests(TestContext context) : HandlersTests<GatewayHandlersTester>(context);
+public sealed class GatewayHandlersTests(TestContext context) : HandlerTest<GatewayHandlerTester>(context);
 
 // using Microsoft.Extensions.DependencyInjection;
 // using Microsoft.Extensions.Hosting;

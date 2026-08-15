@@ -9,7 +9,7 @@ using NetCord;
 
 namespace HostingTest;
 
-public abstract class GatewayHandlersTesterBase
+public abstract class GatewayHandlerTesterBase
 {
     protected class JsonGatewayMessage
     {
