@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HostingTest;
 
-public abstract class HandlerTest<TTester>(TestContext context) where TTester : IHandlerTester
+public abstract class HandlerTests<TTester>(TestContext context) where TTester : IHandlerTester
 {
     protected const int HandlerCallCount = 10;
 
