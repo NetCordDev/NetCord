@@ -21,9 +21,9 @@ internal static class Helper
         return builder;
     }
 
-    public static async ValueTask RunUntilAsync(Func<HostApplicationBuilder> getBuilder, Func<bool> completionCondition, CancellationToken cancellationToken)
+    public static async ValueTask RunUntilAsync(Func<IHost> getHost, Func<bool> completionCondition, CancellationToken cancellationToken)
     {
-        using (var host = getBuilder().Build())
+        using (var host = getHost())
         {
             await host.StartAsync(cancellationToken).ConfigureAwait(false);
 
