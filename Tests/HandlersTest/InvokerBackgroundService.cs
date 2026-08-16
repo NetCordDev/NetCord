@@ -15,7 +15,7 @@ internal class InvokerBackgroundService<TInvoker>(IServiceProvider services, Fun
             {
                 await invokeAction(_invoker, services, stoppingToken).ConfigureAwait(false);
 
-                await Task.Delay(50, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(Helper.DelayMilliseconds, stoppingToken).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException)

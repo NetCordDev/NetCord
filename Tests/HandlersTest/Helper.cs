@@ -6,6 +6,8 @@ namespace HandlersTest;
 
 internal static class Helper
 {
+    public const int DelayMilliseconds = 50;
+
     public static HostApplicationBuilder CreateBuilder()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -27,12 +29,23 @@ internal static class Helper
         {
             await host.StartAsync(cancellationToken).ConfigureAwait(false);
 
-            Assert.IsTrue(SpinWait.SpinUntil(completionCondition, TimeSpan.FromSeconds(10)), "Handler was not called enough times for 10 seconds.");
+            var start = Environment.TickCount64;
+
+            while (true)
+            {
+                if (completionCondition())
+                    break;
+
+                if (Environment.TickCount64 - start > 10_000)
+                    Assert.Fail("Handler was not called enough times for 10 seconds.");
+
+                await Task.Delay(DelayMilliseconds, cancellationToken).ConfigureAwait(false);
+            }
 
             await host.StopAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+        await Task.Delay(DelayMilliseconds, cancellationToken).ConfigureAwait(false);
     }
 
     public static (Counter, Counter) ExtractCounters(IEnumerable<Counter> counters)

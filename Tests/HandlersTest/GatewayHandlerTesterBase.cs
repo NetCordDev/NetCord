@@ -68,11 +68,9 @@ public abstract class GatewayHandlerTesterBase
 
     protected sealed class RateLimitedAndApplicationCommandPermissionsUpdateWebSocketConnection : MockWebSocketConnection
     {
-        private int _turn;
-
         protected override JsonGatewayMessage CreateMessage(int seq)
         {
-            return Interlocked.Increment(ref _turn) % 2 is 0
+            return seq % 2 is 0
                 ? CreateRateLimitedMessage(seq)
                 : CreateApplicationCommandPermissionsUpdateMessage(seq);
         }
@@ -104,7 +102,7 @@ public abstract class GatewayHandlerTesterBase
 
         public void Dispose()
         {
-            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
         }
 
         public ValueTask OpenAsync(Uri uri, CancellationToken cancellationToken = default)
@@ -119,8 +117,6 @@ public abstract class GatewayHandlerTesterBase
 
         public async ValueTask<WebSocketConnectionReceiveResult> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(50, cancellationToken).ConfigureAwait(false);
-
             if (_stream is { } existingStream)
             {
                 var existingResult = Copy(buffer, existingStream);
@@ -131,6 +127,8 @@ public abstract class GatewayHandlerTesterBase
                 return existingResult;
             }
 
+            await Task.Delay(Helper.DelayMilliseconds, cancellationToken).ConfigureAwait(false);
+
             if (_cancellationTokenSource is { IsCancellationRequested: true })
                 return new(0, WebSocketMessageType.Close, true);
 
@@ -138,7 +136,8 @@ public abstract class GatewayHandlerTesterBase
 
             MemoryStream stream = new();
 
-            JsonSerializer.Serialize(new Utf8JsonWriter(stream), message);
+            using (Utf8JsonWriter writer = new(stream))
+                JsonSerializer.Serialize(writer, message);
 
             stream.Position = 0;
 
