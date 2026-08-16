@@ -80,7 +80,6 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddGatewayHandler(this IServiceCollection services, GatewayEvent gatewayEvent, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-
         services.AddSingleton<IGatewayHandlerMetadata>(_ =>
         {
             return DelegateHandlerMetadata<GatewayEventId>.Create<Func<IServiceProvider, ValueTask>>(
