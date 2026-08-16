@@ -22,7 +22,7 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
         builder.Services
             .AddDiscordRest()
             .AddWebhookEventHandlerInvoker()
-            .AddHostedService(services => new InvokerBackgroundService(services, invokeAction));
+            .AddHostedService(services => new InvokerBackgroundService<IWebhookEventHandlerInvoker>(services, invokeAction));
 
         return builder;
     }
@@ -53,6 +53,8 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
 
     private static ValueTask InvokeApplicationAuthorizedAsync(IWebhookEventHandlerInvoker invoker, IServiceProvider services, CancellationToken cancellationToken)
     {
+        _ = cancellationToken;
+
         var client = services.GetRequiredService<RestClient>();
 
         var authorizedArgs = WebhookEventArgs.CreateFromJson(new JsonWebhookEventArgs
@@ -308,27 +310,6 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
         return builder.Build();
     }
 
-    private class InvokerBackgroundService(IServiceProvider services, Func<IWebhookEventHandlerInvoker, IServiceProvider, CancellationToken, ValueTask> invokeAction) : BackgroundService
-    {
-        private readonly IWebhookEventHandlerInvoker _invoker = services.GetRequiredService<IWebhookEventHandlerInvoker>();
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            try
-            {
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    await invokeAction(_invoker, services, stoppingToken).ConfigureAwait(false);
-
-                    await Task.Delay(50, stoppingToken).ConfigureAwait(false);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-    }
-
     private class ApplicationDeauthorizedWebhookHandler : IApplicationDeauthorizedWebhookHandler
     {
         private readonly Counter _counter;
@@ -336,6 +317,7 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
         public ApplicationDeauthorizedWebhookHandler(Counter counter)
         {
             _counter = counter;
+
             counter.ConstructorCount++;
         }
 
@@ -412,6 +394,7 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
         {
             _counter = counter;
             _services = services;
+
             counter.ConstructorCount++;
         }
 
@@ -433,6 +416,7 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
         {
             _counter = counter;
             _services = services;
+
             counter.ConstructorCount++;
         }
 

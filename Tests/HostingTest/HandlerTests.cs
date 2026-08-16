@@ -11,6 +11,9 @@ public sealed class ShardedGatewayHandlerTests(TestContext context) : SingleClas
 [TestClass]
 public sealed class WebhookEventHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<WebhookEventHandlerTester>(context);
 
+[TestClass]
+public sealed class HttpInteractionHandlerTests(TestContext context) : HandlerTests<HttpInteractionHandlerTester>(context);
+
 public abstract class HandlerTests<TTester>(TestContext context) where TTester : IHandlerTester
 {
     protected const int HandlerCallCount = 10;
