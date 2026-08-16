@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using NetCord.Rest;
-using NetCord.Rest.JsonModels;
 
 namespace NetCord.Hosting.AspNetCore;
 
@@ -14,61 +14,33 @@ public interface IWebhookEventProcessor
     /// </summary>
     /// <param name="context">The <see cref="HttpContext"/> of the incoming request.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public Task ProcessAsync(HttpContext context);
+    public ValueTask ProcessAsync(HttpContext context);
 }
 
-[GenerateHandler("APPLICATION_AUTHORIZED", typeof(ApplicationAuthorizedWebhookEventArgs))]
-[GenerateHandler("APPLICATION_DEAUTHORIZED", typeof(ApplicationDeauthorizedWebhookEventArgs))]
-[GenerateHandler("ENTITLEMENT_CREATE", typeof(EntitlementCreateWebhookEventArgs))]
-[GenerateHandler(null, typeof(UnknownEventWebhookEventArgs))]
-internal partial class WebhookEventProcessor : HttpEventProcessor<JsonWebhookEventArgs>, IWebhookEventProcessor
+internal sealed class WebhookEventProcessor(IServiceProvider services) : IWebhookEventProcessor
 {
-    private partial class StorageBuilder;
+    private readonly IWebhookEventParser _parser = services.GetService<IWebhookEventParser>()
+            ?? new WebhookEventParser(services.GetRequiredService<RestClient>(), services.GetRequiredService<IOptions<IDiscordOptions>>());
 
-    private partial class Storage;
+    private readonly IWebhookEventHandlerInvoker _invoker = services.GetService<IWebhookEventHandlerInvoker>()
+            ?? new WebhookEventHandlerInvoker(services.GetRequiredService<ILogger<WebhookEventHandlerInvoker>>(), services.GetServices<IWebhookHandlerMetadata>(), services);
 
-    public WebhookEventProcessor(IServiceProvider services) : base(services)
+    public async ValueTask ProcessAsync(HttpContext context)
     {
-        StorageBuilder builder = new();
-
-        foreach (var handler in services.GetServices<IWebhookHandler>())
+        switch (await _parser.ParseAsync(context).ConfigureAwait(false))
         {
-            if (handler is IDelegateWebhookHandlerBase delegateHandler)
-                builder.RegisterDelegateHandler(delegateHandler);
-            else
-                builder.RegisterClassHandler(handler);
-        }
-
-        _storage = builder.Build();
-
-        _logger = services.GetRequiredService<ILogger<WebhookEventProcessor>>();
-    }
-
-    private readonly Storage _storage;
-
-    private readonly ILogger<WebhookEventProcessor> _logger;
-
-    protected override JsonWebhookEventArgs GetData(HttpContext context, ReadOnlySpan<byte> body)
-    {
-        return WebhookEventArgsFactory.CreateJson(body);
-    }
-
-    protected override ValueTask HandleAsync(HttpContext context, JsonWebhookEventArgs data)
-    {
-        switch (data.Type)
-        {
-            case WebhookEventType.Event:
-                return HandleEventAsync(data);
-            case WebhookEventType.Ping:
+            case null:
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                break;
+            case WebhookEventArgs args:
+                await _invoker.InvokeAsync(args).ConfigureAwait(false);
+                break;
+            case PingWebhookEventArgs:
                 context.Response.StatusCode = StatusCodes.Status204NoContent;
                 break;
+            default:
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                break;
         }
-
-        return default;
-    }
-
-    protected override void LogHandlerException(Exception ex)
-    {
-        _logger.LogError(ex, "An error occurred while invoking a webhook event handler.");
     }
 }
