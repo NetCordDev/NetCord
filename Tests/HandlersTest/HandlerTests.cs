@@ -6,7 +6,23 @@ namespace HandlersTest;
 public sealed class GatewayHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<GatewayHandlerTester>(context);
 
 [TestClass]
-public sealed class ShardedGatewayHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<ShardedGatewayHandlerTester>(context);
+public sealed class ShardedGatewayHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<ShardedGatewayHandlerTester>(context)
+{
+    [TestMethod]
+    [DataRow(ServiceLifetime.Singleton)]
+    [DataRow(ServiceLifetime.Transient)]
+    [DataRow(ServiceLifetime.Scoped)]
+    public async ValueTask DelegateWithParametersIncludingGatewayClientGetsCalledAsync(ServiceLifetime lifetime)
+    {
+        Counter counter = new();
+
+        await Helper.RunUntilAsync(() => ShardedGatewayHandlerTester.CreateDelegateWithParametersTestHost(counter, lifetime),
+                                   () => counter.HandlerCount >= HandlerCallCount,
+                                   _context.CancellationToken).ConfigureAwait(false);
+
+        Assert.AreEqual(0, counter.ConstructorCount);
+    }
+}
 
 [TestClass]
 public sealed class WebhookEventHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<WebhookEventHandlerTester>(context);

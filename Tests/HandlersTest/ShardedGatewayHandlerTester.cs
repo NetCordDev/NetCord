@@ -185,7 +185,7 @@ public sealed class ShardedGatewayHandlerTester : GatewayHandlerTesterBase, ISin
         var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
 
         builder.Services
-            .AddShardedGatewayHandler(GatewayEvent.RateLimited, (GatewayClient client, RateLimitedEventArgs arg) =>
+            .AddShardedGatewayHandler(GatewayEvent.RateLimited, (RateLimitedEventArgs arg) =>
             {
                 counter.HandlerCount++;
             }, lifetime);
@@ -244,6 +244,20 @@ public sealed class ShardedGatewayHandlerTester : GatewayHandlerTesterBase, ISin
 
         builder.Services
             .AddShardedGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateShardedGatewayHandler>(_ => new([counter1, counter2]), lifetime);
+
+        return builder.Build();
+    }
+
+    // Custom
+    public static IHost CreateDelegateWithParametersIncludingGatewayClientTestHost(Counter counter, ServiceLifetime lifetime)
+    {
+        var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedWebSocketConnection>());
+
+        builder.Services
+            .AddShardedGatewayHandler(GatewayEvent.RateLimited, (GatewayClient client, RateLimitedEventArgs arg) =>
+            {
+                counter.HandlerCount++;
+            }, lifetime);
 
         return builder.Build();
     }
