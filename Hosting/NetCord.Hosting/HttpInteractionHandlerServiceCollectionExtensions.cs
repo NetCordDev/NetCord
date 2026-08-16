@@ -31,12 +31,13 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory, ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : class, IHttpInteractionHandler
     {
-        var handlerMetadata = ClassHandlerMetadata.CreateWithFactory(
-            typeof(T),
-            lifetime is ServiceLifetime.Singleton,
-            implementationFactory);
-
-        services.AddSingleton<IHttpInteractionHandlerMetadata>(_ => handlerMetadata);
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(_ =>
+        {
+            return ClassHandlerMetadata.CreateWithFactory(
+                typeof(T),
+                lifetime is ServiceLifetime.Singleton,
+                implementationFactory);
+        });
 
         return services;
     }
@@ -59,11 +60,12 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
 
     private static void AddHttpInteractionHandlerCore(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType, ServiceLifetime lifetime)
     {
-        var handlerMetadata = ClassHandlerMetadata.Create(
-            handlerType,
-            lifetime is ServiceLifetime.Singleton);
-
-        services.AddSingleton<IHttpInteractionHandlerMetadata>(_ => handlerMetadata);
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(_ =>
+        {
+            return ClassHandlerMetadata.Create(
+                handlerType,
+                lifetime is ServiceLifetime.Singleton);
+        });
     }
 
     /// <summary>
@@ -75,12 +77,13 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionHandler(this IServiceCollection services, Delegate handler, ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        var handlerMetadata = DelegateHandlerMetadata.Create<Func<Interaction, IServiceProvider, ValueTask>>(
-            handler,
-            lifetime is ServiceLifetime.Singleton,
-            [typeof(Interaction)]);
-
-        services.AddSingleton<IHttpInteractionHandlerMetadata>(handlerMetadata);
+        services.AddSingleton<IHttpInteractionHandlerMetadata>(_ =>
+        {
+            return DelegateHandlerMetadata.Create<Func<Interaction, IServiceProvider, ValueTask>>(
+                handler,
+                lifetime is ServiceLifetime.Singleton,
+                [typeof(Interaction)]);
+        });
 
         return services;
     }
