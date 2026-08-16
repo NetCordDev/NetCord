@@ -11,7 +11,7 @@ using NetCord.JsonModels;
 using NetCord.Rest;
 using NetCord.Rest.JsonModels;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupportedHandlerTester
 {

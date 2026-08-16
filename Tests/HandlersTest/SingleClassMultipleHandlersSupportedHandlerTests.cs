@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 public abstract class SingleClassMultipleHandlersSupportedHandlerTests<TTester>(TestContext context) : HandlerTests<TTester>(context) where TTester : ISingleClassMultipleHandlersSupportedHandlerTester
 {

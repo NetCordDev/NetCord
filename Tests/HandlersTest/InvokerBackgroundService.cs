@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 internal class InvokerBackgroundService<TInvoker>(IServiceProvider services, Func<TInvoker, IServiceProvider, CancellationToken, ValueTask> invokeAction) : BackgroundService where TInvoker : notnull
 {

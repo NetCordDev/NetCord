@@ -8,7 +8,7 @@ using NetCord.Gateway.Compression;
 using NetCord.Gateway;
 using NetCord;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 public sealed class ShardedGatewayHandlerTester : GatewayHandlerTesterBase, ISingleClassMultipleHandlersSupportedHandlerTester
 {

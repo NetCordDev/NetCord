@@ -7,7 +7,7 @@ using NetCord.Hosting.AspNetCore;
 using NetCord.Hosting.Rest;
 using NetCord.Rest;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 public sealed class HttpInteractionHandlerTester : IHandlerTester
 {

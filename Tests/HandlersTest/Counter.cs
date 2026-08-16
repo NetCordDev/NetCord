@@ -1,4 +1,4 @@
-namespace HostingTest;
+namespace HandlersTest;
 
 public class Counter
 {

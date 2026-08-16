@@ -7,7 +7,7 @@ using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.JsonModels;
 using NetCord;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 public abstract class GatewayHandlerTesterBase
 {

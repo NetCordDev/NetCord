@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 public interface IHandlerTester
 {

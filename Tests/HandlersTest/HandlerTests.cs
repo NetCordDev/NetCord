@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 [TestClass]
 public sealed class GatewayHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<GatewayHandlerTester>(context);

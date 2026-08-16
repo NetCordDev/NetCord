@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace HostingTest;
+namespace HandlersTest;
 
 internal static class Helper
 {
@@ -46,4 +46,3 @@ internal static class Helper
         return (counter1, counter2);
     }
 }
-
