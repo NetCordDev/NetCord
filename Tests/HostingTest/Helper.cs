@@ -34,5 +34,16 @@ internal static class Helper
 
         await Task.Delay(100, cancellationToken).ConfigureAwait(false);
     }
+
+    public static (Counter, Counter) ExtractCounters(IEnumerable<Counter> counters)
+    {
+        var countersArray = counters.ToArray();
+        Assert.HasCount(2, countersArray, "Expected exactly 2 counters.");
+
+        var counter1 = countersArray[0];
+        var counter2 = countersArray[1];
+
+        return (counter1, counter2);
+    }
 }
 

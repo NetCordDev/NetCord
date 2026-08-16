@@ -236,6 +236,16 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         return builder.Build();
     }
 
+    public static IHost CreateClassFactorySingleMultipleHandlersTestHost(Counter counter1, Counter counter2, ServiceLifetime lifetime)
+    {
+        var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedAndApplicationCommandPermissionsUpdateWebSocketConnection>());
+
+        builder.Services
+            .AddGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler>(_ => new([counter1, counter2]), lifetime);
+
+        return builder.Build();
+    }
+
     private class RateLimitedGatewayHandler : IRateLimitedGatewayHandler
     {
         private readonly Counter _counter;
@@ -293,13 +303,12 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
         private readonly Counter _rateLimitedCounter;
         private readonly Counter _applicationCommandPermissionsUpdateCounter;
 
-        public RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler(Counter rateLimitedCounter, Counter applicationCommandPermissionsUpdateCounter)
+        public RateLimitedAndApplicationCommandPermissionsUpdateGatewayHandler(IEnumerable<Counter> counters)
         {
-            _rateLimitedCounter = rateLimitedCounter;
-            _applicationCommandPermissionsUpdateCounter = applicationCommandPermissionsUpdateCounter;
+            (_rateLimitedCounter, _applicationCommandPermissionsUpdateCounter) = Helper.ExtractCounters(counters);
 
-            rateLimitedCounter.ConstructorCount++;
-            applicationCommandPermissionsUpdateCounter.ConstructorCount++;
+            _rateLimitedCounter.ConstructorCount++;
+            _applicationCommandPermissionsUpdateCounter.ConstructorCount++;
         }
 
         public ValueTask HandleAsync(RateLimitedEventArgs arg)

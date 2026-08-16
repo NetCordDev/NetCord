@@ -238,6 +238,16 @@ public sealed class ShardedGatewayHandlerTester : GatewayHandlerTesterBase, ISin
         return builder.Build();
     }
 
+    public static IHost CreateClassFactorySingleMultipleHandlersTestHost(Counter counter1, Counter counter2, ServiceLifetime lifetime)
+    {
+        var builder = CreateBuilder(new MockWebSocketConnectionProvider<RateLimitedAndApplicationCommandPermissionsUpdateWebSocketConnection>());
+
+        builder.Services
+            .AddShardedGatewayHandler<RateLimitedAndApplicationCommandPermissionsUpdateShardedGatewayHandler>(_ => new([counter1, counter2]), lifetime);
+
+        return builder.Build();
+    }
+
     private class RateLimitedShardedGatewayHandler : IRateLimitedShardedGatewayHandler
     {
         private readonly Counter _counter;
@@ -295,13 +305,12 @@ public sealed class ShardedGatewayHandlerTester : GatewayHandlerTesterBase, ISin
         private readonly Counter _rateLimitedCounter;
         private readonly Counter _applicationCommandPermissionsUpdateCounter;
 
-        public RateLimitedAndApplicationCommandPermissionsUpdateShardedGatewayHandler(Counter rateLimitedCounter, Counter applicationCommandPermissionsUpdateCounter)
+        public RateLimitedAndApplicationCommandPermissionsUpdateShardedGatewayHandler(IEnumerable<Counter> counters)
         {
-            _rateLimitedCounter = rateLimitedCounter;
-            _applicationCommandPermissionsUpdateCounter = applicationCommandPermissionsUpdateCounter;
+            (_rateLimitedCounter, _applicationCommandPermissionsUpdateCounter) = Helper.ExtractCounters(counters);
 
-            rateLimitedCounter.ConstructorCount++;
-            applicationCommandPermissionsUpdateCounter.ConstructorCount++;
+            _rateLimitedCounter.ConstructorCount++;
+            _applicationCommandPermissionsUpdateCounter.ConstructorCount++;
         }
 
         public ValueTask HandleAsync(GatewayClient client, RateLimitedEventArgs arg)

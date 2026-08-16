@@ -3,10 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace HostingTest;
 
 [TestClass]
-public sealed class GatewayHandlerTests(TestContext context) : HandlerTests<GatewayHandlerTester>(context);
+public sealed class GatewayHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<GatewayHandlerTester>(context);
 
 [TestClass]
-public sealed class ShardedGatewayHandlerTests(TestContext context) : HandlerTests<ShardedGatewayHandlerTester>(context);
+public sealed class ShardedGatewayHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<ShardedGatewayHandlerTester>(context);
+
+[TestClass]
+public sealed class WebhookEventHandlerTests(TestContext context) : SingleClassMultipleHandlersSupportedHandlerTests<WebhookEventHandlerTester>(context);
 
 public abstract class HandlerTests<TTester>(TestContext context) where TTester : IHandlerTester
 {

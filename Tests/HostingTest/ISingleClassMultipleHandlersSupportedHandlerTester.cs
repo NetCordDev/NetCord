@@ -6,4 +6,6 @@ namespace HostingTest;
 public interface ISingleClassMultipleHandlersSupportedHandlerTester : IHandlerTester
 {
     public static abstract IHost CreateClassSingleMultipleHandlersTestHost(Counter counter1, Counter counter2, ServiceLifetime lifetime);
+
+    public static abstract IHost CreateClassFactorySingleMultipleHandlersTestHost(Counter counter1, Counter counter2, ServiceLifetime lifetime);
 }
