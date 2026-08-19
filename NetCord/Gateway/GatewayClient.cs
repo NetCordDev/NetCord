@@ -1628,13 +1628,13 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     private void SetUpMetrics()
     {
-        s_meter.CreateObservableGauge(
+        s_meter.CreateObservableUpDownCounter(
             "gateway.cache.guilds",
             () => new Measurement<long>(Cache.Guilds.Count, GetShardIdTag()),
             "{guild}",
             "The number of guilds in the cache for the Discord Gateway.");
 
-        s_meter.CreateObservableGauge(
+        s_meter.CreateObservableUpDownCounter(
             "gateway.cache.entities",
             () =>
             {

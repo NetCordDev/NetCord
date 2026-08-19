@@ -601,7 +601,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
     private void SetUpMetrics()
     {
-        s_meter.CreateObservableGauge(
+        s_meter.CreateObservableUpDownCounter(
             "sharded_gateway.shards",
             () =>
             {
@@ -626,11 +626,12 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
                 return (IEnumerable<Measurement<int>>)
                 [
-                    new Measurement<int>(readyCount, new KeyValuePair<string, object?>("status", "ready")),
-                    new Measurement<int>(connectingCount, new KeyValuePair<string, object?>("status", "connecting")),
-                    new Measurement<int>(disconnectedCount, new KeyValuePair<string, object?>("status", "disconnected")),
+                    new Measurement<int>(readyCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Ready))),
+                    new Measurement<int>(connectingCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Connecting))),
+                    new Measurement<int>(disconnectedCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Disconnected))),
                 ];
             },
+            "{shard}",
             "The count of shards of the ShardedGatewayClient.");
     }
     #endregion
