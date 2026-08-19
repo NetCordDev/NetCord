@@ -613,14 +613,21 @@ public abstract partial class WebSocketClient : IDisposable
         return ResumeAsync(state);
     }
 
-    private protected async ValueTask SendObjectAsync<T>(T obj, JsonTypeInfo<T> jsonTypeInfo, WebSocketMessageProperties? properties, CancellationToken cancellationToken = default)
+    private protected async ValueTask SendObjectAsync<T>(string? op, T obj, JsonTypeInfo<T> jsonTypeInfo, WebSocketMessageProperties? properties, CancellationToken cancellationToken = default)
     {
         using var output = WebSocketClientJsonSerializer.Serialize(obj, jsonTypeInfo);
 
-        await SendMessageAsync(output.WrittenMemory, properties, cancellationToken).ConfigureAwait(false);
+        var writtenMemory = output.WrittenMemory;
+
+        await SendMessageAsyncCore(op, writtenMemory, properties, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask SendMessageAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask SendMessageAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        return SendMessageAsyncCore(null, buffer, properties, cancellationToken);
+    }
+
+    private protected async ValueTask SendMessageAsyncCore(string? op, ReadOnlyMemory<byte> buffer, WebSocketMessageProperties? properties, CancellationToken cancellationToken = default)
     {
         var messageProperties = _defaultTextMessageProperties.Compose(properties);
 
@@ -658,7 +665,7 @@ public abstract partial class WebSocketClient : IDisposable
                 }
             }
 
-            var exception = await TrySendConnectionMessageAsync(connectionState, buffer, messageProperties, cancellationToken).ConfigureAwait(false);
+            var exception = await TrySendConnectionMessageAsync(op, connectionState, buffer, messageProperties, cancellationToken).ConfigureAwait(false);
 
             if (exception is null)
                 return;
@@ -668,23 +675,23 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected async ValueTask SendConnectionObjectAsync<T>(ConnectionState connectionState, T obj, JsonTypeInfo<T> jsonTypeInfo, InternalWebSocketMessageProperties messageProperties, CancellationToken cancellationToken = default)
+    private protected async ValueTask SendConnectionObjectAsync<T>(string? op, ConnectionState connectionState, T obj, JsonTypeInfo<T> jsonTypeInfo, InternalWebSocketMessageProperties properties, CancellationToken cancellationToken = default)
     {
         using var output = WebSocketClientJsonSerializer.Serialize(obj, jsonTypeInfo);
 
-        await SendConnectionMessageAsync(connectionState, output.WrittenMemory, messageProperties, cancellationToken).ConfigureAwait(false);
+        await SendConnectionMessageAsync(op, connectionState, output.WrittenMemory, properties, cancellationToken).ConfigureAwait(false);
     }
 
-    private protected async ValueTask SendConnectionMessageAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties messageProperties, CancellationToken cancellationToken = default)
+    private protected async ValueTask SendConnectionMessageAsync(string? op, ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties, CancellationToken cancellationToken = default)
     {
-        var exception = await TrySendConnectionMessageAsync(connectionState, buffer, messageProperties, cancellationToken).ConfigureAwait(false);
+        var exception = await TrySendConnectionMessageAsync(op, connectionState, buffer, properties, cancellationToken).ConfigureAwait(false);
         if (exception is null)
             return;
 
         ThrowConnectionNotStarted(exception);
     }
 
-    private async ValueTask<Exception?> TrySendConnectionMessageAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties messageProperties, CancellationToken cancellationToken = default)
+    private async ValueTask<Exception?> TrySendConnectionMessageAsync(string? op, ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties, CancellationToken cancellationToken = default)
     {
         var rateLimiter = connectionState.RateLimiter;
 
@@ -709,16 +716,20 @@ public abstract partial class WebSocketClient : IDisposable
 
             if (result.RateLimited)
             {
-                if (messageProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
+                var resetAfter = result.ResetAfter;
+
+                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
                 {
+                    RecordRateLimitTriggered(op, buffer, properties, RateLimitTriggeredActionRetrying, resetAfter);
+
                     try
                     {
-                        Log<object?>(LogLevel.Warning, result.ResetAfter, null, static (s, e) =>
+                        Log<object?>(LogLevel.Warning, resetAfter, null, static (s, e) =>
                         {
                             return $"Rate limit exceeded. Retrying after {s} ms.";
                         });
 
-                        await Task.Delay(result.ResetAfter, linkedToken).ConfigureAwait(false);
+                        await Task.Delay(resetAfter, linkedToken).ConfigureAwait(false);
                     }
                     catch (TaskCanceledException ex)
                     {
@@ -730,7 +741,9 @@ public abstract partial class WebSocketClient : IDisposable
                     continue;
                 }
 
-                ThrowRateLimitTriggered(result.ResetAfter);
+                RecordRateLimitTriggered(op, buffer, properties, RateLimitTriggeredActionAborting, resetAfter);
+
+                ThrowRateLimitTriggered(resetAfter);
             }
 
             Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a message.");
@@ -739,7 +752,7 @@ public abstract partial class WebSocketClient : IDisposable
 
             try
             {
-                await connectionState.Connection.SendAsync(buffer, messageProperties.MessageType, messageProperties.MessageFlags, linkedToken).ConfigureAwait(false);
+                await connectionState.Connection.SendAsync(buffer, properties.MessageType, properties.MessageFlags, linkedToken).ConfigureAwait(false);
             }
             catch (ArgumentException)
             {
@@ -767,6 +780,8 @@ public abstract partial class WebSocketClient : IDisposable
 
                 return ex;
             }
+
+            RecordMessageSent(op, buffer, properties);
 
             return null;
         }
@@ -1131,4 +1146,30 @@ public abstract partial class WebSocketClient : IDisposable
         if (disposing)
             _state?.Dispose();
     }
+
+    #region Metrics
+    private protected abstract void RecordMessageSent(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties);
+
+    private protected abstract void RecordRateLimitTriggered(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties, string action, int resetAfter);
+
+    private protected const string WebSocketMessageTypeText = nameof(WebSocketMessageType.Text);
+    private protected const string WebSocketMessageTypeBinary = nameof(WebSocketMessageType.Binary);
+
+    private protected static KeyValuePair<string, object?> GetWebSocketMessageTypeTag(string messageType) => new("message_type", messageType);
+
+    private protected static KeyValuePair<string, object?> GetWebSocketMessageTypeTag(WebSocketMessageType messageType) => GetWebSocketMessageTypeTag(messageType switch
+    {
+        WebSocketMessageType.Text => WebSocketMessageTypeText,
+        _ => WebSocketMessageTypeBinary,
+    });
+
+    private const string RateLimitTriggeredActionRetrying = "Retrying";
+    private const string RateLimitTriggeredActionAborting = "Aborting";
+
+    // From https://github.com/open-telemetry/semantic-conventions/blob/release/v1.23.x/docs/http/http-metrics.md#metric-httpclientrequestduration
+    private protected static IReadOnlyList<double> GetLatencyBucketBoundaries()
+    {
+        return [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10];
+    }
+    #endregion
 }

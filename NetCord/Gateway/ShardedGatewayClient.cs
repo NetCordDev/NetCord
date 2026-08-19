@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Metrics;
 using System.Runtime.InteropServices;
 
 using NetCord.Rest;
@@ -51,6 +52,8 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         Token = token;
         _configuration = configuration = CreateConfiguration(configuration);
         Rest = new(token, configuration);
+
+        SetUpMetrics();
     }
 
     private static ShardedGatewayClientConfiguration CreateConfiguration(ShardedGatewayClientConfiguration? configuration)
@@ -592,4 +595,44 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
         _state?.Dispose();
     }
+
+    #region Metrics
+    private static readonly Meter s_meter = new("NetCord.Gateway.ShardedGatewayClient");
+
+    private void SetUpMetrics()
+    {
+        s_meter.CreateObservableUpDownCounter(
+            "sharded_gateway.shards",
+            () =>
+            {
+                if (_state is not
+                    { Clients: { } clients })
+                    return [];
+
+                int readyCount = 0;
+                int connectingCount = 0;
+                int disconnectedCount = 0;
+
+                var count = clients.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    _ = clients[i].Status switch
+                    {
+                        WebSocketStatus.Ready => readyCount++,
+                        WebSocketStatus.Connecting => connectingCount++,
+                        _ => disconnectedCount++,
+                    };
+                }
+
+                return (IEnumerable<Measurement<int>>)
+                [
+                    new Measurement<int>(readyCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Ready))),
+                    new Measurement<int>(connectingCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Connecting))),
+                    new Measurement<int>(disconnectedCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Disconnected))),
+                ];
+            },
+            "{shard}",
+            "The count of shards of the ShardedGatewayClient.");
+    }
+    #endregion
 }

@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Metrics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -132,7 +133,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
         _latencyTimer.Start();
 
-        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceIdentifyProperties, _internalTextMessageProperties, cancellationToken);
+        return SendConnectionObjectAsync(nameof(VoiceOpcode.Identify), connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceIdentifyProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private VoiceState CreateState()
@@ -206,7 +207,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
         _latencyTimer.Start();
 
-        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceResumeProperties, _internalTextMessageProperties, cancellationToken);
+        return SendConnectionObjectAsync(nameof(VoiceOpcode.Resume), connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceResumeProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
@@ -215,14 +216,14 @@ public sealed partial class VoiceClient : WebSocketClient
 
         _latencyTimer.Start();
 
-        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceHeartbeatProperties, _internalTextMessageProperties, cancellationToken);
+        return SendConnectionObjectAsync(nameof(VoiceOpcode.Heartbeat), connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceHeartbeatProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private ValueTask SelectProtocolAsync(ConnectionState connectionState, ProtocolProperties protocolProperties, CancellationToken cancellationToken = default)
     {
         VoiceMessageProperties<ProtocolProperties> message = new(VoiceOpcode.SelectProtocol, protocolProperties);
 
-        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesProtocolProperties, _internalTextMessageProperties, cancellationToken);
+        return SendConnectionObjectAsync(nameof(VoiceOpcode.SelectProtocol), connectionState, message, Serialization.Default.VoiceMessagePropertiesProtocolProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private protected override ValueTask ProcessMessageAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> message)
@@ -230,7 +231,7 @@ public sealed partial class VoiceClient : WebSocketClient
         if (messageType is WebSocketMessageType.Text)
         {
             var jsonMessage = JsonSerializer.Deserialize(message, Serialization.Default.JsonVoiceMessage)!;
-            return HandleJsonMessageAsync(state, connectionState, jsonMessage);
+            return HandleJsonMessageAsync(state, connectionState, jsonMessage, message.Length);
         }
         else
         {
@@ -243,10 +244,14 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         SequenceNumber = message.SequenceNumber;
 
-        switch (message.Opcode)
+        var opcode = message.Opcode;
+
+        switch (opcode)
         {
             case VoiceOpcode.DaveMlsExternalSender:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.DaveMlsExternalSender), message.Length, WebSocketMessageTypeBinary);
+
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
@@ -257,6 +262,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 return default;
             case VoiceOpcode.DaveMlsProposals:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.DaveMlsProposals), message.Length, WebSocketMessageTypeBinary);
+
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
@@ -266,6 +273,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 }
             case VoiceOpcode.DaveMlsAnnounceCommitTransition:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.DaveMlsAnnounceCommitTransition), message.Length, WebSocketMessageTypeBinary);
+
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
@@ -279,6 +288,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 }
             case VoiceOpcode.DaveMlsWelcome:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.DaveMlsWelcome), message.Length, WebSocketMessageTypeBinary);
+
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
@@ -291,7 +302,16 @@ public sealed partial class VoiceClient : WebSocketClient
                     return session.OnMlsWelcomeAsync(connectionState, transitionId, welcome);
                 }
             default:
-                return default;
+                {
+                    RecordWebSocketMessageReceived(((byte)message.Opcode).ToString(), message.Length, WebSocketMessageTypeBinary);
+
+                    Log(LogLevel.Information, (Opcode: opcode, message.Length), null, static (s, e) =>
+                    {
+                        return $"Received an unknown opcode '{(byte)s.Opcode}' with a length of {s.Length} bytes in a binary message.";
+                    });
+
+                    return default;
+                }
         }
     }
 
@@ -309,17 +329,22 @@ public sealed partial class VoiceClient : WebSocketClient
         }
     }
 
-    private async ValueTask HandleJsonMessageAsync(State state, ConnectionState connectionState, JsonVoiceMessage message)
+    private async ValueTask HandleJsonMessageAsync(State state, ConnectionState connectionState, JsonVoiceMessage message, int messageLength)
     {
         if (message.SequenceNumber is int sequenceNumber)
             SequenceNumber = sequenceNumber;
 
-        switch (message.Opcode)
+        var opcode = message.Opcode;
+
+        switch (opcode)
         {
             case VoiceOpcode.Ready:
                 {
                     var latency = _latencyTimer.Elapsed;
-                    var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
+
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.Ready), messageLength, WebSocketMessageTypeText);
+
+                    var updateLatencyTask = UpdateLatencyWithMetricsAsync(latency).ConfigureAwait(false);
                     var ready = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
 
                     var (serverIp, serverPort) = (ready.Ip, ready.Port);
@@ -389,6 +414,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.SessionDescription:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.SessionDescription), messageLength, WebSocketMessageTypeText);
+
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Session description received.");
 
                     if (_udpState is not { Encryption: var encryption, DaveSession: var session })
@@ -413,6 +440,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Speaking:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.Speaking), messageLength, WebSocketMessageTypeText);
+
                     var json = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSpeaking);
 
                     if (_udpState is { DaveSession: var session })
@@ -425,16 +454,20 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     var latency = _latencyTimer.Elapsed;
 
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.HeartbeatACK), messageLength, WebSocketMessageTypeText);
+
                     Log(LogLevel.Debug, latency, null, static (s, e) =>
                     {
                         return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
                     });
 
-                    await UpdateLatencyAsync(latency).ConfigureAwait(false);
+                    await UpdateLatencyWithMetricsAsync(latency).ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.Hello:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.Hello), messageLength, WebSocketMessageTypeText);
+
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
 
                     StartHeartbeating(connectionState, message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
@@ -444,9 +477,11 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     var latency = _latencyTimer.Elapsed;
 
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.Resumed), messageLength, WebSocketMessageTypeText);
+
                     Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
 
-                    var updateLatencyTask = UpdateLatencyAsync(latency);
+                    var updateLatencyTask = UpdateLatencyWithMetricsAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 
                     state.IndicateReady(connectionState);
@@ -457,6 +492,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.ClientConnect:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.ClientConnect), messageLength, WebSocketMessageTypeText);
+
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client connect received.");
 
                     var json = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientConnect);
@@ -465,6 +502,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.ClientDisconnect:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.ClientDisconnect), messageLength, WebSocketMessageTypeText);
+
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client disconnect received.");
 
                     var json = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
@@ -477,6 +516,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.DavePrepareTransition:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.DavePrepareTransition), messageLength, WebSocketMessageTypeText);
+
                     if (_udpState is not { DaveSession: var session })
                         return;
 
@@ -487,6 +528,8 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.DaveExecuteTransition:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.DaveExecuteTransition), messageLength, WebSocketMessageTypeText);
+
                     if (_udpState is not { DaveSession: var session })
                         return;
 
@@ -497,12 +540,24 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.DavePrepareEpoch:
                 {
+                    RecordWebSocketMessageReceived(nameof(VoiceOpcode.DavePrepareEpoch), messageLength, WebSocketMessageTypeText);
+
                     if (_udpState is not { DaveSession: var session })
                         return;
 
                     var prepareEpoch = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonDavePrepareEpoch);
 
                     await session.OnPrepareEpoch(connectionState, prepareEpoch.Epoch, prepareEpoch.ProtocolVersion).ConfigureAwait(false);
+                }
+                break;
+            default:
+                {
+                    RecordWebSocketMessageReceived(((byte)opcode).ToString(), messageLength, WebSocketMessageTypeText);
+
+                    Log(LogLevel.Information, (Opcode: opcode, Length: messageLength), null, static (s, e) =>
+                    {
+                        return $"Received an unknown opcode '{(byte)s.Opcode}' with a length of {s.Length} bytes in a text message.";
+                    });
                 }
                 break;
         }
@@ -540,12 +595,20 @@ public sealed partial class VoiceClient : WebSocketClient
         {
             await udpConnection.SendAsync(discoveryDatagram, cancellationToken).ConfigureAwait(false);
 
+            RecordUdpPacketSent(discoveryDatagram.Length, UdpPacketKindDiscovery);
+
             while (true)
             {
                 length = await udpConnection.ReceiveAsync(buffer, cancellationToken).ConfigureAwait(false);
 
                 if (length is 74 && BinaryPrimitives.ReadUInt16BigEndian(buffer) is 2)
+                {
+                    RecordUdpPacketReceived(length, UdpPacketKindDiscovery, UdpPacketOutcomeSuccess);
+
                     break;
+                }
+                else
+                    RecordUdpPacketReceived(length, UdpPacketKindUnknown, UdpPacketOutcomeMalformed);
             }
         }
         catch (OperationCanceledException)
@@ -594,7 +657,10 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (datagramLength < 12)
         {
+            RecordUdpPacketReceived(datagramLength, UdpPacketKindUnknown, UdpPacketOutcomeMalformed);
+
             Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes.");
+
             return;
         }
 
@@ -602,7 +668,10 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (datagramLength < packet.ExtendedHeaderLength)
         {
+            RecordUdpPacketReceived(datagramLength, UdpPacketKindUnknown, UdpPacketOutcomeMalformed);
+
             Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes for the given header length.");
+
             return;
         }
 
@@ -613,6 +682,15 @@ public sealed partial class VoiceClient : WebSocketClient
                 case 0x78:
                     {
                         HandleVoicePacket(packet);
+
+                        break;
+                    }
+                default:
+                    {
+                        RecordUdpPacketReceived(datagramLength, UdpPacketKindUnknown, UdpPacketOutcomeUnknownPayloadType);
+
+                        Log(LogLevel.Information, (packet.PayloadType, Length: datagramLength), null, static (s, e) => $"Received an RTP packet with an unknown payload type of {s.PayloadType:X2} and a length of {s.Length} bytes.");
+
                         break;
                     }
             }
@@ -627,13 +705,23 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var voiceReceive = _voiceReceive;
         if (voiceReceive.IsEmpty)
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeNoListeners);
+
             return;
+        }
 
         if (_udpState is not { Encryption: var encryption, DaveSession: var session })
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeNotReady);
+
             return;
+        }
 
         if (!TryGetVoiceData(packet, encryption, session, out var buffer, out var bytesWritten))
             return;
+
+        RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeSuccess);
 
         VoiceReceiveEventArgs args = new(buffer.AsSpan(0, bytesWritten),
                                          packet.Ssrc,
@@ -654,12 +742,20 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var ssrc = packet.Ssrc;
         if (session.GetDecryptor(ssrc) is not { } decryptor)
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMissingPayloadDecryptor);
+
+            Log(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet because the DAVE decryptor is missing for SSRC: {s}");
+
             goto Fail;
+        }
 
         var plaintextLength = packet.PayloadLength - encryption.Expansion;
 
         if (plaintextLength < 0)
         {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMalformed);
+
             Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is too small.");
 
             goto Fail;
@@ -670,6 +766,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (!encryption.TryDecrypt(packet, plaintext))
         {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeTransportDecryptionFailed);
+
             Log(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
 
             goto FailWithArrayReturn;
@@ -687,6 +785,8 @@ public sealed partial class VoiceClient : WebSocketClient
         {
             if (plaintextLength is 0)
             {
+                RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMalformed);
+
                 Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is empty but the padding bit is set.");
 
                 goto FailWithArrayReturn;
@@ -697,6 +797,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (extensionLength + paddingLength > plaintextLength)
         {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMalformed);
+
             Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length and padding length combined are larger than the payload.");
 
             goto FailWithArrayReturn;
@@ -705,7 +807,13 @@ public sealed partial class VoiceClient : WebSocketClient
         var plaintextData = plaintext[extensionLength..^paddingLength];
 
         if (plaintextData.IsEmpty)
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeEmptyPayload);
+
+            Log<object?>(LogLevel.Information, null, null, static (s, e) => "Received an RTP packet with an empty payload.");
+
             goto FailWithArrayReturn;
+        }
 
         int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
         byte[]? toReturn = null;
@@ -718,6 +826,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
             if (toReturn is not null)
                 ArrayPool<byte>.Shared.Return(toReturn);
+
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomePayloadDecryptionFailed);
 
             Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
 
@@ -744,7 +854,7 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         VoiceMessageProperties<SpeakingProperties> message = new(VoiceOpcode.Speaking, speaking);
 
-        return SendObjectAsync(message, Serialization.Default.VoiceMessagePropertiesSpeakingProperties, properties, cancellationToken);
+        return SendObjectAsync(nameof(VoiceOpcode.Speaking), message, Serialization.Default.VoiceMessagePropertiesSpeakingProperties, properties, cancellationToken);
     }
 
     /// <summary>
@@ -782,6 +892,8 @@ public sealed partial class VoiceClient : WebSocketClient
             WriteDatagram(frame.Span, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
 
             await connection.SendAsync(new(datagramArray, 0, datagramLength), cancellationToken).ConfigureAwait(false);
+
+            RecordUdpPacketSent(datagramLength, UdpPacketKindVoice);
         }
         finally
         {
@@ -822,6 +934,8 @@ public sealed partial class VoiceClient : WebSocketClient
             WriteDatagram(frame, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
 
             connection.Send(new(datagramArray, 0, datagramLength));
+
+            RecordUdpPacketSent(datagramLength, UdpPacketKindVoice);
         }
         finally
         {
@@ -918,15 +1032,17 @@ public sealed partial class VoiceClient : WebSocketClient
     /// </summary>
     /// <param name="buffer">The datagram to send.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the send operation.</param>
-    public ValueTask SendDatagramAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    public async ValueTask SendDatagramAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         if (_udpState is not { Connection: var connection })
         {
             ThrowConnectionNotStarted();
-            return default;
+            return;
         }
 
-        return connection.SendAsync(buffer, cancellationToken);
+        await connection.SendAsync(buffer, cancellationToken).ConfigureAwait(false);
+
+        RecordUdpPacketSent(buffer.Length, UdpPacketKindUnknown);
     }
 
     /// <summary>
@@ -942,6 +1058,8 @@ public sealed partial class VoiceClient : WebSocketClient
         }
 
         connection.Send(buffer);
+
+        RecordUdpPacketSent(buffer.Length, UdpPacketKindUnknown);
     }
 
     /// <summary>
@@ -972,4 +1090,149 @@ public sealed partial class VoiceClient : WebSocketClient
         _loggerHandle.Dispose();
         base.Dispose(disposing);
     }
+
+    #region Metrics
+    private static readonly Meter s_meter = new("NetCord.Gateway.Voice.VoiceClient");
+
+    private static readonly Counter<int> s_webSocketBytesSentCounter = s_meter.CreateCounter<int>(
+        "voice.websocket.sent.bytes",
+        "By",
+        "The number of bytes sent over the WebSocket connection.");
+
+    private static readonly Counter<int> s_webSocketMessagesSentCounter = s_meter.CreateCounter<int>(
+        "voice.websocket.sent.messages",
+        "{message}",
+        "The number of messages sent over the WebSocket connection.");
+
+    private static readonly Counter<int> s_webSocketRateLimitTriggeredCounter = s_meter.CreateCounter<int>(
+        "voice.websocket.rate_limit.triggered",
+        "{trigger}",
+        "The number of times a rate limit was triggered over the WebSocket connection.");
+
+    private static readonly Histogram<double> s_webSocketRateLimitResetAfterHistogram = s_meter.CreateHistogram<double>(
+        "voice.websocket.rate_limit.reset_after",
+        "s",
+        "The time in seconds after which a message can be sent again after a rate limit was triggered over the WebSocket connection.");
+
+    private static readonly Counter<int> s_webSocketBytesReceivedCounter = s_meter.CreateCounter<int>(
+        "voice.websocket.received.bytes",
+        "By",
+        "The number of bytes received over the WebSocket connection.");
+
+    private static readonly Counter<int> s_webSocketMessagesReceivedCounter = s_meter.CreateCounter<int>(
+        "voice.websocket.received.messages",
+        "{message}",
+        "The number of messages received over the WebSocket connection.");
+
+    private static readonly Histogram<double> s_webSocketLatencyHistogram = s_meter.CreateHistogram<double>(
+        "voice.websocket.latency",
+        "s",
+        "The latency of the WebSocket connection.",
+        advice: new() { HistogramBucketBoundaries = GetLatencyBucketBoundaries() });
+
+    private static readonly Counter<int> s_udpBytesSentCounter = s_meter.CreateCounter<int>(
+        "voice.udp.sent.bytes",
+        "By",
+        "The number of bytes sent over the UDP connection.");
+
+    private static readonly Counter<int> s_udpPacketsSentCounter = s_meter.CreateCounter<int>(
+        "voice.udp.sent.packets",
+        "{packet}",
+        "The number of packets sent over the UDP connection.");
+
+    private static readonly Counter<int> s_udpBytesReceivedCounter = s_meter.CreateCounter<int>(
+        "voice.udp.received.bytes",
+        "By",
+        "The number of bytes received over the UDP connection.");
+
+    private static readonly Counter<int> s_udpPacketsReceivedCounter = s_meter.CreateCounter<int>(
+        "voice.udp.received.packets",
+        "{packet}",
+        "The number of packets received over the UDP connection.");
+
+    private static KeyValuePair<string, object?> GetOpTag(string? op) => new("op", op);
+
+    private protected override void RecordMessageSent(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties)
+    {
+        var messageTypeTag = GetWebSocketMessageTypeTag(properties.MessageType);
+
+        var opTag = GetOpTag(op);
+
+        s_webSocketMessagesSentCounter.Add(1, messageTypeTag, opTag);
+
+        s_webSocketBytesSentCounter.Add(buffer.Length, messageTypeTag, opTag);
+    }
+
+    private protected override void RecordRateLimitTriggered(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties, string action, int resetAfter)
+    {
+        var messageTypeTag = GetWebSocketMessageTypeTag(properties.MessageType);
+
+        var opTag = GetOpTag(op);
+
+        KeyValuePair<string, object?> actionTag = new("action", action);
+
+        s_webSocketRateLimitTriggeredCounter.Add(1, actionTag, messageTypeTag, opTag);
+
+        s_webSocketRateLimitResetAfterHistogram.Record((double)resetAfter / 1000, actionTag, messageTypeTag, opTag);
+    }
+
+    private static void RecordWebSocketMessageReceived(string op, int length, string messageType)
+    {
+        var messageTypeTag = GetWebSocketMessageTypeTag(messageType);
+
+        var opTag = GetOpTag(op);
+
+        s_webSocketMessagesReceivedCounter.Add(1, opTag, messageTypeTag);
+
+        s_webSocketBytesReceivedCounter.Add(length, opTag, messageTypeTag);
+    }
+
+    private const string UdpPacketKindVoice = "Voice";
+    private const string UdpPacketKindDiscovery = "Discovery";
+    private const string UdpPacketKindUnknown = "Unknown";
+
+    private static KeyValuePair<string, object?> GetUdpPacketKindTag(string kind) => new("kind", kind);
+
+    private static void RecordUdpPacketSent(int bytes, string kind)
+    {
+        var kindTag = GetUdpPacketKindTag(kind);
+
+        s_udpPacketsSentCounter.Add(1, kindTag);
+
+        s_udpBytesSentCounter.Add(bytes, kindTag);
+    }
+
+    private const string UdpPacketOutcomeSuccess = "Success";
+    private const string UdpPacketOutcomeMalformed = "Malformed";
+    private const string UdpPacketOutcomeEmptyPayload = "EmptyPayload";
+    private const string UdpPacketOutcomeUnknownPayloadType = "UnknownPayloadType";
+    private const string UdpPacketOutcomeNoListeners = "NoListeners";
+    private const string UdpPacketOutcomeNotReady = "NotReady";
+    private const string UdpPacketOutcomeMissingPayloadDecryptor = "MissingPayloadDecryptor";
+    private const string UdpPacketOutcomeTransportDecryptionFailed = "TransportDecryptionFailed";
+    private const string UdpPacketOutcomePayloadDecryptionFailed = "PayloadDecryptionFailed";
+
+    private static void RecordUdpPacketReceived(int bytes, string kind, string outcome)
+    {
+        var kindTag = GetUdpPacketKindTag(kind);
+
+        KeyValuePair<string, object?> outcomeTag = new("outcome", outcome);
+
+        s_udpPacketsReceivedCounter.Add(1, kindTag, outcomeTag);
+
+        s_udpBytesReceivedCounter.Add(bytes, kindTag, outcomeTag);
+    }
+
+    private static void RecordLatency(TimeSpan latency)
+    {
+        s_webSocketLatencyHistogram.Record(latency.TotalSeconds);
+    }
+
+    private ValueTask UpdateLatencyWithMetricsAsync(TimeSpan latency)
+    {
+        RecordLatency(latency);
+
+        return UpdateLatencyAsync(latency);
+    }
+    #endregion
 }
