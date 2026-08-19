@@ -11,4 +11,6 @@ internal readonly ref struct BinaryVoiceMessage(ReadOnlySpan<byte> message)
     public VoiceOpcode Opcode => (VoiceOpcode)_message[2];
 
     public ReadOnlySpan<byte> Data => _message[3..];
+
+    public int Length => _message.Length;
 }
