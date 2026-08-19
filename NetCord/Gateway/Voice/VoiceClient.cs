@@ -595,12 +595,20 @@ public sealed partial class VoiceClient : WebSocketClient
         {
             await udpConnection.SendAsync(discoveryDatagram, cancellationToken).ConfigureAwait(false);
 
+            RecordUdpPacketSent(discoveryDatagram.Length, UdpPacketKindDiscovery);
+
             while (true)
             {
                 length = await udpConnection.ReceiveAsync(buffer, cancellationToken).ConfigureAwait(false);
 
                 if (length is 74 && BinaryPrimitives.ReadUInt16BigEndian(buffer) is 2)
+                {
+                    RecordUdpPacketReceived(length, UdpPacketKindDiscovery, UdpPacketOutcomeSuccess);
+
                     break;
+                }
+                else
+                    RecordUdpPacketReceived(length, UdpPacketKindUnknown, UdpPacketOutcomeMalformed);
             }
         }
         catch (OperationCanceledException)
@@ -647,11 +655,12 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var datagramLength = datagram.Length;
 
-        RecordUdpPacketReceived(datagramLength);
-
         if (datagramLength < 12)
         {
+            RecordUdpPacketReceived(datagramLength, UdpPacketKindUnknown, UdpPacketOutcomeMalformed);
+
             Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes.");
+
             return;
         }
 
@@ -659,7 +668,10 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (datagramLength < packet.ExtendedHeaderLength)
         {
+            RecordUdpPacketReceived(datagramLength, UdpPacketKindUnknown, UdpPacketOutcomeMalformed);
+
             Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes for the given header length.");
+
             return;
         }
 
@@ -670,6 +682,15 @@ public sealed partial class VoiceClient : WebSocketClient
                 case 0x78:
                     {
                         HandleVoicePacket(packet);
+
+                        break;
+                    }
+                default:
+                    {
+                        RecordUdpPacketReceived(datagramLength, UdpPacketKindUnknown, UdpPacketOutcomeUnknownPayloadType);
+
+                        Log(LogLevel.Information, (packet.PayloadType, Length: datagramLength), null, static (s, e) => $"Received an RTP packet with an unknown payload type of {s.PayloadType:X2} and a length of {s.Length} bytes.");
+
                         break;
                     }
             }
@@ -684,13 +705,23 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var voiceReceive = _voiceReceive;
         if (voiceReceive.IsEmpty)
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeNoListeners);
+
             return;
+        }
 
         if (_udpState is not { Encryption: var encryption, DaveSession: var session })
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeNotReady);
+
             return;
+        }
 
         if (!TryGetVoiceData(packet, encryption, session, out var buffer, out var bytesWritten))
             return;
+
+        RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeSuccess);
 
         VoiceReceiveEventArgs args = new(buffer.AsSpan(0, bytesWritten),
                                          packet.Ssrc,
@@ -711,12 +742,20 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var ssrc = packet.Ssrc;
         if (session.GetDecryptor(ssrc) is not { } decryptor)
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMissingPayloadDecryptor);
+
+            Log(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet because the DAVE decryptor is missing for SSRC: {s}");
+
             goto Fail;
+        }
 
         var plaintextLength = packet.PayloadLength - encryption.Expansion;
 
         if (plaintextLength < 0)
         {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMalformed);
+
             Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is too small.");
 
             goto Fail;
@@ -727,6 +766,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (!encryption.TryDecrypt(packet, plaintext))
         {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeTransportDecryptionFailed);
+
             Log(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
 
             goto FailWithArrayReturn;
@@ -744,6 +785,8 @@ public sealed partial class VoiceClient : WebSocketClient
         {
             if (plaintextLength is 0)
             {
+                RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMalformed);
+
                 Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is empty but the padding bit is set.");
 
                 goto FailWithArrayReturn;
@@ -754,6 +797,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (extensionLength + paddingLength > plaintextLength)
         {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeMalformed);
+
             Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length and padding length combined are larger than the payload.");
 
             goto FailWithArrayReturn;
@@ -762,7 +807,13 @@ public sealed partial class VoiceClient : WebSocketClient
         var plaintextData = plaintext[extensionLength..^paddingLength];
 
         if (plaintextData.IsEmpty)
+        {
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomeEmptyPayload);
+
+            Log<object?>(LogLevel.Information, null, null, static (s, e) => "Received an RTP packet with an empty payload.");
+
             goto FailWithArrayReturn;
+        }
 
         int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
         byte[]? toReturn = null;
@@ -775,6 +826,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
             if (toReturn is not null)
                 ArrayPool<byte>.Shared.Return(toReturn);
+
+            RecordUdpPacketReceived(packet.Datagram.Length, UdpPacketKindVoice, UdpPacketOutcomePayloadDecryptionFailed);
 
             Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
 
@@ -840,7 +893,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
             await connection.SendAsync(new(datagramArray, 0, datagramLength), cancellationToken).ConfigureAwait(false);
 
-            RecordUdpPacketSent(datagramLength);
+            RecordUdpPacketSent(datagramLength, UdpPacketKindVoice);
         }
         finally
         {
@@ -882,7 +935,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
             connection.Send(new(datagramArray, 0, datagramLength));
 
-            RecordUdpPacketSent(datagramLength);
+            RecordUdpPacketSent(datagramLength, UdpPacketKindVoice);
         }
         finally
         {
@@ -979,15 +1032,17 @@ public sealed partial class VoiceClient : WebSocketClient
     /// </summary>
     /// <param name="buffer">The datagram to send.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the send operation.</param>
-    public ValueTask SendDatagramAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    public async ValueTask SendDatagramAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         if (_udpState is not { Connection: var connection })
         {
             ThrowConnectionNotStarted();
-            return default;
+            return;
         }
 
-        return connection.SendAsync(buffer, cancellationToken);
+        await connection.SendAsync(buffer, cancellationToken).ConfigureAwait(false);
+
+        RecordUdpPacketSent(buffer.Length, UdpPacketKindUnknown);
     }
 
     /// <summary>
@@ -1003,6 +1058,8 @@ public sealed partial class VoiceClient : WebSocketClient
         }
 
         connection.Send(buffer);
+
+        RecordUdpPacketSent(buffer.Length, UdpPacketKindUnknown);
     }
 
     /// <summary>
@@ -1130,18 +1187,40 @@ public sealed partial class VoiceClient : WebSocketClient
         s_webSocketBytesReceivedCounter.Add(length, opTag, messageTypeTag);
     }
 
-    private static void RecordUdpPacketSent(int bytes)
-    {
-        s_udpPacketsSentCounter.Add(1);
+    private const string UdpPacketKindVoice = "Voice";
+    private const string UdpPacketKindDiscovery = "Discovery";
+    private const string UdpPacketKindUnknown = "Unknown";
 
-        s_udpBytesSentCounter.Add(bytes);
+    private static KeyValuePair<string, object?> GetUdpPacketKindTag(string kind) => new("kind", kind);
+
+    private static void RecordUdpPacketSent(int bytes, string kind)
+    {
+        var kindTag = GetUdpPacketKindTag(kind);
+
+        s_udpPacketsSentCounter.Add(1, kindTag);
+
+        s_udpBytesSentCounter.Add(bytes, kindTag);
     }
 
-    private static void RecordUdpPacketReceived(int bytes)
-    {
-        s_udpPacketsReceivedCounter.Add(1);
+    private const string UdpPacketOutcomeSuccess = "Success";
+    private const string UdpPacketOutcomeMalformed = "Malformed";
+    private const string UdpPacketOutcomeEmptyPayload = "EmptyPayload";
+    private const string UdpPacketOutcomeUnknownPayloadType = "UnknownPayloadType";
+    private const string UdpPacketOutcomeNoListeners = "NoListeners";
+    private const string UdpPacketOutcomeNotReady = "NotReady";
+    private const string UdpPacketOutcomeMissingPayloadDecryptor = "MissingPayloadDecryptor";
+    private const string UdpPacketOutcomeTransportDecryptionFailed = "TransportDecryptionFailed";
+    private const string UdpPacketOutcomePayloadDecryptionFailed = "PayloadDecryptionFailed";
 
-        s_udpBytesReceivedCounter.Add(bytes);
+    private static void RecordUdpPacketReceived(int bytes, string kind, string outcome)
+    {
+        var kindTag = GetUdpPacketKindTag(kind);
+
+        KeyValuePair<string, object?> outcomeTag = new("outcome", outcome);
+
+        s_udpPacketsReceivedCounter.Add(1, kindTag, outcomeTag);
+
+        s_udpBytesReceivedCounter.Add(bytes, kindTag, outcomeTag);
     }
 
     private static void RecordLatency(TimeSpan latency)
