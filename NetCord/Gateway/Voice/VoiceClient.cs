@@ -647,6 +647,8 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var datagramLength = datagram.Length;
 
+        RecordUdpPacketReceived(datagramLength);
+
         if (datagramLength < 12)
         {
             Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes.");
@@ -680,8 +682,6 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private void HandleVoicePacket(RtpPacket packet)
     {
-        RecordUdpPacketReceived(packet.Datagram.Length);
-
         var voiceReceive = _voiceReceive;
         if (voiceReceive.IsEmpty)
             return;
