@@ -976,7 +976,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         return SendConnectionObjectAsync(nameof(GatewayOpcode.Heartbeat), connectionState, message, Serialization.Default.GatewayMessagePropertiesInt32, _internalTextMessageProperties, cancellationToken);
     }
 
-    private record struct MessageData(int CompressedLength, int UncompressedLength);
+    private readonly record struct MessageData(int CompressedLength, int UncompressedLength);
 
     private protected override ValueTask ProcessMessageAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> message)
     {
