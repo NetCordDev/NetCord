@@ -343,7 +343,7 @@ public abstract partial class WebSocketClient : IDisposable
             {
                 return s switch
                 {
-                    (Status: null, Description: null or { Length: 0 }) => $"Disconnected. Close status was not provided. Close status description was not provided.",
+                    (Status: null, Description: null or { Length: 0 }) => "Disconnected. Close status was not provided. Close status description was not provided.",
                     (Status: null, Description: [.., '.'] description) => $"Disconnected. Close status was not provided. Close status description: {description}",
                     (Status: null, Description: { } description) => $"Disconnected. Close status was not provided. Close status description: {description}.",
                     (Status: { } status, Description: null or { Length: 0 }) => $"Disconnected. Close status: {status}. Close status description was not provided.",
