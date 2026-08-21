@@ -356,7 +356,7 @@ public abstract partial class WebSocketClient : IDisposable
 
             var disconnectTask = InvokeEventAsync(_disconnect,
                                                   (Status: status, Reconnect: reconnect, Description: description),
-                                                  static data => new(data.Status, data.Description, data.Reconnect));
+                                                  static data => new((WebSocketCloseStatus?)data.Status, data.Description, data.Reconnect));
 
             if (reconnect)
             {
