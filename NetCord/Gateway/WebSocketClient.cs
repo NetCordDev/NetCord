@@ -343,12 +343,12 @@ public abstract partial class WebSocketClient : IDisposable
             {
                 return s switch
                 {
-                    (Status: null, Description: null or { Length: 0 }) => $"Disconnected. Status code was not provided. Status description was not provided.",
-                    (Status: null, Description: [.., '.'] description) => $"Disconnected. Status code was not provided. Status description: {description}",
-                    (Status: null, Description: { } description) => $"Disconnected. Status code was not provided. Status description: {description}.",
-                    (Status: { } status, Description: null or { Length: 0 }) => $"Disconnected. Status code: {status}. Status description was not provided.",
-                    (Status: { } status, Description: [.., '.'] description) => $"Disconnected. Status code: {status}. Status description: {description}",
-                    (Status: { } status, Description: { } description) => $"Disconnected. Status code: {status}. Status description: {description}.",
+                    (Status: null, Description: null or { Length: 0 }) => $"Disconnected. Close status was not provided. Close status description was not provided.",
+                    (Status: null, Description: [.., '.'] description) => $"Disconnected. Close status was not provided. Close status description: {description}",
+                    (Status: null, Description: { } description) => $"Disconnected. Close status was not provided. Close status description: {description}.",
+                    (Status: { } status, Description: null or { Length: 0 }) => $"Disconnected. Close status: {status}. Close status description was not provided.",
+                    (Status: { } status, Description: [.., '.'] description) => $"Disconnected. Close status: {status}. Close status description: {description}",
+                    (Status: { } status, Description: { } description) => $"Disconnected. Close status: {status}. Close status description: {description}.",
                 };
             });
 
