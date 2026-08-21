@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using NetCord.Rest;
@@ -53,7 +54,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         _configuration = configuration = CreateConfiguration(configuration);
         Rest = new(token, configuration);
 
-        SetUpMetrics();
+        SetUpMetrics(this);
     }
 
     private static ShardedGatewayClientConfiguration CreateConfiguration(ShardedGatewayClientConfiguration? configuration)
@@ -599,40 +600,48 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     #region Metrics
     private static readonly Meter s_meter = new("NetCord.Gateway.ShardedGatewayClient");
 
-    private void SetUpMetrics()
+    private static readonly ConditionalWeakTable<ShardedGatewayClient, object?> s_shardedGatewayClientTable = [];
+
+    static ShardedGatewayClient()
     {
         s_meter.CreateObservableUpDownCounter(
             "sharded_gateway.shards",
-            () =>
-            {
-                if (_state is not
-                    { Clients: { } clients })
-                    return [];
-
-                int readyCount = 0;
-                int connectingCount = 0;
-                int disconnectedCount = 0;
-
-                var count = clients.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    _ = clients[i].Status switch
-                    {
-                        WebSocketStatus.Ready => readyCount++,
-                        WebSocketStatus.Connecting => connectingCount++,
-                        _ => disconnectedCount++,
-                    };
-                }
-
-                return (IEnumerable<Measurement<int>>)
-                [
-                    new Measurement<int>(readyCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Ready))),
-                    new Measurement<int>(connectingCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Connecting))),
-                    new Measurement<int>(disconnectedCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Disconnected))),
-                ];
-            },
+            static () => s_shardedGatewayClientTable.SelectMany(GetClientStatusMetrics),
             "{shard}",
             "The count of shards of the ShardedGatewayClient.");
+    }
+
+    private static IEnumerable<Measurement<int>> GetClientStatusMetrics(KeyValuePair<ShardedGatewayClient, object?> pair)
+    {
+        if (pair.Key._state is not { Clients: { } clients })
+            return [];
+
+        int readyCount = 0;
+        int connectingCount = 0;
+        int disconnectedCount = 0;
+
+        var count = clients.Length;
+        for (int i = 0; i < count; i++)
+        {
+            _ = clients[i].Status switch
+            {
+                WebSocketStatus.Ready => readyCount++,
+                WebSocketStatus.Connecting => connectingCount++,
+                _ => disconnectedCount++,
+            };
+        }
+
+        return
+        [
+            new Measurement<int>(readyCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Ready))),
+            new Measurement<int>(connectingCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Connecting))),
+            new Measurement<int>(disconnectedCount, new KeyValuePair<string, object?>("status", nameof(WebSocketStatus.Disconnected))),
+        ];
+    }
+
+    private static void SetUpMetrics(ShardedGatewayClient client)
+    {
+        s_shardedGatewayClientTable.Add(client, null);
     }
     #endregion
 }
