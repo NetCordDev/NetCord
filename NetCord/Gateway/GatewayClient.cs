@@ -875,7 +875,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         var cacheProvider = configuration.CacheProvider ?? ImmutableGatewayClientCacheProvider.Empty;
         Cache = cacheProvider.Create(token.Id, rest);
 
-        SetUpMetrics();
+        SetUpMetrics(this);
     }
 
     private protected override void OnConnected()
@@ -1620,68 +1620,30 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         "The latency of the Discord Gateway.",
         advice: new() { HistogramBucketBoundaries = GetLatencyBucketBoundaries() });
 
-    private KeyValuePair<string, object?> GetShardIdTag() => new("shard_id", _shardId);
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<GatewayClient, object?> s_gatewayClientTable = [];
 
-    private static KeyValuePair<string, object?> GetOpTag(string? op) => new("op", op);
-
-    private void SetUpMetrics()
+    static GatewayClient()
     {
         s_meter.CreateObservableUpDownCounter(
             "gateway.cache.guilds",
-            () => new Measurement<long>(Cache.Guilds.Count, GetShardIdTag()),
+            static () => s_gatewayClientTable.Select(p => new Measurement<long>(p.Key.Cache.Guilds.Count, p.Key.GetShardIdTag())),
             "{guild}",
             "The number of guilds in the cache for the Discord Gateway.");
 
         s_meter.CreateObservableUpDownCounter(
             "gateway.cache.entities",
-            () =>
-            {
-                // From RestGuild
-                long roleCount = 0;
-                long emojiCount = 0;
-                long stickerCount = 0;
-
-                // From Guild
-                long voiceStateCount = 0;
-                long userCount = 0;
-                long channelCount = 0;
-                long activeThreadCount = 0;
-                long presenceCount = 0;
-                long stageInstanceCount = 0;
-                long scheduledEventCount = 0;
-
-                foreach (var guild in Cache.Guilds.Values)
-                {
-                    roleCount += guild.Roles.Count;
-                    emojiCount += guild.Emojis.Count;
-                    stickerCount += guild.Stickers.Count;
-
-                    voiceStateCount += guild.VoiceStates.Count;
-                    userCount += guild.Users.Count;
-                    channelCount += guild.Channels.Count;
-                    activeThreadCount += guild.ActiveThreads.Count;
-                    presenceCount += guild.Presences.Count;
-                    stageInstanceCount += guild.StageInstances.Count;
-                    scheduledEventCount += guild.ScheduledEvents.Count;
-                }
-
-                return (IEnumerable<Measurement<long>>)
-                [
-                    new(roleCount, new("entity", nameof(RestGuild.Roles)), GetShardIdTag()),
-                    new(emojiCount, new("entity", nameof(RestGuild.Emojis)), GetShardIdTag()),
-                    new(stickerCount, new("entity", nameof(RestGuild.Stickers)), GetShardIdTag()),
-
-                    new(voiceStateCount, new("entity", nameof(Guild.VoiceStates)), GetShardIdTag()),
-                    new(userCount, new("entity", nameof(Guild.Users)), GetShardIdTag()),
-                    new(channelCount, new("entity", nameof(Guild.Channels)), GetShardIdTag()),
-                    new(activeThreadCount, new("entity", nameof(Guild.ActiveThreads)), GetShardIdTag()),
-                    new(presenceCount, new("entity", nameof(Guild.Presences)), GetShardIdTag()),
-                    new(stageInstanceCount, new("entity", nameof(Guild.StageInstances)), GetShardIdTag()),
-                    new(scheduledEventCount, new("entity", nameof(Guild.ScheduledEvents)), GetShardIdTag()),
-                ];
-            },
+            static () => s_gatewayClientTable.SelectMany(GetCacheEntityMeasurements),
             "{entity}",
             "The number of entities in the cache for the Discord Gateway.");
+    }
+
+    private KeyValuePair<string, object?> GetShardIdTag() => new("shard_id", _shardId);
+
+    private static KeyValuePair<string, object?> GetOpTag(string? op) => new("op", op);
+
+    private static void SetUpMetrics(GatewayClient client)
+    {
+        s_gatewayClientTable.Add(client, null);
     }
 
     private protected override void RecordMessageSent(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties)
@@ -1727,6 +1689,58 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         RecordLatency(latency);
 
         return UpdateLatencyAsync(latency);
+    }
+
+    private static IEnumerable<Measurement<long>> GetCacheEntityMeasurements(KeyValuePair<GatewayClient, object?> pair)
+    {
+        var client = pair.Key;
+        var cache = client.Cache;
+
+        // From RestGuild
+        long roleCount = 0;
+        long emojiCount = 0;
+        long stickerCount = 0;
+
+        // From Guild
+        long voiceStateCount = 0;
+        long userCount = 0;
+        long channelCount = 0;
+        long activeThreadCount = 0;
+        long presenceCount = 0;
+        long stageInstanceCount = 0;
+        long scheduledEventCount = 0;
+
+        foreach (var guild in cache.Guilds.Values)
+        {
+            roleCount += guild.Roles.Count;
+            emojiCount += guild.Emojis.Count;
+            stickerCount += guild.Stickers.Count;
+
+            voiceStateCount += guild.VoiceStates.Count;
+            userCount += guild.Users.Count;
+            channelCount += guild.Channels.Count;
+            activeThreadCount += guild.ActiveThreads.Count;
+            presenceCount += guild.Presences.Count;
+            stageInstanceCount += guild.StageInstances.Count;
+            scheduledEventCount += guild.ScheduledEvents.Count;
+        }
+
+        var shardIdTag = client.GetShardIdTag();
+
+        return
+        [
+            new(roleCount, new("entity", nameof(RestGuild.Roles)), shardIdTag),
+            new(emojiCount, new("entity", nameof(RestGuild.Emojis)), shardIdTag),
+            new(stickerCount, new("entity", nameof(RestGuild.Stickers)), shardIdTag),
+
+            new(voiceStateCount, new("entity", nameof(Guild.VoiceStates)), shardIdTag),
+            new(userCount, new("entity", nameof(Guild.Users)), shardIdTag),
+            new(channelCount, new("entity", nameof(Guild.Channels)), shardIdTag),
+            new(activeThreadCount, new("entity", nameof(Guild.ActiveThreads)), shardIdTag),
+            new(presenceCount, new("entity", nameof(Guild.Presences)), shardIdTag),
+            new(stageInstanceCount, new("entity", nameof(Guild.StageInstances)), shardIdTag),
+            new(scheduledEventCount, new("entity", nameof(Guild.ScheduledEvents)), shardIdTag),
+        ];
     }
     #endregion
 }
