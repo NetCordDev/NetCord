@@ -7,8 +7,6 @@ using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
 using NetCord.Rest;
 
-using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
-
 namespace NetCord.Gateway;
 
 /// <summary>
@@ -945,8 +943,8 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
-    private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
-        => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
+    private protected override bool Reconnect(int? status, string? description)
+        => status is not (4004 or 4010 or 4011 or 4012 or 4013 or 4014);
 
     private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {

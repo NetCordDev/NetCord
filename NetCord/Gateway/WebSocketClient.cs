@@ -335,21 +335,28 @@ public abstract partial class WebSocketClient : IDisposable
         {
             var connection = connectionState.Connection;
 
+            var status = connection.CloseStatus;
+
             var description = connection.CloseStatusDescription;
 
-            Log(LogLevel.Information, description, null, static (s, e) =>
+            Log(LogLevel.Information, (Status: status, Description: description), null, static (s, e) =>
             {
                 return s switch
                 {
-                    null or { Length: 0 } => "Disconnected.",
-                    [.., '.'] => $"Disconnected: {s}",
-                    _ => $"Disconnected: {s}.",
+                    (Status: null, Description: null or { Length: 0 }) => $"Disconnected. Status code was not provided. Status description was not provided.",
+                    (Status: null, Description: [.., '.'] description) => $"Disconnected. Status code was not provided. Status description: {description}",
+                    (Status: null, Description: { } description) => $"Disconnected. Status code was not provided. Status description: {description}.",
+                    (Status: { } status, Description: null or { Length: 0 }) => $"Disconnected. Status code: {status}. Status description was not provided.",
+                    (Status: { } status, Description: [.., '.'] description) => $"Disconnected. Status code: {status}. Status description: {description}",
+                    (Status: { } status, Description: { } description) => $"Disconnected. Status code: {status}. Status description: {description}.",
                 };
             });
 
-            var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
+            var reconnect = Reconnect(status, description);
 
-            var disconnectTask = InvokeEventAsync(_disconnect, reconnect, static reconnect => new(reconnect));
+            var disconnectTask = InvokeEventAsync(_disconnect,
+                                                  (Status: status, Reconnect: reconnect, Description: description),
+                                                  static data => new(data.Status, data.Description, data.Reconnect));
 
             if (reconnect)
             {
@@ -787,7 +794,7 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected abstract bool Reconnect(WebSocketCloseStatus? status, string? description);
+    private protected abstract bool Reconnect(int? status, string? description);
 
     private protected async ValueTask ResumeAsync(State state)
     {

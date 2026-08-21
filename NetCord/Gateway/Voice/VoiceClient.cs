@@ -16,8 +16,6 @@ using NetCord.Logging;
 
 using static NetCord.Gateway.WebSocketClientThrowHelper;
 
-using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
-
 namespace NetCord.Gateway.Voice;
 
 public sealed partial class VoiceClient : WebSocketClient
@@ -181,18 +179,18 @@ public sealed partial class VoiceClient : WebSocketClient
             await SendIdentifyAsync(connectionState, cancellationToken).ConfigureAwait(false);
     }
 
-    private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
+    private protected override bool Reconnect(int? status, string? description)
     {
         return status is not (
-            (WebSocketCloseStatus)4004 or
-            (WebSocketCloseStatus)4006 or
-            (WebSocketCloseStatus)4009 or
-            (WebSocketCloseStatus)4011 or
-            (WebSocketCloseStatus)4012 or
-            (WebSocketCloseStatus)4014 or
-            (WebSocketCloseStatus)4016 or
-            (WebSocketCloseStatus)4021 or
-            (WebSocketCloseStatus)4022
+            4004 or
+            4006 or
+            4009 or
+            4011 or
+            4012 or
+            4014 or
+            4016 or
+            4021 or
+            4022
         );
     }
 
