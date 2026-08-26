@@ -1062,7 +1062,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             default:
                 RecordMessageReceived(((byte)opcode).ToString(), null, messageData);
 
-                Log(LogLevel.Information, (Opcode: opcode, Data: messageData), null, static (s, e) =>
+                Log(LogLevel.Debug, (Opcode: opcode, Data: messageData), null, static (s, e) =>
                 {
                     return $"Received an unknown opcode '{(byte)s.Opcode}' with a length of {s.Data.CompressedLength} bytes ({s.Data.UncompressedLength} bytes uncompressed).";
                 });
@@ -1551,7 +1551,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             default:
                 {
-                    Log(LogLevel.Information, (Name: name, Data: messageData), null, static (s, e) =>
+                    Log(LogLevel.Debug, (Name: name, Data: messageData), null, static (s, e) =>
                     {
                         return $"Received an unknown event '{s.Name}' with a length of {s.Data.CompressedLength} bytes ({s.Data.UncompressedLength} bytes uncompressed).";
                     });

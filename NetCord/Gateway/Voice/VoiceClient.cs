@@ -303,7 +303,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     RecordWebSocketMessageReceived(((byte)message.Opcode).ToString(), message.Length, WebSocketMessageTypeBinary);
 
-                    Log(LogLevel.Information, (Opcode: opcode, message.Length), null, static (s, e) =>
+                    Log(LogLevel.Debug, (Opcode: opcode, message.Length), null, static (s, e) =>
                     {
                         return $"Received an unknown opcode '{(byte)s.Opcode}' with a length of {s.Length} bytes in a binary message.";
                     });
@@ -552,7 +552,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     RecordWebSocketMessageReceived(((byte)opcode).ToString(), messageLength, WebSocketMessageTypeText);
 
-                    Log(LogLevel.Information, (Opcode: opcode, Length: messageLength), null, static (s, e) =>
+                    Log(LogLevel.Debug, (Opcode: opcode, Length: messageLength), null, static (s, e) =>
                     {
                         return $"Received an unknown opcode '{(byte)s.Opcode}' with a length of {s.Length} bytes in a text message.";
                     });
@@ -687,7 +687,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     {
                         RecordUdpPacketReceived(datagramLength, UdpPacketKindUnknown, UdpPacketOutcomeUnknownPayloadType);
 
-                        Log(LogLevel.Information, (packet.PayloadType, Length: datagramLength), null, static (s, e) => $"Received an RTP packet with an unknown payload type of {s.PayloadType:X2} and a length of {s.Length} bytes.");
+                        Log(LogLevel.Debug, (packet.PayloadType, Length: datagramLength), null, static (s, e) => $"Received an RTP packet with an unknown payload type of {s.PayloadType:X2} and a length of {s.Length} bytes.");
 
                         break;
                     }
