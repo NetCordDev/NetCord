@@ -19,7 +19,7 @@ To handle HTTP interactions from Discord in your bot, you need to use @NetCord.H
 
 ### Receiving HTTP Interactions via HTTP Interaction Handler
 
-You can also create your own @NetCord.Hosting.IHttpInteractionHandler to handle HTTP interactions manually. This allows you to have full control over the behavior of your bot when receiving HTTP interactions. You register them using @"NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)?text=AddHttpInteractionHandler".
+You can also create your own @NetCord.Hosting.IHttpInteractionHandler to handle HTTP interactions manually. This allows you to have full control over the behavior of your bot when receiving HTTP interactions. You register them using @"NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.DependencyInjection.ServiceLifetime)?text=AddHttpInteractionHandler".
 
 [!code-cs[HttpInteractionHandler.cs](Introduction/HttpInteractionHandler.cs#L6-L14)]
 
