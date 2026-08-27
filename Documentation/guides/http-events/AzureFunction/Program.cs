@@ -31,7 +31,7 @@ await host.RunAsync();
 public class Interaction(IHttpInteractionProcessor processor)
 {
     [Function("interaction")]
-    public Task RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest request)
+    public ValueTask RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest request)
     {
         return processor.ProcessAsync(request.HttpContext);
     }
