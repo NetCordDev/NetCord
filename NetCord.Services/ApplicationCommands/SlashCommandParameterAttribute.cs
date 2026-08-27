@@ -97,4 +97,9 @@ public class SlashCommandParameterAttribute : Attribute
     /// </summary>
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type? AutocompleteProviderType { get; init; }
+
+    /// <summary>
+    /// File types to filter for; can be <c>image</c>, <c>video</c>, <c>audio</c>, or any dot-prefixed extension such as <c>.pdf</c> (max 10).
+    /// </summary>
+    public string[]? FileTypes { get; init; }
 }

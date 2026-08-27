@@ -357,7 +357,7 @@ public partial class VoiceClient
 
             try
             {
-                await _client.SendConnectionMessageAsync(connectionState, message.AsMemory(0, messageLength), _client._internalBinaryMessageProperties).ConfigureAwait(false);
+                await _client.SendConnectionMessageAsync(nameof(VoiceOpcode.DaveMlsKeyPackage), connectionState, message.AsMemory(0, messageLength), _client._internalBinaryMessageProperties).ConfigureAwait(false);
             }
             finally
             {
@@ -369,7 +369,7 @@ public partial class VoiceClient
         {
             VoiceMessageProperties<DaveTransitionReadyProperties> message = new(VoiceOpcode.DaveTransitionReady, new(transitionId));
 
-            return _client.SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesDaveTransitionReadyProperties, _client._internalTextMessageProperties);
+            return _client.SendConnectionObjectAsync(nameof(VoiceOpcode.DaveTransitionReady), connectionState, message, Serialization.Default.VoiceMessagePropertiesDaveTransitionReadyProperties, _client._internalTextMessageProperties);
         }
 
         private ValueTask SendMlsCommitWelcomeAsync(ConnectionState connectionState, ReadOnlySpan<byte> commitWelcomeMessage)
@@ -386,7 +386,7 @@ public partial class VoiceClient
             {
                 try
                 {
-                    await client.SendConnectionMessageAsync(connectionState, message.AsMemory(0, messageLength), client._internalBinaryMessageProperties).ConfigureAwait(false);
+                    await client.SendConnectionMessageAsync(nameof(VoiceOpcode.DaveMlsCommitWelcome), connectionState, message.AsMemory(0, messageLength), client._internalBinaryMessageProperties).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -399,7 +399,7 @@ public partial class VoiceClient
         {
             VoiceMessageProperties<DaveMlsInvalidCommitWelcomeProperties> message = new(VoiceOpcode.DaveMlsInvalidCommitWelcome, new(transitionId));
 
-            return _client.SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesDaveMlsInvalidCommitWelcomeProperties, _client._internalTextMessageProperties);
+            return _client.SendConnectionObjectAsync(nameof(VoiceOpcode.DaveMlsInvalidCommitWelcome), connectionState, message, Serialization.Default.VoiceMessagePropertiesDaveMlsInvalidCommitWelcomeProperties, _client._internalTextMessageProperties);
         }
 
         [SkipLocalsInit]

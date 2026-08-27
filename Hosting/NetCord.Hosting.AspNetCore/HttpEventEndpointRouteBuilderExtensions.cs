@@ -21,7 +21,7 @@ public static class HttpEventEndpointRouteBuilderExtensions
             ?? new HttpInteractionProcessor(endpoints.ServiceProvider);
 
         return endpoints
-            .Map(parsedPattern, processor.ProcessAsync)
+            .Map(parsedPattern, context => processor.ProcessAsync(context).AsTask())
             .WithMetadata(new HttpMethodMetadata([HttpMethods.Post]));
     }
 
@@ -39,7 +39,7 @@ public static class HttpEventEndpointRouteBuilderExtensions
             ?? new WebhookEventProcessor(endpoints.ServiceProvider);
 
         return endpoints
-            .Map(parsedPattern, processor.ProcessAsync)
+            .Map(parsedPattern, context => processor.ProcessAsync(context).AsTask())
             .WithMetadata(new HttpMethodMetadata([HttpMethods.Post]));
     }
 }

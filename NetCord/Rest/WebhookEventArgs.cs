@@ -13,7 +13,20 @@ public abstract class WebhookEventArgs(JsonWebhookEventArgs jsonModel) : IWebhoo
 
     public ulong ApplicationId => _jsonModel.ApplicationId;
 
+    public string Type => _jsonModel.Event!.Type;
+
     public DateTimeOffset Timestamp => _jsonModel.Event!.Timestamp;
+
+    public static WebhookEventArgs CreateFromJson(JsonWebhookEventArgs jsonModel, RestClient client)
+    {
+        return jsonModel.Event!.Type switch
+        {
+            "APPLICATION_AUTHORIZED" => new ApplicationAuthorizedWebhookEventArgs(jsonModel, client),
+            "APPLICATION_DEAUTHORIZED" => new ApplicationDeauthorizedWebhookEventArgs(jsonModel, client),
+            "ENTITLEMENT_CREATE" => new EntitlementCreateWebhookEventArgs(jsonModel, client),
+            _ => new UnknownEventWebhookEventArgs(jsonModel),
+        };
+    }
 }
 
 public class ApplicationAuthorizedWebhookEventArgs : WebhookEventArgs
@@ -59,7 +72,5 @@ public class EntitlementCreateWebhookEventArgs(JsonWebhookEventArgs jsonModel, R
 
 public class UnknownEventWebhookEventArgs(JsonWebhookEventArgs jsonModel) : WebhookEventArgs(jsonModel)
 {
-    public string Type => _jsonModel.Event!.Type;
-
     public JsonElement Data => _jsonModel.Event!.Data;
 }
