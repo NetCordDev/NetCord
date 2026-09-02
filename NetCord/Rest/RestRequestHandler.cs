@@ -19,7 +19,12 @@ public sealed class RestRequestHandler : IRestRequestHandler
         _httpClient = new(handler, disposeHandler);
     }
 
-    public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default) => _httpClient.SendAsync(request, cancellationToken);
+    public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+    {
+        request.VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+
+        return _httpClient.SendAsync(request, cancellationToken);
+    }
 
     public void AddDefaultHeader(string name, IEnumerable<string> values)
     {

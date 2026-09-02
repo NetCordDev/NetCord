@@ -11,7 +11,7 @@ namespace NetCord.Rest;
 
 public sealed partial class RestClient : IDisposable
 {
-    private readonly string _baseUrl;
+    private readonly string _baseUri;
     private readonly IRestRequestHandler _requestHandler;
     private readonly InternalRestRequestProperties _defaultRequestProperties;
     private readonly IRateLimitManager _rateLimitManager;
@@ -34,7 +34,7 @@ public sealed partial class RestClient : IDisposable
     {
         configuration ??= new();
 
-        _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}";
+        _baseUri = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}";
 
         var requestHandler = _requestHandler = configuration.RequestHandler ?? new RestRequestHandler();
 
@@ -107,13 +107,13 @@ public sealed partial class RestClient : IDisposable
     {
         var requestProperties = _defaultRequestProperties.Compose(properties);
 
-        var url = $"{_baseUrl}{route}{query}";
+        var uri = $"{_baseUri}{route}{query}";
 
         return SendRequestAsync(new(method, route.Format, resourceInfo), route, global, CreateMessage, requestProperties, cancellationToken);
 
         HttpRequestMessage CreateMessage()
         {
-            HttpRequestMessage requestMessage = new(method, url);
+            HttpRequestMessage requestMessage = new(method, uri);
 
             if (properties is not null)
             {
@@ -130,13 +130,13 @@ public sealed partial class RestClient : IDisposable
     {
         var requestProperties = _defaultRequestProperties.Compose(properties);
 
-        var url = $"{_baseUrl}{route}{query}";
+        var uri = $"{_baseUri}{route}{query}";
 
         return SendRequestAsync(new(method, route.Format, resourceInfo), route, global, CreateMessage, requestProperties, cancellationToken);
 
         HttpRequestMessage CreateMessage()
         {
-            HttpRequestMessage requestMessage = new(method, url)
+            HttpRequestMessage requestMessage = new(method, uri)
             {
                 Content = content,
             };
