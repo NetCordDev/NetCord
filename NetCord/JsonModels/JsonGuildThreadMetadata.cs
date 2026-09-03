@@ -20,5 +20,5 @@ public class JsonGuildThreadMetadata
     public bool? Invitable { get; set; }
 
     [JsonPropertyName("create_timestamp")]
-    public DateTimeOffset? CreateTimestamp { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
 }

@@ -68,7 +68,7 @@ public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonMode
             return new ImageAttachment(jsonModel);
         else if (jsonModel.DurationSeconds.HasValue)
             return new VoiceAttachment(jsonModel);
-        else if (jsonModel.ClipCreatedAt.HasValue)
+        else if (jsonModel.Flags.HasFlag(AttachmentFlags.Clip))
             return new ClipAttachment(jsonModel, client);
         else
             return new Attachment(jsonModel);

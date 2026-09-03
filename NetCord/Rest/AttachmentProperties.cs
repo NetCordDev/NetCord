@@ -59,8 +59,12 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
     private readonly Stream? _stream;
     private byte _read;
 
+    /// <summary>
+    /// Whether the attachment supports HTTP serialization.
+    /// </summary>
     public virtual bool SupportsHttpSerialization => true;
 
+    /// <inheritdoc/>
     public virtual HttpContent Serialize() => new StreamContent(GetStream()!);
 
     private protected void WriteCommonProperties(Utf8JsonWriter writer, int attachmentId)
@@ -133,7 +137,7 @@ public partial class GoogleCloudPlatformAttachmentProperties(string fileName, st
     private static readonly JsonEncodedText _uploadedFileName = JsonEncodedText.Encode("uploaded_filename");
 
     /// <summary>
-    /// The filename to use for the upload.
+    /// The file name used in the uploaded storage bucket.
     /// </summary>
     public string UploadedFileName { get; set; } = uploadedFileName;
 

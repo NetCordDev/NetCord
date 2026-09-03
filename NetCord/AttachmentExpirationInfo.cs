@@ -11,8 +11,11 @@ public class AttachmentExpirationInfo
     public AttachmentExpirationInfo(string url)
     {
         var query = HttpUtility.ParseQueryString(new Uri(url).Query);
-        ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(query["ex"]!, NumberStyles.AllowHexSpecifier));
-        IssuedAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(query["is"]!, NumberStyles.AllowHexSpecifier));
+
+        var culture = CultureInfo.InvariantCulture;
+
+        ExpiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(query["ex"]!, NumberStyles.AllowHexSpecifier, culture));
+         IssuedAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(query["is"]!, NumberStyles.AllowHexSpecifier, culture));
         Signature = query["hm"]!;
     }
 

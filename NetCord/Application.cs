@@ -120,12 +120,12 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public RestGuild? Guild { get; }
 
     /// <summary>
-    /// The ID of the appliication's Game SKU if it exists, otherwise <see langword="null"/>.
+    /// The ID of the application's Game SKU if it exists, otherwise <see langword="null"/>.
     /// </summary>
     public ulong? PrimarySkuId => _jsonModel.PrimarySkuId;
 
     /// <summary>
-    /// The URL slug that links to an application's store pageif it exists, otherwise <see langword="null"/>.
+    /// The URL slug that links to an application's store page if it exists, otherwise <see langword="null"/>.
     /// </summary>
     public string? Slug => _jsonModel.Slug;
 
@@ -188,12 +188,12 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public IReadOnlyList<string>? Tags => _jsonModel.Tags;
 
     /// <summary>
-    /// The application's default in-app authorization URL if enabled, otherwise <see langword="null"/>.
+    /// The application's default in-application authorization URL if enabled, otherwise <see langword="null"/>.
     /// </summary>
     public ApplicationInstallParams? InstallParams { get; }
 
     /// <summary>
-    /// A list of the app's default scopes and permissions, for each supported installation context.
+    /// A list of the application's default scopes and permissions, for each supported installation context.
     /// </summary>
     public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration>? IntegrationTypesConfiguration { get; }
 

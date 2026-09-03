@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 /// <summary>
-/// Represents a webhook's name and avatar.
+/// A set of properties representing a webhook's initial configuration.
 /// </summary>
 /// <param name="name"><inheritdoc cref="Name" path="/summary"/></param>
 [GenerateMethodsForProperties]

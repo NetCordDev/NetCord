@@ -4,7 +4,7 @@ using NetCord.Rest;
 namespace NetCord;
 
 /// <summary>
-/// Represents a standard Discord emoji.
+/// Represents a base Discord emoji.
 /// </summary>
 public class Emoji : IJsonModel<JsonEmoji>
 {

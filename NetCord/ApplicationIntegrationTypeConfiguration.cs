@@ -3,7 +3,7 @@ using NetCord.JsonModels;
 namespace NetCord;
 
 /// <summary>
-/// Represents additional configuration for a specific app installation context.
+/// Represents additional configuration for a specific application installation context.
 /// </summary>
 public class ApplicationIntegrationTypeConfiguration : IJsonModel<JsonApplicationIntegrationTypeConfiguration>
 {

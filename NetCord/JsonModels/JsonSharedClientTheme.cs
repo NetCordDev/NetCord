@@ -14,5 +14,5 @@ public class JsonSharedClientTheme
     public int BaseMix { get; set; }
 
     [JsonPropertyName("base_theme")]
-    public BaseTheme? BaseTheme { get; set; }
+    public SharedClientThemeBase? BaseTheme { get; set; }
 }

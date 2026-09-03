@@ -8,22 +8,22 @@ public enum ImageFormat : byte
     /// <summary>
     /// An image in the JPEG format.
     /// </summary>
-    JPEG,
+    Jpeg,
 
     /// <summary>
     /// An image in the PNG format.
     /// </summary>
-    PNG,
+    Png,
 
     /// <summary>
     /// An image in the WebP format, potentially animated.
     /// </summary>
-    WebP,
+    Webp,
 
     /// <summary>
     /// An animated image in the GIF format.
     /// </summary>
-    GIF,
+    Gif,
 
     /// <summary>
     /// An animated image in the Lottie format. Rarely available.

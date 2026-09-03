@@ -51,12 +51,12 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     /// The <see cref="User"/> this webhook was created by.
     /// </summary>
     /// <remarks>
-    /// This property is <see langword="null"/> if the parent object was retrieved using its token.
+    /// This property is <see langword="null"/> if the webhook was retrieved using its token.
     /// </remarks>
     public User? Creator { get; }
 
     /// <summary>
-    /// The name of the webhook.
+    /// The default name of the webhook.
     /// </summary>
     /// <remarks>
     /// A webhook name is valid if:
@@ -65,7 +65,7 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     ///         The string length is between 1 and 80 characters.
     ///     </item>
     ///     <item>
-    ///         It does not contain the substrings <c>clyde</c> or <c>discord</c>.
+    ///         It does not contain the substrings <c>clyde</c> or <c>discord</c> (case-insensitive).
     ///     </item>
     ///     <item>
     ///         It follows Discord's nickname guidelines, found <see href="https://docs.discord.com/developers/resources/user#usernames-and-nicknames">here</see>.

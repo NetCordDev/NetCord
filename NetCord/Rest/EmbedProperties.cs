@@ -26,7 +26,7 @@ public partial class EmbedProperties
     public string? Url { get; set; }
 
     /// <summary>
-    /// Displays time in a format similar to a message timestamp. Located next to the <see cref="Footer"/>.
+    /// Displays time in a format similar to a message timestamp. Located next to the <see cref="Footer"/>, if one is set.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("timestamp")]

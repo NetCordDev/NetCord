@@ -29,9 +29,9 @@ public partial class RestClient
     /// <summary>
     /// Creates a new auto-moderation rule for a specified guild.
     /// </summary>
-    /// <param name="guildId">The ID of the guild to create the rule for..</param>
+    /// <param name="guildId">The ID of the guild to create the rule for.</param>
     /// <param name="autoModerationRuleProperties">The properties of the auto-moderation rule to be created, including triggers, actions, and conditions.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize the request, catn be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<AutoModerationRule> CreateAutoModerationRuleAsync(ulong guildId, AutoModerationRuleProperties autoModerationRuleProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
@@ -43,7 +43,7 @@ public partial class RestClient
     /// <summary>
     /// Modifies a pre-existing auto-moderation rule for a specified guild.
     /// </summary>
-    /// <param name="guildId">The ID of the guild to modify the rule for..</param>
+    /// <param name="guildId">The ID of the guild to modify the rule for.</param>
     /// <param name="autoModerationRuleId">The ID of the rule to modify.</param>
     /// <param name="action">An action, representing the modifications to make to the rule.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
@@ -61,7 +61,7 @@ public partial class RestClient
     /// <summary>
     /// Deletes an auto-moderation rule for a specified guild.
     /// </summary>
-    /// <param name="guildId">The ID of the guild to modify the rule for..</param>
+    /// <param name="guildId">The ID of the guild to modify the rule for.</param>
     /// <param name="autoModerationRuleId">The ID of the rule to modify.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>

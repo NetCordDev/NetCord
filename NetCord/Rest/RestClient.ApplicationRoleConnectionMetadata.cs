@@ -7,7 +7,7 @@ public partial class RestClient
     /// </summary>
     /// <param name="applicationId">The ID of the application to request data for.</param>
     /// <param name="properties">Optional properties to customize the REST request, can be <see langword="null"/>.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes..</param>
     [GenerateAlias([typeof(CurrentApplication)], nameof(CurrentApplication.Id), TypeNameOverride = nameof(Application))]
     public async Task<IReadOnlyList<ApplicationRoleConnectionMetadata>> GetApplicationRoleConnectionMetadataRecordsAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/role-connections/metadata", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.IEnumerableJsonApplicationRoleConnectionMetadata).ConfigureAwait(false)).Select(m => new ApplicationRoleConnectionMetadata(m)).ToArray();
@@ -18,7 +18,7 @@ public partial class RestClient
     /// <param name="applicationId">The ID of the application to modify data for.</param>
     /// <param name="applicationRoleConnectionMetadataProperties">The list to overwrite the target data with.</param>
     /// <param name="properties">Optional properties to customize the REST request, can be <see langword="null"/>.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests. Defaults to <see cref="CancellationToken.None"/>.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes..</param>
     [GenerateAlias([typeof(CurrentApplication)], nameof(CurrentApplication.Id), TypeNameOverride = nameof(Application))]
     public async Task<IReadOnlyList<ApplicationRoleConnectionMetadata>> UpdateApplicationRoleConnectionMetadataRecordsAsync(ulong applicationId, IEnumerable<ApplicationRoleConnectionMetadataProperties> applicationRoleConnectionMetadataProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {

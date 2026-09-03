@@ -20,10 +20,10 @@ public partial class RestClient
         => Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
 
     /// <summary>
-    /// Modifies a group DM channel’s properties.
+    /// Modifies a group DM channel's properties.
     /// </summary>
     /// <param name="channelId">The ID of the group DM channel to modify.</param>
-    /// <param name="action">An action delegate used to configure the channel’s updated properties.</param>
+    /// <param name="action">An action delegate used to configure the channel's updated properties.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(GroupDMChannel)], nameof(GroupDMChannel.Id), Cast = true)]
@@ -36,7 +36,7 @@ public partial class RestClient
     }
 
     /// <summary>
-    /// Modifies a guild channel’s configuration.
+    /// Modifies a guild channel's properties.
     /// </summary>
     /// <param name="channelId">The ID of the guild channel to modify.</param>
     /// <param name="action">An action delegate used to configure the updated channel options.</param>
@@ -80,7 +80,7 @@ public partial class RestClient
     /// </summary>
     /// <param name="channelId">The ID of the channel to retrieve messages from.</param>
     /// <param name="paginationProperties">Optional properties to customize result pagination, can be <see langword="null"/>.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     public IAsyncEnumerable<RestMessage> GetMessagesAsync(ulong channelId, PaginationProperties<ulong>? paginationProperties = null, RestRequestProperties? properties = null)
     {
@@ -120,8 +120,7 @@ public partial class RestClient
     /// </summary>
     /// <param name="guildId">The ID of the guild to search through.</param>
     /// <param name="paginationProperties">Optional properties to customize result pagination and filtering, can be <see langword="null"/>.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
-    /// <exception cref="InvalidOperationException"/>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public IAsyncEnumerable<GuildMessageSearchResult> SearchGuildMessagesAsync(ulong guildId, GuildMessagesSearchPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {
@@ -442,7 +441,7 @@ public partial class RestClient
     /// <param name="messageId">The ID of the message to retrieve reactions for.</param>
     /// <param name="emoji">The emoji to filter reactions by.</param>
     /// <param name="paginationProperties">Pagination options for fetching users, or <see langword="null"/> to use defaults.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public IAsyncEnumerable<User> GetMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, MessageReactionsPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
@@ -495,7 +494,7 @@ public partial class RestClient
     }
 
     /// <summary>
-    /// Modifies the contents of a specific message.
+    /// Modifies the properties of a specific message.
     /// </summary>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to modify.</param>
@@ -513,7 +512,7 @@ public partial class RestClient
     }
 
     /// <summary>
-    /// Deletes a message from a channel by its ID.
+    /// Deletes a specific message from a channel.
     /// </summary>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to delete.</param>
@@ -525,7 +524,7 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Deletes multiple messages in bulk or individually depending on batch size.
+    /// Deletes a set of messages from a channel, in bulk.
     /// </summary>
     /// <param name="channelId">The ID of the channel containing the messages.</param>
     /// <param name="messageIds">The list of message IDs to delete.</param>
@@ -589,8 +588,8 @@ public partial class RestClient
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
-    public async Task<IEnumerable<RestInvite>> GetGuildChannelInvitesAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInviteArray).ConfigureAwait(false)).Select(r => new RestInvite(r, this));
+    public async Task<IReadOnlyList<RestInvite>> GetGuildChannelInvitesAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInviteArray).ConfigureAwait(false)).Select(r => new RestInvite(r, this)).ToArray();
 
     /// <summary>
     /// Creates a new invite for a guild channel.
@@ -636,7 +635,7 @@ public partial class RestClient
     }
 
     /// <summary>
-    /// Sends a typing indicator to the channel.
+    /// Sends a typing indicator to a channel.
     /// </summary>
     /// <param name="channelId">The ID of the channel to trigger typing in.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
@@ -646,7 +645,7 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Enters a persistent typing state for the current user.
+    /// /// Enters a typing scope for a channel, while waiting for the typing indicator to trigger.
     /// </summary>
     /// <param name="channelId">The ID of the channel to type in.</param>
     /// <param name="scopeProperties">Optional properties to customize the typing interval, can be <see langword="null"/>.</param>
@@ -661,7 +660,7 @@ public partial class RestClient
     }
 
     /// <summary>
-    /// Enters a persistent typing state for the current user.
+    /// /// Enters a typing scope for a channel, while waiting for the typing indicator to trigger.
     /// </summary>
     /// <param name="channelId">The ID of the channel to type in.</param>
     /// <param name="scopeProperties">Optional properties to customize the typing interval, can be <see langword="null"/>.</param>
@@ -839,7 +838,7 @@ public partial class RestClient
     /// </summary>
     /// <param name="threadId">The ID of the thread.</param>
     /// <param name="paginationProperties">Pagination options for fetching users, or <see langword="null"/> to use defaults.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(GuildThread)], nameof(GuildThread.Id))]
     public IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(ulong threadId, OptionalGuildUsersPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {
@@ -866,7 +865,7 @@ public partial class RestClient
     /// </summary>
     /// <param name="channelId">The ID of the text channel.</param>
     /// <param name="paginationProperties">Pagination options for archived threads, or <see langword="null"/> to use defaults.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null)
     {
@@ -893,7 +892,7 @@ public partial class RestClient
     /// </summary>
     /// <param name="channelId">The ID of the text channel.</param>
     /// <param name="paginationProperties">Pagination options for archived threads, or <see langword="null"/> to use defaults.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null)
     {
@@ -920,7 +919,7 @@ public partial class RestClient
     /// </summary>
     /// <param name="channelId">The ID of the text channel.</param>
     /// <param name="paginationProperties">Pagination options for archived threads, or <see langword="null"/> to use defaults.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public IAsyncEnumerable<GuildThread> GetJoinedPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<ulong>? paginationProperties = null, RestRequestProperties? properties = null)
     {

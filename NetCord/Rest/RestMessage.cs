@@ -73,9 +73,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
             StartedThread = GuildThread.CreateFromJson(startedThread, client);
 
         Components = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
-#pragma warning disable CS0618 // Type or member is obsolete
         Stickers = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
-#pragma warning restore CS0618 // Type or member is obsolete
 
         var roleSubscriptionData = jsonModel.RoleSubscriptionData;
         if (roleSubscriptionData is not null)
@@ -252,7 +250,6 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     /// <summary>
     /// A list of stickers sent within the message.
     /// </summary>
-    [Obsolete("Deprecated by Discord.")]
     public IReadOnlyList<MessageSticker> Stickers { get; }
 
     /// <summary>

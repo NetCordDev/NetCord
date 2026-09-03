@@ -10,6 +10,5 @@ public partial class GuildThreadUser(JsonThreadUser jsonModel, RestClient client
     /// <summary>
     /// The thread user's <see cref="PartialGuildUser"/> object.
     /// </summary>
-
     public PartialGuildUser GuildUser { get; } = new(jsonModel.GuildUser!, client);
 }

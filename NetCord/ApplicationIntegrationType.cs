@@ -1,7 +1,7 @@
 namespace NetCord;
 
 /// <summary>
-/// Represents an app integration's install type.
+/// Represents an application integration's install type.
 /// </summary>
 public enum ApplicationIntegrationType
 {

@@ -27,5 +27,5 @@ public class SharedClientTheme(JsonSharedClientTheme jsonModel) : IJsonModel<Jso
     /// <summary>
     /// The theme the client theme is based on.
     /// </summary>
-    public BaseTheme BaseTheme => jsonModel.BaseTheme.GetValueOrDefault();
+    public SharedClientThemeBase BaseTheme => jsonModel.BaseTheme.GetValueOrDefault();
 }

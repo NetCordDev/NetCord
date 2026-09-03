@@ -8,12 +8,12 @@ public enum StickerFormat
     /// <summary>
     /// An image in the PNG format.
     /// </summary>
-    PNG = 1,
+    Png = 1,
 
     /// <summary>
     /// An animated image in the APNG format.
     /// </summary>
-    APNG = 2,
+    APng = 2,
 
     /// <summary>
     /// An animated image in the Lottie format. Rarely available.
@@ -23,5 +23,5 @@ public enum StickerFormat
     /// <summary>
     /// An animated image in the GIF format.
     /// </summary>
-    GIF = 4,
+    Gif = 4,
 }

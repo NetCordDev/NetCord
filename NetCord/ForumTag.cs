@@ -25,7 +25,7 @@ public class ForumTag(JsonForumTag jsonModel) : Entity, IJsonModel<JsonForumTag>
     public bool Moderated => jsonModel.Moderated;
 
     /// <summary>
-    /// The ID of the custom guild emoji to use for the tag.
+    /// The ID of the custom emoji to use for the tag.
     /// </summary>
     /// <remarks>
     /// Cannot be set alongside <see cref="EmojiName"/>.

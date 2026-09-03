@@ -34,7 +34,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public DateTimeOffset? Timestamp => _jsonModel.Timestamp;
 
     /// <summary>
-    /// The color of the embed’s border in an RGB format.
+    /// The color of the embed's border in an RGB format.
     /// </summary>
     public Color? Color => _jsonModel.Color;
 

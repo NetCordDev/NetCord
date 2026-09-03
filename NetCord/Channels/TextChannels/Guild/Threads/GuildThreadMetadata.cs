@@ -44,5 +44,5 @@ public class GuildThreadMetadata(JsonModels.JsonGuildThreadMetadata jsonModel) :
     /// <remarks>
     /// Only populated for threads created after 2022-01-09.
     /// </remarks>
-    public DateTimeOffset CreateTimestamp => jsonModel.CreateTimestamp.GetValueOrDefault();
+    public DateTimeOffset CreateTimestamp => jsonModel.CreatedAt.GetValueOrDefault();
 }

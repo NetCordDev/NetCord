@@ -42,7 +42,7 @@ public partial class TextGuildChannel(JsonModels.JsonChannel jsonModel, ulong gu
     public ulong? ParentId => _jsonModel.ParentId;
 
     /// <summary>
-    /// How long threads within the channel must be inactive, before auto-archiving occurs.
+    /// The default duration for which threads within the channel must be inactive, before auto-archiving occurs.
     /// </summary>
     public ThreadArchiveDuration? DefaultAutoArchiveDuration => _jsonModel.DefaultAutoArchiveDuration;
 

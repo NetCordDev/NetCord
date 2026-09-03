@@ -17,7 +17,7 @@ public enum SkuFlags
     HasFreePremiumContent = 1 << 1,
 
     /// <summary>
-    /// SKU is available for purchase.
+    /// Whether the SKU is available for purchase.
     /// </summary>
     Available = 1 << 2,
 
@@ -42,12 +42,12 @@ public enum SkuFlags
     PremiumSubscription = 1 << 6,
 
     /// <summary>
-    /// Recurring SKU that can be purchased by a user and applied to a single server. Grants access to every user in that server.
+    /// Whether the SKU is a recurring SKU, that can be purchased by a user and applied to a single server. Grants access to every user in that server.
     /// </summary>
     GuildSubscription = 1 << 7,
 
     /// <summary>
-    /// Recurring SKU purchased by a user for themselves. Grants access to the purchasing user in every server.
+    ///  Whether the SKU is a recurring SKU, purchased by a user for themselves. Grants access to the purchasing user in every server.
     /// </summary>
     UserSubscription = 1 << 8,
 }

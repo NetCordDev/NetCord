@@ -2,7 +2,9 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-/// <inheritdoc cref="IVoiceGuildChannel"/>
+/// <summary>
+/// Represents a standard voice channel within a guild.
+/// </summary>
 public partial class VoiceGuildChannel(JsonModels.JsonChannel jsonModel, ulong guildId, RestClient client) : TextGuildChannel(jsonModel, guildId, client), IVoiceGuildChannel
 {
     public int Bitrate => _jsonModel.Bitrate.GetValueOrDefault();

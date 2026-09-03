@@ -146,10 +146,10 @@ public class ImageUrl : ISpanFormattable
     {
         return format switch
         {
-            ImageFormat.JPEG => "jpg",
-            ImageFormat.PNG => "png",
-            ImageFormat.WebP => "webp",
-            ImageFormat.GIF => "gif",
+            ImageFormat.Jpeg => "jpg",
+            ImageFormat.Png => "png",
+            ImageFormat.Webp => "webp",
+            ImageFormat.Gif => "gif",
             ImageFormat.Lottie => "json",
             _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format.")
         };
@@ -159,10 +159,10 @@ public class ImageUrl : ISpanFormattable
     {
         return format switch
         {
-            ImageFormat.JPEG => "jpg"u8,
-            ImageFormat.PNG => "png"u8,
-            ImageFormat.WebP => "webp"u8,
-            ImageFormat.GIF => "gif"u8,
+            ImageFormat.Jpeg => "jpg"u8,
+            ImageFormat.Png => "png"u8,
+            ImageFormat.Webp => "webp"u8,
+            ImageFormat.Gif => "gif"u8,
             ImageFormat.Lottie => "json"u8,
             _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format.")
         };
@@ -184,7 +184,7 @@ public class ImageUrl : ISpanFormattable
     /// </summary>
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="iconHash">The guild's icon hash.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated icons).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated icons).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild's icon.</returns>
     public static ImageUrl GuildIcon(ulong guildId, string iconHash, ImageFormat? format)
     {
@@ -220,7 +220,7 @@ public class ImageUrl : ISpanFormattable
     /// </summary>
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="bannerHash">The guild's banner hash.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated banners).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild's banner.</returns>
     public static ImageUrl GuildBanner(ulong guildId, string bannerHash, ImageFormat? format)
     {
@@ -232,7 +232,7 @@ public class ImageUrl : ISpanFormattable
     /// </summary>
     /// <param name="userId">The ID of the user.</param>
     /// <param name="bannerHash">The user's banner hash.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated banners).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's banner.</returns>
     public static ImageUrl UserBanner(ulong userId, string bannerHash, ImageFormat? format)
     {
@@ -270,7 +270,7 @@ public class ImageUrl : ISpanFormattable
     /// </summary>
     /// <param name="userId">The ID of the user.</param>
     /// <param name="avatarHash">The user's avatar hash.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated avatars).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's avatar.</returns>
     public static ImageUrl UserAvatar(ulong userId, string avatarHash, ImageFormat? format)
     {
@@ -283,7 +283,7 @@ public class ImageUrl : ISpanFormattable
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="userId">The ID of the user.</param>
     /// <param name="avatarHash">The user's avatar hash.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated avatars).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild user's avatar.</returns>
     public static ImageUrl GuildUserAvatar(ulong guildId, ulong userId, string avatarHash, ImageFormat? format)
     {
@@ -309,7 +309,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application's icon.</returns>
     public static ImageUrl ApplicationIcon(ulong applicationId, string iconHash, ImageFormat format)
     {
-        return new($"/app-icons/{applicationId}/{iconHash}", GetFormat(format));
+        return new($"/application-icons/{applicationId}/{iconHash}", GetFormat(format));
     }
 
     /// <summary>
@@ -321,7 +321,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application's cover image.</returns>
     public static ImageUrl ApplicationCover(ulong applicationId, string coverHash, ImageFormat format)
     {
-        return new($"/app-icons/{applicationId}/{coverHash}", GetFormat(format));
+        return new($"/application-icons/{applicationId}/{coverHash}", GetFormat(format));
     }
 
     /// <summary>
@@ -333,7 +333,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application asset.</returns>
     public static ImageUrl ApplicationAsset(ulong applicationId, ulong assetId, ImageFormat format)
     {
-        return new($"/app-assets/{applicationId}/{assetId}", GetFormat(format));
+        return new($"/application-assets/{applicationId}/{assetId}", GetFormat(format));
     }
 
     /// <summary>
@@ -346,7 +346,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the achievement icon.</returns>
     public static ImageUrl AchievementIcon(ulong applicationId, ulong achievementId, string iconHash, ImageFormat format)
     {
-        return new($"/app-assets/{applicationId}/achievements/{achievementId}/icons/{iconHash}", GetFormat(format));
+        return new($"/application-assets/{applicationId}/achievements/{achievementId}/icons/{iconHash}", GetFormat(format));
     }
 
     /// <summary>
@@ -358,7 +358,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the store page asset.</returns>
     public static ImageUrl StorePageAsset(ulong applicationId, ulong assetId, ImageFormat format)
     {
-        return new($"/app-assets/{applicationId}/store/{assetId}", GetFormat(format));
+        return new($"/application-assets/{applicationId}/store/{assetId}", GetFormat(format));
     }
 
     /// <summary>
@@ -369,7 +369,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the sticker pack banner.</returns>
     public static ImageUrl StickerPackBanner(ulong stickerPackBannerAssetId, ImageFormat format)
     {
-        return new($"/app-assets/710982414301790216/store/{stickerPackBannerAssetId}", GetFormat(format));
+        return new($"/application-assets/710982414301790216/store/{stickerPackBannerAssetId}", GetFormat(format));
     }
 
     /// <summary>
@@ -396,7 +396,7 @@ public class ImageUrl : ISpanFormattable
     /// </remarks>
     public static ImageUrl Sticker(ulong stickerId, StickerFormat stickerFormat, ImageFormat format)
     {
-        return new($"/stickers/{stickerId}", GetFormat(format), stickerFormat is StickerFormat.GIF ? Discord.MediaUrl : Discord.CDNUrl, false);
+        return new($"/stickers/{stickerId}", GetFormat(format), stickerFormat is StickerFormat.Gif ? Discord.MediaUrl : Discord.CDNUrl, false);
     }
 
     /// <summary>
@@ -429,7 +429,7 @@ public class ImageUrl : ISpanFormattable
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="userId">The ID of the user.</param>
     /// <param name="bannerHash">The user's banner hash.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.PNG"/> (or <see cref="ImageFormat.GIF"/> for animated banners).</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild user's banner.</returns>
     public static ImageUrl GuildUserBanner(ulong guildId, ulong userId, string bannerHash, ImageFormat? format)
     {

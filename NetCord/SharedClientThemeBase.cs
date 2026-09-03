@@ -3,7 +3,7 @@ namespace NetCord;
 /// <summary>
 /// Specifies a <see cref="SharedClientTheme"/>'s base theme.
 /// </summary>
-public enum BaseTheme : byte
+public enum SharedClientThemeBase : byte
 {
     /// <summary>
     /// No base theme specified, equivalent to <see cref="Dark"/>.

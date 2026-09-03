@@ -1,7 +1,7 @@
 namespace NetCord;
 
 /// <summary>
-/// Represents a voice channel within a guild.
+/// Represents a generic voice channel within a guild.
 /// </summary>
 public partial interface IVoiceGuildChannel : IGuildChannel
 {

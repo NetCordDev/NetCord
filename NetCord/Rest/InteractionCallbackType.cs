@@ -38,7 +38,7 @@ public enum InteractionCallbackType
     Modal = 9,
 
     /// <summary>
-    /// Launch the Activity associated with the app. Only available for apps with Activities enabled.
+    /// Launch the Activity associated with the application. Only available for apps with Activities enabled.
     /// </summary>
     LaunchActivity = 12,
 }

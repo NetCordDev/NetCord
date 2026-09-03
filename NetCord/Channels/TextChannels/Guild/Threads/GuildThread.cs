@@ -36,7 +36,7 @@ public abstract partial class GuildThread : TextGuildChannel
     public GuildThreadMetadata Metadata { get; }
 
     /// <summary>
-    /// A minimal <see cref="ThreadUser"/> for the current user, if they have joined the thread.
+    /// A minimal thread user object for the current user, if they have joined the thread.
     /// </summary>
     public ThreadCurrentUser? CurrentUser { get; }
 
