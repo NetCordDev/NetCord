@@ -333,7 +333,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application asset.</returns>
     public static ImageUrl ApplicationAsset(ulong applicationId, ulong assetId, ImageFormat format)
     {
-        return new($"/application-assets/{applicationId}/{assetId}", GetFormat(format));
+        return new($"/app-assets/{applicationId}/{assetId}", GetFormat(format));
     }
 
     /// <summary>
@@ -346,7 +346,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the achievement icon.</returns>
     public static ImageUrl AchievementIcon(ulong applicationId, ulong achievementId, string iconHash, ImageFormat format)
     {
-        return new($"/application-assets/{applicationId}/achievements/{achievementId}/icons/{iconHash}", GetFormat(format));
+        return new($"/app-assets/{applicationId}/achievements/{achievementId}/icons/{iconHash}", GetFormat(format));
     }
 
     /// <summary>
@@ -358,7 +358,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the store page asset.</returns>
     public static ImageUrl StorePageAsset(ulong applicationId, ulong assetId, ImageFormat format)
     {
-        return new($"/application-assets/{applicationId}/store/{assetId}", GetFormat(format));
+        return new($"/app-assets/{applicationId}/store/{assetId}", GetFormat(format));
     }
 
     /// <summary>
@@ -369,7 +369,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the sticker pack banner.</returns>
     public static ImageUrl StickerPackBanner(ulong stickerPackBannerAssetId, ImageFormat format)
     {
-        return new($"/application-assets/710982414301790216/store/{stickerPackBannerAssetId}", GetFormat(format));
+        return new($"/app-assets/710982414301790216/store/{stickerPackBannerAssetId}", GetFormat(format));
     }
 
     /// <summary>
