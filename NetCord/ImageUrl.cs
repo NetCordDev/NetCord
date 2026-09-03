@@ -148,7 +148,7 @@ public class ImageUrl : ISpanFormattable
         {
             ImageFormat.Jpeg => "jpg",
             ImageFormat.Png => "png",
-            ImageFormat.WebP => "webp",
+            ImageFormat.Webp => "webp",
             ImageFormat.Gif => "gif",
             ImageFormat.Lottie => "json",
             _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format.")
@@ -161,7 +161,7 @@ public class ImageUrl : ISpanFormattable
         {
             ImageFormat.Jpeg => "jpg"u8,
             ImageFormat.Png => "png"u8,
-            ImageFormat.WebP => "webp"u8,
+            ImageFormat.Webp => "webp"u8,
             ImageFormat.Gif => "gif"u8,
             ImageFormat.Lottie => "json"u8,
             _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format.")
@@ -309,7 +309,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application's icon.</returns>
     public static ImageUrl ApplicationIcon(ulong applicationId, string iconHash, ImageFormat format)
     {
-        return new($"/app-icons/{applicationId}/{iconHash}", GetFormat(format));
+        return new($"/application-icons/{applicationId}/{iconHash}", GetFormat(format));
     }
 
     /// <summary>
@@ -321,7 +321,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application's cover image.</returns>
     public static ImageUrl ApplicationCover(ulong applicationId, string coverHash, ImageFormat format)
     {
-        return new($"/app-icons/{applicationId}/{coverHash}", GetFormat(format));
+        return new($"/application-icons/{applicationId}/{coverHash}", GetFormat(format));
     }
 
     /// <summary>

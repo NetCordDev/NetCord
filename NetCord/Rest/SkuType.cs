@@ -1,5 +1,8 @@
 namespace NetCord.Rest;
 
+/// <summary>
+/// Specifies an SKU's purchase type.
+/// </summary>
 public enum SkuType : byte
 {
     /// <summary>
@@ -18,7 +21,7 @@ public enum SkuType : byte
     Subscription = 5,
 
     /// <summary>
-    /// System-generated group for each SUBSCRIPTION SKU created.
+    /// System-generated group for each subscription SKU created.
     /// </summary>
     SubscriptionGroup = 6
 }

@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Defines which users and roles a message is allowed to mention.
+/// </summary>
 [JsonConverter(typeof(AllowedMentionsConverter))]
 [GenerateMethodsForProperties]
 public partial class AllowedMentionsProperties
@@ -10,28 +13,42 @@ public partial class AllowedMentionsProperties
     /// <summary>
     /// Allows <see langword="@everyone"/> and <see langword="@here"/>.
     /// </summary>
+    /// <remarks>
+    /// The <see cref="Permissions.MentionEveryone"/> permission is required for this.
+    /// </remarks>
     public bool Everyone { get; set; } = true;
 
     /// <summary>
-    /// Allowed roles, <see langword="null"/> for all.
+    /// A list of mentionable role IDs. Allows all roles if set to <see langword="null"/>.
     /// </summary>
+    /// /// <remarks>
+    /// <para>
+    /// If a role's <see cref="Role.Mentionable"/> property is set to <see langword="false"/>, and <see cref="Permissions.MentionEveryone"/> is not set, it will not be mentioned regardless.
+    /// </para>
+    /// </remarks>
     public IEnumerable<ulong>? AllowedRoles { get; set; }
 
     /// <summary>
-    /// Allowed users, <see langword="null"/> for all.
+    /// A list of mentionable users. Allows all users if set to <see langword="null"/>.
     /// </summary>
     public IEnumerable<ulong>? AllowedUsers { get; set; }
 
     /// <summary>
-    /// Allows reply mention.
+    /// Allows mentioning the author of a replied-to message.
     /// </summary>
     public bool ReplyMention { get; set; }
 
+    /// <summary>
+    /// Gets an instance of <see cref="AllowedMentionsProperties"/> with all mentions allowed.
+    /// </summary>
     public static AllowedMentionsProperties All => new()
     {
         ReplyMention = true,
     };
 
+    /// <summary>
+    /// Gets an instance of <see cref="AllowedMentionsProperties"/> with no mentions allowed.
+    /// </summary>
     public static AllowedMentionsProperties None
     {
         get

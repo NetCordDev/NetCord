@@ -3,16 +3,34 @@ using NetCord.Rest;
 
 namespace NetCord;
 
+/// <summary>
+/// Contains resolved information for an interaction's auto-populated selection menus.
+/// </summary>
 public class InteractionResolvedData
 {
+    /// <summary>
+    /// A list of user objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, User>? Users { get; }
 
+    /// <summary>
+    /// A list of role objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, Role>? Roles { get; }
 
+    /// <summary>
+    /// A list of channel objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
 
+    /// <summary>
+    /// A list of message objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, RestMessage>? Messages { get; }
 
+    /// <summary>
+    /// A list of attachment objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 
     public InteractionResolvedData(JsonInteractionResolvedData jsonModel, ulong? guildId, RestClient client)
@@ -65,6 +83,6 @@ public class InteractionResolvedData
 
         var attachments = jsonModel.Attachments;
         if (attachments is not null)
-            Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value));
+            Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value, client));
     }
 }
