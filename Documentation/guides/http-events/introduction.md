@@ -14,7 +14,7 @@ Before you get started, ensure that you've installed the necessary native depend
 
 ## Setting Up
 
-To receive Discord events from Discord in your bot, you need to use @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest* to add the @NetCord.Rest.RestClient and then configure either HTTP interactions or webhook events. Choose the appropriate tab for your preferred event type below.
+To receive Discord events from Discord in your application, you need to use @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest* to add the @NetCord.Rest.RestClient and then configure either HTTP interactions or webhook events. Choose the appropriate tab for your preferred event type below.
 
 ### [Http Interactions](#tab/http-interactions)
 
@@ -22,7 +22,7 @@ To handle HTTP interactions from Discord, call @NetCord.Hosting.AspNetCore.HttpE
 
 [!code-cs[Program.cs](Introduction.HttpInteractions/Program.cs?highlight=8,16)]
 
-You can also create your own @NetCord.Hosting.IHttpInteractionHandler to handle HTTP interactions manually. This allows you to have full control over the behavior of your bot when receiving HTTP interactions. You register them using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler*.
+You can also create your own @NetCord.Hosting.IHttpInteractionHandler to handle HTTP interactions manually. This allows you to have full control over the behavior of your application when receiving HTTP interactions. You register them using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler*.
 
 [!code-cs[HttpInteractionHandler.cs](Introduction.HttpInteractions/HttpInteractionHandler.cs#L6-L14)]
 
@@ -52,23 +52,26 @@ You can also create your own webhook handler classes that implement event-specif
 
 [!code-cs[WebhookEventHandler.cs](Introduction.WebhookEvents/ApplicationAuthorizedWebhookHandler.cs)]
 
-#### Configuring your app for Webhook Events
+#### Configuring your application for Webhook Events
 
-To make your app receive Webhook Events from Discord, you need to store the public key in the configuration, you can find it in the [Discord Developer Portal](https://discord.com/developers/applications).
+To make your app receive Webhook Events from Discord, you need to store the public key in the configuration, you can find it in the [Discord Developer Portal](https://discord.com/developers/applications). You will also need to enable Webhook Events and specify the endpoint URL there.
+
 ![Shows 'Public Key' section in 'General Information' section](../../images/http-events_FindingPublicKey.webp){width=850px}
 
 ##### Specifying the Public Key in the Configuration
 
 You can for example use `appsettings.json` file for configuration. It should look like this:
 
-[!code-json[appsettings.json](Introduction.HttpInteractions/appsettings.json?highlight=4)]
+[!code-json[appsettings.json](Introduction.WebhookEvents/appsettings.json?highlight=4)]
 
 ##### Enabling Webhook Events
 
 You need to specify the endpoint URL and enable Webhook Events in the [Discord Developer Portal](https://discord.com/developers/applications) to make your app receive Webhook Events.
-![Shows 'Public Key' section in 'General Information' section](../../images/http-events_SpecifyingWebhookEndpointAndEnablingWebhookEvents.webp){width=850px}
+![Shows 'Endpoint' and 'Events' sections in 'Webhooks' section](../../images/http-events_SpecifyingWebhookEndpointAndEnablingWebhookEvents.webp){width=850px}
 
-If your bot is hosted at `https://example.com` and you have specified `/webhooks` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents*, the endpoint URL will be `https://example.com/webhooks`. Also note that Discord sends validation requests to the endpoint URL, so your app must be running while updating it.
+If your application is hosted at `https://example.com` and you have specified `/webhooks` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents*, the endpoint URL will be `https://example.com/webhooks`. Also note that Discord sends validation requests to the endpoint URL, so your application must be running while updating it.
+
+You also need to enable the events you want to receive in the 'Events' section.
 
 ***
 
@@ -82,12 +85,14 @@ ngrok http http://localhost:port
 
 It will generate a URL that you can use to receive events from Discord. For example, if the URL is `https://random-subdomain.ngrok-free.app`:
 
-- For **HTTP Interactions** with pattern `/interactions`, the endpoint URL will be `https://random-subdomain.ngrok-free.app/interactions`.
-- For **Webhook Events** with pattern `/webhooks`, the endpoint URL will be `https://random-subdomain.ngrok-free.app/webhooks`.
+- With pattern `/interactions`, the endpoint URL will be `https://random-subdomain.ngrok-free.app/interactions`.
+- With pattern `/webhooks`, the endpoint URL will be `https://random-subdomain.ngrok-free.app/webhooks`.
 
-## Extending Your Bot
+## Next Steps
 
-Now, as you have your bot up and running, you can start adding more features to it.
+Now that your application is set up to receive Discord events, you can expand its features or deploy it to cloud environments:
 
+- **[AWS Lambda Deployment](aws-lambda.md):** Deploy your application to AWS Lambda for a serverless architecture.
+- **[Azure Functions Deployment](azure-function.md):** Deploy your application to Azure Functions for scalable cloud hosting.
 - **[Application Commands](../services/application-commands/introduction.md):** Learn how to make complex commands with parameters and subcommands with ease (HTTP Interactions only).
-- **[Component Interactions](../services/component-interactions/introduction.md):** Make your bot interactive with buttons, select menus, and other components easily (HTTP Interactions only).
+- **[Component Interactions](../services/component-interactions/introduction.md):** Create interactive experiences with buttons, select menus, and other components easily (HTTP Interactions only).
