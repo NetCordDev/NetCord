@@ -15,7 +15,8 @@ public interface IHttpInteractionParser
     public ValueTask<IInteraction?> ParseAsync(HttpContext context);
 }
 
-internal sealed class HttpInteractionParser(RestClient client, IOptions<IDiscordOptions> options) : HttpEventParser<IInteraction>(options), IHttpInteractionParser
+internal sealed class HttpInteractionParser(RestClient client,
+                                            IOptions<IDiscordOptions> options) : HttpEventParser<IInteraction>(options), IHttpInteractionParser
 {
     protected override IInteraction GetData(HttpContext context, ReadOnlySpan<byte> body)
     {
