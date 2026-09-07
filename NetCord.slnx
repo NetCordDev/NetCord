@@ -13,7 +13,8 @@
     <Project Path="Documentation/guides/basic-concepts/Voice/Voice.csproj" />
   </Folder>
   <Folder Name="/Documentation/guides/http-events/">
-    <Project Path="Documentation/guides/http-events/Introduction/Introduction.csproj" />
+    <Project Path="Documentation/guides/http-events/Introduction.HttpInteractions/Introduction.HttpInteractions.csproj" />
+    <Project Path="Documentation/guides/http-events/Introduction.WebhookEvents/Introduction.WebhookEvents.csproj" />
     <Project Path="Documentation/guides/http-events/AWSLambda.HttpInteractions/AWSLambda.HttpInteractions.csproj" />
     <Project Path="Documentation/guides/http-events/AWSLambda.WebhookEvents/AWSLambda.WebhookEvents.csproj" />
     <Project Path="Documentation/guides/http-events/AzureFunction.HttpInteractions/AzureFunction.HttpInteractions.csproj" />
