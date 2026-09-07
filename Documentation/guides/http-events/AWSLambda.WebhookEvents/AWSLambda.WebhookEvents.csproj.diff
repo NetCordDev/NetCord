@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    ...
++   <PublishAot>true</PublishAot>
+-   <!-- Generate ready to run images during publishing to improvement cold starts. -->
+-   <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+  ...
+</Project>

@@ -14,8 +14,10 @@
   </Folder>
   <Folder Name="/Documentation/guides/http-events/">
     <Project Path="Documentation/guides/http-events/Introduction/Introduction.csproj" />
-    <Project Path="Documentation/guides/http-events/AWSLambda/AWSLambda.csproj" />
-    <Project Path="Documentation/guides/http-events/AzureFunction/AzureFunction.csproj" />
+    <Project Path="Documentation/guides/http-events/AWSLambda.HttpInteractions/AWSLambda.HttpInteractions.csproj" />
+    <Project Path="Documentation/guides/http-events/AWSLambda.WebhookEvents/AWSLambda.WebhookEvents.csproj" />
+    <Project Path="Documentation/guides/http-events/AzureFunction.HttpInteractions/AzureFunction.HttpInteractions.csproj" />
+    <Project Path="Documentation/guides/http-events/AzureFunction.WebhookEvents/AzureFunction.WebhookEvents.csproj" />
   </Folder>
   <Folder Name="/Documentation/guides/events/">
     <Project Path="Documentation/guides/events/FirstEvents/FirstEvents.csproj" />
