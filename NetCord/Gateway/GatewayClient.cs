@@ -1,11 +1,11 @@
+using System.Diagnostics.Metrics;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
-
-using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
+using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
@@ -832,6 +832,8 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     /// </summary>
     public Shard? Shard { get; }
 
+    private readonly string? _shardId;
+
     /// <summary>
     /// The <see cref="Rest.RestClient"/> of the <see cref="GatewayClient"/>.
     /// </summary>
@@ -857,7 +859,11 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     {
         Token = token;
 
-        Shard = configuration.Shard;
+        if (configuration.Shard is { } shard)
+        {
+            Shard = shard;
+            _shardId = shard.Id.ToString();
+        }
         _connectionProperties = configuration.ConnectionProperties ?? ConnectionPropertiesProperties.Default;
         _largeThreshold = configuration.LargeThreshold;
         _presence = configuration.Presence;
@@ -868,6 +874,8 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         Rest = rest;
         var cacheProvider = configuration.CacheProvider ?? ImmutableGatewayClientCacheProvider.Empty;
         Cache = cacheProvider.Create(token.Id, rest);
+
+        SetUpMetrics(this);
     }
 
     private protected override void OnConnected()
@@ -907,7 +915,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
         _latencyTimer.Start();
 
-        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.GatewayMessagePropertiesGatewayIdentifyProperties, _internalTextMessageProperties, cancellationToken);
+        return SendConnectionObjectAsync(nameof(GatewayOpcode.Identify), connectionState, message, Serialization.Default.GatewayMessagePropertiesGatewayIdentifyProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     /// <summary>
@@ -935,8 +943,8 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
-    private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
-        => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
+    private protected override bool Reconnect(int? status, string? description)
+        => status is not (4004 or 4010 or 4011 or 4012 or 4013 or 4014);
 
     private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
@@ -954,7 +962,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
         _latencyTimer.Start();
 
-        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.GatewayMessagePropertiesGatewayResumeProperties, _internalTextMessageProperties, cancellationToken);
+        return SendConnectionObjectAsync(nameof(GatewayOpcode.Resume), connectionState, message, Serialization.Default.GatewayMessagePropertiesGatewayResumeProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
@@ -963,22 +971,30 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
         _latencyTimer.Start();
 
-        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.GatewayMessagePropertiesInt32, _internalTextMessageProperties, cancellationToken);
+        return SendConnectionObjectAsync(nameof(GatewayOpcode.Heartbeat), connectionState, message, Serialization.Default.GatewayMessagePropertiesInt32, _internalTextMessageProperties, cancellationToken);
     }
+
+    private readonly record struct MessageData(int CompressedLength, int UncompressedLength);
 
     private protected override ValueTask ProcessMessageAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> message)
     {
-        var rawMessage = _compression.Decompress(message);
-        var jsonMessage = JsonSerializer.Deserialize(rawMessage, Serialization.Default.JsonGatewayMessage)!;
-        return HandleMessageAsync(state, connectionState, jsonMessage);
+        var uncompressedMessage = _compression.Decompress(message);
+
+        var jsonMessage = JsonSerializer.Deserialize(uncompressedMessage, Serialization.Default.JsonGatewayMessage)!;
+
+        return HandleMessageAsync(state, connectionState, jsonMessage, new(message.Length, uncompressedMessage.Length));
     }
 
-    private async ValueTask HandleMessageAsync(State state, ConnectionState connectionState, JsonGatewayMessage message)
+    private async ValueTask HandleMessageAsync(State state, ConnectionState connectionState, JsonGatewayMessage message, MessageData messageData)
     {
-        switch (message.Opcode)
+        var opcode = message.Opcode;
+
+        switch (opcode)
         {
             case GatewayOpcode.Dispatch:
                 SequenceNumber = message.SequenceNumber.GetValueOrDefault();
+
+                RecordMessageReceived(nameof(GatewayOpcode.Dispatch), message.Event, messageData);
 
                 Log(LogLevel.Debug, message, null, static (s, e) =>
                 {
@@ -987,7 +1003,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
                 try
                 {
-                    await ProcessEventAsync(state, connectionState, message).ConfigureAwait(false);
+                    await ProcessEventAsync(state, connectionState, message, messageData).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -998,13 +1014,18 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 }
                 break;
             case GatewayOpcode.Heartbeat:
+                RecordMessageReceived(nameof(GatewayOpcode.Heartbeat), null, messageData);
                 break;
             case GatewayOpcode.Reconnect:
+                RecordMessageReceived(nameof(GatewayOpcode.Reconnect), null, messageData);
+
                 Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
 
                 await AbortAndResumeAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
+                RecordMessageReceived(nameof(GatewayOpcode.InvalidSession), null, messageData);
+
                 Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");
 
                 try
@@ -1020,11 +1041,15 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 }
                 break;
             case GatewayOpcode.Hello:
+                RecordMessageReceived(nameof(GatewayOpcode.Hello), null, messageData);
+
                 Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
 
                 StartHeartbeating(connectionState, message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
+                RecordMessageReceived(nameof(GatewayOpcode.HeartbeatACK), null, messageData);
+
                 var latency = _latencyTimer.Elapsed;
 
                 Log(LogLevel.Debug, latency, null, static (s, e) =>
@@ -1032,7 +1057,16 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                     return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
                 });
 
-                await UpdateLatencyAsync(latency).ConfigureAwait(false);
+                await UpdateLatencyWithMetricsAsync(latency).ConfigureAwait(false);
+                break;
+            default:
+                RecordMessageReceived(((byte)opcode).ToString(), null, messageData);
+
+                Log(LogLevel.Debug, (Opcode: opcode, Data: messageData), null, static (s, e) =>
+                {
+                    return $"Received an unknown opcode '{(byte)s.Opcode}' with a length of {s.Data.CompressedLength} bytes ({s.Data.UncompressedLength} bytes uncompressed).";
+                });
+
                 break;
         }
     }
@@ -1044,7 +1078,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     {
         GatewayMessageProperties<VoiceStateProperties> message = new(GatewayOpcode.VoiceStateUpdate, voiceState);
 
-        return SendObjectAsync(message, Serialization.Default.GatewayMessagePropertiesVoiceStateProperties, properties, cancellationToken);
+        return SendObjectAsync(nameof(GatewayOpcode.VoiceStateUpdate), message, Serialization.Default.GatewayMessagePropertiesVoiceStateProperties, properties, cancellationToken);
     }
 
     /// <summary>
@@ -1057,7 +1091,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     {
         GatewayMessageProperties<PresenceProperties> message = new(GatewayOpcode.PresenceUpdate, presence);
 
-        return SendObjectAsync(message, Serialization.Default.GatewayMessagePropertiesPresenceProperties, properties, cancellationToken);
+        return SendObjectAsync(nameof(GatewayOpcode.PresenceUpdate), message, Serialization.Default.GatewayMessagePropertiesPresenceProperties, properties, cancellationToken);
     }
 
     /// <summary>
@@ -1067,13 +1101,14 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     {
         GatewayMessageProperties<GuildUsersRequestProperties> message = new(GatewayOpcode.RequestGuildUsers, requestProperties);
 
-        return SendObjectAsync(message, Serialization.Default.GatewayMessagePropertiesGuildUsersRequestProperties, properties, cancellationToken);
+        return SendObjectAsync(nameof(GatewayOpcode.RequestGuildUsers), message, Serialization.Default.GatewayMessagePropertiesGuildUsersRequestProperties, properties, cancellationToken);
     }
 
-    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonGatewayMessage message)
+    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonGatewayMessage message, MessageData messageData)
     {
         var data = message.Data.GetValueOrDefault();
         var name = message.Event!;
+
         switch (name)
         {
             case "READY":
@@ -1082,7 +1117,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
                     Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
 
-                    var updateLatencyTask = UpdateLatencyAsync(latency);
+                    var updateLatencyTask = UpdateLatencyWithMetricsAsync(latency);
 
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
                     await InvokeEventAsync(_ready, this, (Args: args, State: state, ConnectionState: connectionState), static data => data.Args, static (client, data) =>
@@ -1106,7 +1141,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
                     Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
 
-                    var updateLatencyTask = UpdateLatencyAsync(latency);
+                    var updateLatencyTask = UpdateLatencyWithMetricsAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 
                     state.IndicateReady(connectionState);
@@ -1516,6 +1551,11 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             default:
                 {
+                    Log(LogLevel.Debug, (Name: name, Data: messageData), null, static (s, e) =>
+                    {
+                        return $"Received an unknown event '{s.Name}' with a length of {s.Data.CompressedLength} bytes ({s.Data.UncompressedLength} bytes uncompressed).";
+                    });
+
                     await InvokeEventAsync(_unknownEvent, (Name: name, Data: data), static data => new(data.Name, data.Data)).ConfigureAwait(false);
                 }
                 break;
@@ -1535,4 +1575,172 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         }
         base.Dispose(disposing);
     }
+
+    #region Metrics
+    private static readonly Meter s_meter = new("NetCord.Gateway.GatewayClient");
+
+    private static readonly Counter<int> s_bytesSentCounter = s_meter.CreateCounter<int>(
+        "gateway.sent.bytes",
+        "By",
+        "The number of bytes sent to the Discord Gateway.");
+
+    private static readonly Counter<int> s_messagesSentCounter = s_meter.CreateCounter<int>(
+        "gateway.sent.messages",
+        "{message}",
+        "The number of messages sent to the Discord Gateway.");
+
+    private static readonly Counter<int> s_rateLimitTriggeredCounter = s_meter.CreateCounter<int>(
+        "gateway.rate_limit.triggered",
+        "{trigger}",
+        "The number of times a rate limit was triggered when sending a message to the Discord Gateway.");
+
+    private static readonly Histogram<double> s_rateLimitResetAfterHistogram = s_meter.CreateHistogram<double>(
+        "gateway.rate_limit.reset_after",
+        "s",
+        "The time in seconds after which a message can be sent again after a rate limit was triggered when sending a message to the Discord Gateway.");
+
+    private static readonly Counter<int> s_bytesReceivedCompressedCounter = s_meter.CreateCounter<int>(
+        "gateway.received.bytes.compressed",
+        "By",
+        "The number of compressed bytes received from the Discord Gateway.");
+
+    private static readonly Counter<int> s_bytesReceivedUncompressedCounter = s_meter.CreateCounter<int>(
+        "gateway.received.bytes.uncompressed",
+        "By",
+        "The number of uncompressed bytes received from the Discord Gateway.");
+
+    private static readonly Counter<int> s_messagesReceivedCounter = s_meter.CreateCounter<int>(
+        "gateway.received.messages",
+        "{message}",
+        "The number of messages received from the Discord Gateway.");
+
+    private static readonly Histogram<double> s_latencyHistogram = s_meter.CreateHistogram<double>(
+        "gateway.latency",
+        "s",
+        "The latency of the Discord Gateway.",
+        advice: new() { HistogramBucketBoundaries = GetLatencyBucketBoundaries() });
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<GatewayClient, object?> s_gatewayClientTable = [];
+
+    static GatewayClient()
+    {
+        s_meter.CreateObservableUpDownCounter(
+            "gateway.cache.guilds",
+            static () => s_gatewayClientTable.Select(p => new Measurement<long>(p.Key.Cache.Guilds.Count, p.Key.GetShardIdTag())),
+            "{guild}",
+            "The number of guilds in the cache for the Discord Gateway.");
+
+        s_meter.CreateObservableUpDownCounter(
+            "gateway.cache.entities",
+            static () => s_gatewayClientTable.SelectMany(GetCacheEntityMeasurements),
+            "{entity}",
+            "The number of entities in the cache for the Discord Gateway.");
+    }
+
+    private KeyValuePair<string, object?> GetShardIdTag() => new("shard_id", _shardId);
+
+    private static KeyValuePair<string, object?> GetOpTag(string? op) => new("op", op);
+
+    private static void SetUpMetrics(GatewayClient client)
+    {
+        s_gatewayClientTable.Add(client, null);
+    }
+
+    private protected override void RecordMessageSent(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties)
+    {
+        var opTag = GetOpTag(op);
+
+        s_messagesSentCounter.Add(1, opTag, GetShardIdTag());
+
+        s_bytesSentCounter.Add(buffer.Length, opTag, GetShardIdTag());
+    }
+
+    private protected override void RecordRateLimitTriggered(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties, string action, int resetAfter)
+    {
+        var opTag = GetOpTag(op);
+
+        KeyValuePair<string, object?> actionTag = new("action", action);
+
+        s_rateLimitTriggeredCounter.Add(1, actionTag, opTag, GetShardIdTag());
+
+        s_rateLimitResetAfterHistogram.Record((double)resetAfter / 1000, actionTag, opTag, GetShardIdTag());
+    }
+
+    private void RecordMessageReceived(string? op, string? @event, MessageData messageData)
+    {
+        var opTag = GetOpTag(op);
+
+        KeyValuePair<string, object?> eventTag = new("event", @event);
+
+        s_messagesReceivedCounter.Add(1, opTag, eventTag, GetShardIdTag());
+
+        s_bytesReceivedCompressedCounter.Add(messageData.CompressedLength, eventTag, opTag, GetShardIdTag());
+
+        s_bytesReceivedUncompressedCounter.Add(messageData.UncompressedLength, eventTag, opTag, GetShardIdTag());
+    }
+
+    private void RecordLatency(TimeSpan latency)
+    {
+        s_latencyHistogram.Record(latency.TotalSeconds, GetShardIdTag());
+    }
+
+    private ValueTask UpdateLatencyWithMetricsAsync(TimeSpan latency)
+    {
+        RecordLatency(latency);
+
+        return UpdateLatencyAsync(latency);
+    }
+
+    private static IEnumerable<Measurement<long>> GetCacheEntityMeasurements(KeyValuePair<GatewayClient, object?> pair)
+    {
+        var client = pair.Key;
+        var cache = client.Cache;
+
+        // From RestGuild
+        long roleCount = 0;
+        long emojiCount = 0;
+        long stickerCount = 0;
+
+        // From Guild
+        long voiceStateCount = 0;
+        long userCount = 0;
+        long channelCount = 0;
+        long activeThreadCount = 0;
+        long presenceCount = 0;
+        long stageInstanceCount = 0;
+        long scheduledEventCount = 0;
+
+        foreach (var guild in cache.Guilds.Values)
+        {
+            roleCount += guild.Roles.Count;
+            emojiCount += guild.Emojis.Count;
+            stickerCount += guild.Stickers.Count;
+
+            voiceStateCount += guild.VoiceStates.Count;
+            userCount += guild.Users.Count;
+            channelCount += guild.Channels.Count;
+            activeThreadCount += guild.ActiveThreads.Count;
+            presenceCount += guild.Presences.Count;
+            stageInstanceCount += guild.StageInstances.Count;
+            scheduledEventCount += guild.ScheduledEvents.Count;
+        }
+
+        var shardIdTag = client.GetShardIdTag();
+
+        return
+        [
+            new(roleCount, new("entity", nameof(RestGuild.Roles)), shardIdTag),
+            new(emojiCount, new("entity", nameof(RestGuild.Emojis)), shardIdTag),
+            new(stickerCount, new("entity", nameof(RestGuild.Stickers)), shardIdTag),
+
+            new(voiceStateCount, new("entity", nameof(Guild.VoiceStates)), shardIdTag),
+            new(userCount, new("entity", nameof(Guild.Users)), shardIdTag),
+            new(channelCount, new("entity", nameof(Guild.Channels)), shardIdTag),
+            new(activeThreadCount, new("entity", nameof(Guild.ActiveThreads)), shardIdTag),
+            new(presenceCount, new("entity", nameof(Guild.Presences)), shardIdTag),
+            new(stageInstanceCount, new("entity", nameof(Guild.StageInstances)), shardIdTag),
+            new(scheduledEventCount, new("entity", nameof(Guild.ScheduledEvents)), shardIdTag),
+        ];
+    }
+    #endregion
 }

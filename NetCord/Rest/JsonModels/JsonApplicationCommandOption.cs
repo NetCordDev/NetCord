@@ -45,4 +45,7 @@ public class JsonApplicationCommandOption
 
     [JsonPropertyName("autocomplete")]
     public bool Autocomplete { get; set; }
+
+    [JsonPropertyName("file_types")]
+    public string[]? FileTypes { get; set; }
 }

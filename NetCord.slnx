@@ -78,8 +78,10 @@
   <Folder Name="/SourceGenerators/">
     <File Path="SourceGenerators/Directory.Build.props" />
     <File Path="SourceGenerators/Directory.Build.targets" />
-    <Project Path="SourceGenerators/HostingGatewayEventsGenerator/HostingGatewayEventsGenerator.csproj" />
-    <Project Path="SourceGenerators/HostingWebhookEventsGenerator/HostingWebhookEventsGenerator.csproj" />
+    <Project Path="SourceGenerators/HandlerGenerator.Common/HandlerGenerator.Common.csproj" />
+    <Project Path="SourceGenerators/HandlerGenerator.HttpInteraction/HandlerGenerator.HttpInteraction.csproj" />
+    <Project Path="SourceGenerators/HandlerGenerator.Gateway/HandlerGenerator.Gateway.csproj" />
+    <Project Path="SourceGenerators/HandlerGenerator.Webhook/HandlerGenerator.Webhook.csproj" />
     <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />
     <Project Path="SourceGenerators/RestClientMethodAliasesGenerator/RestClientMethodAliasesGenerator.csproj" />
     <Project Path="SourceGenerators/ShardedGatewayClientEventsGenerator/ShardedGatewayClientEventsGenerator.csproj" />
@@ -91,6 +93,7 @@
     <File Path="Tests/Directory.Build.props" />
     <File Path="Tests/Directory.Build.targets" />
     <Project Path="Tests/ColorTest/ColorTest.csproj" />
+    <Project Path="Tests/HandlersTest/HandlersTest.csproj" />
     <Project Path="Tests/MentionTest/MentionTest.csproj" />
     <Project Path="Tests/NetCord.Rest.Tests/NetCord.Rest.Tests.csproj" />
     <Project Path="Tests/NetCord.Test.Hosting.AspNetCore/NetCord.Test.Hosting.AspNetCore.csproj" />

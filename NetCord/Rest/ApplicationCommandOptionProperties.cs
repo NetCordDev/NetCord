@@ -105,4 +105,11 @@ public partial class ApplicationCommandOptionProperties(ApplicationCommandOption
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("autocomplete")]
     public bool? Autocomplete { get; set; }
+
+    /// <summary>
+    /// File types to filter for; can be <c>image</c>, <c>video</c>, <c>audio</c>, or any dot-prefixed extension such as <c>.pdf</c> (max 10).
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("file_types")]
+    public IEnumerable<string>? FileTypes { get; set; }
 }

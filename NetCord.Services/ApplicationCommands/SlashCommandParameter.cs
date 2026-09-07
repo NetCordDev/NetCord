@@ -34,6 +34,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public int? MaxLength { get; }
     public int? MinLength { get; }
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
+    public IEnumerable<string>? FileTypes { get; }
     public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Delegate? _invokeAutocompleteAsync;
@@ -96,6 +97,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         }
 
         AllowedChannelTypes = slashCommandParameterAttribute?.AllowedChannelTypes ?? typeReader.AllowedChannelTypes;
+        FileTypes = slashCommandParameterAttribute?.FileTypes ?? typeReader.FileTypes;
         MaxValue = slashCommandParameterAttribute?._maxValue ?? typeReader.GetMaxValue(this, configuration);
         MinValue = slashCommandParameterAttribute?._minValue ?? typeReader.GetMinValue(this, configuration);
         MaxLength = slashCommandParameterAttribute?._maxLength ?? typeReader.GetMaxLength(this, configuration);
@@ -124,6 +126,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             Autocomplete = _invokeAutocompleteAsync is not null,
             Choices = ChoicesProvider is null ? null : await ChoicesProvider.GetChoicesAsync(this).ConfigureAwait(false),
             ChannelTypes = AllowedChannelTypes,
+            FileTypes = FileTypes,
         };
     }
 

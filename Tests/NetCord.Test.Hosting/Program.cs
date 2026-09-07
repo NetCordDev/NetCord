@@ -61,14 +61,18 @@ builder.Services
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
     .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
     .AddCommands()
-    .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
+    .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger, IServiceProvider p) => logger.LogInformation("Content: {}", message.Content), ServiceLifetime.Scoped)
     .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
-    .AddGatewayHandler<ConnectHandler>()
-    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>()
+    .AddGatewayHandler<ConnectHandler>(ServiceLifetime.Scoped)
+    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>(ServiceLifetime.Scoped)
     .AddSingleton("Wzium")
     .AddKeyedSingleton("key", "Wzium2");
 
 var host = builder.Build();
+
+host.AddSlashCommand("file_types", "File Types!", ([SlashCommandParameter(FileTypes = ["image"])] Attachment attachment) => new InteractionMessageProperties().WithContent($"File name: {attachment.FileName}").WithFlags(MessageFlags.Ephemeral));
+
+host.AddSlashCommand("file_types2", "File Types 2!", () => new ModalProperties("file_types2", "File Types 2").AddComponents(new LabelProperties("File", new FileUploadProperties("file").AddFileTypes("image"))));
 
 host.AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}");
 host.AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Select(c => c.Name)));

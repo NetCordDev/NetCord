@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\HandlerGenerator.Common\HandlerGenerator.Common.csproj" />
+  </ItemGroup>
+
+</Project>
