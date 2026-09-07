@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
 using NetCord.Hosting.AspNetCore;
 using NetCord.Hosting.Rest;
 using NetCord.Rest;
+
+using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -19,7 +19,7 @@ builder.Services
     .AddWebhookHandler(WebhookEvent.ApplicationAuthorized, (ApplicationAuthorizedWebhookEventArgs args,
                                                             ILogger<Program> logger) =>
     {
-        logger.LogInformation("User {UserId} authorized the application with scopes: {Scopes}",
+        logger.LogInformation("User '{Username}' authorized with scopes: {Scopes}",
                               args.User.Username,
                               args.Scopes);
     })

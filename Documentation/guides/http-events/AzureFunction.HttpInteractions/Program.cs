@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
+using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.AspNetCore;
 using NetCord.Hosting.Rest;
-using NetCord.Hosting.Services.ApplicationCommands;
+
+using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 var registerCommands = Environment.GetEnvironmentVariable("REGISTER_COMMANDS") is "1";
 
@@ -16,11 +16,10 @@ builder.Logging.AddConsole();
 
 builder.ConfigureFunctionsWebApplication();
 
-var services = builder.Services;
-
-services.AddDiscordRest()
-        .AddHttpApplicationCommands(o => o.AutoRegisterCommands = registerCommands)
-        .AddHttpInteractionProcessor();
+builder.Services
+    .AddDiscordRest()
+    .AddHttpApplicationCommands(o => o.AutoRegisterCommands = registerCommands)
+    .AddHttpInteractionProcessor();
 
 var host = builder.Build();
 

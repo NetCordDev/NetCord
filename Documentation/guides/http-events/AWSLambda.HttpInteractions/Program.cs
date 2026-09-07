@@ -1,6 +1,6 @@
-using NetCord.Hosting.Rest;
-using NetCord.Hosting.AspNetCore;
 using NetCord.Hosting.Services.ApplicationCommands;
+using NetCord.Hosting.AspNetCore;
+using NetCord.Hosting.Rest;
 
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Amazon.Lambda.APIGatewayEvents;
@@ -11,9 +11,7 @@ var registerCommands = args.Contains("--register-commands");
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-var services = builder.Services;
-
-services
+builder.Services
     .AddDiscordRest()
     .AddHttpApplicationCommands(o => o.AutoRegisterCommands = registerCommands)
     .AddAWSLambdaHosting(LambdaEventSource.HttpApi,

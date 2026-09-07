@@ -1,11 +1,11 @@
-using NetCord.Hosting.Rest;
 using NetCord.Hosting.AspNetCore;
+using NetCord.Hosting.Rest;
+using NetCord.Rest;
 
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Amazon.Lambda.APIGatewayEvents;
 
 using System.Text.Json.Serialization;
-using NetCord.Rest;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -14,7 +14,7 @@ builder.Services
     .AddWebhookHandler(WebhookEvent.ApplicationAuthorized, (ApplicationAuthorizedWebhookEventArgs args,
                                                             ILogger<Program> logger) =>
     {
-        logger.LogInformation("User {UserId} authorized the application with scopes: {Scopes}",
+        logger.LogInformation("User '{Username}' authorized with scopes: {Scopes}",
                               args.User.Username,
                               args.Scopes);
     })
