@@ -22,9 +22,38 @@ To handle HTTP interactions from Discord, call @NetCord.Hosting.AspNetCore.HttpE
 
 [!code-cs[Program.cs](Introduction.HttpInteractions/Program.cs?highlight=8,16)]
 
-You can also create your own @NetCord.Hosting.IHttpInteractionHandler to handle HTTP interactions manually. This allows you to have full control over the behavior of your application when receiving HTTP interactions. You register them using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler*.
+You can also register your own HTTP interaction handlers, either via a delegate or a class that implements @NetCord.Hosting.IHttpInteractionHandler. This allows you to have full control over the behavior of your application when receiving HTTP interactions.
 
-[!code-cs[HttpInteractionHandler.cs](Introduction.HttpInteractions/HttpInteractionHandler.cs#L6-L14)]
+#### Delegate-based
+
+You can register a delegate-based HTTP interaction handler using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler*.
+
+[!code-cs[Delegate-based HTTP Interaction handler](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L10-L13)]
+
+You can inject any services from DI you want. You can also control the lifetime of the injected services by specifying the @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method. The default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+
+[!code-cs[Delegate-based HTTP Interaction handler registration with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L20-L23)]
+
+#### Class-based
+
+For class-based handlers, implement @NetCord.Hosting.IHttpInteractionHandler and register the handler using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler*.
+
+[!code-cs[HttpInteractionHandler.cs](Introduction.HttpInteractions/HttpInteractionHandler.cs#L6-L13)]
+
+Example registration:
+[!code-cs[Class-based HTTP Interaction handler registration](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L28)]
+
+You can control the lifetime of the handler by specifying the @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method. The default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+
+[!code-cs[Class-based HTTP Interaction handler registration with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L33)]
+
+You can also register all public class-based handlers in an assembly using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandlers*.
+
+[!code-cs[Registering all public class-based HTTP Interaction handlers in an assembly](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L38)]
+
+You can also control the lifetime of the handlers by specifying the @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method. The default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+
+[!code-cs[Registering all public class-based HTTP Interaction handlers in an assembly with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L43)]
 
 #### Configuring Your Discord Bot for HTTP Interactions
 
@@ -48,9 +77,28 @@ To handle webhook events from Discord, call @NetCord.Hosting.AspNetCore.HttpEven
 
 [!code-cs[Program.cs](Introduction.WebhookEvents/Program.cs?highlight=8,20)]
 
-You can also create your own webhook handler classes that implement event-specific interfaces like @NetCord.Hosting.AspNetCore.IApplicationAuthorizedWebhookHandler. You register them using @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler* as well.
+You can inject any services from DI you want. You can also control the lifetime of the injected services by specifying the @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method. The default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
-[!code-cs[WebhookEventHandler.cs](Introduction.WebhookEvents/ApplicationAuthorizedWebhookHandler.cs)]
+[!code-cs[Delegate-based Webhook Event handler registration with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L12-L16)]
+
+You can register class-based handlers. To do so, implement the @NetCord.Hosting.AspNetCore.IWebhookHandler interface of your choice and register the handler using @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler*.
+
+[!code-cs[ApplicationDeauthorizedWebhookHandler.cs](Introduction.WebhookEvents/ApplicationDeauthorizedWebhookHandler.cs#L6-L15)]
+
+Example registration:
+[!code-cs[Class-based Webhook Handler Registration](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L21)]
+
+You can control the lifetime of the handler by specifying the @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method. The default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+
+[!code-cs[Class-based Webhook Handler Registration with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L26)]
+
+You can also register all public class-based handlers in an assembly using @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandlers*.
+
+[!code-cs[Registering all public class-based Webhook Handlers in an assembly](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L31)]
+
+You can also control the lifetime of the handlers by specifying the @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method. The default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+
+[!code-cs[Registering all public class-based Webhook Handlers in an assembly with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L36)]
 
 #### Configuring your application for Webhook Events
 
