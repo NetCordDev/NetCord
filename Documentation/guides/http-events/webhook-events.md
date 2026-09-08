@@ -22,11 +22,19 @@ To receive Webhook Events from Discord, do the following:
 
 [!code-cs[Program.cs](Introduction.WebhookEvents/Program.cs?highlight=8,20)]
 
+The full example above registers a delegate-based handler. Alternatively, you can register a class that implements one of the @NetCord.Hosting.AspNetCore.IWebhookHandler interfaces.
+
+### Delegate-based Handlers
+
+As shown in the example above, register a delegate-based handler using @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler*.
+
 You can inject any DI services your handler needs. To control the lifetime of those injected services, specify a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Delegate-based Webhook Event handler registration with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L12-L16)]
 
-Alternatively, you can use a class-based handler. Implement the @NetCord.Hosting.AspNetCore.IWebhookHandler interface of your choice and register it with @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler*.
+### Class-based Handlers
+
+To use a class-based handler, implement the @NetCord.Hosting.AspNetCore.IWebhookHandler interface of your choice and register it with @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler*.
 
 [!code-cs[ApplicationDeauthorizedWebhookHandler.cs](Introduction.WebhookEvents/ApplicationDeauthorizedWebhookHandler.cs#L6-L15)]
 
@@ -36,6 +44,11 @@ Register it as follows:
 To control the lifetime of a single class handler, specify a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Class-based Webhook Handler Registration with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L26)]
+
+#### Registering from an Assembly
+
+> [!WARNING]
+> Registering all handlers from an assembly is not supported when publishing your application with Native AOT or with trimming enabled. In that case, register your handlers explicitly instead.
 
 To register every public class-based handler in an assembly at once, use @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandlers*.
 

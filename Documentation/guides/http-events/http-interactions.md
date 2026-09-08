@@ -25,7 +25,7 @@ Optionally, add the application command service with preconfigured HTTP contexts
 
 You can register your own HTTP interaction handler - either as a delegate or as a class that implements @NetCord.Hosting.IHttpInteractionHandler. This gives you full control over how every incoming interaction is processed.
 
-### Delegate-based
+### Delegate-based Handlers
 
 Register a delegate-based HTTP interaction handler using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler*.
 
@@ -35,7 +35,7 @@ You can inject any DI services your handler needs. To control the lifetime of th
 
 [!code-cs[Delegate-based HTTP Interaction handler registration with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L20-L23)]
 
-### Class-based
+### Class-based Handlers
 
 To use a class-based handler, implement @NetCord.Hosting.IHttpInteractionHandler and register it using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandler*.
 
@@ -47,6 +47,11 @@ Register it as follows:
 To control the lifetime of a single class handler, specify a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Class-based HTTP Interaction handler registration with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L33)]
+
+#### Registering from an Assembly
+
+> [!WARNING]
+> Registering all handlers from an assembly is not supported when publishing your application with Native AOT or with trimming enabled. In that case, register your handlers explicitly instead.
 
 To register every public class-based handler in an assembly at once, use @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandlers*.
 
