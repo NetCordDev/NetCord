@@ -14,30 +14,34 @@ Before you get started, make sure you've installed the required native dependenc
 
 ## Setting Up
 
-To receive Webhook Events from Discord, use @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest* to add the @NetCord.Rest.RestClient, then call @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents* to map the webhook events route, and use @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler* to register handlers for specific webhook events.
+To receive Webhook Events from Discord, do the following:
+
+1. Add the @NetCord.Rest.RestClient using @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest*.
+2. Map the webhook events route by calling @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents*.
+3. Register handlers for specific webhook events using @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler*.
 
 [!code-cs[Program.cs](Introduction.WebhookEvents/Program.cs?highlight=8,20)]
 
-You can inject any services from DI you want. You can also control the lifetime of the injected services by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+You can inject any DI services your handler needs. To control the lifetime of those injected services, specify a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Delegate-based Webhook Event handler registration with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L12-L16)]
 
-You can also use class-based handlers. To do so, implement the @NetCord.Hosting.AspNetCore.IWebhookHandler interface of your choice and register it using @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler*.
+Alternatively, you can use a class-based handler. Implement the @NetCord.Hosting.AspNetCore.IWebhookHandler interface of your choice and register it with @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandler*.
 
 [!code-cs[ApplicationDeauthorizedWebhookHandler.cs](Introduction.WebhookEvents/ApplicationDeauthorizedWebhookHandler.cs#L6-L15)]
 
-Example registration:
+Register it as follows:
 [!code-cs[Class-based Webhook Handler Registration](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L21)]
 
-You can control the handler's lifetime by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+To control the lifetime of a single class handler, specify a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Class-based Webhook Handler Registration with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L26)]
 
-You can also register all public class-based handlers in an assembly using @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandlers*.
+To register every public class-based handler in an assembly at once, use @NetCord.Hosting.AspNetCore.WebhookHandlerServiceCollectionExtensions.AddWebhookHandlers*.
 
 [!code-cs[Registering all public class-based Webhook Handlers in an assembly](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L31)]
 
-You can also set the lifetime of the registered handlers by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+For assembly-wide registration, you can set the lifetime of the discovered handlers by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Registering all public class-based Webhook Handlers in an assembly with lifetime](Introduction.WebhookEvents/WebhookHandlerExamples.cs#L36)]
 
@@ -60,20 +64,20 @@ In the [Discord Developer Portal](https://discord.com/developers/applications), 
 
 Enable the events you want to receive in the Events section.
 
-### Specifying the Endpoint URL
+### Specifying the Endpoint
 
-If your app is hosted at `https://example.com` and you specified the `/webhooks` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents*, the endpoint URL will be `https://example.com/webhooks`. Note that Discord sends validation requests to the endpoint URL, so your app must be running while updating it.
+The Discord Developer Portal's **Endpoint** field expects the full public URL that Discord will use to reach your app. If your app is hosted at `https://example.com` and you specified the `/webhooks` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents*, that URL is `https://example.com/webhooks`. Discord sends validation requests to the endpoint URL, so your app must be running while you save the change.
 
 For local testing, you can use [ngrok](https://ngrok.com), a tool that exposes your local server to the internet by providing a public URL to receive webhook events. Use the following command to start ngrok on the correct port:
 ```bash
 ngrok http http://localhost:port
 ```
 
-It generates a URL that you can use to receive Webhook Events from Discord. For example, if the URL is `https://random-subdomain.ngrok-free.app` and you specified the `/webhooks` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents*, the endpoint URL will be `https://random-subdomain.ngrok-free.app/webhooks`.
+After it starts, ngrok prints a public URL you can use to receive Webhook Events from Discord. For example, if the URL is `https://random-subdomain.ngrok-free.app` and you specified the `/webhooks` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseWebhookEvents*, the endpoint URL will be `https://random-subdomain.ngrok-free.app/webhooks`.
 
 ## Next Steps
 
 Now that your application is set up to receive Webhook Events, you can expand its features or deploy it to a cloud environment:
 
-- **[AWS Lambda Deployment](aws-lambda.md):** Deploy your application to AWS Lambda for a serverless architecture.
-- **[Azure Functions Deployment](azure-function.md):** Deploy your application to Azure Functions for scalable cloud hosting.
+- **[AWS Lambda Deployment](aws-lambda.md):** Deploy your application to AWS Lambda for serverless hosting.
+- **[Azure Functions Deployment](azure-function.md):** Deploy your application to Azure Functions for serverless hosting.

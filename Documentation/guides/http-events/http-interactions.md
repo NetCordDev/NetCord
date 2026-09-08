@@ -6,7 +6,7 @@ description: Learn how to make your Discord bot receive interactions from Discor
 
 # Handling HTTP Interactions with ASP.NET Core
 
-This guide shows you how to receive and handle Discord interactions, such as slash commands and button clicks, through HTTP requests using the [NetCord.Hosting.AspNetCore](https://www.nuget.org/packages/NetCord.Hosting.AspNetCore) package. This package integrates with [NetCord.Hosting.Services](https://www.nuget.org/packages/NetCord.Hosting.Services) to handle these HTTP interactions in C# easily. You can also implement your own @NetCord.Hosting.IHttpInteractionHandler to handle HTTP interactions manually, giving you full control over your bot's behavior.
+This guide shows you how to receive and handle Discord interactions, such as slash commands and button clicks, through HTTP requests using the [NetCord.Hosting.AspNetCore](https://www.nuget.org/packages/NetCord.Hosting.AspNetCore) package. This package integrates with [NetCord.Hosting.Services](https://www.nuget.org/packages/NetCord.Hosting.Services) to easily handle these HTTP interactions in C#. You can also implement your own @NetCord.Hosting.IHttpInteractionHandler to intercept every incoming interaction, giving you full control over your bot's behavior.
 
 ## Required Dependencies
 
@@ -14,11 +14,16 @@ Before you get started, make sure you've installed the required native dependenc
 
 ## Setting Up
 
-To handle HTTP interactions from Discord, use @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest* to add the @NetCord.Rest.RestClient, then call @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseHttpInteractions* to map the HTTP interactions route. You can also use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceServiceCollectionExtensions.AddHttpApplicationCommands* to add the application command service with preconfigured HTTP contexts to your host builder.
+To handle HTTP interactions from Discord, do the following:
+
+1. Add the @NetCord.Rest.RestClient using @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest*.
+2. Map the HTTP interactions route by calling @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseHttpInteractions*.
+
+Optionally, add the application command service with preconfigured HTTP contexts using @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceServiceCollectionExtensions.AddHttpApplicationCommands*.
 
 [!code-cs[Program.cs](Introduction.HttpInteractions/Program.cs?highlight=8,16)]
 
-You can also register your own HTTP interaction handlers, either via a delegate or a class that implements @NetCord.Hosting.IHttpInteractionHandler, to fully control your application's behavior when receiving HTTP interactions.
+You can register your own HTTP interaction handler - either as a delegate or as a class that implements @NetCord.Hosting.IHttpInteractionHandler. This gives you full control over how every incoming interaction is processed.
 
 ### Delegate-based
 
@@ -26,7 +31,7 @@ Register a delegate-based HTTP interaction handler using @NetCord.Hosting.HttpIn
 
 [!code-cs[Delegate-based HTTP Interaction handler](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L10-L13)]
 
-You can inject any services from DI you want. You can also control the lifetime of the injected services by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+You can inject any DI services your handler needs. To control the lifetime of those injected services, specify a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Delegate-based HTTP Interaction handler registration with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L20-L23)]
 
@@ -36,18 +41,18 @@ To use a class-based handler, implement @NetCord.Hosting.IHttpInteractionHandler
 
 [!code-cs[HttpInteractionHandler.cs](Introduction.HttpInteractions/HttpInteractionHandler.cs#L6-L13)]
 
-Example registration:
+Register it as follows:
 [!code-cs[Class-based HTTP Interaction handler registration](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L28)]
 
-You can control the handler's lifetime by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+To control the lifetime of a single class handler, specify a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Class-based HTTP Interaction handler registration with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L33)]
 
-You can also register all public class-based handlers in an assembly using @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandlers*.
+To register every public class-based handler in an assembly at once, use @NetCord.Hosting.HttpInteractionHandlerServiceCollectionExtensions.AddHttpInteractionHandlers*.
 
 [!code-cs[Registering all public class-based HTTP Interaction handlers in an assembly](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L38)]
 
-You can also set the lifetime of the registered handlers by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
+For assembly-wide registration, you can set the lifetime of the discovered handlers by specifying a @Microsoft.Extensions.DependencyInjection.ServiceLifetime in the registration method; the default is @Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton. See an example below:
 
 [!code-cs[Registering all public class-based HTTP Interaction handlers in an assembly with lifetime](Introduction.HttpInteractions/HttpInteractionHandlerExamples.cs#L43)]
 
@@ -72,13 +77,13 @@ For local testing, you can use [ngrok](https://ngrok.com), a tool that exposes y
 ngrok http http://localhost:port
 ```
 
-It generates a URL that you can use to receive HTTP interactions from Discord. For example, if the URL is `https://random-subdomain.ngrok-free.app` and you specified the `/interactions` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseHttpInteractions*, the endpoint URL will be `https://random-subdomain.ngrok-free.app/interactions`.
+After it starts, ngrok prints a public URL you can use to receive HTTP interactions from Discord. For example, if the URL is `https://random-subdomain.ngrok-free.app` and you specified the `/interactions` pattern in @NetCord.Hosting.AspNetCore.HttpEventEndpointRouteBuilderExtensions.UseHttpInteractions*, the endpoint URL will be `https://random-subdomain.ngrok-free.app/interactions`.
 
 ## Next Steps
 
 Now that your application is set up to receive Discord interactions, you can expand its features or deploy it to a cloud environment:
 
-- **[Application Commands](../services/application-commands/introduction.md):** Learn how to make complex commands with parameters and subcommands with ease.
-- **[Component Interactions](../services/component-interactions/introduction.md):** Create interactive experiences with buttons, select menus, and other components easily.
-- **[AWS Lambda Deployment](aws-lambda.md):** Deploy your application to AWS Lambda for a serverless architecture.
-- **[Azure Functions Deployment](azure-function.md):** Deploy your application to Azure Functions for scalable cloud hosting.
+- **[Application Commands](../services/application-commands/introduction.md):** Learn how to build complex commands with parameters and subcommands.
+- **[Component Interactions](../services/component-interactions/introduction.md):** Create interactive experiences with buttons, select menus, and other components.
+- **[AWS Lambda Deployment](aws-lambda.md):** Deploy your application to AWS Lambda for serverless hosting.
+- **[Azure Functions Deployment](azure-function.md):** Deploy your application to Azure Functions for serverless hosting.
