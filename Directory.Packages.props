@@ -25,9 +25,9 @@
     <PackageVersion Include="MSTest.TestAdapter" Version="4.3.3" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.3.3" />
     <PackageVersion Include="PolySharp" Version="1.16.0" />
-    <PackageVersion Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.10.0" />
+    <PackageVersion Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="2.2.1" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
-    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.0" />
-    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.1" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0" />
   </ItemGroup>
 </Project>
