@@ -8,7 +8,7 @@ public class MessageReactionCountDetails(JsonModels.JsonMessageReactionCountDeta
     JsonModels.JsonMessageReactionCountDetails IJsonModel<JsonModels.JsonMessageReactionCountDetails>.JsonModel => jsonModel;
 
     /// <summary>
-    /// The number of applied ssuper reactions.
+    /// The number of applied super reactions.
     /// </summary>
     public int Burst => jsonModel.Burst;
 

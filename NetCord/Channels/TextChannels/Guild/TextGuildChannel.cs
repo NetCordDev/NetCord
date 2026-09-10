@@ -34,7 +34,7 @@ public partial class TextGuildChannel(JsonModels.JsonChannel jsonModel, ulong gu
     public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
 
     /// <summary>
-    /// The ID of the channel's parent category.
+    /// The ID of the channel's parent channel.
     /// </summary>
     /// <remarks>
     /// If the channel is a thread, the ID corresponds to the thread's parent channel.

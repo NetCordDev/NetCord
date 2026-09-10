@@ -309,7 +309,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application's icon.</returns>
     public static ImageUrl ApplicationIcon(ulong applicationId, string iconHash, ImageFormat format)
     {
-        return new($"/application-icons/{applicationId}/{iconHash}", GetFormat(format));
+        return new($"/app-icons/{applicationId}/{iconHash}", GetFormat(format));
     }
 
     /// <summary>
@@ -321,7 +321,7 @@ public class ImageUrl : ISpanFormattable
     /// <returns>An <see cref="ImageUrl"/> pointing to the application's cover image.</returns>
     public static ImageUrl ApplicationCover(ulong applicationId, string coverHash, ImageFormat format)
     {
-        return new($"/application-icons/{applicationId}/{coverHash}", GetFormat(format));
+        return new($"/app-icons/{applicationId}/{coverHash}", GetFormat(format));
     }
 
     /// <summary>

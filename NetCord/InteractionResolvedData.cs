@@ -4,7 +4,7 @@ using NetCord.Rest;
 namespace NetCord;
 
 /// <summary>
-/// Contains resolved information for an interaction's auto-populated selection menus.
+/// Contains an interaction's resolved information.
 /// </summary>
 public class InteractionResolvedData
 {

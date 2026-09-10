@@ -21,7 +21,7 @@ public class ThreadUser(JsonThreadUser jsonModel, RestClient client) : ClientEnt
     public ulong ThreadId => jsonModel.ThreadId;
 
     /// <summary>
-    /// The timetstamp at which the user last joined the thread.
+    /// The timestamp at which the user last joined the thread.
     /// </summary>
     public DateTimeOffset JoinTimestamp => jsonModel.JoinTimestamp;
 

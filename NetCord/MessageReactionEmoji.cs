@@ -8,7 +8,7 @@ public class MessageReactionEmoji(JsonModels.JsonEmoji jsonModel) : IJsonModel<J
     JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => jsonModel;
 
     /// <summary>
-    /// <inheritdoc cref="CustomEmoji.Id"/> Can be <see langword="null"/> for standard emoji.
+    /// <inheritdoc cref="CustomEmoji.Id"/> Always <see langword="null"/> for standard emoji.
     /// </summary>
     public ulong? Id => jsonModel.Id;
 
