@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-using NetCord.Services.ComponentInteractions;
-
 namespace NetCord.Services;
 
 public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext, IChannelContext, IGatewayClientContext

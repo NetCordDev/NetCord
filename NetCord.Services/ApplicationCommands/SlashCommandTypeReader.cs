@@ -22,6 +22,8 @@ public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader
     public virtual Type? AutocompleteProviderType => null;
 
     public virtual IEnumerable<ChannelType>? AllowedChannelTypes => null;
+
+    public virtual IEnumerable<string>? FileTypes => null;
 }
 
 internal interface ISlashCommandTypeReader

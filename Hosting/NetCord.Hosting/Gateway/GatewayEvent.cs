@@ -2,20 +2,20 @@ namespace NetCord.Hosting.Gateway;
 
 public partial class GatewayEvent
 {
-    internal GatewayEvent(string name)
+    internal GatewayEvent(GatewayEventId id)
     {
-        Name = name;
+        Id = id;
     }
 
-    internal string Name { get; }
+    internal GatewayEventId Id { get; }
 }
 
 public class GatewayEvent<T>
 {
-    internal GatewayEvent(string name)
+    internal GatewayEvent(GatewayEventId id)
     {
-        Name = name;
+        Id = id;
     }
 
-    internal string Name { get; }
+    internal GatewayEventId Id { get; }
 }
