@@ -1072,7 +1072,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     }
 
     /// <summary>
-    /// Joins, moves, or disconnects the app from a voice channel.
+    /// Joins, moves, or disconnects the application from a voice channel.
     /// </summary>
     public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
     {
@@ -1082,7 +1082,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     }
 
     /// <summary>
-    /// Updates an app's presence.
+    /// Updates an application's presence.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
     /// <param name="properties"></param>

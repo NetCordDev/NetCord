@@ -1,7 +1,12 @@
 using NetCord.JsonModels;
+using NetCord.Rest;
 
 namespace NetCord;
 
+/// <summary>
+/// Represents an attachment with properties relevant to voice messages.
+/// </summary>
+/// <param name="jsonModel"></param>
 public class VoiceAttachment(JsonAttachment jsonModel) : Attachment(jsonModel)
 {
     /// <summary>

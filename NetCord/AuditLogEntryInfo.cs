@@ -7,7 +7,7 @@ public class AuditLogEntryInfo(JsonAuditLogEntryInfo jsonModel) : IJsonModel<Jso
     JsonAuditLogEntryInfo IJsonModel<JsonAuditLogEntryInfo>.JsonModel => jsonModel;
 
     /// <summary>
-    /// ID of the app whose permissions were targeted.
+    /// ID of the application whose permissions were targeted.
     /// </summary>
     public ulong? ApplicationId => jsonModel.ApplicationId;
 

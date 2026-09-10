@@ -21,7 +21,7 @@ public enum ApplicationCommandType
     Message = 3,
 
     /// <summary>
-    /// UI-based. Represents the primary way to invoke an app's Activity.
+    /// UI-based. Represents the primary way to invoke an application's Activity.
     /// </summary>
     EntryPoint = 4,
 }

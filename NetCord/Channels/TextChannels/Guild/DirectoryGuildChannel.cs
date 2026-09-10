@@ -3,6 +3,9 @@ using NetCord.Rest;
 
 namespace NetCord;
 
+/// <summary>
+/// Represents a hub channel, with listed guilds.
+/// </summary>
 public partial class DirectoryGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : TextChannel(jsonModel, client), IGuildChannel
 {
     public ulong GuildId { get; } = guildId;
