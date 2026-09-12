@@ -691,7 +691,6 @@ public partial class RestClient
     /// <remarks>
     /// Requires the <c>VIEW_CHANNEL</c> permission.
     /// If the user is missing the <c>READ_MESSAGE_HISTORY</c> permission in the channel, then no pins will be returned.
-    /// You may need to paginate through the results if there are more than 50 pinned messages in the channel.
     /// </remarks>
     /// <param name="channelId">The ID of the channel to get pinned messages from.</param>
     /// <param name="paginationProperties">Optional properties to customize result pagination, can be <see langword="null"/>.</param>
