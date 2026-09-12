@@ -672,20 +672,6 @@ public partial class RestClient
     }
 
     /// <summary>
-    /// Gets the first 50 pinned messages in a channel
-    /// </summary>
-    /// <remarks>
-    /// This endpoint is deprecated.
-    /// </remarks>
-    /// <param name="channelId">The ID of the channel to get pinned messages from.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
-    /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
-    [Obsolete("Use GetChannelPinsAsync instead, which supports pagination.", false)]
-    [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task<IReadOnlyList<RestMessage>> GetPinnedMessagesAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this)).ToArray();
-
-    /// <summary>
     /// Retrieves all pinned messages in a channel.
     /// </summary>
     /// <remarks>
