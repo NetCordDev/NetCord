@@ -8,6 +8,10 @@ public partial class ForumTagProperties(string name)
     /// <summary>
     /// The ID of the tag.
     /// </summary>
+    /// <remarks>
+    /// Omit this property when creating a forum or media channel.
+    /// When updating a channel, it may be specified to identify which tag to update.
+    /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public ulong? Id { get; set; }
@@ -19,7 +23,7 @@ public partial class ForumTagProperties(string name)
     public string Name { get; set; } = name;
 
     /// <summary>
-    /// Whether this tag can only be added to or removed from threads by a member with the MANAGE_THREADS permission.
+    /// Whether this tag can only be added to or removed from threads by a member with the <c>MANAGE_THREADS</c> permission.
     /// </summary>
     /// <remarks>
     /// This is not required when updating a forum or media channel. Otherwise must be non-null.
