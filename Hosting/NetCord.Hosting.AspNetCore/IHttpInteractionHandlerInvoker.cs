@@ -12,7 +12,9 @@ public interface IHttpInteractionHandlerInvoker
     public ValueTask InvokeAsync(Interaction interaction);
 }
 
-internal sealed partial class HttpInteractionHandlerInvoker(ILogger<HttpInteractionHandlerInvoker> logger, IEnumerable<IHttpInteractionHandlerMetadata> handlerMetadata, IServiceProvider services) : HttpEventHandlerInvoker, IHttpInteractionHandlerInvoker
+internal sealed partial class HttpInteractionHandlerInvoker(ILogger<HttpInteractionHandlerInvoker> logger,
+                                                            IEnumerable<IHttpInteractionHandlerMetadata> handlerMetadata,
+                                                            IServiceProvider services) : HttpEventHandlerInvoker, IHttpInteractionHandlerInvoker
 {
     private readonly Func<Interaction, ValueTask>[] _handlers = [.. handlerMetadata.Select(m => CreateInvokeDelegate(m, services))];
 
