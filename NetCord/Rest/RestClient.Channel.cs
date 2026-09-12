@@ -725,7 +725,7 @@ public partial class RestClient
     /// Pins a message in a channel.
     /// </summary>
     /// <remarks>
-    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdateEvent"/> event.
+    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdate"/> event.
     /// </remarks>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to pin.</param>
@@ -740,7 +740,7 @@ public partial class RestClient
     /// Unpins a message from a channel.
     /// </summary>
     /// <remarks>
-    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdateEvent"/> event.
+    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdate"/> event.
     /// </remarks>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to unpin.</param>
