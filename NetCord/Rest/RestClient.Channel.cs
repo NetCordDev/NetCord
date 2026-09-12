@@ -694,7 +694,7 @@ public partial class RestClient
     /// </remarks>
     /// <param name="channelId">The ID of the channel to get pinned messages from.</param>
     /// <param name="paginationProperties">Optional properties to customize result pagination, can be <see langword="null"/>.</param>
-    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     public async Task<IAsyncEnumerable<MessagePin>> GetChannelPinsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)

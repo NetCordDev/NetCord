@@ -10,7 +10,7 @@ public class MessagePin(JsonModels.JsonMessagePin jsonModel, RestClient client) 
     /// <summary>
     /// The time the message was pinned.
     /// </summary>
-    public DateTimeOffset PinnedAt { get; } = jsonModel.PinnedAt;
+    public DateTimeOffset PinnedAt => jsonModel.PinnedAt;
 
     /// <summary>
     /// The pinned message.
