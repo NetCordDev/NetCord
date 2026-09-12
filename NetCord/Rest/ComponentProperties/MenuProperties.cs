@@ -30,6 +30,10 @@ public abstract partial class MenuProperties(string customId) : IInteractiveComp
     /// <summary>
     /// Minimum number of items that must be chosen, default 1 (0-25).
     /// </summary>
+    /// <remarks>
+    /// In a modal, this may be 0 when <see cref="Required"/> is <see langword="false"/>.
+    /// If the menu is required, this must be at least 1.
+    /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("min_values")]
     public int? MinValues { get; set; }
@@ -44,6 +48,9 @@ public abstract partial class MenuProperties(string customId) : IInteractiveComp
     /// <summary>
     /// Whether the menu is disabled.
     /// </summary>
+    /// <remarks>
+    /// This only applies to menus in messages. Discord does not allow a disabled menu component in a modal.
+    /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
@@ -51,6 +58,10 @@ public abstract partial class MenuProperties(string customId) : IInteractiveComp
     /// <summary>
     /// Whether the menu is required to answer in a modal. Defaults to <see langword="true"/>.
     /// </summary>
+    /// <remarks>
+    /// This only applies to menus in modals and is ignored for menus in messages.
+    /// When this is <see langword="true"/> or ommited, <see cref="MinValues"/> must be at least 1 if specified.
+    /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("required")]
     public bool? Required { get; set; }
