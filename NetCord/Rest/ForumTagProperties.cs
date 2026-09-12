@@ -8,24 +8,18 @@ public partial class ForumTagProperties(string name)
     /// <summary>
     /// The ID of the tag.
     /// </summary>
-    /// <remarks>
-    /// This is not required when updating a forum or media channel. Otherwise must be non-null.
-    /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public ulong? Id { get; set; }
 
     /// <summary>
-    /// The name of the tag.
+    /// The name of the tag. (0-20 characters)
     /// </summary>
-    /// <remarks>
-    /// The maximum length is 20 characters.
-    /// </remarks>
     [JsonPropertyName("name")]
     public string Name { get; set; } = name;
 
     /// <summary>
-    /// Whether the tag is moderated.
+    /// Whether this tag can only be added to or removed from threads by a member with the MANAGE_THREADS permission.
     /// </summary>
     /// <remarks>
     /// This is not required when updating a forum or media channel. Otherwise must be non-null.
@@ -38,7 +32,6 @@ public partial class ForumTagProperties(string name)
     /// The ID of the guild's custom emoji to display for this tag.
     /// </summary>
     /// <remarks>
-    /// This is not required when updating a forum or media channel. Otherwise must be non-null
     /// At most one of <see cref="EmojiId"/> and <see cref="EmojiName"/> may be non-null.
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -46,10 +39,9 @@ public partial class ForumTagProperties(string name)
     public ulong? EmojiId { get; set; }
 
     /// <summary>
-    /// The unicode charactor of the standard emoji to display for this tag.
+    /// The unicode character of the standard emoji to display for this tag.
     /// </summary>
     /// <remarks>
-    /// This is not required when updating a forum or media channel. Otherwise must be non-null
     /// At most one of <see cref="EmojiId"/> and <see cref="EmojiName"/> may be non-null.
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
