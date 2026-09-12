@@ -1,12 +1,78 @@
+using System.ComponentModel;
+
 using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
 /// <summary>
-/// Represents a role in a guild.
+/// Represents a partial role.
 /// </summary>
-public partial class Role : ClientEntity, IJsonModel<JsonRole>
+public class PartialRole : Entity, IPartialRole, IJsonModel<JsonPartialRole>
+{
+    JsonPartialRole IJsonModel<JsonPartialRole>.JsonModel => _jsonModel;
+    private readonly JsonPartialRole _jsonModel;
+
+    /// <summary>
+    /// The <see cref="PartialRole"/>'s ID.
+    /// </summary>
+    public override ulong Id => _jsonModel.Id;
+
+    /// <summary>
+    /// The name of the <see cref="PartialRole"/>.
+    /// </summary>
+    public string Name => _jsonModel.Name;
+
+    /// <summary>
+    /// The color of the <see cref="PartialRole"/>.
+    /// </summary>
+    /// <remarks>
+    /// This will still be returned by the API, but using <see cref="Colors"/> is recommended when doing requests.
+    /// </remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Color Color => _jsonModel.Color;
+
+    /// <summary>
+    /// The <see cref="PartialRole"/>'s colors.
+    /// </summary>
+    public RoleColors Colors { get; }
+
+    /// <summary>
+    /// The raw position of this <see cref="PartialRole"/>.
+    /// </summary>
+    /// <remarks>
+    /// Use <see cref="Position"/> to get a properly comparable and sortable position value.
+    /// </remarks>
+    public int RawPosition => _jsonModel.Position;
+
+    /// <summary>
+    /// The position of this <see cref="PartialRole"/> for sorting and comparing.
+    /// </summary>
+    public RolePosition Position => new(RawPosition, Id);
+
+    /// <summary>
+    /// The <see cref="PartialRole"/>'s icon hash.
+    /// </summary>
+    public string? IconHash => _jsonModel.IconHash;
+
+    /// <summary>
+    /// The <see cref="PartialRole"/>'s Unicode emoji.
+    /// </summary>
+    public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
+    public override string ToString() => $"<@&{Id}>";
+
+    public PartialRole(JsonPartialRole jsonModel)
+    {
+        _jsonModel = jsonModel;
+
+        Colors = new(jsonModel.Colors);
+    }
+}
+
+/// <summary>
+/// Represents a full role in a guild.
+/// </summary>
+public partial class Role : ClientEntity, IPartialRole, IJsonModel<JsonRole>
 {
     JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
     private readonly JsonRole _jsonModel;
@@ -20,6 +86,15 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     /// The name of the <see cref="Role"/>.
     /// </summary>
     public string Name => _jsonModel.Name;
+
+    /// <summary>
+    /// The color of the <see cref="Role"/>.
+    /// </summary>
+    /// <remarks>
+    /// This will still be returned by the API, but using <see cref="Colors"/> is recommended when doing requests.
+    /// </remarks>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Color Color => _jsonModel.Color;
 
     /// <summary>
     /// The <see cref="Role"/>'s colors.
