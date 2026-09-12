@@ -32,7 +32,7 @@ public abstract partial class MenuProperties(string customId) : IInteractiveComp
     /// </summary>
     /// <remarks>
     /// In a modal, this may be 0 when <see cref="Required"/> is <see langword="false"/>.
-    /// If the menu is required, this must be at least 1.
+    /// If the menu is required, this must be at least 1 if specified.
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("min_values")]
@@ -49,7 +49,7 @@ public abstract partial class MenuProperties(string customId) : IInteractiveComp
     /// Whether the menu is disabled.
     /// </summary>
     /// <remarks>
-    /// This only applies to menus in messages. Discord does not allow a disabled menu component in a modal.
+    /// This only applies to menus in messages. Discord does not allow a disabled menu in a modal.
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("disabled")]

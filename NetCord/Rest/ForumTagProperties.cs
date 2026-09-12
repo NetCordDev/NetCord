@@ -35,7 +35,7 @@ public partial class ForumTagProperties(string name)
     public bool? Moderated { get; set; }
 
     /// <summary>
-    /// The ID of the emoji to display for this tag.
+    /// The ID of the guild's custom emoji to display for this tag.
     /// </summary>
     /// <remarks>
     /// This is not required when updating a forum or media channel. Otherwise must be non-null
@@ -46,7 +46,7 @@ public partial class ForumTagProperties(string name)
     public ulong? EmojiId { get; set; }
 
     /// <summary>
-    /// The name of the emoji to display for this tag.
+    /// The unicode charactor of the standard emoji to display for this tag.
     /// </summary>
     /// <remarks>
     /// This is not required when updating a forum or media channel. Otherwise must be non-null
