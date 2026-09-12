@@ -672,23 +672,54 @@ public partial class RestClient
     }
 
     /// <summary>
+    /// Gets the first 50 pinned messages in a channel
+    /// </summary>
+    /// <remarks>
+    /// This endpoint is deprecated.
+    /// </remarks>
+    /// <param name="channelId">The ID of the channel to get pinned messages from.</param>
+    /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
+    [Obsolete("Use GetChannelPinsAsync instead, which supports pagination.", false)]
+    [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
+    public async Task<IReadOnlyList<RestMessage>> GetPinnedMessagesAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this)).ToArray();
+
+    /// <summary>
     /// Retrieves all pinned messages in a channel.
     /// </summary>
     /// <remarks>
     /// Requires the <c>VIEW_CHANNEL</c> permission.
     /// If the user is missing the <c>READ_MESSAGE_HISTORY</c> permission in the channel, then no pins will be returned.
+    /// You may need to paginate through the results if there are more than 50 pinned messages in the channel.
     /// </remarks>
     /// <param name="channelId">The ID of the channel to get pinned messages from.</param>
-    /// <param name="pinsProperties">Optional properties to customize the request, can be <see langword="null"/>.</param>
+    /// <param name="paginationProperties">Optional properties to customize result pagination, can be <see langword="null"/>.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task<IReadOnlyList<RestMessage>> GetPinnedMessagesAsync(ulong channelId, PinnedMessagesProperties? pinsProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IAsyncEnumerable<MessagePin>> GetChannelPinsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        using (HttpContent? content = new JsonContent<PinnedMessagesProperties>(pinsProperties, Serialization.Default.PinnedMessagesProperties))
-        {
-            return (await (await SendRequestAsync(HttpMethod.Get, content, $"/channels/{channelId}/messages/pins", null, new(channelId),properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this)).ToArray();
-        }
+        paginationProperties =
+            PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(
+                paginationProperties,
+                PaginationDirection.Before,
+                50);
+        
+        return new OptimizedQueryPaginationAsyncEnumerable<MessagePin, DateTimeOffset>(
+            this,
+            paginationProperties,
+            async s =>
+            {
+                var result = await s.ToObjectAsync(Serialization.Default.JsonChannelPins).ConfigureAwait(false);
+                return (result.Items.Select(m => new MessagePin(m, this)), result.HasMore);
+            },
+            m => m.PinnedAt,
+            HttpMethod.Get,
+            $"/channels/{channelId}/messages/pins",
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), timestamp => timestamp.ToString("O")),
+            new(channelId),
+            properties);
     }
 
     /// <summary>
