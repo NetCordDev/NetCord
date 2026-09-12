@@ -60,7 +60,7 @@ public abstract partial class MenuProperties(string customId) : IInteractiveComp
     /// </summary>
     /// <remarks>
     /// This only applies to menus in modals and is ignored for menus in messages.
-    /// When this is <see langword="true"/> or ommited, <see cref="MinValues"/> must be at least 1 if specified.
+    /// When this is <see langword="true"/> or omitted, <see cref="MinValues"/> must be at least 1 if specified.
     /// </remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("required")]

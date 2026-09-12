@@ -20,7 +20,7 @@ public partial class MessagePollMediaProperties
     /// </summary>
     /// <remarks>
     /// This may be specified for poll answers. Poll questions currently only support <see cref="Text"/>.
-    /// </remarks> 
+    /// </remarks>
     [JsonPropertyName("emoji")]
     public EmojiProperties? Emoji { get; set; }
 }
