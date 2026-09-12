@@ -645,7 +645,7 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// /// Enters a typing scope for a channel, while waiting for the typing indicator to trigger.
+    /// Enters a typing scope for a channel, while waiting for the typing indicator to trigger.
     /// </summary>
     /// <param name="channelId">The ID of the channel to type in.</param>
     /// <param name="scopeProperties">Optional properties to customize the typing interval, can be <see langword="null"/>.</param>
@@ -660,7 +660,7 @@ public partial class RestClient
     }
 
     /// <summary>
-    /// /// Enters a typing scope for a channel, while waiting for the typing indicator to trigger.
+    /// Enters a typing scope for a channel, while waiting for the typing indicator to trigger.
     /// </summary>
     /// <param name="channelId">The ID of the channel to type in.</param>
     /// <param name="scopeProperties">Optional properties to customize the typing interval, can be <see langword="null"/>.</param>
@@ -674,16 +674,29 @@ public partial class RestClient
     /// <summary>
     /// Retrieves all pinned messages in a channel.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>VIEW_CHANNEL</c> permission.
+    /// If the user is missing the <c>READ_MESSAGE_HISTORY</c> permission in the channel, then no pins will be returned.
+    /// </remarks>
     /// <param name="channelId">The ID of the channel to get pinned messages from.</param>
+    /// <param name="pinsProperties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task<IReadOnlyList<RestMessage>> GetPinnedMessagesAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this)).ToArray();
+    public async Task<IReadOnlyList<RestMessage>> GetPinnedMessagesAsync(ulong channelId, PinnedMessagesProperties? pinsProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        using (HttpContent? content = new JsonContent<PinnedMessagesProperties>(pinsProperties, Serialization.Default.PinnedMessagesProperties))
+        {
+            return (await (await SendRequestAsync(HttpMethod.Get, content, $"/channels/{channelId}/messages/pins", null, new(channelId),properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this)).ToArray();
+        }
+    }
 
     /// <summary>
     /// Pins a message in a channel.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdateEvent"/> event.
+    /// </remarks>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to pin.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
@@ -691,11 +704,14 @@ public partial class RestClient
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task PinMessageAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties, cancellationToken: cancellationToken);
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/pins/{messageId}", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Unpins a message from a channel.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdateEvent"/> event.
+    /// </remarks>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to unpin.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
@@ -703,7 +719,7 @@ public partial class RestClient
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task UnpinMessageAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties, cancellationToken: cancellationToken);
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/pins/{messageId}", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Adds a recipient to a group DM channel.

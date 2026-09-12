@@ -143,6 +143,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonUser[]))]
 [JsonSerializable(typeof(BulkDeleteMessagesProperties))]
 [JsonSerializable(typeof(PermissionOverwriteProperties))]
+[JsonSerializable(typeof(PinnedMessagesProperties))]
 [JsonSerializable(typeof(JsonRestInvite[]))]
 [JsonSerializable(typeof(InviteProperties))]
 [JsonSerializable(typeof(JsonRestInvite))]
