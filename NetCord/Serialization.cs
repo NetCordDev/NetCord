@@ -211,6 +211,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonEntitlement[]))]
 [JsonSerializable(typeof(JsonSku[]))]
 [JsonSerializable(typeof(JsonAuthorizationInformation))]
+[JsonSerializable(typeof(JsonChannelPins))]
 [JsonSerializable(typeof(StageInstanceProperties))]
 [JsonSerializable(typeof(StageInstanceOptions))]
 [JsonSerializable(typeof(JsonSticker))]

@@ -21,7 +21,7 @@ public partial class AllowedMentionsProperties
     /// <summary>
     /// A list of mentionable role IDs. Allows all roles if set to <see langword="null"/>.
     /// </summary>
-    /// /// <remarks>
+    /// <remarks>
     /// <para>
     /// If a role's <see cref="Role.Mentionable"/> property is set to <see langword="false"/>, and <see cref="Permissions.MentionEveryone"/> is not set, it will not be mentioned regardless.
     /// </para>
