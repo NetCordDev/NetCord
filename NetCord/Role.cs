@@ -5,74 +5,11 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-/// <summary>
-/// Represents a partial role.
-/// </summary>
-public class PartialRole : Entity, IPartialRole, IJsonModel<JsonPartialRole>
-{
-    JsonPartialRole IJsonModel<JsonPartialRole>.JsonModel => _jsonModel;
-    private readonly JsonPartialRole _jsonModel;
-
-    /// <summary>
-    /// The <see cref="PartialRole"/>'s ID.
-    /// </summary>
-    public override ulong Id => _jsonModel.Id;
-
-    /// <summary>
-    /// The name of the <see cref="PartialRole"/>.
-    /// </summary>
-    public string Name => _jsonModel.Name;
-
-    /// <summary>
-    /// The color of the <see cref="PartialRole"/>.
-    /// </summary>
-    /// <remarks>
-    /// This will still be returned by the API, but using <see cref="Colors"/> is recommended when doing requests.
-    /// </remarks>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Color Color => _jsonModel.Color;
-
-    /// <summary>
-    /// The <see cref="PartialRole"/>'s colors.
-    /// </summary>
-    public RoleColors Colors { get; }
-
-    /// <summary>
-    /// The raw position of this <see cref="PartialRole"/>.
-    /// </summary>
-    /// <remarks>
-    /// Use <see cref="Position"/> to get a properly comparable and sortable position value.
-    /// </remarks>
-    public int RawPosition => _jsonModel.Position;
-
-    /// <summary>
-    /// The position of this <see cref="PartialRole"/> for sorting and comparing.
-    /// </summary>
-    public RolePosition Position => new(RawPosition, Id);
-
-    /// <summary>
-    /// The <see cref="PartialRole"/>'s icon hash.
-    /// </summary>
-    public string? IconHash => _jsonModel.IconHash;
-
-    /// <summary>
-    /// The <see cref="PartialRole"/>'s Unicode emoji.
-    /// </summary>
-    public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
-    public override string ToString() => $"<@&{Id}>";
-
-    public PartialRole(JsonPartialRole jsonModel)
-    {
-        _jsonModel = jsonModel;
-
-        Colors = new(jsonModel.Colors);
-    }
-}
 
 /// <summary>
 /// Represents a full role in a guild.
 /// </summary>
-public partial class Role : ClientEntity, IPartialRole, IJsonModel<JsonRole>
+public partial class Role : PartialRole, IJsonModel<JsonRole>
 {
     JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
     private readonly JsonRole _jsonModel;
@@ -83,51 +20,9 @@ public partial class Role : ClientEntity, IPartialRole, IJsonModel<JsonRole>
     public override ulong Id => _jsonModel.Id;
 
     /// <summary>
-    /// The name of the <see cref="Role"/>.
-    /// </summary>
-    public string Name => _jsonModel.Name;
-
-    /// <summary>
-    /// The color of the <see cref="Role"/>.
-    /// </summary>
-    /// <remarks>
-    /// This will still be returned by the API, but using <see cref="Colors"/> is recommended when doing requests.
-    /// </remarks>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Color Color => _jsonModel.Color;
-
-    /// <summary>
-    /// The <see cref="Role"/>'s colors.
-    /// </summary>
-    public RoleColors Colors { get; }
-
-    /// <summary>
     /// Whether this <see cref="Role"/> causes users with it to be displayed in a separate section in the guild users list.
     /// </summary>
     public bool Hoist => _jsonModel.Hoist;
-
-    /// <summary>
-    /// The <see cref="Role"/>'s icon hash.
-    /// </summary>
-    public string? IconHash => _jsonModel.IconHash;
-
-    /// <summary>
-    /// The <see cref="Role"/>'s Unicode emoji.
-    /// </summary>
-    public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
-
-    /// <summary>
-    /// The raw position of this <see cref="Role"/>.
-    /// </summary>
-    /// <remarks>
-    /// Use <see cref="Position"/> to get a properly comparable and sortable position value.
-    /// </remarks>
-    public int RawPosition => _jsonModel.Position;
-
-    /// <summary>
-    /// The position of this <see cref="Role"/> for sorting and comparing.
-    /// </summary>
-    public RolePosition Position => new(RawPosition, Id);
 
     /// <summary>
     /// The permission bit set for this <see cref="Role"/>.
@@ -159,11 +54,9 @@ public partial class Role : ClientEntity, IPartialRole, IJsonModel<JsonRole>
     /// </summary>
     public ulong GuildId { get; }
 
-    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(client)
+    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
     {
         _jsonModel = jsonModel;
-
-        Colors = new(jsonModel.Colors);
 
         if (jsonModel.Tags is { } tags)
             Tags = new(tags);
