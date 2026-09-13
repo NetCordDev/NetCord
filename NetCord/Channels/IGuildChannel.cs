@@ -1,44 +1,87 @@
-using NetCord.JsonModels;
-using NetCord.Rest;
-
 namespace NetCord;
 
-/// <summary>
-/// Represents a channel within a guild.
-/// </summary>
-public partial interface IGuildChannel : INamedChannel
+public interface IGuildChannel : IChannel
 {
-    /// <summary>
-    /// The ID corresponding to the channel's parent guild.
-    /// </summary>
-    public ulong GuildId { get; }
+    ulong GuildId { get; }
+}
 
+/// <summary>
+/// Represents a guild channel which directly contains Discord messages.
+/// </summary>
+/// <remarks>
+/// This includes:
+/// <list type="bullet">
+/// <item>GUILD_TEXT</item>
+/// <item>GUILD_ANNOUNCEMENT</item>
+/// <item>GUILD_VOICE</item>
+/// <item>GUILD_STAGE_VOICE</item>
+/// <item>ANNOUNCEMENT_THREAD</item>
+/// <item>PUBLIC_THREAD</item>
+/// <item>PRIVATE_THREAD</item>
+/// </list>
+/// </remarks>
+public interface IGuildMessageChannel : ITextChannel, IGuildChannel
+{
+}
+
+/// <summary>
+/// Represents a guild channel that has a position and can have a parent category.
+/// </summary>
+public interface IPositionedGuildChannel : IGuildChannel
+{
     /// <summary>
     /// The channel's position within the guild channel list.
     /// </summary>
     /// <remarks>
     /// If two or more channels share a position, they are instead sorted by their ID.
     /// </remarks>
-    public int? Position { get; }
+    int Position { get; }
 
     /// <summary>
-    /// A list of explicit permission overwrites for specified members and roles.
+    /// The ID of the channel's parent category, if it has one.
     /// </summary>
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+    ulong? ParentId { get; }
+}
 
-    public static IGuildChannel CreateFromJson(JsonChannel jsonChannel, ulong guildId, RestClient client)
-    {
-        return jsonChannel.Type switch
-        {
-            ChannelType.TextGuildChannel => new TextGuildChannel(jsonChannel, guildId, client),
-            ChannelType.VoiceGuildChannel => new VoiceGuildChannel(jsonChannel, guildId, client),
-            ChannelType.CategoryChannel => new CategoryGuildChannel(jsonChannel, guildId, client),
-            ChannelType.AnnouncementGuildChannel => new AnnouncementGuildChannel(jsonChannel, guildId, client),
-            ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, guildId, client),
-            ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, guildId, client),
-            ChannelType.ForumGuildChannel => new ForumGuildChannel(jsonChannel, guildId, client),
-            ChannelType.MediaForumGuildChannel => new MediaForumGuildChannel(jsonChannel, guildId, client),
-            _ => new UnknownGuildChannel(jsonChannel, guildId, client),
-        };
-    }
+/// <summary>
+/// Represents a guild channel that has permission overwrites.
+/// </summary>
+public interface IPermissionOverwriteChannel : IGuildChannel
+{
+    IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+}
+
+/// <summary>
+/// Represents a guild channel that can have webhooks.
+/// </summary>
+/// <remarks>
+/// This includes:
+/// <list type="bullet">
+/// <item>GUILD_TEXT</item>
+/// <item>GUILD_ANNOUNCEMENT</item>
+/// <item>GUILD_FORUM</item>
+/// <item>GUILD_MEDIA</item>
+/// </list>
+/// For threads, use the parent channel's webhooks.
+/// </remarks>
+public interface IWebhookChannel : IGuildChannel
+{
+}
+
+/// <summary>
+/// Represents a guild channel that can be invited to.
+/// </summary>
+/// <remarks>
+/// This includes:
+/// <list type="bullet">
+/// <item>GUILD_TEXT</item>
+/// <item>GUILD_ANNOUNCEMENT</item>
+/// <item>GUILD_VOICE</item>
+/// <item>GUILD_STAGE_VOICE</item>
+/// <item>GUILD_FORUM</item>
+/// <item>GUILD_MEDIA</item>
+/// </list>
+/// </remarks>
+public interface IInvitableGuildChannel : IGuildChannel
+{
 }

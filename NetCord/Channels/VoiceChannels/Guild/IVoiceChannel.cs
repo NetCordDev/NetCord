@@ -1,13 +1,7 @@
 namespace NetCord;
 
-/// <summary>
-/// Represents a generic voice channel within a guild.
-/// </summary>
-public partial interface IVoiceGuildChannel : IGuildChannel
+public interface IVoiceChannel : IGuildMessageChannel
 {
-    /// <inheritdoc cref="TextGuildChannel.Nsfw"/>
-    public bool Nsfw { get; }
-
     /// <summary>
     /// The voice channel's bitrate (in bits per second).
     /// </summary>
@@ -33,4 +27,24 @@ public partial interface IVoiceGuildChannel : IGuildChannel
     /// The voice channel's video optimization mode (for cameras).
     /// </summary>
     public VideoQualityMode VideoQualityMode { get; }
+}
+
+public interface IVoiceGuildChannel :
+    IVoiceChannel,
+    INamedChannel,
+    IPositionedGuildChannel,
+    IPermissionOverwriteChannel,
+    IWebhookChannel,
+    IInvitableGuildChannel
+{
+}
+
+public interface IStageGuildChannel :
+    IVoiceChannel,
+    INamedChannel,
+    IPositionedGuildChannel,
+    IPermissionOverwriteChannel,
+    IWebhookChannel,
+    IInvitableGuildChannel
+{
 }
