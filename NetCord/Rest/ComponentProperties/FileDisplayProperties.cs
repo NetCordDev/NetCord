@@ -3,6 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Represents a file component to be sent in a message.
+/// </summary>
+/// <param name="file">The file to be sent as a component. The file must be attached to the message for it to be displayed correctly, and the URL must use the attachment:// protocol.</param>
 [GenerateMethodsForProperties]
 public partial class FileDisplayProperties(ComponentMediaProperties file) : IMessageComponentProperties, IComponentContainerComponentProperties
 {
@@ -13,6 +17,13 @@ public partial class FileDisplayProperties(ComponentMediaProperties file) : IMes
     [JsonPropertyName("id")]
     public int? Id { get; set; }
 
+    /// <summary>
+    /// The file to be sent as a component.
+    /// </summary>
+    /// <remarks>
+    /// The file must be attached to the message for it to be displayed correctly.
+    /// The URL must use the attachment:// protocol.
+    /// </remarks>
     [JsonPropertyName("file")]
     public ComponentMediaProperties File { get; set; } = file;
 
