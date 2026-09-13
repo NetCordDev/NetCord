@@ -20,7 +20,7 @@ public interface IGatewayClientCache : IDictionaryProvider, IDisposable
 
     public IGatewayClientCache SyncGuildEmojis(ulong guildId, IReadOnlyDictionary<ulong, GuildEmoji> emojis);
     public IGatewayClientCache SyncGuildStickers(ulong guildId, IReadOnlyDictionary<ulong, GuildSticker> stickers);
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads);
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyList<ulong>? channelIds, IReadOnlyDictionary<ulong, GuildThread> threads);
     public IGatewayClientCache SyncGuilds(IReadOnlyList<ulong> guildIds);
 
     public IGatewayClientCache RemoveGuild(ulong guildId);
