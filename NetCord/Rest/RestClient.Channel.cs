@@ -682,15 +682,15 @@ public partial class RestClient
     /// <param name="paginationProperties">Optional properties to customize result pagination, can be <see langword="null"/>.</param>
     /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
-    [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task<IAsyncEnumerable<MessagePin>> GetChannelPinsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id), TypeNameOverride = "Channel")]
+    public IAsyncEnumerable<MessagePin> GetChannelPinsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         paginationProperties =
             PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(
                 paginationProperties,
                 PaginationDirection.Before,
                 50);
-        
+
         return new OptimizedQueryPaginationAsyncEnumerable<MessagePin, DateTimeOffset>(
             this,
             paginationProperties,
@@ -702,7 +702,7 @@ public partial class RestClient
             m => m.PinnedAt,
             HttpMethod.Get,
             $"/channels/{channelId}/messages/pins",
-            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), timestamp => timestamp.ToString("O")),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), timestamp => timestamp.ToString("s")),
             new(channelId),
             properties);
     }
