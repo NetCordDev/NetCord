@@ -1229,7 +1229,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildThreadListSyncEventArgs);
                     GuildThreadListSyncEventArgs args = new(json, Rest, Cache);
-                    await InvokeEventAsync(_guildThreadListSync, this, args, static (client, args) => client.Cache = client.Cache.SyncGuildActiveThreads(args.GuildId, args.Threads)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadListSync, this, args, static (client, args) => client.Cache = client.Cache.SyncGuildActiveThreads(args.GuildId, args.ChannelIds, args.Threads)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_MEMBER_UPDATE":
