@@ -8,7 +8,7 @@ public partial class RestClient
     public async Task<Application> GetApplicationAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/rpc", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplication).ConfigureAwait(false), this);
 
-    [GenerateAlias([typeof(Channel)], nameof(Channel.Id))]
+    [GenerateAlias([typeof(IChannel)], nameof(IChannel.Id))]
     public async Task<IReadOnlyList<GoogleCloudPlatformStorageBucket>> CreateGoogleCloudPlatformStorageBucketsAsync(ulong channelId, IEnumerable<GoogleCloudPlatformStorageBucketProperties> buckets, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<GoogleCloudPlatformStorageBucketsProperties>(new(buckets), Serialization.Default.GoogleCloudPlatformStorageBucketsProperties))

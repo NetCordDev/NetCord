@@ -8,12 +8,12 @@ public partial class RestClient
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/stage-instances", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStageInstance).ConfigureAwait(false), this);
     }
 
-    [GenerateAlias([typeof(StageGuildChannel)], nameof(StageGuildChannel.Id))]
+    [GenerateAlias([typeof(IStageGuildChannel)], nameof(IStageGuildChannel.Id))]
     [GenerateAlias([typeof(StageInstance)], nameof(StageInstance.ChannelId))]
     public async Task<StageInstance> GetStageInstanceAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/stage-instances/{channelId}", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStageInstance).ConfigureAwait(false), this);
 
-    [GenerateAlias([typeof(StageGuildChannel)], nameof(StageGuildChannel.Id))]
+    [GenerateAlias([typeof(IStageGuildChannel)], nameof(IStageGuildChannel.Id))]
     [GenerateAlias([typeof(StageInstance)], nameof(StageInstance.ChannelId))]
     public async Task<StageInstance> ModifyStageInstanceAsync(ulong channelId, Action<StageInstanceOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
@@ -23,7 +23,7 @@ public partial class RestClient
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/stage-instances/{channelId}", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStageInstance).ConfigureAwait(false), this);
     }
 
-    [GenerateAlias([typeof(StageGuildChannel)], nameof(StageGuildChannel.Id))]
+    [GenerateAlias([typeof(IStageGuildChannel)], nameof(IStageGuildChannel.Id))]
     [GenerateAlias([typeof(StageInstance)], nameof(StageInstance.ChannelId))]
     public Task DeleteStageInstanceAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Delete, $"/stage-instances/{channelId}", null, null, properties, cancellationToken: cancellationToken);

@@ -14,8 +14,7 @@ public partial class RestClient
     /// <param name="webhookProperties">Properties to customize the webhook's appearance.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
-    [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
-    [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
+    [GenerateAlias([typeof(IWebhookChannel)], nameof(IWebhookChannel.Id))]
     public async Task<IncomingWebhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<WebhookProperties>(webhookProperties, Serialization.Default.WebhookProperties))
@@ -28,8 +27,7 @@ public partial class RestClient
     /// <param name="channelId">The ID of the channel to retrieve webhooks for.</param>
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
-    [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
-    [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
+    [GenerateAlias([typeof(IWebhookChannel)], nameof(IWebhookChannel.Id))]
     public async Task<IReadOnlyList<Webhook>> GetChannelWebhooksAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhookArray).ConfigureAwait(false)).Select(w => Webhook.CreateFromJson(w, this)).ToArray();
 
