@@ -675,8 +675,8 @@ public partial class RestClient
     /// Retrieves all pinned messages in a channel.
     /// </summary>
     /// <remarks>
-    /// Requires the <c>VIEW_CHANNEL</c> permission.
-    /// If the user is missing the <c>READ_MESSAGE_HISTORY</c> permission in the channel, then no pins will be returned.
+    /// Requires the <see cref="Permissions.ViewChannel"/> permission.
+    /// If the user is missing the <see cref="Permissions.ReadMessageHistory"/> permission in the channel, then no pins will be returned.
     /// </remarks>
     /// <param name="channelId">The ID of the channel to get pinned messages from.</param>
     /// <param name="paginationProperties">Optional properties to customize result pagination, can be <see langword="null"/>.</param>
@@ -711,7 +711,7 @@ public partial class RestClient
     /// Pins a message in a channel.
     /// </summary>
     /// <remarks>
-    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdate"/> event.
+    /// Requires the <see cref="Permissions.PinMessages"/> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdate"/> event.
     /// </remarks>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to pin.</param>
@@ -726,7 +726,7 @@ public partial class RestClient
     /// Unpins a message from a channel.
     /// </summary>
     /// <remarks>
-    /// Requires the <c>PIN_MESSAGES</c> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdate"/> event.
+    /// Requires the <see cref="Permissions.PinMessages"/> permission. Fires a <see cref="GatewayClient.ChannelPinsUpdate"/> event.
     /// </remarks>
     /// <param name="channelId">The ID of the channel containing the message.</param>
     /// <param name="messageId">The ID of the message to unpin.</param>
