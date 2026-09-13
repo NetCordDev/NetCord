@@ -49,7 +49,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     internal ConcurrentGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
     {
         if (jsonModel.User is { } userModel)
-            _user = new CurrentUser(userModel, client);
+            _user = new(userModel, client);
 
         _guilds = CreateConcurrentDictionary(jsonModel.Guilds, g => g.Id, g => new Guild(g, clientId, client, this));
     }
@@ -70,7 +70,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
         if (user is not null)
             jsonModel.User = ((IJsonModel<JsonUser>)user).JsonModel;
 
-        jsonModel.Guilds = _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel).ToArray();
+        jsonModel.Guilds = [.. _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel)];
 
         return jsonModel;
     }
@@ -225,10 +225,28 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads)
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyList<ulong>? channelIds, IReadOnlyDictionary<ulong, GuildThread> threads)
     {
         if (_guilds.TryGetValue(guildId, out var guild))
-            guild.ActiveThreads = threads;
+        {
+            if (channelIds is null)
+                guild.ActiveThreads = threads;
+            else
+            {
+                var activeThreads = Cast(guild.ActiveThreads);
+
+                HashSet<ulong> channelIdsSet = [.. channelIds];
+
+                foreach (var thread in activeThreads)
+                {
+                    if (channelIdsSet.Contains(thread.Value.ParentId) && !threads.ContainsKey(thread.Key))
+                        activeThreads.TryRemove(thread.Key, out _);
+                }
+
+                foreach (var thread in threads)
+                    activeThreads[thread.Key] = thread.Value;
+            }
+        }
 
         return this;
     }
