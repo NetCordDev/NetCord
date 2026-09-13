@@ -67,6 +67,7 @@ public partial class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
     /// The ID of the guild this role belongs to.
     /// </summary>
     public ulong GuildId { get; }
+    
     public override string ToString() => $"<@&{Id}>";
 
     public PartialRole(JsonPartialRole jsonModel, ulong guildId, RestClient client) : base(client)

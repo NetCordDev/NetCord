@@ -1,10 +1,7 @@
-using System.ComponentModel;
-
 using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
-
 
 /// <summary>
 /// Represents a full role in a guild.
