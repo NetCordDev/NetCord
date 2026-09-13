@@ -11,7 +11,7 @@ namespace NetCord;
 /// <remarks>
 /// Useful for <see cref="Rest.RestInvite"/>.
 /// </remarks>
-public class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
+public partial class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
 {
     JsonPartialRole IJsonModel<JsonPartialRole>.JsonModel => _jsonModel;
     private readonly JsonPartialRole _jsonModel;
@@ -64,7 +64,7 @@ public class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
     public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
     public override string ToString() => $"<@&{Id}>";
 
-    public PartialRole(JsonRole jsonModel, RestClient client) : base(client)
+    public PartialRole(JsonPartialRole jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
 

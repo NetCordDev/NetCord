@@ -61,7 +61,7 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
             var guildId = Guild.Id;
 
             if (jsonModel.Roles is { } roles)
-                Roles = roles.Select(role => new PartialRole(role)).ToArray();
+                Roles = roles.Select(role => new PartialRole(role, client)).ToArray();
         }
 
         if (jsonModel.Channel is { } channel)
