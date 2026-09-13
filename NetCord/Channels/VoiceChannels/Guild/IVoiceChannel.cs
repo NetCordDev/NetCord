@@ -34,7 +34,6 @@ public interface IVoiceGuildChannel :
     INamedChannel,
     IPositionedGuildChannel,
     IPermissionOverwriteChannel,
-    IWebhookChannel,
     IInvitableGuildChannel
 {
 }
@@ -44,7 +43,6 @@ public interface IStageGuildChannel :
     INamedChannel,
     IPositionedGuildChannel,
     IPermissionOverwriteChannel,
-    IWebhookChannel,
     IInvitableGuildChannel
 {
 }

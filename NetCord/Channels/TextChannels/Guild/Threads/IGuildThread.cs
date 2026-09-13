@@ -26,6 +26,9 @@ public interface IUnknownGuildThread :
 {
 }
 
+/// <summary>
+/// Represents a private thread channel that is only viewale by those invited and those with the <c>MANAGE_THREADS</c> permission.
+/// </summary>
 public interface IPrivateGuildThread : IGuildThread
 {
 }

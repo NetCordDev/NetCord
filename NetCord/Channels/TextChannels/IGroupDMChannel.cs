@@ -3,8 +3,7 @@ namespace NetCord;
 public interface IGroupDMChannel :
     ITextChannel,
     IPinnableChannel,
-    INamedChannel,
-    IInteractionChannel
+    INamedChannel
 {
     /// <summary>
     /// The group channel's icon hash.

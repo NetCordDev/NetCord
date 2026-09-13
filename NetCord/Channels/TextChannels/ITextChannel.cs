@@ -13,8 +13,6 @@ public interface ITextChannel : IChannel
 /// <list type="bullet">
 /// <item>GUILD_TEXT</item>
 /// <item>GUILD_ANNOUNCEMENT</item>
-/// <item>GUILD_VOICE</item>
-/// <item>GUILD_STAGE_VOICE</item>
 /// <item>ANNOUNCEMENT_THREAD</item>
 /// <item>PUBLIC_THREAD</item>
 /// <item>PRIVATE_THREAD</item>
