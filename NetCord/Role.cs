@@ -15,57 +15,50 @@ public partial class Role : PartialRole, IJsonModel<JsonRole>
     private readonly JsonRole _jsonModel;
 
     /// <summary>
-    /// The <see cref="Role"/>'s ID.
+    /// The role's ID.
     /// </summary>
     public override ulong Id => _jsonModel.Id;
 
     /// <summary>
-    /// Whether this <see cref="Role"/> causes users with it to be displayed in a separate section in the guild users list.
+    /// Whether this role causes users with it to be displayed in a separate section in the guild users list.
     /// </summary>
     public bool Hoist => _jsonModel.Hoist;
 
     /// <summary>
-    /// The permission bit set for this <see cref="Role"/>.
+    /// The permission bit set for this role.
     /// </summary>
     public Permissions Permissions => _jsonModel.Permissions;
 
     /// <summary>
-    /// Whether this <see cref="Role"/> is managed by an integration.
+    /// Whether this role is managed by an integration.
     /// </summary>
     public bool Managed => _jsonModel.Managed;
 
     /// <summary>
-    /// Whether this <see cref="Role"/> is mentionable.
+    /// Whether this role is mentionable.
     /// </summary>
     public bool Mentionable => _jsonModel.Mentionable;
 
     /// <summary>
-    /// The tags this <see cref="Role"/> has.
+    /// The tags this role has.
     /// </summary>
     public RoleTags? Tags { get; }
 
     /// <summary>
-    /// The <see cref="Role"/>'s flags combined as a bitfield.
+    /// The role's flags combined as a bitfield.
     /// </summary>
     public RoleFlags Flags => _jsonModel.Flags;
 
-    /// <summary>
-    /// The ID of the guild this <see cref="Role"/> belongs to.
-    /// </summary>
-    public ulong GuildId { get; }
-
-    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
+    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(jsonModel, guildId, client)
     {
         _jsonModel = jsonModel;
 
         if (jsonModel.Tags is { } tags)
             Tags = new(tags);
-
-        GuildId = guildId;
     }
 
     /// <summary>
-    /// Gets the <see cref="ImageUrl"/> of the <see cref="Role"/>'s icon.
+    /// Gets the <see cref="ImageUrl"/> of the role's icon.
     /// </summary>
     /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the role's icon. If the role does not have one set, returns <see langword="null"/>.</returns>
@@ -77,19 +70,19 @@ public partial class Role : PartialRole, IJsonModel<JsonRole>
 }
 
 /// <summary>
-/// Represents the colors of a <see cref="Role"/>.
+/// Represents the colors of a role.
 /// </summary>
 public class RoleColors(JsonRoleColors jsonModel) : IJsonModel<JsonRoleColors>
 {
     JsonRoleColors IJsonModel<JsonRoleColors>.JsonModel => jsonModel;
 
     /// <summary>
-    /// The primary color for the <see cref="Role"/>.
+    /// The primary color for the role.
     /// </summary>
     public Color PrimaryColor => jsonModel.PrimaryColor;
 
     /// <summary>
-    /// The secondary color for the <see cref="Role"/>. This will make the role a gradient between the other provided colors.
+    /// The secondary color for the role. This will make the role a gradient between the other provided colors.
     /// </summary>
     /// <remarks>
     /// Requires the guild to have the <c>ENHANCED_ROLE_COLORS</c> guild feature.
@@ -97,7 +90,7 @@ public class RoleColors(JsonRoleColors jsonModel) : IJsonModel<JsonRoleColors>
     public Color? SecondaryColor => jsonModel.SecondaryColor;
 
     /// <summary>
-    /// The tertiary color for the <see cref="Role"/>. This will turn the gradient into a holographic style.
+    /// The tertiary color for the role. This will turn the gradient into a holographic style.
     /// </summary>
     /// <remarks>
     /// Requires the guild to have the <c>ENHANCED_ROLE_COLORS</c> guild feature.
@@ -106,19 +99,19 @@ public class RoleColors(JsonRoleColors jsonModel) : IJsonModel<JsonRoleColors>
 }
 
 /// <summary>
-/// Represents the tags associated with a <see cref="Role"/>.
+/// Represents the tags associated with a role.
 /// </summary>
 public class RoleTags(JsonRoleTags jsonModel) : IJsonModel<JsonRoleTags>
 {
     JsonRoleTags IJsonModel<JsonRoleTags>.JsonModel => jsonModel;
 
     /// <summary>
-    /// The ID of the bot this <see cref="Role"/> belongs to.
+    /// The ID of the bot this role belongs to.
     /// </summary>
     public ulong? BotId => jsonModel.BotId;
 
     /// <summary>
-    /// The ID of the integration this <see cref="Role"/> belongs to.
+    /// The ID of the integration this role belongs to.
     /// </summary>
     public ulong? IntegrationId => jsonModel.IntegrationId;
 
@@ -128,17 +121,17 @@ public class RoleTags(JsonRoleTags jsonModel) : IJsonModel<JsonRoleTags>
     public bool IsPremiumSubscriber => jsonModel.IsPremiumSubscriber;
 
     /// <summary>
-    /// The ID of this <see cref="Role"/>'s subscription SKU and listing.
+    /// The ID of this role's subscription SKU and listing.
     /// </summary>
     public ulong? SubscriptionListingId => jsonModel.SubscriptionListingId;
 
     /// <summary>
-    /// Whether this <see cref="Role"/> is available for purchase.
+    /// Whether this role is available for purchase.
     /// </summary>
     public bool IsAvailableForPurchase => jsonModel.IsAvailableForPurchase;
 
     /// <summary>
-    /// Whether this <see cref="Role"/> is a guild's linked role.
+    /// Whether this role is a guild's linked role.
     /// </summary>
     public bool GuildConnections => jsonModel.GuildConnections;
 }
