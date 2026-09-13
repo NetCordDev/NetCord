@@ -70,7 +70,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
         var startedThread = jsonModel.StartedThread;
         if (startedThread is not null)
-            StartedThread = GuildThread.CreateFromJson(startedThread, client);
+            StartedThread = ChannelFactory.CreateGuildThread(startedThread, client);
 
         Components = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
@@ -240,7 +240,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     /// <summary>
     /// The <see cref="GuildThread"/> that was started from this message, if any.
     /// </summary>
-    public GuildThread? StartedThread { get; }
+    public IGuildThread? StartedThread { get; }
 
     /// <summary>
     /// A list of <see cref="IMessageComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.

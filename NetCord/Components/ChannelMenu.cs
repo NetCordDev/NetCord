@@ -24,5 +24,5 @@ public class ChannelMenu : EntityMenu, IJsonModel<JsonChannelMenuComponent>
 
     public IReadOnlyList<ChannelType> ChannelTypes { get; }
 
-    public new IReadOnlyList<Channel>? SelectedValues { get; }
+    public new IReadOnlyList<IChannel>? SelectedValues { get; }
 }

@@ -1,6 +1,6 @@
 namespace NetCord;
 
-public interface IInviteChannel : IChannel
+public partial interface IInviteChannel : IChannel
 {
     string? Name { get; }
     string? Icon { get; }

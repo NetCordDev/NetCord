@@ -64,7 +64,7 @@ public class GuildMessagesSearchResultData(JsonGuildMessagesSearchResult jsonMod
     /// <summary>
     /// The threads associated with the search results.
     /// </summary>
-    public IReadOnlyList<GuildThread> Threads { get; } = jsonModel.Threads.SelectOrEmpty(t => GuildThread.CreateFromJson(t, client)).ToArray();
+    public IReadOnlyList<IGuildThread> Threads { get; } = jsonModel.Threads.SelectOrEmpty(t => ChannelFactory.CreateGuildThread(t, client)).ToArray();
 
     /// <summary>
     /// The thread users associated with the search results.

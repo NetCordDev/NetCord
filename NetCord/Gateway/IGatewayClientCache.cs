@@ -11,7 +11,7 @@ public interface IGatewayClientCache : IDictionaryProvider, IDisposable
     public IGatewayClientCache CachePresences(ulong guildId, IReadOnlyList<Presence> presences);
     public IGatewayClientCache CacheRole(Role role);
     public IGatewayClientCache CacheGuildScheduledEvent(GuildScheduledEvent scheduledEvent);
-    public IGatewayClientCache CacheGuildThread(GuildThread thread);
+    public IGatewayClientCache CacheGuildThread(IGuildThread thread);
     public IGatewayClientCache CacheGuildChannel(IGuildChannel channel);
     public IGatewayClientCache CacheStageInstance(StageInstance stageInstance);
     public IGatewayClientCache CacheCurrentUser(CurrentUser user);
@@ -20,7 +20,7 @@ public interface IGatewayClientCache : IDictionaryProvider, IDisposable
 
     public IGatewayClientCache SyncGuildEmojis(ulong guildId, IReadOnlyDictionary<ulong, GuildEmoji> emojis);
     public IGatewayClientCache SyncGuildStickers(ulong guildId, IReadOnlyDictionary<ulong, GuildSticker> stickers);
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads);
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, IGuildThread> threads);
     public IGatewayClientCache SyncGuilds(IReadOnlyList<ulong> guildIds);
 
     public IGatewayClientCache RemoveGuild(ulong guildId);

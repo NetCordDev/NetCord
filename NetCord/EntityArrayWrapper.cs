@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace NetCord;
 
-internal sealed class EntityArrayWrapper<T>(T[] array) : IReadOnlyList<ulong> where T : Entity
+internal sealed class EntityArrayWrapper<T>(T[] array) : IReadOnlyList<ulong> where T : IEntity
 {
     public ulong this[int index] => array[index].Id;
 

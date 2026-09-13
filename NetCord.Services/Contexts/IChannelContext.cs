@@ -9,5 +9,5 @@ public interface IChannelContext : IContext
     /// Channel in which the handled command or interaction was invoked.
     /// </summary>
     /// <remarks>May be <see langword="null"/> if the channel has not been cached.</remarks>
-    public TextChannel? Channel { get; }
+    public ITextChannel? Channel { get; }
 }

@@ -17,8 +17,8 @@ public class Guild : RestGuild, ICloneable
 
         VoiceStates = dictionaryProvider.CreateDictionary(jsonModel.VoiceStates ?? [], s => s.UserId, s => new VoiceState(s, guildId, client));
         Users = dictionaryProvider.CreateDictionary(GetUsers(jsonModel.Users), u => u.User.Id, u => new GuildUser(u, guildId, client));
-        Channels = dictionaryProvider.CreateDictionary(jsonModel.Channels ?? [], c => c.Id, c => IGuildChannel.CreateFromJson(c, guildId, client));
-        ActiveThreads = dictionaryProvider.CreateDictionary(jsonModel.ActiveThreads ?? [], t => t.Id, t => GuildThread.CreateFromJson(t, client));
+        Channels = dictionaryProvider.CreateDictionary(jsonModel.Channels ?? [], c => c.Id, c => ChannelFactory.CreateGuild(c, client));
+        ActiveThreads = dictionaryProvider.CreateDictionary(jsonModel.ActiveThreads ?? [], t => t.Id, t => ChannelFactory.CreateGuildThread(t, client));
         StageInstances = dictionaryProvider.CreateDictionary(jsonModel.StageInstances ?? [], i => i.Id, i => new StageInstance(i, client));
         Presences = dictionaryProvider.CreateDictionary(jsonModel.Presences ?? [], p => p.User.Id, p => new Presence(p, guildId, client));
         ScheduledEvents = dictionaryProvider.CreateDictionary(jsonModel.ScheduledEvents ?? [], e => e.Id, e => new GuildScheduledEvent(e, client));
@@ -125,7 +125,7 @@ public class Guild : RestGuild, ICloneable
     /// <summary>
     /// An array of <see cref="GuildThread"/> objects, representing all active threads in the <see cref="Guild"/> that current user has permission to view.
     /// </summary>
-    public IReadOnlyDictionary<ulong, GuildThread> ActiveThreads { get; set; }
+    public IReadOnlyDictionary<ulong, IGuildThread> ActiveThreads { get; set; }
 
     /// <summary>
     /// A dictionary of <see cref="Presence"/> objects, will only include offline users if <see cref="IsLarge"/> is <see langword="true"/>.

@@ -6,7 +6,7 @@ namespace NetCord.Gateway;
 /// <summary>
 /// Represents a complete <see cref="Message"/> object, with all required fields present.
 /// </summary>
-public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : RestMessage(jsonModel, client)
+public class Message(JsonMessage jsonModel, Guild? guild, ITextChannel? channel, RestClient client) : RestMessage(jsonModel, client)
 {
     public static Message CreateFromJson(JsonMessage jsonModel, IGatewayClientCache cache, RestClient client)
     {
@@ -14,10 +14,10 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
         return new(jsonModel, guild, channel, client);
     }
 
-    private static (Guild?, TextChannel?) GetCacheData(JsonMessage jsonModel, IGatewayClientCache cache)
+    private static (Guild?, ITextChannel?) GetCacheData(JsonMessage jsonModel, IGatewayClientCache cache)
     {
         Guild? guild;
-        TextChannel? channel;
+        ITextChannel? channel;
         var guildId = jsonModel.GuildId;
         if (guildId.HasValue)
         {
@@ -25,7 +25,7 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
             {
                 var channelId = jsonModel.ChannelId;
                 if (guild.Channels.TryGetValue(channelId, out var guildChannel))
-                    channel = (TextChannel)guildChannel;
+                    channel = (ITextChannel)guildChannel;
                 else if (guild.ActiveThreads.TryGetValue(channelId, out var thread))
                     channel = thread;
                 else
@@ -50,5 +50,5 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
     public Guild? Guild { get; } = guild;
 
     /// <inheritdoc/>
-    public TextChannel? Channel { get; } = channel;
+    public ITextChannel? Channel { get; } = channel;
 }

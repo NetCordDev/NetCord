@@ -28,7 +28,7 @@ public class CommandContext(Message message, GatewayClient client)
     public Guild? Guild => Message.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel? Channel => Message.Channel;
+    public ITextChannel? Channel => Message.Channel;
 
     public User User => Message.Author;
 

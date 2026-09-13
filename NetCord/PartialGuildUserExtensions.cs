@@ -42,39 +42,39 @@ public static class PartialGuildUserExtensions
     }
 
     /// <summary>
-    /// Returns a <see cref="IGuildChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
+    /// Returns a <see cref="IPermissionOverwriteChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
     /// <param name="user">The <see cref="PartialGuildUser"/> to acquire permissions for.</param>
     /// <param name="guild">The <see cref="RestGuild"/> to acquire the permissions from.</param>
-    /// <param name="channel">The <see cref="IGuildChannel"/> to acquire the permissions for.</param>
-    public static Permissions GetChannelPermissions(this PartialGuildUser user, RestGuild guild, IGuildChannel channel)
+    /// <param name="channel">The <see cref="IPermissionOverwriteChannel"/> to acquire the permissions for.</param>
+    public static Permissions GetChannelPermissions(this PartialGuildUser user, RestGuild guild, IPermissionOverwriteChannel channel)
     {
         var guildPermissions = GetPermissions(user, guild);
         return user.GetChannelPermissions(guildPermissions, channel);
     }
 
     /// <summary>
-    /// Returns a <see cref="IGuildChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
+    /// Returns a <see cref="IPermissionOverwriteChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
     /// <param name="user">The <see cref="PartialGuildUser"/> to acquire permissions for.</param>
     /// <param name="guild">The <see cref="RestGuild"/> to acquire the permissions from.</param>
-    /// <param name="channelId">The ID of the <see cref="IGuildChannel"/> to acquire the permissions for.</param>
+    /// <param name="channelId">The ID of the <see cref="IPermissionOverwriteChannel"/> to acquire the permissions for.</param>
     public static Permissions GetChannelPermissions(this PartialGuildUser user, Guild guild, ulong channelId)
     {
         var guildPermissions = GetPermissions(user, guild);
         if (guildPermissions.HasFlag(Permissions.Administrator))
             return (Permissions)ulong.MaxValue;
 
-        return user.GetChannelPermissionsCore(guildPermissions, guild.Channels[channelId]);
+        return user.GetChannelPermissionsCore(guildPermissions, guild.Channels[channelId] as IPermissionOverwriteChannel ?? throw new InvalidOperationException("The channel does not support permission overwrites."));
     }
 
     /// <summary>
-    /// Returns a <see cref="IGuildChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <paramref name="guildPermissions"/>.
+    /// Returns a <see cref="IPermissionOverwriteChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <paramref name="guildPermissions"/>.
     /// </summary>
     /// <param name="user">The <see cref="PartialGuildUser"/> to acquire permissions for.</param>
     /// <param name="guildPermissions">The <see cref="Permissions"/> object to acquire permissions from.</param>
-    /// <param name="channel">The <see cref="IGuildChannel"/> to acquire the permissions for.</param>
-    public static Permissions GetChannelPermissions(this PartialGuildUser user, Permissions guildPermissions, IGuildChannel channel)
+    /// <param name="channel">The <see cref="IPermissionOverwriteChannel"/> to acquire the permissions for.</param>
+    public static Permissions GetChannelPermissions(this PartialGuildUser user, Permissions guildPermissions, IPermissionOverwriteChannel channel)
     {
         if (guildPermissions.HasFlag(Permissions.Administrator))
             return (Permissions)ulong.MaxValue;
@@ -82,7 +82,7 @@ public static class PartialGuildUserExtensions
         return user.GetChannelPermissionsCore(guildPermissions, channel);
     }
 
-    private static Permissions GetChannelPermissionsCore(this PartialGuildUser user, Permissions guildPermissions, IGuildChannel channel)
+    private static Permissions GetChannelPermissionsCore(this PartialGuildUser user, Permissions guildPermissions, IPermissionOverwriteChannel channel)
     {
         var permissions = guildPermissions;
 

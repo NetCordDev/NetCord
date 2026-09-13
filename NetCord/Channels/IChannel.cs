@@ -7,11 +7,11 @@ namespace NetCord;
 /// This includes all text and voice channels, threads,
 /// DMs, group DMs, categories and directory channels.
 /// </remarks>
-public interface IChannel : IEntity, ISpanFormattable
+public partial interface IChannel : IEntity, ISpanFormattable
 {
-    ChannelType Type { get; }
-
-    // Null means Discord did not provide flags.
+    /// <summary>
+    /// Additional information about the channel's state.
+    /// </summary>
     ChannelFlags? Flags { get; }
 
     public string ToString();
@@ -20,8 +20,11 @@ public interface IChannel : IEntity, ISpanFormattable
 /// <summary>
 /// Represents a channel that has a name.
 /// </summary>
-public interface INamedChannel : IChannel
+public partial interface INamedChannel : IChannel
 {
+    /// <summary>
+    /// The name of the channel.
+    /// </summary>
     string Name { get; }
 }
 
@@ -29,7 +32,7 @@ public interface INamedChannel : IChannel
 /// <summary>
 /// Represents a channel representation which came with resolved interaction permissions.
 /// </summary>
-public interface IInteractionChannel : IChannel
+public partial interface IInteractionChannel : IChannel
 {
     Permissions Permissions { get; }
 }

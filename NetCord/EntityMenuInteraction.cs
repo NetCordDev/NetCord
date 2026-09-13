@@ -28,7 +28,7 @@ public abstract class EntityMenuInteractionData : MessageComponentInteractionDat
                                                                               RestClient client,
                                                                               delegate*<IEnumerable<ulong>, InteractionResolvedData, T[]> getSelectedValues,
                                                                               out T[] selectedValues,
-                                                                              out InteractionResolvedData? resolvedData) where T : Entity
+                                                                              out InteractionResolvedData? resolvedData) where T : IEntity
     {
         if (jsonModel.ResolvedData is { } jsonResolvedData)
             return new EntityArrayWrapper<T>(selectedValues = getSelectedValues(jsonModel.SelectedValues!.Select(v => Snowflake.Parse(v)), resolvedData = new(jsonResolvedData, guildId, client)));

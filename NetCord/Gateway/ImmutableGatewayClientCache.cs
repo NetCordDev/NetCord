@@ -177,7 +177,7 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache CacheGuildThread(GuildThread thread)
+    public IGatewayClientCache CacheGuildThread(IGuildThread thread)
     {
         var guildId = thread.GuildId;
         var guilds = _guilds;
@@ -293,7 +293,7 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads)
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, IGuildThread> threads)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))

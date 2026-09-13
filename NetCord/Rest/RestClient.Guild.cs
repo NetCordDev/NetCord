@@ -35,13 +35,13 @@ public partial class RestClient
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<IReadOnlyList<IGuildChannel>> GetGuildChannelsAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-    => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/channels", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannelArray).ConfigureAwait(false)).Select(c => IGuildChannel.CreateFromJson(c, guildId, this)).ToArray();
+    => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/channels", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannelArray).ConfigureAwait(false)).Select(c => ChannelFactory.CreateGuild(c, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<IGuildChannel> CreateGuildChannelAsync(ulong guildId, GuildChannelProperties channelProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<GuildChannelProperties>(channelProperties, Serialization.Default.GuildChannelProperties))
-            return IGuildChannel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/channels", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), guildId, this);
+            return ChannelFactory.CreateGuild(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/channels", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
@@ -52,7 +52,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyList<GuildThread>> GetActiveGuildThreadsAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<IGuildThread>> GetActiveGuildThreadsAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => GuildThreadGenerator.CreateThreads(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/threads/active", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestGuildThreadResult).ConfigureAwait(false), this).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]

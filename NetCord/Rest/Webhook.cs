@@ -24,7 +24,7 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
 
         var channel = jsonModel.Channel;
         if (channel is not null)
-            Channel = Channel.CreateFromJson(channel, client);
+            Channel = ChannelFactory.Create(channel, client);
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     /// This property is <see langword="null"/> if <see cref="Type"/> is not <see cref="WebhookType.ChannelFollower"/>,
     /// or if the <see cref="Creator"/> has lost access to the guild where the <see cref="Channel"/> resides.
     /// </remarks>
-    public Channel? Channel { get; }
+    public IChannel? Channel { get; }
 
     /// <summary>
     /// The URL used for executing the webhook.

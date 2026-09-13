@@ -11,7 +11,7 @@ public class ModalInteraction : ComponentInteraction
         if (message is not null)
         {
             message.GuildId = jsonModel.GuildId;
-            Message = new(message, guild, Channel, client);
+            Message = new(message, guild, Channel as ITextChannel, client);
         }
 
         Data = new(jsonModel.Data!, jsonModel.GuildId, client);

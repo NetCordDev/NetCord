@@ -2,7 +2,7 @@ namespace NetCord.Rest;
 
 internal static class GuildThreadGenerator
 {
-    public static IEnumerable<GuildThread> CreateThreads(JsonModels.JsonRestGuildThreadResult jsonThreads, RestClient client)
+    public static IEnumerable<IGuildThread> CreateThreads(JsonModels.JsonRestGuildThreadResult jsonThreads, RestClient client)
     {
         var users = jsonThreads.Users.ToDictionary(u => u.ThreadId);
         return jsonThreads.Threads.Select(t =>
@@ -10,7 +10,7 @@ internal static class GuildThreadGenerator
             if (users.TryGetValue(t.Id, out var user))
                 t.CurrentUser = user;
 
-            return GuildThread.CreateFromJson(t, client);
+            return ChannelFactory.CreateGuildThread(t, client);
         });
     }
 }

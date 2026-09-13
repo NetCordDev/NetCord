@@ -29,7 +29,7 @@ public class ApplicationCommandContext(ApplicationCommandInteraction interaction
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -50,7 +50,7 @@ public class HttpApplicationCommandContext(ApplicationCommandInteraction interac
     public RestClient Client => client;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => (ITextChannel)Interaction.Channel;
 
     public User User => Interaction.User;
 }
@@ -84,7 +84,7 @@ public class SlashCommandContext(SlashCommandInteraction interaction, GatewayCli
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -105,7 +105,7 @@ public class HttpSlashCommandContext(SlashCommandInteraction interaction, RestCl
     public RestClient Client => client;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 }
@@ -139,7 +139,7 @@ public class UserCommandContext(UserCommandInteraction interaction, GatewayClien
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -165,7 +165,7 @@ public class HttpUserCommandContext(UserCommandInteraction interaction, RestClie
     public RestClient Client => client;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -204,7 +204,7 @@ public class MessageCommandContext(MessageCommandInteraction interaction, Gatewa
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -230,7 +230,7 @@ public class HttpMessageCommandContext(MessageCommandInteraction interaction, Re
     public RestClient Client => client;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -269,7 +269,7 @@ public class EntryPointCommandContext(EntryPointCommandInteraction interaction, 
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -290,7 +290,7 @@ public class HttpEntryPointCommandContext(EntryPointCommandInteraction interacti
     public RestClient Client => client;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     public User User => Interaction.User;
 }

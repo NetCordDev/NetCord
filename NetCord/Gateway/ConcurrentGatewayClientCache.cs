@@ -147,7 +147,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache CacheGuildThread(GuildThread thread)
+    public IGatewayClientCache CacheGuildThread(IGuildThread thread)
     {
         if (_guilds.TryGetValue(thread.GuildId, out var guild))
         {
@@ -225,7 +225,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads)
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, IGuildThread> threads)
     {
         if (_guilds.TryGetValue(guildId, out var guild))
             guild.ActiveThreads = threads;

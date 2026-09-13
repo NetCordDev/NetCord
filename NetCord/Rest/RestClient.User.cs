@@ -49,16 +49,16 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/users/@me/guilds/{guildId}", null, null, properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(User)], nameof(User.Id))]
-    public async Task<DMChannel> GetDMChannelAsync(ulong userId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IDMChannel> GetDMChannelAsync(ulong userId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<DMChannelProperties>(new(userId), Serialization.Default.DMChannelProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/users/@me/channels", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+            return ChannelFactory.CreateDM(await (await SendRequestAsync(HttpMethod.Post, content, $"/users/@me/channels", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
-    public async Task<GroupDMChannel> CreateGroupDMChannelAsync(GroupDMChannelProperties groupDMChannelProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IGroupDMChannel> CreateGroupDMChannelAsync(GroupDMChannelProperties groupDMChannelProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<GroupDMChannelProperties>(groupDMChannelProperties, Serialization.Default.GroupDMChannelProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/users/@me/channels", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+            return ChannelFactory.CreateGroupDM(await (await SendRequestAsync(HttpMethod.Post, content, $"/users/@me/channels", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
     [GenerateAlias([typeof(CurrentUser)])]

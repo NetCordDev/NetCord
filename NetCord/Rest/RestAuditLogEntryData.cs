@@ -25,7 +25,7 @@ public class RestAuditLogEntryData(JsonModels.JsonAuditLog jsonModel, RestClient
     /// <summary>
     /// List of threads referenced in the audit log
     /// </summary>
-    public IReadOnlyDictionary<ulong, GuildThread> Threads { get; } = jsonModel.Threads.ToDictionary(c => c.Id, t => GuildThread.CreateFromJson(t, client));
+    public IReadOnlyDictionary<ulong, IGuildThread> Threads { get; } = jsonModel.Threads.ToDictionary(c => c.Id, t => ChannelFactory.CreateGuildThread(t, client));
 
     /// <summary>
     /// List of users referenced in the audit log.

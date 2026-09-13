@@ -128,6 +128,7 @@ async static Task PropertiesAsync()
     attachment = new QuotedPrintableAttachmentProperties("polish.txt",
                                                          new MemoryStream("R=C3=B3=C5=BCowy means pink"u8.ToArray()));
 
+    // TODO: This guide is outdated for the new channels interface representation.
     TextChannel textChannel = null!;
 
     HttpClient httpClient = null!;

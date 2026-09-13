@@ -30,7 +30,7 @@ internal static class EntityMenuHelper
                 }).ToArray();
     }
 
-    public static Channel[] GetChannelValues(IEnumerable<ulong> selectedValues, InteractionResolvedData resolvedData)
+    public static IChannel[] GetChannelValues(IEnumerable<ulong> selectedValues, InteractionResolvedData resolvedData)
     {
         var channels = resolvedData.Channels;
         return selectedValues.Select(v => channels![v]).ToArray();

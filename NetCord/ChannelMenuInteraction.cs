@@ -19,5 +19,5 @@ public class ChannelMenuInteractionData : EntityMenuInteractionData
         SelectedValues = selectedValues;
     }
 
-    public new IReadOnlyList<Channel> SelectedValues { get; }
+    public new IReadOnlyList<IChannel> SelectedValues { get; }
 }

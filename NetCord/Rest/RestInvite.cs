@@ -13,7 +13,7 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
 
     public RestGuild? Guild { get; }
 
-    public Channel? Channel { get; }
+    public IInviteChannel? Channel { get; }
 
     public User? Inviter { get; }
 
@@ -65,7 +65,7 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
         }
 
         if (jsonModel.Channel is { } channel)
-            Channel = Channel.CreateFromJson(channel, client);
+            Channel = (IInviteChannel)ChannelFactory.Create(channel, client);
 
         if (jsonModel.Inviter is { } inviter)
             Inviter = new(inviter, client);

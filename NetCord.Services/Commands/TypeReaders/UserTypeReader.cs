@@ -20,7 +20,7 @@ public class UserTypeReader<TContext> : CommandTypeParser<TContext> where TConte
         return new(CommandTypeParserResult.Fail("The user was not found."));
     }
 
-    protected CommandTypeParserResult GetUser(DMChannel dMChannel, ReadOnlySpan<char> input)
+    protected CommandTypeParserResult GetUser(IDMChannel dMChannel, ReadOnlySpan<char> input)
     {
         var users = dMChannel.Users;
 

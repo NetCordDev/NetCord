@@ -10,7 +10,7 @@ public abstract class MessageComponentInteraction : ComponentInteraction
     {
         var message = jsonModel.Message!;
         message.GuildId = jsonModel.GuildId;
-        Message = new(message, guild, Channel, client);
+        Message = new(message, guild, Channel as ITextChannel, client);
     }
 
     public Message Message { get; }

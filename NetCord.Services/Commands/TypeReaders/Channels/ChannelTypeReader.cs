@@ -14,12 +14,12 @@ public class ChannelTypeReader<TContext> : CommandTypeParser<TContext> where TCo
                 return new(GetChannel<TextChannel>(channel, input.Span));
         }
         else
-            return new(GetGuildChannel<Channel>(guild, input.Span));
+            return new(GetGuildChannel<IChannel>(guild, input.Span));
 
         return new(CommandTypeParserResult.Fail("The channel was not found."));
     }
 
-    protected CommandTypeParserResult GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input)
+    protected CommandTypeParserResult GetChannel<T>(ITextChannel channel, ReadOnlySpan<char> input)
     {
         if (Mention.TryParseChannel(input, out var id))
         {

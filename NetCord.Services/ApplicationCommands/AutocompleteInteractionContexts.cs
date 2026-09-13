@@ -28,7 +28,7 @@ public class AutocompleteInteractionContext(AutocompleteInteraction interaction,
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => (ITextChannel)Interaction.Channel;
 
     public User User => Interaction.User;
 
@@ -49,7 +49,7 @@ public class HttpAutocompleteInteractionContext(AutocompleteInteraction interact
     public RestClient Client => client;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => (ITextChannel)Interaction.Channel;
 
     public User User => Interaction.User;
 }

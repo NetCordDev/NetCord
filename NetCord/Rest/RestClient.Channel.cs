@@ -16,8 +16,8 @@ public partial class RestClient
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(IChannel)], nameof(IChannel.Id), Cast = true)]
-    public async Task<Channel> GetChannelAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+    public async Task<IChannel> GetChannelAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => ChannelFactory.Create(await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
 
     /// <summary>
     /// Modifies a group DM channel's properties.
@@ -27,12 +27,12 @@ public partial class RestClient
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(IGroupDMChannel)], nameof(IGroupDMChannel.Id), Cast = true)]
-    public async Task<Channel> ModifyGroupDMChannelAsync(ulong channelId, Action<GroupDMChannelOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IGroupDMChannel> ModifyGroupDMChannelAsync(ulong channelId, Action<GroupDMChannelOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GroupDMChannelOptions groupDMChannelOptions = new();
         action(groupDMChannelOptions);
         using (HttpContent content = new JsonContent<GroupDMChannelOptions>(groupDMChannelOptions, Serialization.Default.GroupDMChannelOptions))
-            return Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Patch, content, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+            return ChannelFactory.CreateGroupDM(await (await SendRequestAsync(HttpMethod.Patch, content, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
     /// <summary>
@@ -43,12 +43,12 @@ public partial class RestClient
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id), Cast = true)]
-    public async Task<Channel> ModifyGuildChannelAsync(ulong channelId, Action<GuildChannelOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IGuildChannel> ModifyGuildChannelAsync(ulong channelId, Action<GuildChannelOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GuildChannelOptions guildChannelOptions = new();
         action(guildChannelOptions);
         using (HttpContent content = new JsonContent<GuildChannelOptions>(guildChannelOptions, Serialization.Default.GuildChannelOptions))
-            return Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Patch, content, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+            return ChannelFactory.CreateGuild(await (await SendRequestAsync(HttpMethod.Patch, content, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
     /// <summary>
@@ -72,8 +72,8 @@ public partial class RestClient
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(IChannel)], nameof(IChannel.Id), Cast = true)]
-    public async Task<Channel> DeleteChannelAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+    public async Task<IChannel> DeleteChannelAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => ChannelFactory.Create(await (await SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
 
     /// <summary>
     /// Retrieves an <see cref="IAsyncEnumerable{T}"/>, representing the messages of a specific channel.
@@ -740,10 +740,10 @@ public partial class RestClient
     [GenerateAlias([typeof(ITextGuildChannel)], nameof(ITextGuildChannel.Id))]
     [GenerateAlias([typeof(IAnnouncementGuildChannel)], nameof(IAnnouncementGuildChannel.Id))]
     [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
-    public async Task<GuildThread> CreateGuildThreadAsync(ulong channelId, ulong messageId, GuildThreadFromMessageProperties threadFromMessageProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IGuildThread> CreateGuildThreadAsync(ulong channelId, ulong messageId, GuildThreadFromMessageProperties threadFromMessageProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<GuildThreadFromMessageProperties>(threadFromMessageProperties, Serialization.Default.GuildThreadFromMessageProperties))
-            return GuildThread.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/messages/{messageId}/threads", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+            return ChannelFactory.CreateGuildThread(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/messages/{messageId}/threads", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
     /// <summary>
@@ -755,10 +755,10 @@ public partial class RestClient
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(ITextGuildChannel)], nameof(ITextGuildChannel.Id))]
     [GenerateAlias([typeof(IAnnouncementGuildChannel)], nameof(IAnnouncementGuildChannel.Id))]
-    public async Task<GuildThread> CreateGuildThreadAsync(ulong channelId, GuildThreadProperties threadProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IGuildThread> CreateGuildThreadAsync(ulong channelId, GuildThreadProperties threadProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<GuildThreadProperties>(threadProperties, Serialization.Default.GuildThreadProperties))
-            return GuildThread.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+            return ChannelFactory.CreateGuildThread(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
     /// <summary>
@@ -769,10 +769,19 @@ public partial class RestClient
     /// <param name="properties">Optional properties to customize the request, can be <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the operation before it completes.</param>
     [GenerateAlias([typeof(IThreadOnlyGuildChannel)], nameof(IThreadOnlyGuildChannel.Id))]
-    public async Task<ForumGuildThread> CreateForumGuildThreadAsync(ulong channelId, ForumGuildThreadProperties threadProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<CreateGuildThreadResult> CreateForumGuildThreadAsync(ulong channelId, ForumGuildThreadProperties threadProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = threadProperties.Serialize())
-            return new ForumGuildThread(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+        {
+            var result = await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false);
+            var message = new RestMessage(result.Message!, this);
+            var thread = ChannelFactory.CreatePublicGuildThread(result, this);
+            return new CreateGuildThreadResult
+            {
+                Thread = new PublicGuildThread(result, this),
+                Message = message,
+            };
+        }
     }
 
     /// <summary>
@@ -868,11 +877,11 @@ public partial class RestClient
     /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(ITextGuildChannel)], nameof(ITextGuildChannel.Id))]
     [GenerateAlias([typeof(IAnnouncementGuildChannel)], nameof(IAnnouncementGuildChannel.Id))]
-    public IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null)
+    public IAsyncEnumerable<IGuildThread> GetPublicArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
 
-        return new OptimizedQueryPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
+        return new OptimizedQueryPaginationAsyncEnumerable<IGuildThread, DateTimeOffset>(
             this,
             paginationProperties,
             async s =>
@@ -895,11 +904,11 @@ public partial class RestClient
     /// <param name="paginationProperties">Pagination options for archived threads, or <see langword="null"/> to use defaults.</param>
     /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(ITextGuildChannel)], nameof(ITextGuildChannel.Id))]
-    public IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null)
+    public IAsyncEnumerable<IGuildThread> GetPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
 
-        return new OptimizedQueryPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
+        return new OptimizedQueryPaginationAsyncEnumerable<IGuildThread, DateTimeOffset>(
             this,
             paginationProperties,
             async s =>
@@ -922,11 +931,11 @@ public partial class RestClient
     /// <param name="paginationProperties">Pagination options for archived threads, or <see langword="null"/> to use defaults.</param>
     /// <param name="properties">Optional properties to customize each request, can be <see langword="null"/>.</param>
     [GenerateAlias([typeof(ITextGuildChannel)], nameof(ITextGuildChannel.Id))]
-    public IAsyncEnumerable<GuildThread> GetJoinedPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<ulong>? paginationProperties = null, RestRequestProperties? properties = null)
+    public IAsyncEnumerable<IGuildThread> GetJoinedPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<ulong>? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
 
-        return new OptimizedQueryPaginationAsyncEnumerable<GuildThread, ulong>(
+        return new OptimizedQueryPaginationAsyncEnumerable<IGuildThread, ulong>(
             this,
             paginationProperties,
             async s =>

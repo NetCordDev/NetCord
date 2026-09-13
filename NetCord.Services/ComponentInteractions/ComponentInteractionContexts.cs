@@ -32,7 +32,7 @@ public class ComponentInteractionContext(ComponentInteraction interaction, Gatew
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -53,7 +53,7 @@ public class HttpComponentInteractionContext(ComponentInteraction interaction, R
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 }
 
 /// <summary>
@@ -90,7 +90,7 @@ public class MessageComponentInteractionContext(MessageComponentInteraction inte
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -114,7 +114,7 @@ public class HttpMessageComponentInteractionContext(MessageComponentInteraction 
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 }
 
 /// <summary>
@@ -151,7 +151,7 @@ public class ButtonInteractionContext(ButtonInteraction interaction, GatewayClie
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -175,7 +175,7 @@ public class HttpButtonInteractionContext(ButtonInteraction interaction, RestCli
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 }
 
 /// <summary>
@@ -212,7 +212,7 @@ public class StringMenuInteractionContext(StringMenuInteraction interaction, Gat
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected string values from the menu.
@@ -241,7 +241,7 @@ public class HttpStringMenuInteractionContext(StringMenuInteraction interaction,
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected string values from the menu.
@@ -283,7 +283,7 @@ public class EntityMenuInteractionContext(EntityMenuInteraction interaction, Gat
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected entity IDs from the menu.
@@ -312,7 +312,7 @@ public class HttpEntityMenuInteractionContext(EntityMenuInteraction interaction,
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected entity IDs from the menu.
@@ -354,7 +354,7 @@ public class UserMenuInteractionContext(UserMenuInteraction interaction, Gateway
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected users from the menu.
@@ -383,7 +383,7 @@ public class HttpUserMenuInteractionContext(UserMenuInteraction interaction, Res
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected users from the menu.
@@ -425,7 +425,7 @@ public class RoleMenuInteractionContext(RoleMenuInteraction interaction, Gateway
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected roles from the menu.
@@ -454,7 +454,7 @@ public class HttpRoleMenuInteractionContext(RoleMenuInteraction interaction, Res
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected roles from the menu.
@@ -496,7 +496,7 @@ public class MentionableMenuInteractionContext(MentionableMenuInteraction intera
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected mentionables (users or roles) from the menu.
@@ -525,7 +525,7 @@ public class HttpMentionableMenuInteractionContext(MentionableMenuInteraction in
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The selected mentionables (users or roles) from the menu.
@@ -567,12 +567,12 @@ public class ChannelMenuInteractionContext(ChannelMenuInteraction interaction, G
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => (ITextChannel)Interaction.Channel;
 
     /// <summary>
     /// The selected channels from the menu.
     /// </summary>
-    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<IChannel> SelectedValues => Interaction.Data.SelectedValues;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -596,12 +596,12 @@ public class HttpChannelMenuInteractionContext(ChannelMenuInteraction interactio
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => (ITextChannel)Interaction.Channel;
 
     /// <summary>
     /// The selected channels from the menu.
     /// </summary>
-    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<IChannel> SelectedValues => Interaction.Data.SelectedValues;
 }
 
 /// <summary>
@@ -635,7 +635,7 @@ public class ModalInteractionContext(ModalInteraction interaction, GatewayClient
     public Guild? Guild => Interaction.Guild;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The components submitted with the modal.
@@ -661,7 +661,7 @@ public class HttpModalInteractionContext(ModalInteraction interaction, RestClien
     public User User => Interaction.User;
 
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
-    public TextChannel Channel => Interaction.Channel;
+    public ITextChannel Channel => Interaction.Channel;
 
     /// <summary>
     /// The components submitted with the modal.

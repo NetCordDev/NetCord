@@ -21,7 +21,7 @@ public class InteractionResolvedData
     /// <summary>
     /// A list of channel objects, mapped to their IDs.
     /// </summary>
-    public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
+    public IReadOnlyDictionary<ulong, IChannel>? Channels { get; }
 
     /// <summary>
     /// A list of message objects, mapped to their IDs.
@@ -75,7 +75,7 @@ public class InteractionResolvedData
 
         var channels = jsonModel.Channels;
         if (channels is not null)
-            Channels = channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
+            Channels = channels.ToDictionary(c => c.Key, c => ChannelFactory.Create(c.Value, client));
 
         var messages = jsonModel.Messages;
         if (messages is not null)

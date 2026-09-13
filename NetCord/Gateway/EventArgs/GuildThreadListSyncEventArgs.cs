@@ -10,7 +10,7 @@ public class GuildThreadListSyncEventArgs(JsonModels.EventArgs.JsonGuildThreadLi
 
     public IReadOnlyList<ulong>? ChannelIds => jsonModel.ChannelIds;
 
-    public IReadOnlyDictionary<ulong, GuildThread> Threads { get; } = dictionaryProvider.CreateDictionary(jsonModel.Threads, t => t.Id, t => GuildThread.CreateFromJson(t, client));
+    public IReadOnlyDictionary<ulong, IGuildThread> Threads { get; } = dictionaryProvider.CreateDictionary(jsonModel.Threads, t => t.Id, t => ChannelFactory.CreateGuildThread(t, client));
 
     public IReadOnlyList<ThreadUser> Users { get; } = jsonModel.Users.Select(u => new ThreadUser(u, client)).ToArray();
 }
