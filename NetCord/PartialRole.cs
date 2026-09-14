@@ -27,15 +27,6 @@ public partial class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
     public string Name => _jsonModel.Name;
 
     /// <summary>
-    /// The color of the role.
-    /// </summary>
-    /// <remarks>
-    /// This will still be returned by the API, but using <see cref="Colors"/> is recommended when doing requests.
-    /// </remarks>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Color Color => _jsonModel.Color;
-
-    /// <summary>
     /// The role's colors.
     /// </summary>
     public RoleColors Colors { get; }
