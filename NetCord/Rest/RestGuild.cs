@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 
 using NetCord.Gateway;
-using NetCord.JsonModels;
+using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
