@@ -1,36 +1,70 @@
-namespace NetCord.Rest;
+using NetCord.Rest;
 
-public class GuildPreview : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
+namespace NetCord;
+
+/// <summary>
+/// Represents a partial preview of a guild, available even if the user is not a member.
+/// </summary>
+public class GuildPreview(JsonModels.JsonGuild jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonGuild>
 {
-    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    private readonly NetCord.JsonModels.JsonGuild _jsonModel;
+    JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => jsonModel;
 
-    public GuildPreview(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-        Emojis = _jsonModel.Emojis.ToDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Stickers = _jsonModel.Stickers.ToDictionary(s => s.Id, s => new GuildSticker(s, client));
-    }
+    /// <summary>
+    /// The unique identifier of the guild.
+    /// </summary>
+    public override ulong Id => jsonModel.Id;
 
-    public override ulong Id => _jsonModel.Id;
+    /// <summary>
+    /// The name of the guild.
+    /// </summary>
+    public string Name => jsonModel.Name;
 
-    public string Name => _jsonModel.Name;
+    /// <summary>
+    /// The guild's icon hash, if set.
+    /// </summary>
+    public string? IconHash => jsonModel.IconHash;
 
-    public string? IconHash => _jsonModel.IconHash;
+    /// <summary>
+    /// The guild's invite splash hash, if set.
+    /// </summary>
+    public string? SplashHash => jsonModel.SplashHash;
 
-    public string? SplashHash => _jsonModel.SplashHash;
+    /// <summary>
+    /// The guild's discovery splash hash, if set.
+    /// </summary>
+    public string? DiscoverySplashHash => jsonModel.DiscoverySplashHash;
 
-    public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
+    /// <summary>
+    /// A dictionary containing the custom emojis available in the guild, indexed by their unique identifiers.
+    /// </summary>
+    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; } = jsonModel.Emojis.ToDictionary(
+        e => e.Id.GetValueOrDefault(), 
+        e => new GuildEmoji(e, jsonModel.Id, client));
 
-    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; }
+    /// <summary>
+    /// A list of enabled features and capabilities for the guild.
+    /// </summary>
+    public IReadOnlyList<string> Features => jsonModel.Features;
 
-    public IReadOnlyList<string> Features => _jsonModel.Features;
+    /// <summary>
+    /// The approximate total number of users in the guild.
+    /// </summary>
+    public int ApproximateUserCount => jsonModel.ApproximateUserCount.GetValueOrDefault();
 
-    public int ApproximateUserCount => _jsonModel.ApproximateUserCount.GetValueOrDefault();
+    /// <summary>
+    /// The approximate number of online or active presences in the guild.
+    /// </summary>
+    public int ApproximatePresenceCount => jsonModel.ApproximatePresenceCount.GetValueOrDefault();
 
-    public int ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount.GetValueOrDefault();
+    /// <summary>
+    /// The description provided for the guild, if applicable.
+    /// </summary>
+    public string? Description => jsonModel.Description;
 
-    public string? Description => _jsonModel.Description;
-
-    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; }
+    /// <summary>
+    /// A dictionary containing the custom stickers available in the guild, indexed by their unique identifiers.
+    /// </summary>
+    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; } = jsonModel.Stickers.ToDictionary(
+        s => s.Id, 
+        s => new GuildSticker(s, client));
 }

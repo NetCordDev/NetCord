@@ -5,47 +5,29 @@ namespace NetCord.Rest;
 /// <summary>
 /// Represents a webhook, a low-effort way to post messages to channels in Discord. They do not require a bot user or authentication to use.
 /// </summary>
-public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
+public partial class Webhook(JsonWebhook jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonWebhook>
 {
-    JsonWebhook IJsonModel<JsonWebhook>.JsonModel => _jsonModel;
-    private protected readonly JsonWebhook _jsonModel;
-
-    public Webhook(JsonWebhook jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        var creator = jsonModel.Creator;
-        if (creator is not null)
-            Creator = new(creator, client);
-
-        var guild = jsonModel.Guild;
-        if (guild is not null)
-            Guild = new(guild, client);
-
-        var channel = jsonModel.Channel;
-        if (channel is not null)
-            Channel = Channel.CreateFromJson(channel, client);
-    }
+    JsonWebhook IJsonModel<JsonWebhook>.JsonModel => jsonModel;
 
     /// <summary>
     /// The ID of the webhook.
     /// </summary>
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// The type of the webhook.
     /// </summary>
-    public WebhookType Type => _jsonModel.Type;
+    public WebhookType Type => jsonModel.Type;
 
     /// <summary>
     /// The guild ID this webhook targets. Can be <see langword="null"/>.
     /// </summary>
-    public ulong? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => jsonModel.GuildId;
 
     /// <summary>
     /// The channel ID this webhook targets. Can be <see langword="null"/>.
     /// </summary>
-    public ulong? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => jsonModel.ChannelId;
 
     /// <summary>
     /// The <see cref="User"/> this webhook was created by.
@@ -53,7 +35,7 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     /// <remarks>
     /// This property is <see langword="null"/> if the webhook was retrieved using its token.
     /// </remarks>
-    public User? Creator { get; }
+    public User? Creator { get; } = jsonModel.Creator is { } creator ? new(creator, client) : null;
 
     /// <summary>
     /// The default name of the webhook.
@@ -72,17 +54,17 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     ///     </item>
     /// </list>
     /// </remarks>
-    public string? Name => _jsonModel.Name;
+    public string? Name => jsonModel.Name;
 
     /// <summary>
     /// The default user avatar hash of the webhook.
     /// </summary>
-    public string? AvatarHash => _jsonModel.AvatarHash;
+    public string? AvatarHash => jsonModel.AvatarHash;
 
     /// <summary>
     /// The ID of the bot or OAuth2 application that created this webhook.
     /// </summary>
-    public ulong? ApplicationId => _jsonModel.ApplicationId;
+    public ulong? ApplicationId => jsonModel.ApplicationId;
 
     /// <summary>
     /// The guild of the channel followed by this webhook.
@@ -91,7 +73,7 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     /// This property is <see langword="null"/> if <see cref="Type"/> is not <see cref="WebhookType.ChannelFollower"/>,
     /// or if the <see cref="Creator"/> has lost access to the guild where the <see cref="Channel"/> resides.
     /// </remarks>
-    public RestGuild? Guild { get; }
+    public RestGuild? Guild { get; } = jsonModel.Guild is { } guild ? new(guild, client) : null;
 
     /// <summary>
     /// The channel that this webhook is following.
@@ -100,12 +82,12 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     /// This property is <see langword="null"/> if <see cref="Type"/> is not <see cref="WebhookType.ChannelFollower"/>,
     /// or if the <see cref="Creator"/> has lost access to the guild where the <see cref="Channel"/> resides.
     /// </remarks>
-    public Channel? Channel { get; }
+    public Channel? Channel { get; } = jsonModel.Channel is { } channel ? Channel.CreateFromJson(channel, client) : null;
 
     /// <summary>
     /// The URL used for executing the webhook.
     /// </summary>
-    public string? Url => _jsonModel.Url;
+    public string? Url => jsonModel.Url;
 
     public static Webhook CreateFromJson(JsonWebhook jsonModel, RestClient client) => jsonModel.Type switch
     {

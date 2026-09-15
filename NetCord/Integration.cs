@@ -1,54 +1,112 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
+/// <summary>
+/// Represents a Discord guild integration (e.g., Twitch, YouTube, or Bot Applications).
+/// </summary>
+public class Integration(JsonIntegration jsonModel, RestClient client) : Entity, IJsonModel<JsonIntegration>
 {
-    JsonModels.JsonIntegration IJsonModel<JsonModels.JsonIntegration>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonIntegration _jsonModel;
+    JsonIntegration IJsonModel<JsonIntegration>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    /// The ID of the integration.
+    public override ulong Id => jsonModel.Id;
 
-    public string Name => _jsonModel.Name;
+    /// <summary>
+    /// The name of the integration.
+    /// </summary>
+    public string Name => jsonModel.Name;
 
-    public IntegrationType Type => _jsonModel.Type;
+    /// <summary>
+    /// The type of integration.
+    /// </summary>
+    public IntegrationType Type => jsonModel.Type;
 
-    public bool Enabled => _jsonModel.Enabled;
+    /// <summary>
+    /// Whether this integration is enabled.
+    /// </summary>
+    public bool Enabled => jsonModel.Enabled;
 
-    public bool? Syncing => _jsonModel.Syncing;
+    /// <summary>
+    /// Whether this integration is syncing.
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public bool? Syncing => jsonModel.Syncing;
 
-    public ulong? RoleId => _jsonModel.RoleId;
+    /// <summary>
+    /// The ID of the role that this integration uses for "subscribers".
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public ulong? RoleId => jsonModel.RoleId;
 
-    public bool? EnableEmoticons => _jsonModel.EnableEmoticons;
+    /// <summary>
+    /// Whether emoticons should be synced for this integration (Twitch, YouTube, etc.).
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public bool? EnableEmoticons => jsonModel.EnableEmoticons;
 
-    public IntegrationExpireBehavior? ExpireBehavior => _jsonModel.ExpireBehavior;
+    /// <summary>
+    /// The behavior for expiring subscribers.
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public IntegrationExpireBehavior? ExpireBehavior => jsonModel.ExpireBehavior;
 
-    public int? ExpireGracePeriod => _jsonModel.ExpireGracePeriod;
+    /// <summary>
+    /// The grace period (in days) before expiring subscribers.
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public int? ExpireGracePeriod => jsonModel.ExpireGracePeriod;
 
-    public User? User { get; }
+    /// <summary>
+    /// The user for this integration.
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public User? User { get; } = jsonModel.User is { } user ? new(user, client) : null;
 
-    public Account Account { get; }
+    /// <summary>
+    /// The integration account information.
+    /// </summary>
+    public Account Account { get; } = new(jsonModel.Account);
 
-    public DateTimeOffset? SyncedAt => _jsonModel.SyncedAt;
+    /// <summary>
+    /// The date and time when this integration was last synced.
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public DateTimeOffset? SyncedAt => jsonModel.SyncedAt;
 
-    public int? SubscriberCount => _jsonModel.SubscriberCount;
+    /// <summary>
+    /// How many subscribers this integration has.
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public int? SubscriberCount => jsonModel.SubscriberCount;
 
-    public bool? Revoked => _jsonModel.Revoked;
+    /// <summary>
+    /// Whether this integration has been revoked.
+    /// </summary>
+    /// <remarks>
+    /// This property is not provided for bot integrations.
+    /// </remarks>
+    public bool? Revoked => jsonModel.Revoked;
 
-    public IntegrationApplication? Application { get; }
-
-    public Integration(JsonModels.JsonIntegration jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        var user = _jsonModel.User;
-        if (user is not null)
-            User = new(user, client);
-
-        Account = new(_jsonModel.Account);
-
-        var application = _jsonModel.Application;
-        if (application is not null)
-            Application = new(application, client);
-    }
+    /// <summary>
+    /// The bot application for Discord integrations.
+    /// </summary>
+    public IntegrationApplication? Application { get; } = jsonModel.Application is { } application ? new(application, client) : null;
 }

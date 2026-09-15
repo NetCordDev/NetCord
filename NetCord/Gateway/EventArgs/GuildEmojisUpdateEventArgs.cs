@@ -2,18 +2,24 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildEmojisUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs>
+/// <summary>
+/// Represents the event arguments for a guild emojis update event.
+/// </summary>
+public class GuildEmojisUpdateEventArgs(JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) 
+    : IJsonModel<JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs>
 {
-    JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs>.JsonModel => jsonModel;
 
-    public GuildEmojisUpdateEventArgs(JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs jsonModel, RestClient client, IDictionaryProvider dictionaryProvider)
-    {
-        _jsonModel = jsonModel;
-        Emojis = dictionaryProvider.CreateDictionary(jsonModel.Emojis, e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, GuildId, client));
-    }
+    /// <summary>
+    /// The ID of the guild where the emojis were updated.
+    /// </summary>
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
-
-    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; }
+    /// <summary>
+    /// The updated dictionary of guild emojis, indexed by their unique identifiers.
+    /// </summary>
+    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; } = dictionaryProvider.CreateDictionary(
+        jsonModel.Emojis, 
+        e => e.Id.GetValueOrDefault(), 
+        e => new GuildEmoji(e, jsonModel.GuildId, client));
 }

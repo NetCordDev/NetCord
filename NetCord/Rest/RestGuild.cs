@@ -8,27 +8,14 @@ namespace NetCord.Rest;
 /// <summary>
 /// Represents an isolated collection of users and channels, often referred to as a server in the UI.
 /// </summary>
-public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<PartialGuildUser>
+public partial class RestGuild(JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : ClientEntity(client), IJsonModel<JsonGuild>, IComparer<PartialGuildUser>
 {
-    JsonGuild IJsonModel<JsonGuild>.JsonModel => GetJsonModel();
-    private protected readonly JsonGuild _jsonModel;
-
     public RestGuild(JsonGuild jsonModel, RestClient client) : this(jsonModel, client, IDictionaryProvider.OfDictionary)
     {
     }
 
-    private protected RestGuild(JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : base(client)
-    {
-        _jsonModel = jsonModel;
-        Roles = dictionaryProvider.CreateDictionary(jsonModel.Roles ?? [], r => r.Id, r => new Role(r, Id, client));
-        // Guild emoji always have Id.
-        Emojis = dictionaryProvider.CreateDictionary(jsonModel.Emojis ?? [], e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Stickers = dictionaryProvider.CreateDictionary(jsonModel.Stickers ?? [], s => s.Id, s => new GuildSticker(s, client));
-
-        var welcomeScreen = jsonModel.WelcomeScreen;
-        if (welcomeScreen is not null)
-            WelcomeScreen = new(welcomeScreen);
-    }
+    JsonGuild IJsonModel<JsonGuild>.JsonModel => GetJsonModel();
+    private protected readonly JsonGuild _jsonModel = jsonModel;
 
     private protected virtual JsonGuild GetJsonModel() => _jsonModel;
 
@@ -192,12 +179,12 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
     /// <summary>
     /// A dictionary of <see cref="Role"/> objects indexed by their IDs, representing the <see cref="RestGuild"/>'s roles.
     /// </summary>
-    public IReadOnlyDictionary<ulong, Role> Roles { get; set; }
+    public IReadOnlyDictionary<ulong, Role> Roles { get; set; } = dictionaryProvider.CreateDictionary(jsonModel.Roles ?? [], r => r.Id, r => new Role(r, jsonModel.Id, client));
 
     /// <summary>
     /// A dictionary of <see cref="GuildEmoji"/> objects, indexed by their IDs, representing the <see cref="RestGuild"/>'s custom emojis.
     /// </summary>
-    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; set; }
+    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; set; } = dictionaryProvider.CreateDictionary(jsonModel.Emojis ?? [], e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, jsonModel.Id, client));
 
     /// <summary>
     /// A list of <see cref="RestGuild"/> feature strings, representing what features are currently enabled.
@@ -315,7 +302,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
     /// <summary>
     /// The welcome screen shown to new members, returned in an invite's <see cref="RestGuild"/> object.
     /// </summary>
-    public GuildWelcomeScreen? WelcomeScreen { get; }
+    public GuildWelcomeScreen? WelcomeScreen { get; } = jsonModel.WelcomeScreen is { } welcomeScreen ? new(welcomeScreen) : null;
 
     /// <summary>
     /// The <see cref="RestGuild"/>'s set NSFW level.
@@ -325,7 +312,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
     /// <summary>
     /// A dictionary of <see cref="GuildSticker"/> objects indexed by their IDs, representing the <see cref="RestGuild"/>'s custom stickers.
     /// </summary>
-    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; set; }
+    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; set; } = dictionaryProvider.CreateDictionary(jsonModel.Stickers ?? [], s => s.Id, s => new GuildSticker(s, client));
 
     /// <summary>
     /// Whether the <see cref="RestGuild"/> has the boost progress bar enabled.

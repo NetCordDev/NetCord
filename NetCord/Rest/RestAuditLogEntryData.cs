@@ -1,6 +1,8 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class RestAuditLogEntryData(JsonModels.JsonAuditLog jsonModel, RestClient client)
+public class RestAuditLogEntryData(JsonAuditLog jsonModel, RestClient client)
 {
     /// <summary>
     /// List of application commands referenced in the audit log.

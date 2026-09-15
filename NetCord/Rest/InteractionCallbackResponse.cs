@@ -2,50 +2,91 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Represents the response to an interaction callback.
+/// </summary>
 public class InteractionCallbackResponse(JsonInteractionCallbackResponse jsonModel, RestClient client) : IJsonModel<JsonInteractionCallbackResponse>
 {
     JsonInteractionCallbackResponse IJsonModel<JsonInteractionCallbackResponse>.JsonModel => jsonModel;
 
+    /// <summary>
+    /// Interaction object associated with the callback.
+    /// </summary>
     public InteractionCallbackResponseInteraction Interaction { get; } = new(jsonModel.Interaction);
 
+    /// <summary>
+    /// Resource created by the interaction callback.
+    /// </summary>
     public InteractionCallbackResponseResource Resource { get; } = new(jsonModel.Resource, client);
 }
 
+/// <summary>
+/// Represents interaction metadata within an interaction callback response.
+/// </summary>
 public class InteractionCallbackResponseInteraction(JsonInteractionCallbackResponseInteraction jsonModel) : Entity, IJsonModel<JsonInteractionCallbackResponseInteraction>
 {
     JsonInteractionCallbackResponseInteraction IJsonModel<JsonInteractionCallbackResponseInteraction>.JsonModel => jsonModel;
 
     public override ulong Id => jsonModel.Id;
+
+    /// <summary>
+    /// Type of the interaction.
+    /// </summary>
     public InteractionType Type => jsonModel.Type;
+
+    /// <summary>
+    /// ID of the activity instance.
+    /// </summary>
     public string? ActivityInstanceId => jsonModel.ActivityInstanceId;
+
+    /// <summary>
+    /// ID of the response message.
+    /// </summary>
     public ulong? ResponseMessageId => jsonModel.ResponseMessageId;
+
+    /// <summary>
+    /// Whether the response message is currently loading.
+    /// </summary>
     public bool? ResponseMessageLoading => jsonModel.ResponseMessageLoading;
+
+    /// <summary>
+    /// Whether the response message is ephemeral.
+    /// </summary>
     public bool? ResponseMessageEphemeral => jsonModel.ResponseMessageEphemeral;
 }
 
-public class InteractionCallbackResponseResource : IJsonModel<JsonInteractionCallbackResponseResource>
+/// <summary>
+/// Represents resource details returned in an interaction callback response.
+/// </summary>
+public class InteractionCallbackResponseResource(JsonInteractionCallbackResponseResource jsonModel, RestClient client) : IJsonModel<JsonInteractionCallbackResponseResource>
 {
-    public InteractionCallbackResponseResource(JsonInteractionCallbackResponseResource jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        if (jsonModel.ActivityInstance is { } activityInstance)
-            ActivityInstance = new ActivityInstance(activityInstance);
+    JsonInteractionCallbackResponseResource IJsonModel<JsonInteractionCallbackResponseResource>.JsonModel => jsonModel;
 
-        if (jsonModel.Message is { } message)
-            Message = new RestMessage(message, client);
-    }
+    /// <summary>
+    /// Interaction callback type of the resource.
+    /// </summary>
+    public InteractionCallbackType Type => jsonModel.Type;
 
-    JsonInteractionCallbackResponseResource IJsonModel<JsonInteractionCallbackResponseResource>.JsonModel => _jsonModel;
-    private readonly JsonInteractionCallbackResponseResource _jsonModel;
+    /// <summary>
+    /// Activity instance resource, if applicable.
+    /// </summary>
+    public ActivityInstance? ActivityInstance { get; } = jsonModel.ActivityInstance is { } activityInstance ? new(activityInstance) : null;
 
-    public InteractionCallbackType Type => _jsonModel.Type;
-    public ActivityInstance? ActivityInstance { get; }
-    public RestMessage? Message { get; }
+    /// <summary>
+    /// Message resource created or modified by the callback.
+    /// </summary>
+    public RestMessage? Message { get; } = jsonModel.Message is { } message ? new(message, client) : null;
 }
 
+/// <summary>
+/// Represents an activity instance within Discord.
+/// </summary>
 public class ActivityInstance(JsonActivityInstance jsonModel) : IJsonModel<JsonActivityInstance>
 {
     JsonActivityInstance IJsonModel<JsonActivityInstance>.JsonModel => jsonModel;
 
+    /// <summary>
+    /// Unique identifier for the activity instance.
+    /// </summary>
     public string Id => jsonModel.Id;
 }
