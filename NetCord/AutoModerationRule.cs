@@ -3,37 +3,67 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRule>
+/// <summary>
+/// Represents an auto moderation rule within a guild.
+/// </summary>
+public partial class AutoModerationRule(JsonAutoModerationRule jsonModel, RestClient client) 
+    : ClientEntity(client), IJsonModel<JsonAutoModerationRule>
 {
-    JsonAutoModerationRule IJsonModel<JsonAutoModerationRule>.JsonModel => _jsonModel;
-    private readonly JsonAutoModerationRule _jsonModel;
+    JsonAutoModerationRule IJsonModel<JsonAutoModerationRule>.JsonModel => jsonModel;
 
-    public AutoModerationRule(JsonAutoModerationRule jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-        TriggerMetadata = new(_jsonModel.TriggerMetadata);
-        Actions = _jsonModel.Actions.Select(a => new AutoModerationAction(a)).ToArray();
-    }
+    /// <summary>
+    /// The ID of the auto moderation rule.
+    /// </summary>
+    public override ulong Id => jsonModel.Id;
 
-    public override ulong Id => _jsonModel.Id;
+    /// <summary>
+    /// The ID of the guild which the auto moderation rule belongs to.
+    /// </summary>
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The name of the rule.
+    /// </summary>
+    public string Name => jsonModel.Name;
 
-    public string Name => _jsonModel.Name;
+    /// <summary>
+    /// The ID of the user who created the rule.
+    /// </summary>
+    public ulong CreatorId => jsonModel.CreatorId;
 
-    public ulong CreatorId => _jsonModel.CreatorId;
+    /// <summary>
+    /// The type of event that triggers the rule execution.
+    /// </summary>
+    public AutoModerationRuleEventType EventType => jsonModel.EventType;
 
-    public AutoModerationRuleEventType EventType => _jsonModel.EventType;
+    /// <summary>
+    /// The type of trigger that determines what content is checked by the rule.
+    /// </summary>
+    public AutoModerationRuleTriggerType TriggerType => jsonModel.TriggerType;
 
-    public AutoModerationRuleTriggerType TriggerType => _jsonModel.TriggerType;
+    /// <summary>
+    /// Additional metadata associated with the rule's trigger.
+    /// </summary>
+    public AutoModerationRuleTriggerMetadata TriggerMetadata { get; } = new(jsonModel.TriggerMetadata);
 
-    public AutoModerationRuleTriggerMetadata TriggerMetadata { get; }
-
+    /// <summary>
+    /// The actions that will execute when the rule is triggered.
+    /// </summary>
     public IReadOnlyList<AutoModerationAction> Actions { get; }
+        = jsonModel.Actions.Select(a => new AutoModerationAction(a)).ToArray();
 
-    public bool Enabled => _jsonModel.Enabled;
+    /// <summary>
+    /// A value indicating whether the rule is currently enabled.
+    /// </summary>
+    public bool Enabled => jsonModel.Enabled;
 
-    public IReadOnlyList<ulong> ExemptRoles => _jsonModel.ExemptRoles;
+    /// <summary>
+    /// The IDs of roles that are exempt from this rule's evaluation.
+    /// </summary>
+    public IReadOnlyList<ulong> ExemptRoles => jsonModel.ExemptRoles;
 
-    public IReadOnlyList<ulong> ExemptChannels => _jsonModel.ExemptChannels;
+    /// <summary>
+    /// The IDs of channels that are exempt from this rule's evaluation.
+    /// </summary>
+    public IReadOnlyList<ulong> ExemptChannels => jsonModel.ExemptChannels;
 }

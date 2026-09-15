@@ -1,19 +1,19 @@
 namespace NetCord.Gateway;
 
-public class Party : IJsonModel<JsonModels.JsonParty>
+/// <summary>
+/// Represents information about a user's presence party.
+/// </summary>
+public class Party(JsonModels.JsonParty jsonModel) : IJsonModel<JsonModels.JsonParty>
 {
-    JsonModels.JsonParty IJsonModel<JsonModels.JsonParty>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonParty _jsonModel;
+    JsonModels.JsonParty IJsonModel<JsonModels.JsonParty>.JsonModel => jsonModel;
 
-    public string? Id => _jsonModel.Id;
+    /// <summary>
+    /// The ID of the party.
+    /// </summary>
+    public string? Id => jsonModel.Id;
 
-    public PartySize? Size { get; }
-
-    public Party(JsonModels.JsonParty jsonModel)
-    {
-        _jsonModel = jsonModel;
-
-        if (jsonModel.Size is { } size)
-            Size = new(size);
-    }
+    /// <summary>
+    /// The size of the party, containing current and max party size.
+    /// </summary>
+    public PartySize? Size { get; } = jsonModel.Size is { } size ? new(size) : null;
 }

@@ -2,27 +2,38 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class TypingStartEventArgs : IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>
+/// <summary>
+/// Represents the event arguments for a typing start event, indicating that a user has started typing in a channel.
+/// </summary>
+public class TypingStartEventArgs(JsonModels.EventArgs.JsonTypingStartEventArgs jsonModel, RestClient client) 
+    : IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>
 {
-    JsonModels.EventArgs.JsonTypingStartEventArgs IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonTypingStartEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonTypingStartEventArgs IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>.JsonModel => jsonModel;
 
-    public TypingStartEventArgs(JsonModels.EventArgs.JsonTypingStartEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    /// <summary>
+    /// The ID of the channel where the user started typing.
+    /// </summary>
+    public ulong ChannelId => jsonModel.ChannelId;
 
-        var user = jsonModel.User;
-        if (user is not null)
-            User = new(user, _jsonModel.GuildId.GetValueOrDefault(), client);
-    }
+    /// <summary>
+    /// The ID of the guild where the user started typing, if applicable.
+    /// </summary>
+    public ulong? GuildId => jsonModel.GuildId;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    /// <summary>
+    /// The ID of the user who started typing.
+    /// </summary>
+    public ulong UserId => jsonModel.UserId;
 
-    public ulong? GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The timestamp indicating when the user started typing.
+    /// </summary>
+    public DateTimeOffset Timestamp => jsonModel.Timestamp;
 
-    public ulong UserId => _jsonModel.UserId;
-
-    public DateTimeOffset Timestamp => _jsonModel.Timestamp;
-
-    public GuildUser? User { get; }
+    /// <summary>
+    /// The guild user member object of the user who started typing, if the event occurred in a guild.
+    /// </summary>
+    public GuildUser? User { get; } = jsonModel.User is { } user 
+        ? new GuildUser(user, jsonModel.GuildId.GetValueOrDefault(), client) 
+        : null;
 }

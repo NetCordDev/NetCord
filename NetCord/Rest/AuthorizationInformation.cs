@@ -1,37 +1,31 @@
+using NetCord.JsonModels;
+
 namespace NetCord.Rest;
 
-public class AuthorizationInformation : IJsonModel<JsonModels.JsonAuthorizationInformation>
+/// <summary>
+/// Represents OAuth2 authorization information.
+/// </summary>
+public class AuthorizationInformation(JsonAuthorizationInformation jsonModel, RestClient client) : IJsonModel<JsonAuthorizationInformation>
 {
-    JsonModels.JsonAuthorizationInformation IJsonModel<JsonModels.JsonAuthorizationInformation>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonAuthorizationInformation _jsonModel;
-
-    public AuthorizationInformation(JsonModels.JsonAuthorizationInformation jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        Application = new(jsonModel.Application, client);
-
-        var user = jsonModel.User;
-        if (user is not null)
-            User = new(user, client);
-    }
+    JsonAuthorizationInformation IJsonModel<JsonAuthorizationInformation>.JsonModel => jsonModel;
 
     /// <summary>
     /// The current application.
     /// </summary>
-    public Application Application { get; }
+    public Application Application { get; } = new(jsonModel.Application, client);
 
     /// <summary>
     /// The scopes the user has authorized the application for.
     /// </summary>
-    public IReadOnlyList<string> Scopes => _jsonModel.Scopes;
+    public IReadOnlyList<string> Scopes => jsonModel.Scopes;
 
     /// <summary>
     /// When the access token expires.
     /// </summary>
-    public DateTimeOffset ExpiresAt => _jsonModel.ExpiresAt;
+    public DateTimeOffset ExpiresAt => jsonModel.ExpiresAt;
 
     /// <summary>
-    /// The user who has authorized, if the user has authorized with the 'identify' scope.
+    /// The user who has authorized, if the user has authorized with the <c>identify</c> scope.
     /// </summary>
-    public User? User { get; }
+    public User? User { get; } = jsonModel.User is { } user ? new(user, client) : null;
 }

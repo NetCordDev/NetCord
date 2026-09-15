@@ -7,11 +7,11 @@ namespace NetCord;
 /// </summary>
 public partial class VoiceGuildChannel(JsonModels.JsonChannel jsonModel, ulong guildId, RestClient client) : TextGuildChannel(jsonModel, guildId, client), IVoiceGuildChannel
 {
-    public int Bitrate => _jsonModel.Bitrate.GetValueOrDefault();
+    public int Bitrate => jsonModel.Bitrate.GetValueOrDefault();
 
-    public int UserLimit => _jsonModel.UserLimit.GetValueOrDefault();
+    public int UserLimit => jsonModel.UserLimit.GetValueOrDefault();
 
-    public string? RtcRegion => _jsonModel.RtcRegion;
+    public string? RtcRegion => jsonModel.RtcRegion;
 
-    public VideoQualityMode VideoQualityMode => _jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
+    public VideoQualityMode VideoQualityMode => jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
 }

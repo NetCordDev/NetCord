@@ -1,22 +1,36 @@
+using NetCord.JsonModels;
+
 namespace NetCord;
 
-public class StringMenuSelectOption : IJsonModel<JsonModels.JsonStringMenuSelectOption>
+/// <summary>
+/// Represents an option in a string select menu component.
+/// </summary>
+public class StringMenuSelectOption(JsonStringMenuSelectOption jsonModel) : IJsonModel<JsonStringMenuSelectOption>
 {
-    JsonModels.JsonStringMenuSelectOption IJsonModel<JsonModels.JsonStringMenuSelectOption>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonStringMenuSelectOption _jsonModel;
+    JsonStringMenuSelectOption IJsonModel<JsonStringMenuSelectOption>.JsonModel => jsonModel;
 
-    public string Label => _jsonModel.Label;
-    public string Value => _jsonModel.Value;
-    public string? Description => _jsonModel.Description;
-    public EmojiReference? Emoji { get; }
-    public bool Default => _jsonModel.Default;
+    /// <summary>
+    /// The user-facing name of the option.
+    /// </summary>
+    public string Label => jsonModel.Label;
 
-    public StringMenuSelectOption(JsonModels.JsonStringMenuSelectOption jsonModel)
-    {
-        _jsonModel = jsonModel;
+    /// <summary>
+    /// The dev-defined value of the option.
+    /// </summary>
+    public string Value => jsonModel.Value;
 
-        var emoji = jsonModel.Emoji;
-        if (emoji is not null)
-            Emoji = new(emoji);
-    }
+    /// <summary>
+    /// An additional description of the option.
+    /// </summary>
+    public string? Description => jsonModel.Description;
+
+    /// <summary>
+    /// The emoji displayed on the option.
+    /// </summary>
+    public EmojiReference? Emoji { get; } = jsonModel.Emoji is { } emoji ? new(emoji) : null;
+
+    /// <summary>
+    /// Whether this option is selected by default.
+    /// </summary>
+    public bool Default => jsonModel.Default;
 }

@@ -1,3 +1,4 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -8,24 +9,9 @@ namespace NetCord;
 /// <remarks>
 /// Users in Discord are generally considered the base entity and can be members of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of 'bot' vs 'normal'. Bot users are automated users that are 'owned' by another user.
 /// </remarks>
-public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
+public partial class User(JsonUser jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonUser>
 {
-    JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonUser _jsonModel;
-
-    public User(JsonModels.JsonUser jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        if (jsonModel.AvatarDecorationData is { } avatarDecorationData)
-            AvatarDecorationData = new(avatarDecorationData);
-
-        if (jsonModel.Collectibles is { } collectibles)
-            Collectibles = new(collectibles);
-
-        if (jsonModel.PrimaryGuild is { } primaryGuild)
-            PrimaryGuild = new(primaryGuild);
-    }
+    JsonUser IJsonModel<JsonUser>.JsonModel => jsonModel;
 
     /// <summary>
     /// The user's ID.
@@ -33,7 +19,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// The user's username, not unique across the platform. Restrictions:
@@ -58,7 +44,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// </list>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public string Username => _jsonModel.Username;
+    public string Username => jsonModel.Username;
 
     /// <summary>
     /// The user's Discord-tag.
@@ -66,7 +52,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public ushort Discriminator => _jsonModel.Discriminator;
+    public ushort Discriminator => jsonModel.Discriminator;
 
     /// <summary>
     /// The user's display name, if it is set. For bots, this is the application name. Restrictions:
@@ -91,7 +77,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// </list>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public string? GlobalName => _jsonModel.GlobalName;
+    public string? GlobalName => jsonModel.GlobalName;
 
     /// <summary>
     /// The user's avatar hash.
@@ -99,7 +85,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public string? AvatarHash => _jsonModel.AvatarHash;
+    public string? AvatarHash => jsonModel.AvatarHash;
 
     /// <summary>
     /// Whether the user belongs to an application.
@@ -107,7 +93,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public bool IsBot => _jsonModel.IsBot;
+    public bool IsBot => jsonModel.IsBot;
 
     /// <summary>
     /// Whether the user is an Official Discord System user (part of the urgent message system).
@@ -115,7 +101,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public bool? IsSystemUser => _jsonModel.IsSystemUser;
+    public bool? IsSystemUser => jsonModel.IsSystemUser;
 
     /// <summary>
     /// Whether the user has two factor enabled on their account.
@@ -123,7 +109,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public bool? MfaEnabled => _jsonModel.MfaEnabled;
+    public bool? MfaEnabled => jsonModel.MfaEnabled;
 
     /// <summary>
     /// The user's banner hash.
@@ -131,7 +117,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public string? BannerHash => _jsonModel.BannerHash;
+    public string? BannerHash => jsonModel.BannerHash;
 
     /// <summary>
     /// The user's banner color.
@@ -139,7 +125,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public Color? AccentColor => _jsonModel.AccentColor;
+    public Color? AccentColor => jsonModel.AccentColor;
 
     /// <summary>
     /// The user's chosen language option.
@@ -147,7 +133,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public string? Locale => _jsonModel.Locale;
+    public string? Locale => jsonModel.Locale;
 
     /// <summary>
     /// Whether the email on this account has been verified.
@@ -155,7 +141,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>email</c> OAuth2 scope.
     /// </remarks>
-    public bool? Verified => _jsonModel.Verified;
+    public bool? Verified => jsonModel.Verified;
 
     /// <summary>
     /// The user's email.
@@ -163,7 +149,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>email</c> OAuth2 scope.
     /// </remarks>
-    public string? Email => _jsonModel.Email;
+    public string? Email => jsonModel.Email;
 
     /// <summary>
     /// The flags on a user's account.
@@ -171,7 +157,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public UserFlags? Flags => _jsonModel.Flags;
+    public UserFlags? Flags => jsonModel.Flags;
 
     /// <summary>
     /// The type of Nitro subscription on a user's account.
@@ -179,7 +165,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public PremiumType? PremiumType => _jsonModel.PremiumType;
+    public PremiumType? PremiumType => jsonModel.PremiumType;
 
     /// <summary>
     /// The public flags on a user's account.
@@ -187,7 +173,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public UserFlags? PublicFlags => _jsonModel.PublicFlags;
+    public UserFlags? PublicFlags => jsonModel.PublicFlags;
 
     /// <summary>
     /// Data for the user's avatar decoration.
@@ -195,7 +181,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public AvatarDecorationData? AvatarDecorationData { get; }
+    public AvatarDecorationData? AvatarDecorationData { get; } = jsonModel.AvatarDecorationData is { } avatarDecorationData ? new(avatarDecorationData) : null;
 
     /// <summary>
     /// Data for the user's collectibles.
@@ -203,7 +189,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public Collectibles? Collectibles { get; }
+    public Collectibles? Collectibles { get; } = jsonModel.Collectibles is { } collectibles ? new(collectibles) : null;
 
     /// <summary>
     /// The user's primary guild.
@@ -211,7 +197,7 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public UserPrimaryGuild? PrimaryGuild { get; }
+    public UserPrimaryGuild? PrimaryGuild { get; } = jsonModel.PrimaryGuild is { } primaryGuild ? new(primaryGuild) : null;
 
     /// <summary>
     /// Whether the user has a set custom avatar.

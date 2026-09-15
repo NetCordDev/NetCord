@@ -6,33 +6,22 @@ namespace NetCord;
 /// <summary>
 /// Represents a custom (user-uploaded) emoji.
 /// </summary>
-public abstract class CustomEmoji : Emoji, ISpanFormattable
+public abstract class CustomEmoji(JsonEmoji jsonModel, RestClient client) : Emoji(jsonModel), ISpanFormattable
 {
-    private protected RestClient _client;
-
-    public CustomEmoji(JsonEmoji jsonModel, RestClient client) : base(jsonModel)
-    {
-        _client = client;
-
-        var creator = jsonModel.Creator;
-        if (creator is not null)
-            Creator = new(creator, client);
-    }
-
     /// <summary>
     /// The emoji's unique ID.
     /// </summary>
-    public ulong Id => _jsonModel.Id.GetValueOrDefault();
+    public ulong Id => jsonModel.Id.GetValueOrDefault();
 
     /// <summary>
     /// The user that uploaded the emoji.
     /// </summary>
-    public User? Creator { get; }
+    public User? Creator { get; } = jsonModel.Creator is { } creator ? new(creator, client) : null;
 
     /// <summary>
     /// Whether this emoji must be wrapped in colons.
     /// </summary>
-    public bool? RequireColons => _jsonModel.RequireColons;
+    public bool? RequireColons => jsonModel.RequireColons;
 
     /// <summary>
     /// Whether the emoji is managed by an application.
@@ -40,54 +29,29 @@ public abstract class CustomEmoji : Emoji, ISpanFormattable
     /// <remarks>
     /// Managed emoji can only be created by apps with the <see cref="ApplicationFlags.ManagedEmoji"/> flag set.
     /// </remarks>
-    public bool? Managed => _jsonModel.Managed;
+    public bool? Managed => jsonModel.Managed;
 
     /// <summary>
     /// Whether the emoji is available for use. Can be <see langword="false"/> if server boosts are lost.
     /// </summary>
-    public bool? Available => _jsonModel.Available;
+    public bool? Available => jsonModel.Available;
 
     /// <summary>
     /// Returns an image representation of the emoji.
     /// </summary>
     public ImageUrl GetImageUrl(ImageFormat format) => ImageUrl.CustomEmoji(Id, format);
 
-    public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
+    public override string ToString() => ToString(null, null);
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+    public string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        return string.Create(formatProvider, Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>");
+    }
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
     {
-        var name = Name;
-        if (Animated)
-        {
-            if (destination.Length < 6 + name.Length || !Id.TryFormat(destination[(4 + name.Length)..^1], out int length))
-            {
-                charsWritten = 0;
-                return false;
-            }
-
-            "<a:".CopyTo(destination);
-            name.CopyTo(destination[3..]);
-            destination[3 + name.Length] = ':';
-            destination[4 + name.Length + length] = '>';
-            charsWritten = 5 + name.Length + length;
-            return true;
-        }
-        else
-        {
-            if (destination.Length < 5 + name.Length || !Id.TryFormat(destination[(3 + name.Length)..^1], out int length))
-            {
-                charsWritten = 0;
-                return false;
-            }
-
-            "<:".CopyTo(destination);
-            name.CopyTo(destination[2..]);
-            destination[2 + name.Length] = ':';
-            destination[3 + name.Length + length] = '>';
-            charsWritten = 4 + name.Length + length;
-            return true;
-        }
+        return Animated 
+            ? destination.TryWrite(provider, $"<a:{Name}:{Id}>", out charsWritten)
+            : destination.TryWrite(provider, $"<:{Name}:{Id}>", out charsWritten);
     }
 }

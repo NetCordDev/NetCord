@@ -10,10 +10,10 @@ public class StandardSticker(JsonModels.JsonSticker jsonModel) : Sticker(jsonMod
     /// <summary>
     /// The ID of the sticker's parent <see cref="StickerPack"/>.
     /// </summary>
-    public ulong PackId => _jsonModel.PackId.GetValueOrDefault();
+    public ulong PackId => jsonModel.PackId ?? 0;
 
     /// <summary>
     /// The sticker's sort value within its parent <see cref="StickerPack"/>.
     /// </summary>
-    public int? SortValue => _jsonModel.SortValue;
+    public int? SortValue => jsonModel.SortValue;
 }

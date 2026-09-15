@@ -2,21 +2,20 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class AutoModerationAction : IJsonModel<JsonAutoModerationAction>
+/// <summary>
+/// Represents an action that is executed when an auto moderation rule is triggered.
+/// </summary>
+public class AutoModerationAction(JsonAutoModerationAction jsonModel) : IJsonModel<JsonAutoModerationAction>
 {
-    JsonAutoModerationAction IJsonModel<JsonAutoModerationAction>.JsonModel => _jsonModel;
-    private readonly JsonAutoModerationAction _jsonModel;
+    JsonAutoModerationAction IJsonModel<JsonAutoModerationAction>.JsonModel => jsonModel;
 
-    public AutoModerationAction(JsonAutoModerationAction jsonModel)
-    {
-        _jsonModel = jsonModel;
+    /// <summary>
+    /// The type of action to be executed.
+    /// </summary>
+    public AutoModerationActionType Type => jsonModel.Type;
 
-        var metadata = jsonModel.Metadata;
-        if (metadata is not null)
-            Metadata = new(metadata);
-    }
-
-    public AutoModerationActionType Type => _jsonModel.Type;
-
-    public AutoModerationActionMetadata? Metadata { get; }
+    /// <summary>
+    /// Additional metadata needed for specific action types, or <see langword="null"/> if none is required.
+    /// </summary>
+    public AutoModerationActionMetadata? Metadata { get; } = jsonModel.Metadata is { } metadata ? new(metadata) : null;
 }

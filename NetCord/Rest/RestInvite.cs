@@ -1,84 +1,112 @@
+using NetCord.JsonModels;
+
 namespace NetCord.Rest;
 
-public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
+/// <summary>
+/// Represents a REST invite.
+/// </summary>
+public partial class RestInvite(JsonRestInvite jsonModel, RestClient client) : IInvite, IJsonModel<JsonRestInvite>
 {
-    JsonModels.JsonRestInvite IJsonModel<JsonModels.JsonRestInvite>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonRestInvite _jsonModel;
+    JsonRestInvite IJsonModel<JsonRestInvite>.JsonModel => jsonModel;
 
-    private readonly RestClient _client;
+    /// <summary>
+    /// The type of the invite.
+    /// </summary>
+    public InviteType Type => jsonModel.Type;
 
-    public InviteType Type => _jsonModel.Type;
+    /// <summary>
+    /// The invite code.
+    /// </summary>
+    public string Code => jsonModel.Code;
 
-    public string Code => _jsonModel.Code;
+    /// <summary>
+    /// The guild this invite is for.
+    /// </summary>
+    public RestGuild? Guild { get; } = jsonModel.Guild is { } guild ? new(guild, client) : null;
 
-    public RestGuild? Guild { get; }
+    /// <summary>
+    /// The channel this invite is for.
+    /// </summary>
+    public Channel? Channel { get; } = jsonModel.Channel is { } channel ? Channel.CreateFromJson(channel, client) : null;
 
-    public Channel? Channel { get; }
+    /// <summary>
+    /// The user who created the invite.
+    /// </summary>
+    public User? Inviter { get; } = jsonModel.Inviter is { } inviter ? new(inviter, client) : null;
 
-    public User? Inviter { get; }
+    /// <summary>
+    /// The type of target for this voice channel invite.
+    /// </summary>
+    public InviteTargetType? TargetType => jsonModel.TargetType;
 
-    public InviteTargetType? TargetType => _jsonModel.TargetType;
+    /// <summary>
+    /// The user target for this invite.
+    /// </summary>
+    public User? TargetUser { get; } = jsonModel.TargetUser is { } targetUser ? new(targetUser, client) : null;
 
-    public User? TargetUser { get; }
+    /// <summary>
+    /// The application target for this invite.
+    /// </summary>
+    public Application? TargetApplication { get; } = jsonModel.TargetApplication is { } targetApplication ? new(targetApplication, client) : null;
 
-    public Application? TargetApplication { get; }
+    /// <summary>
+    /// Approximate count of online members.
+    /// </summary>
+    public int? ApproximatePresenceCount => jsonModel.ApproximatePresenceCount;
 
-    public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
+    /// <summary>
+    /// Approximate count of total members.
+    /// </summary>
+    public int? ApproximateUserCount => jsonModel.ApproximateUserCount;
 
-    public int? ApproximateUserCount => _jsonModel.ApproximateUserCount;
+    /// <summary>
+    /// The expiration date of this invite.
+    /// </summary>
+    public DateTimeOffset? ExpiresAt => jsonModel.ExpiresAt;
 
-    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
+    /// <summary>
+    /// Guild scheduled event data.
+    /// </summary>
+    public GuildScheduledEvent? GuildScheduledEvent { get; } = jsonModel.GuildScheduledEvent is { } guildScheduledEvent ? new(guildScheduledEvent, client) : null;
 
-    public GuildScheduledEvent? GuildScheduledEvent { get; }
+    /// <summary>
+    /// Flags for the invite.
+    /// </summary>
+    public InviteFlags? Flags => jsonModel.Flags;
 
-    public InviteFlags? Flags => _jsonModel.Flags;
-
-    public IReadOnlyList<Role>? Roles { get; }
+    /// <summary>
+    /// Roles of the partial guild for this invite.
+    /// </summary>
+    public IReadOnlyList<Role>? Roles { get; } = jsonModel.Guild is { } guildJson && jsonModel.Roles is { } roles ? roles.Select(role => new Role(role, guildJson.Id, client)).ToArray() : null;
 
     // Metadata
-    public int? Uses => _jsonModel.Uses;
 
-    public int? MaxUses => _jsonModel.MaxUses;
+    /// <summary>
+    /// Number of times this invite has been used.
+    /// </summary>
+    public int? Uses => jsonModel.Uses;
 
-    public int? MaxAge => _jsonModel.MaxAge;
+    /// <summary>
+    /// Max number of times this invite can be used.
+    /// </summary>
+    public int? MaxUses => jsonModel.MaxUses;
 
-    public bool? Temporary => _jsonModel.Temporary;
+    /// <summary>
+    /// Duration (in seconds) after which the invite expires.
+    /// </summary>
+    public int? MaxAge => jsonModel.MaxAge;
 
-    public DateTimeOffset? CreatedAt => _jsonModel.CreatedAt;
+    /// <summary>
+    /// Whether this invite only grants temporary membership.
+    /// </summary>
+    public bool? Temporary => jsonModel.Temporary;
+
+    /// <summary>
+    /// When this invite was created.
+    /// </summary>
+    public DateTimeOffset? CreatedAt => jsonModel.CreatedAt;
 
     ulong? IInvite.GuildId => Guild?.Id;
 
     ulong? IInvite.ChannelId => Channel?.Id;
-
-    public RestInvite(JsonModels.JsonRestInvite jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        if (jsonModel.Guild is { } guild)
-        {
-            Guild = new(guild, client);
-
-            var guildId = Guild.Id;
-
-            if (jsonModel.Roles is { } roles)
-                Roles = roles.Select(role => new Role(role, guildId, client)).ToArray();
-        }
-
-        if (jsonModel.Channel is { } channel)
-            Channel = Channel.CreateFromJson(channel, client);
-
-        if (jsonModel.Inviter is { } inviter)
-            Inviter = new(inviter, client);
-
-        if (jsonModel.TargetUser is { } targetUser)
-            TargetUser = new(targetUser, client);
-
-        if (jsonModel.TargetApplication is { } targetApplication)
-            TargetApplication = new(targetApplication, client);
-
-        if (jsonModel.GuildScheduledEvent is { } guildScheduledEvent)
-            GuildScheduledEvent = new(guildScheduledEvent, client);
-
-        _client = client;
-    }
 }

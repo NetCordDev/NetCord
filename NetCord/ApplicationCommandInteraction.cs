@@ -1,17 +1,14 @@
-using NetCord.Gateway;
+using NetCord.JsonModels;
 using NetCord.Rest;
 
-namespace NetCord;
+namespace NetCord.Gateway;
 
 /// <summary>
 /// Acts as a base class for application commands, such as slash commands and message commands.
 /// </summary>
-public abstract class ApplicationCommandInteraction : Interaction
+public abstract class ApplicationCommandInteraction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client)
+    : Interaction(jsonModel, guild, sendResponseAsync, client)
 {
-    private protected ApplicationCommandInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
-    {
-    }
-
     /// <summary>
     /// Holds the containing application command's data.
     /// </summary>
@@ -21,25 +18,25 @@ public abstract class ApplicationCommandInteraction : Interaction
 /// <summary>
 /// Contains data for an invoked <see cref="ApplicationCommand"/>.
 /// </summary>
-public class ApplicationCommandInteractionData(JsonModels.JsonInteractionData jsonModel) : InteractionData(jsonModel)
+public class ApplicationCommandInteractionData(JsonInteractionData jsonModel) : InteractionData(jsonModel)
 {
     /// <summary>
     /// The invoked <see cref="ApplicationCommand"/>'s ID.
     /// </summary>
-    public ulong Id => _jsonModel.Id.GetValueOrDefault();
+    public ulong Id => jsonModel.Id.GetValueOrDefault();
 
     /// <summary>
     /// The invoked <see cref="ApplicationCommand"/>'s name.
     /// </summary>
-    public string Name => _jsonModel.Name!;
+    public string Name => jsonModel.Name!;
 
     /// <summary>
     /// The invoked <see cref="ApplicationCommand"/>'s type.
     /// </summary>
-    public ApplicationCommandType Type => _jsonModel.Type.GetValueOrDefault();
+    public ApplicationCommandType Type => jsonModel.Type.GetValueOrDefault();
 
     /// <summary>
     /// The ID of the guild the <see cref="ApplicationCommand"/> is registered to.
     /// </summary>
-    public ulong? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => jsonModel.GuildId;
 }

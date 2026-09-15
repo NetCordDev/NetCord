@@ -2,21 +2,12 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class Collectibles : IJsonModel<JsonCollectibles>
+public class Collectibles(JsonCollectibles jsonModel) : IJsonModel<JsonCollectibles>
 {
-    JsonCollectibles IJsonModel<JsonCollectibles>.JsonModel => _jsonModel;
-    private readonly JsonCollectibles _jsonModel;
-
-    public Collectibles(JsonCollectibles jsonModel)
-    {
-        _jsonModel = jsonModel;
-
-        if (jsonModel.Nameplate is { } nameplate)
-            Nameplate = new(nameplate);
-    }
+    JsonCollectibles IJsonModel<JsonCollectibles>.JsonModel => jsonModel;
 
     /// <summary>
     /// The nameplate the user has.
     /// </summary>
-    public Nameplate? Nameplate { get; }
+    public Nameplate? Nameplate { get; } = jsonModel.Nameplate is { } nameplate ? new(nameplate) : null;
 }

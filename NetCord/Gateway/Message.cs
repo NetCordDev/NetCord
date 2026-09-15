@@ -44,7 +44,7 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
     }
 
     /// <inheritdoc/>
-    public ulong? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => jsonModel.GuildId;
 
     /// <inheritdoc/>
     public Guild? Guild { get; } = guild;

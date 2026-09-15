@@ -15,7 +15,7 @@ public abstract partial class GuildThread : TextGuildChannel
     /// <summary>
     /// The ID of the thread's creator.
     /// </summary>
-    public ulong OwnerId => _jsonModel.OwnerId.GetValueOrDefault();
+    public ulong OwnerId => jsonModel.OwnerId.GetValueOrDefault();
 
     /// <summary>
     /// The number of messages within the thread, excluding the initial and deleted messages.
@@ -23,12 +23,12 @@ public abstract partial class GuildThread : TextGuildChannel
     /// <remarks>
     /// For threads created before July 1, 2022, the message count is inaccurate when greater than 50.
     /// </remarks>
-    public int MessageCount => _jsonModel.MessageCount.GetValueOrDefault();
+    public int MessageCount => jsonModel.MessageCount.GetValueOrDefault();
 
     /// <summary>
     /// An approximation of the number of users within the thread. Stops counting at 50 users.
     /// </summary>
-    public int UserCount => _jsonModel.UserCount.GetValueOrDefault();
+    public int UserCount => jsonModel.UserCount.GetValueOrDefault();
 
     /// <summary>
     /// Additional metadata for the thread, unnecessary for standard channel operations.
@@ -43,7 +43,7 @@ public abstract partial class GuildThread : TextGuildChannel
     /// <summary>
     /// The total number of messages sent in the thread, including deletions.
     /// </summary>
-    public int TotalMessageSent => _jsonModel.TotalMessageSent.GetValueOrDefault();
+    public int TotalMessageSent => jsonModel.TotalMessageSent.GetValueOrDefault();
 
     protected GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, jsonModel.GuildId.GetValueOrDefault(), client)
     {

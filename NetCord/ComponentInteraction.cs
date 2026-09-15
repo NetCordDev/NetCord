@@ -4,20 +4,24 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class ComponentInteraction : Interaction
+/// <summary>
+/// Acts as a base class for component interactions, such as button clicks and select menu selections.
+/// </summary>
+public abstract class ComponentInteraction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : Interaction(jsonModel, guild, sendResponseAsync, client)
 {
-    private protected ComponentInteraction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
-    {
-    }
-
+    /// <summary>
+    /// Holds the containing component interaction's data.
+    /// </summary>
     public abstract override ComponentInteractionData Data { get; }
 }
 
-public class ComponentInteractionData : InteractionData
+/// <summary>
+/// Contains data for an invoked component interaction.
+/// </summary>
+public class ComponentInteractionData(JsonInteractionData jsonModel) : InteractionData(jsonModel)
 {
-    private protected ComponentInteractionData(JsonInteractionData jsonModel) : base(jsonModel)
-    {
-    }
-
-    public string CustomId => _jsonModel.CustomId!;
+    /// <summary>
+    /// The developer-defined identifier for the component.
+    /// </summary>
+    public string CustomId => jsonModel.CustomId!;
 }

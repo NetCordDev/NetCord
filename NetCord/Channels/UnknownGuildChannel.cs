@@ -7,9 +7,9 @@ internal partial class UnknownGuildChannel(JsonChannel jsonModel, ulong guildId,
 {
     public ulong GuildId { get; } = guildId;
 
-    public int? Position => _jsonModel.Position;
+    public int? Position => jsonModel.Position;
 
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
 
-    public string Name => _jsonModel.Name!;
+    public string Name => jsonModel.Name!;
 }

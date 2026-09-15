@@ -2,57 +2,88 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class Invite : IInvite, IJsonModel<JsonModels.JsonInvite>
+/// <summary>
+/// Represents a Gateway invite object (such as from invite events).
+/// </summary>
+public class Invite(JsonModels.JsonInvite jsonModel, RestClient client) : IInvite, IJsonModel<JsonModels.JsonInvite>
 {
-    JsonModels.JsonInvite IJsonModel<JsonModels.JsonInvite>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonInvite _jsonModel;
+    JsonModels.JsonInvite IJsonModel<JsonModels.JsonInvite>.JsonModel => jsonModel;
 
-    public Invite(JsonModels.JsonInvite jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    /// <summary>
+    /// The type of the invite.
+    /// </summary>
+    public InviteType Type => jsonModel.Type;
 
-        var inviter = jsonModel.Inviter;
-        if (inviter is not null)
-            Inviter = new(inviter, client);
+    /// <summary>
+    /// The channel that the invite points to.
+    /// </summary>
+    public ulong ChannelId => jsonModel.ChannelId;
 
-        var targetUser = jsonModel.TargetUser;
-        if (targetUser is not null)
-            TargetUser = new(targetUser, client);
+    /// <summary>
+    /// The invite code (unique ID).
+    /// </summary>
+    public string Code => jsonModel.Code;
 
-        var targetApplication = jsonModel.TargetApplication;
-        if (targetApplication is not null)
-            TargetApplication = new(targetApplication, client);
-    }
+    /// <summary>
+    /// The time at which the invite was created.
+    /// </summary>
+    public DateTimeOffset CreatedAt => jsonModel.CreatedAt;
 
-    public InviteType Type => _jsonModel.Type;
+    /// <summary>
+    /// The guild that the invite points to.
+    /// </summary>
+    public ulong? GuildId => jsonModel.GuildId;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    /// <summary>
+    /// The user who created the invite.
+    /// </summary>
+    public User? Inviter { get; } = jsonModel.Inviter is { } inviter ? new(inviter, client) : null;
 
-    public string Code => _jsonModel.Code;
+    /// <summary>
+    /// How long the invite is valid for (in seconds).
+    /// </summary>
+    public int MaxAge => jsonModel.MaxAge;
 
-    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
+    /// <summary>
+    /// The maximum number of times the invite can be used.
+    /// </summary>
+    public int MaxUses => jsonModel.MaxUses;
 
-    public ulong? GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The type of target for this voice channel invite.
+    /// </summary>
+    public InviteTargetType? TargetType => jsonModel.TargetType;
 
-    public User? Inviter { get; }
+    /// <summary>
+    /// The user whose stream to display for this voice channel stream invite.
+    /// </summary>
+    public User? TargetUser { get; } = jsonModel.TargetUser is { } targetUser ? new(targetUser, client) : null;
 
-    public int MaxAge => _jsonModel.MaxAge;
-
-    public int MaxUses => _jsonModel.MaxUses;
-
-    public InviteTargetType? TargetType => _jsonModel.TargetType;
-
-    public User? TargetUser { get; }
-
+    /// <summary>
+    /// The embedded application to open for this voice channel embedded application invite.
+    /// </summary>
     public Application? TargetApplication { get; }
+        = jsonModel.TargetApplication is { } targetApplication ? new(targetApplication, client) : null;
 
-    public bool Temporary => _jsonModel.Temporary;
+    /// <summary>
+    /// Whether the invite only grants temporary membership.
+    /// </summary>
+    public bool Temporary => jsonModel.Temporary;
 
-    public int Uses => _jsonModel.Uses;
+    /// <summary>
+    /// How many times the invite has been used.
+    /// </summary>
+    public int Uses => jsonModel.Uses;
 
-    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
+    /// <summary>
+    /// The expiration date of this invite, taking into account <see cref="MaxAge"/>.
+    /// </summary>
+    public DateTimeOffset? ExpiresAt => jsonModel.ExpiresAt;
 
-    public IReadOnlyList<ulong>? RoleIds => _jsonModel.RoleIds;
+    /// <summary>
+    /// The IDs of roles that will be assigned to the user when joining the guild via this invite.
+    /// </summary>
+    public IReadOnlyList<ulong>? RoleIds => jsonModel.RoleIds;
 
     ulong? IInvite.ChannelId => ChannelId;
 

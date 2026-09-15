@@ -10,7 +10,7 @@ public partial class IncomingWebhook(JsonWebhook jsonModel, RestClient client) :
     /// <summary>
     /// The token of the newly created webhook.
     /// </summary>
-    public string Token => _jsonModel.Token!;
+    public string Token => jsonModel.Token!;
 
     /// <summary>
     /// Creates a usable <see cref="WebhookClient"/> from the webhook object directly.

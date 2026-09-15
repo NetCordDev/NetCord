@@ -1,42 +1,38 @@
+using NetCord.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildOnboardingPromptOption : Entity, IJsonModel<JsonModels.JsonGuildOnboardingPromptOption>
+/// <summary>
+/// Represents an option in a guild onboarding prompt.
+/// </summary>
+public class GuildOnboardingPromptOption(JsonGuildOnboardingPromptOption jsonModel, ulong guildId, RestClient client) : Entity, IJsonModel<JsonGuildOnboardingPromptOption>
 {
-    JsonModels.JsonGuildOnboardingPromptOption IJsonModel<JsonModels.JsonGuildOnboardingPromptOption>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildOnboardingPromptOption _jsonModel;
+    JsonGuildOnboardingPromptOption IJsonModel<JsonGuildOnboardingPromptOption>.JsonModel => jsonModel;
 
-    public GuildOnboardingPromptOption(JsonModels.JsonGuildOnboardingPromptOption jsonModel, ulong guildId, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        var emoji = jsonModel.Emoji;
-        if (emoji.Name is not null)
-            Emoji = Emoji.CreateFromJson(emoji, guildId, client);
-    }
-
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
-    /// Ids for channels an user is added to when the option is selected.
+    /// IDs for channels a user is added to when the option is selected.
     /// </summary>
-    public IReadOnlyList<ulong> ChannelIds => _jsonModel.ChannelIds;
+    public IReadOnlyList<ulong> ChannelIds => jsonModel.ChannelIds;
 
     /// <summary>
-    /// Ids for roles assigned to an user when the option is selected.
+    /// IDs for roles assigned to a user when the option is selected.
     /// </summary>
-    public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
+    public IReadOnlyList<ulong> RoleIds => jsonModel.RoleIds;
 
     /// <summary>
     /// Emoji of the option.
     /// </summary>
-    public Emoji? Emoji { get; }
+    public Emoji? Emoji { get; } = jsonModel.Emoji.Name is not null ? Emoji.CreateFromJson(jsonModel.Emoji, guildId, client) : null;
 
     /// <summary>
     /// Title of the option.
     /// </summary>
-    public string Title => _jsonModel.Title;
+    public string Title => jsonModel.Title;
 
     /// <summary>
     /// Description of the option.
     /// </summary>
-    public string? Description => _jsonModel.Description;
+    public string? Description => jsonModel.Description;
 }

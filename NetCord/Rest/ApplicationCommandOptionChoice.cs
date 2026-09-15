@@ -1,51 +1,40 @@
 using System.Text.Json;
 
+using NetCord.JsonModels;
+
 namespace NetCord.Rest;
 
-public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicationCommandOptionChoice>
+/// <summary>
+/// Represents a choice for an application command option.
+/// </summary>
+public class ApplicationCommandOptionChoice(JsonApplicationCommandOptionChoice jsonModel) : IJsonModel<JsonApplicationCommandOptionChoice>
 {
-    JsonModels.JsonApplicationCommandOptionChoice IJsonModel<JsonModels.JsonApplicationCommandOptionChoice>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommandOptionChoice _jsonModel;
+    JsonApplicationCommandOptionChoice IJsonModel<JsonApplicationCommandOptionChoice>.JsonModel => jsonModel;
 
     /// <summary>
     /// Name of the choice (1-100 characters).
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
     /// <summary>
     /// Localizations of <see cref="Name"/> (1-100 characters each).
     /// </summary>
-    public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations => jsonModel.NameLocalizations;
 
     /// <summary>
     /// String value for the choice.
     /// </summary>
-    public string? ValueString { get; }
+    public string? ValueString { get; } = jsonModel.Value.ValueKind is JsonValueKind.String ? jsonModel.Value.GetString()! : null;
 
     /// <summary>
     /// Numeric value for the choice.
     /// </summary>
-    public double? ValueNumeric { get; }
+    public double? ValueNumeric { get; } = jsonModel.Value.ValueKind is not JsonValueKind.String ? jsonModel.Value.GetDouble() : null;
 
     /// <summary>
     /// Type of value of the choice.
     /// </summary>
-    public ApplicationCommandOptionChoiceValueType ValueType { get; }
-
-    public ApplicationCommandOptionChoice(JsonModels.JsonApplicationCommandOptionChoice jsonModel)
-    {
-        _jsonModel = jsonModel;
-
-        var value = jsonModel.Value;
-        if (value.ValueKind is JsonValueKind.String)
-        {
-            ValueString = value.GetString()!;
-            ValueType = ApplicationCommandOptionChoiceValueType.String;
-        }
-        else
-        {
-            ValueNumeric = value.GetDouble();
-            ValueType = ApplicationCommandOptionChoiceValueType.Numeric;
-        }
-    }
+    public ApplicationCommandOptionChoiceValueType ValueType { get; } = jsonModel.Value.ValueKind is JsonValueKind.String
+        ? ApplicationCommandOptionChoiceValueType.String
+        : ApplicationCommandOptionChoiceValueType.Numeric;
 }

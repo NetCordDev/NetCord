@@ -1,32 +1,34 @@
 using NetCord.Gateway;
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract partial class Interaction : ClientEntity, IInteraction
+public abstract partial class Interaction : ClientEntity, IInteraction, IJsonModel<JsonInteraction>
 {
-    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonInteraction _jsonModel;
+    JsonInteraction IJsonModel<JsonInteraction>.JsonModel => _jsonModel;
+    private readonly JsonInteraction _jsonModel;
 
     private readonly InteractionResponseDelegate _sendResponseAsync;
 
-    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : base(client)
+    private protected Interaction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
 
-        var guildId = jsonModel.GuildId;
-        if (guildId.HasValue)
-            User = new GuildInteractionUser(jsonModel.GuildUser!, guildId.GetValueOrDefault(), client);
+        if (jsonModel.GuildId is { } guildId)
+            User = new GuildInteractionUser(jsonModel.GuildUser!, guildId, client);
         else
-            User = new(jsonModel.User!, client);
+            User = new User(jsonModel.User!, client);
 
-        var guildReference = jsonModel.GuildReference;
-        if (guildReference is not null)
-            GuildReference = new(guildReference);
+        if (jsonModel.GuildReference is { } guildReference)
+            GuildReference = new InteractionGuildReference(guildReference);
 
         Guild = guild;
         Channel = TextChannel.CreateFromJson(jsonModel.Channel!, client);
-        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e, client)).ToArray();
+        
+        Entitlements = jsonModel.Entitlements.Length == 0 
+            ? Array.Empty<Entitlement>() 
+            : jsonModel.Entitlements.Select(e => new Entitlement(e, client)).ToArray();
 
         _sendResponseAsync = sendResponseAsync;
     }
@@ -65,51 +67,43 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public abstract InteractionData Data { get; }
 
-    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client)
+    public static Interaction CreateFromJson(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client)
     {
-        return jsonModel.Type switch
+        return (jsonModel.Type, jsonModel.Data?.Type, jsonModel.Data?.ComponentType) switch
         {
-            InteractionType.ApplicationCommand => jsonModel.Data!.Type.GetValueOrDefault() switch
-            {
-                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                ApplicationCommandType.EntryPoint => new EntryPointCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                _ => throw new InvalidOperationException(),
-            },
-            InteractionType.MessageComponent => jsonModel.Data!.ComponentType.GetValueOrDefault() switch
-            {
-                ComponentType.Button => new ButtonInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.UserMenu => new UserMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.RoleMenu => new RoleMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.MentionableMenu => new MentionableMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.ChannelMenu => new ChannelMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                _ => throw new InvalidOperationException(),
-            },
-            InteractionType.Autocomplete => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
-            InteractionType.Modal => new ModalInteraction(jsonModel, guild, sendResponseAsync, client),
-            _ => throw new InvalidOperationException(),
+            (InteractionType.ApplicationCommand, ApplicationCommandType.ChatInput, _) => new SlashCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.ApplicationCommand, ApplicationCommandType.User, _)      => new UserCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.ApplicationCommand, ApplicationCommandType.Message, _)   => new MessageCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.ApplicationCommand, ApplicationCommandType.EntryPoint, _)=> new EntryPointCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+            
+            (InteractionType.MessageComponent, _, ComponentType.Button)        => new ButtonInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.MessageComponent, _, ComponentType.StringMenu)    => new StringMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.MessageComponent, _, ComponentType.UserMenu)      => new UserMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.MessageComponent, _, ComponentType.RoleMenu)      => new RoleMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.MessageComponent, _, ComponentType.MentionableMenu) => new MentionableMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.MessageComponent, _, ComponentType.ChannelMenu)    => new ChannelMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+            
+            (InteractionType.Autocomplete, _, _) => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
+            (InteractionType.Modal, _, _)        => new ModalInteraction(jsonModel, guild, sendResponseAsync, client),
+            
+            _ => throw new InvalidOperationException($"Unknown interaction structure: {jsonModel.Type}")
         };
     }
 
-    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, IGatewayClientCache cache, RestClient client)
+    public static Interaction CreateFromJson(JsonInteraction jsonModel, IGatewayClientCache cache, RestClient client)
     {
-        var guildId = jsonModel.GuildId;
-        var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
-        return CreateFromJson(jsonModel, guild, (interaction, callback, withResponse, properties, cancellationToken) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, callback, withResponse, properties, cancellationToken), client);
+        var guild = jsonModel.GuildId is { } guildId ? cache.Guilds.GetValueOrDefault(guildId) : null;
+        
+        return CreateFromJson(jsonModel, guild, (interaction, callback, withResponse, properties, cancellationToken) => 
+            client.SendInteractionResponseAsync(interaction.Id, interaction.Token, callback, withResponse, properties, cancellationToken), client);
     }
 
-    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
+    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) 
+        => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
 }
 
-public abstract class InteractionData : IJsonModel<JsonModels.JsonInteractionData>
+public abstract class InteractionData(JsonInteractionData jsonModel) : IJsonModel<JsonInteractionData>
 {
-    JsonModels.JsonInteractionData IJsonModel<JsonModels.JsonInteractionData>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonInteractionData _jsonModel;
-
-    private protected InteractionData(JsonModels.JsonInteractionData jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    JsonInteractionData IJsonModel<JsonInteractionData>.JsonModel => _jsonModel;
+    private protected readonly JsonInteractionData _jsonModel = jsonModel;
 }

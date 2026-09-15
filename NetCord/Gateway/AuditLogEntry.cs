@@ -7,60 +7,52 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway;
 
-public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
+/// <summary>
+/// Represents an entry in a guild audit log.
+/// </summary>
+public class AuditLogEntry(JsonAuditLogEntry jsonModel, ulong guildId) : Entity, IJsonModel<JsonAuditLogEntry>
 {
-    JsonAuditLogEntry IJsonModel<JsonAuditLogEntry>.JsonModel => _jsonModel;
-    private protected readonly JsonAuditLogEntry _jsonModel;
+    JsonAuditLogEntry IJsonModel<JsonAuditLogEntry>.JsonModel => jsonModel;
 
-    public AuditLogEntry(JsonAuditLogEntry jsonModel, ulong guildId)
-    {
-        _jsonModel = jsonModel;
-
-        Changes = _jsonModel.Changes.ToDictionaryOrEmpty(c => c.Key, c => new AuditLogChange(c));
-
-        var options = _jsonModel.Options;
-        if (options is not null)
-            Options = new(options);
-
-        GuildId = guildId;
-    }
-
-    public override ulong Id => _jsonModel.Id;
+    /// <summary>
+    /// The ID of the audit log entry.
+    /// </summary>
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// ID of the affected entity.
     /// </summary>
-    public ulong? TargetId => _jsonModel.TargetId;
+    public ulong? TargetId => jsonModel.TargetId;
 
     /// <summary>
     /// Changes made to the <see cref="TargetId"/>.
     /// </summary>
-    public IReadOnlyDictionary<string, AuditLogChange> Changes { get; }
+    public IReadOnlyDictionary<string, AuditLogChange> Changes { get; } = jsonModel.Changes.ToDictionaryOrEmpty(c => c.Key, c => new AuditLogChange(c));
 
     /// <summary>
     /// ID of user that made the changes.
     /// </summary>
-    public ulong? UserId => _jsonModel.UserId;
+    public ulong? UserId => jsonModel.UserId;
 
     /// <summary>
     /// Type of action that occurred.
     /// </summary>
-    public AuditLogEvent ActionType => _jsonModel.ActionType.GetValueOrDefault();
+    public AuditLogEvent ActionType => jsonModel.ActionType.GetValueOrDefault();
 
     /// <summary>
     /// Additional info for certain event types.
     /// </summary>
-    public AuditLogEntryInfo? Options { get; }
+    public AuditLogEntryInfo? Options { get; } = jsonModel.Options is { } options ? new(options) : null;
 
     /// <summary>
     /// Reason for the change (1-512 characters).
     /// </summary>
-    public string? Reason => _jsonModel.Reason;
+    public string? Reason => jsonModel.Reason;
 
     /// <summary>
     /// The ID of the guild this audit log entry belongs to.
     /// </summary>
-    public ulong GuildId { get; }
+    public ulong GuildId { get; } = guildId;
 
     private bool TryGetChangeModel<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [MaybeNullWhen(false)] out JsonAuditLogChange model)
     {
@@ -80,11 +72,11 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <summary>
     /// Tries to find specified change based on <paramref name="expression"/>.
     /// </summary>
-    /// <typeparam name="TObject"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
+    /// <typeparam name="TObject">The object type containing the property.</typeparam>
+    /// <typeparam name="TValue">The property value type.</typeparam>
     /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
     /// <param name="change">The result.</param>
-    /// <returns></returns>
+    /// <returns><see langword="true"/> if the change was found; otherwise, <see langword="false"/>.</returns>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [MaybeNullWhen(false)] out AuditLogChange<TValue> change)
@@ -102,11 +94,11 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <summary>
     /// Finds specified change based on <paramref name="expression"/>.
     /// </summary>
-    /// <typeparam name="TObject"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
+    /// <typeparam name="TObject">The object type containing the property.</typeparam>
+    /// <typeparam name="TValue">The property value type.</typeparam>
     /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
-    /// <returns></returns>
-    /// <exception cref="EntityNotFoundException"></exception>
+    /// <returns>The found <see cref="AuditLogChange{TValue}"/>.</returns>
+    /// <exception cref="EntityNotFoundException"/>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression)
@@ -120,12 +112,12 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <summary>
     /// Tries to find specified change based on <paramref name="expression"/>.
     /// </summary>
-    /// <typeparam name="TObject"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
+    /// <typeparam name="TObject">The object type containing the property.</typeparam>
+    /// <typeparam name="TValue">The property value type.</typeparam>
     /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
     /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
     /// <param name="change">The result.</param>
-    /// <returns></returns>
+    /// <returns><see langword="true"/> if the change was found; otherwise, <see langword="false"/>.</returns>
     public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo, [MaybeNullWhen(false)] out AuditLogChange<TValue> change)
     {
         if (TryGetChangeModel(expression, out var model))
@@ -141,12 +133,12 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <summary>
     /// Finds specified change based on <paramref name="expression"/>.
     /// </summary>
-    /// <typeparam name="TObject"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
+    /// <typeparam name="TObject">The object type containing the property.</typeparam>
+    /// <typeparam name="TValue">The property value type.</typeparam>
     /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
     /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
-    /// <returns></returns>
-    /// <exception cref="EntityNotFoundException"></exception>
+    /// <returns>The found <see cref="AuditLogChange{TValue}"/>.</returns>
+    /// <exception cref="EntityNotFoundException"/>
     public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo)
     {
         if (TryGetChange(expression, jsonTypeInfo, out var value))

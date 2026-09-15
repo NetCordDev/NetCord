@@ -6,11 +6,12 @@ namespace NetCord;
 
 public abstract class MessageComponentInteraction : ComponentInteraction
 {
-    private protected MessageComponentInteraction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
+    private protected MessageComponentInteraction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) 
+        : base(jsonModel, guild, sendResponseAsync, client)
     {
         var message = jsonModel.Message!;
         message.GuildId = jsonModel.GuildId;
-        Message = new(message, guild, Channel, client);
+        Message = new Message(message, guild, Channel, client);
     }
 
     public Message Message { get; }
@@ -18,12 +19,8 @@ public abstract class MessageComponentInteraction : ComponentInteraction
     public abstract override MessageComponentInteractionData Data { get; }
 }
 
-public abstract class MessageComponentInteractionData : ComponentInteractionData
+public abstract class MessageComponentInteractionData(JsonInteractionData jsonModel) : ComponentInteractionData(jsonModel)
 {
-    private protected MessageComponentInteractionData(JsonInteractionData jsonModel) : base(jsonModel)
-    {
-    }
-
     public int Id => (int)_jsonModel.Id.GetValueOrDefault();
 
     public ComponentType ComponentType => _jsonModel.ComponentType.GetValueOrDefault();
