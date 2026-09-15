@@ -1,5 +1,5 @@
 using NetCord.Gateway;
-using NetCord.Rest.JsonModels;
+using NetCord.JsonModels;
 
 namespace NetCord.Rest;
 

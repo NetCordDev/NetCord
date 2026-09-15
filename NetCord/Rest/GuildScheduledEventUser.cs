@@ -8,9 +8,7 @@ namespace NetCord.Rest;
 public class GuildScheduledEventUser : IJsonModel<JsonGuildScheduledEventUser>
 {
     JsonGuildScheduledEventUser IJsonModel<JsonGuildScheduledEventUser>.JsonModel => _jsonModel;
-    
-    // Dodano modyfikator readonly, aby zagwarantować niezmienność referencji modelu
-    private readonly JsonGuildUserScheduledEventUser _jsonModel;
+    private readonly JsonGuildScheduledEventUser _jsonModel;
 
     /// <summary>
     /// The ID of the scheduled event.

@@ -9,10 +9,6 @@ namespace NetCord.Rest;
 public abstract class WebhookEventArgs(JsonWebhookEventArgs jsonModel) : IWebhookEventArgs
 {
     JsonWebhookEventArgs IJsonModel<JsonWebhookEventArgs>.JsonModel => jsonModel;
-    
-    // Pole chronione zostaje, ponieważ klasa pochodna UnknownEventWebhookEventArgs się do niego odwołuje
-    private protected readonly JsonWebhookEventArgs _jsonModel = jsonModel;
-
     public int Version => jsonModel.Version;
 
     public ulong ApplicationId => jsonModel.ApplicationId;
@@ -46,7 +42,6 @@ public class ApplicationAuthorizedWebhookEventArgs : WebhookEventArgs
 
         User = new User(eventData.User, client);
 
-        // Pattern matching eliminujący double reference do guild
         if (eventData.Guild is { } guild)
             Guild = new RestGuild(guild, client);
     }
@@ -90,5 +85,5 @@ public class EntitlementCreateWebhookEventArgs(JsonWebhookEventArgs jsonModel, R
 /// </summary>
 public class UnknownEventWebhookEventArgs(JsonWebhookEventArgs jsonModel) : WebhookEventArgs(jsonModel)
 {
-    public JsonElement Data => _jsonModel.Event!.Data;
+    public JsonElement Data => jsonModel.Event!.Data;
 }
