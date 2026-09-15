@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
- 
+
 public class JsonRole : JsonPartialRole
 {
     [JsonPropertyName("hoist")]

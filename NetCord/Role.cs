@@ -4,7 +4,7 @@ using NetCord.Rest;
 namespace NetCord;
 
 /// <summary>
-/// Represents a full role in a guild.
+/// Represents a role in a guild.
 /// </summary>
 public partial class Role : PartialRole, IJsonModel<JsonRole>
 {
