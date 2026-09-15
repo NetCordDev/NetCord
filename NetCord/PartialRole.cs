@@ -28,7 +28,7 @@ public partial class PartialRole(JsonPartialRole jsonModel, ulong guildId, RestC
     /// <summary>
     /// The role's colors.
     /// </summary>
-    public RoleColors Colors => new(jsonMode.Colors);
+    public RoleColors Colors => new(jsonModel.Colors);
 
     /// <summary>
     /// The raw position of this role.
