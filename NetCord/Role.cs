@@ -6,53 +6,45 @@ namespace NetCord;
 /// <summary>
 /// Represents a role in a guild.
 /// </summary>
-public partial class Role : PartialRole, IJsonModel<JsonRole>
+public partial class Role(JsonRole jsonModel, ulong guildId, RestClient client) 
+    : PartialRole(jsonModel, guildId, client), IJsonModel<JsonRole>
 {
-    JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
-    private readonly JsonRole _jsonModel;
+    JsonRole IJsonModel<JsonRole>.JsonModel => jsonModel;
 
     /// <summary>
     /// The role's ID.
     /// </summary>
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// Whether this role causes users with it to be displayed in a separate section in the guild users list.
     /// </summary>
-    public bool Hoist => _jsonModel.Hoist;
+    public bool Hoist => jsonModel.Hoist;
 
     /// <summary>
     /// The permission bit set for this role.
     /// </summary>
-    public Permissions Permissions => _jsonModel.Permissions;
+    public Permissions Permissions => jsonModel.Permissions;
 
     /// <summary>
     /// Whether this role is managed by an integration.
     /// </summary>
-    public bool Managed => _jsonModel.Managed;
+    public bool Managed => jsonModel.Managed;
 
     /// <summary>
     /// Whether this role is mentionable.
     /// </summary>
-    public bool Mentionable => _jsonModel.Mentionable;
+    public bool Mentionable => jsonModel.Mentionable;
 
     /// <summary>
     /// The tags this role has.
     /// </summary>
-    public RoleTags? Tags { get; }
+    public RoleTags? Tags { get; } = jsonModel.Tags is { } tags ? new(tags) : null;
 
     /// <summary>
     /// The role's flags combined as a bitfield.
     /// </summary>
-    public RoleFlags Flags => _jsonModel.Flags;
-
-    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(jsonModel, guildId, client)
-    {
-        _jsonModel = jsonModel;
-
-        if (jsonModel.Tags is { } tags)
-            Tags = new(tags);
-    }
+    public RoleFlags Flags => jsonModel.Flags;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the role's icon.
@@ -60,10 +52,6 @@ public partial class Role : PartialRole, IJsonModel<JsonRole>
     /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the role's icon. If the role does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetIconUrl(ImageFormat format) => IconHash is string hash ? ImageUrl.RoleIcon(Id, hash, format) : null;
-
-    public override string ToString() => $"<@&{Id}>";
-
-    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatRole(destination, out charsWritten, Id);
 }
 
 /// <summary>
