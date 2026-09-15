@@ -11,25 +11,24 @@ namespace NetCord;
 /// <remarks>
 /// Useful for <see cref="Rest.RestInvite"/>.
 /// </remarks>
-public partial class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
+public partial class PartialRole(JsonPartialRole jsonModel, ulong guildId, RestClient client) : ClientEntity(client), IJsonModel<JsonPartialRole>
 {
-    JsonPartialRole IJsonModel<JsonPartialRole>.JsonModel => _jsonModel;
-    private readonly JsonPartialRole _jsonModel;
+    JsonPartialRole IJsonModel<JsonPartialRole>.JsonModel => jsonModel;
 
     /// <summary>
     /// The role's ID.
     /// </summary>
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// The name of the role.
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
     /// <summary>
     /// The role's colors.
     /// </summary>
-    public RoleColors Colors { get; }
+    public RoleColors Colors => new(jsonMode.Colors);
 
     /// <summary>
     /// The raw position of this role.
@@ -37,7 +36,7 @@ public partial class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
     /// <remarks>
     /// Use <see cref="Position"/> to get a properly comparable and sortable position value.
     /// </remarks>
-    public int RawPosition => _jsonModel.Position;
+    public int RawPosition => jsonModel.Position;
 
     /// <summary>
     /// The position of this role for sorting and comparing.
@@ -47,26 +46,17 @@ public partial class PartialRole : ClientEntity, IJsonModel<JsonPartialRole>
     /// <summary>
     /// The role's icon hash.
     /// </summary>
-    public string? IconHash => _jsonModel.IconHash;
+    public string? IconHash => jsonModel.IconHash;
 
     /// <summary>
     /// The role's Unicode emoji.
     /// </summary>
-    public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
+    public string? UnicodeEmoji => jsonModel.UnicodeEmoji;
 
     /// <summary>
     /// The ID of the guild this role belongs to.
     /// </summary>
-    public ulong GuildId { get; }
+    public ulong GuildId => guildId;
     
     public override string ToString() => $"<@&{Id}>";
-
-    public PartialRole(JsonPartialRole jsonModel, ulong guildId, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        Colors = new(jsonModel.Colors);
-
-        GuildId = guildId;
-    }
 }
