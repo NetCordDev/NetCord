@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 using NetCord.JsonModels;
 using NetCord.Rest;
 
@@ -11,7 +9,8 @@ namespace NetCord;
 /// <remarks>
 /// Useful for <see cref="Rest.RestInvite"/>.
 /// </remarks>
-public partial class PartialRole(JsonPartialRole jsonModel, ulong guildId, RestClient client) : ClientEntity(client), IJsonModel<JsonPartialRole>
+public partial class PartialRole(JsonPartialRole jsonModel, ulong guildId, RestClient client)
+    : ClientEntity(client), IJsonModel<JsonPartialRole>
 {
     JsonPartialRole IJsonModel<JsonPartialRole>.JsonModel => jsonModel;
 
