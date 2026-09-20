@@ -1,35 +1,65 @@
 namespace NetCord.Gateway;
 
-public class AutoModerationActionExecutionEventArgs : IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>
+/// <summary>
+/// Represents the event arguments for an auto moderation action execution event.
+/// </summary>
+public class AutoModerationActionExecutionEventArgs(JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs jsonModel) 
+    : IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>
 {
-    JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>.JsonModel => jsonModel;
 
-    public AutoModerationActionExecutionEventArgs(JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs jsonModel)
-    {
-        _jsonModel = jsonModel;
-        Action = new(_jsonModel.Action);
-    }
+    /// <summary>
+    /// The ID of the guild where the auto moderation action was executed.
+    /// </summary>
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The specific action that was executed by the auto moderation system.
+    /// </summary>
+    public AutoModerationAction Action { get; } = new(jsonModel.Action);
 
-    public AutoModerationAction Action { get; }
+    /// <summary>
+    /// The ID of the rule that was triggered.
+    /// </summary>
+    public ulong RuleId => jsonModel.RuleId;
 
-    public ulong RuleId => _jsonModel.RuleId;
+    /// <summary>
+    /// The trigger type of the auto moderation rule.
+    /// </summary>
+    public AutoModerationRuleTriggerType RuleTriggerType => jsonModel.RuleTriggerType;
 
-    public AutoModerationRuleTriggerType RuleTriggerType => _jsonModel.RuleTriggerType;
+    /// <summary>
+    /// The ID of the user who triggered the auto moderation rule.
+    /// </summary>
+    public ulong UserId => jsonModel.UserId;
 
-    public ulong UserId => _jsonModel.UserId;
+    /// <summary>
+    /// The ID of the channel where the rule was triggered, if applicable.
+    /// </summary>
+    public ulong? ChannelId => jsonModel.ChannelId;
 
-    public ulong? ChannelId => _jsonModel.ChannelId;
+    /// <summary>
+    /// The ID of the message that triggered the rule, if applicable.
+    /// </summary>
+    public ulong? MessageId => jsonModel.MessageId;
 
-    public ulong? MessageId => _jsonModel.MessageId;
+    /// <summary>
+    /// The ID of the system alert message created by this execution, if applicable.
+    /// </summary>
+    public ulong? AlertSystemMessageId => jsonModel.AlertSystemMessageId;
 
-    public ulong? AlertSystemMessageId => _jsonModel.AlertSystemMessageId;
+    /// <summary>
+    /// The user-generated text content that triggered the rule.
+    /// </summary>
+    public string Content => jsonModel.Content;
 
-    public string Content => _jsonModel.Content;
+    /// <summary>
+    /// The specific keyword that was matched from the rule configuration, if applicable.
+    /// </summary>
+    public string? MatchedKeyword => jsonModel.MatchedKeyword;
 
-    public string? MatchedKeyword => _jsonModel.MatchedKeyword;
-
-    public string? MatchedContent => _jsonModel.MatchedContent;
+    /// <summary>
+    /// The specific substring of text content that matched the rule, if applicable.
+    /// </summary>
+    public string? MatchedContent => jsonModel.MatchedContent;
 }

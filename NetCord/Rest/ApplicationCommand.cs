@@ -1,46 +1,49 @@
 namespace NetCord.Rest;
 
+/// <summary>
+/// Represents an application command (slash command, user command, or message command) within Discord.
+/// </summary>
 public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonApplicationCommand>
 {
-    JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonApplicationCommand _jsonModel = jsonModel;
-
-    public override ulong Id => _jsonModel.Id;
+    JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => jsonModel;
+    
+    /// <inheritdoc />
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// Type of the command.
     /// </summary>
-    public ApplicationCommandType Type => _jsonModel.Type;
+    public ApplicationCommandType Type => jsonModel.Type;
 
     /// <summary>
     /// ID of the parent application.
     /// </summary>
-    public ulong ApplicationId => _jsonModel.ApplicationId;
+    public ulong ApplicationId => jsonModel.ApplicationId;
 
     /// <summary>
     /// Name of the command (1-32 characters).
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
     /// <summary>
     /// Localizations of <see cref="Name"/> (1-32 characters each).
     /// </summary>
-    public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations => jsonModel.NameLocalizations;
 
     /// <summary>
     /// Description of the command (1-100 characters).
     /// </summary>
-    public string Description => _jsonModel.Description;
+    public string Description => jsonModel.Description;
 
     /// <summary>
     /// Localizations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
-    public IReadOnlyDictionary<string, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations => jsonModel.DescriptionLocalizations;
 
     /// <summary>
     /// Default required permissions to use the command.
     /// </summary>
-    public Permissions? DefaultGuildPermissions => _jsonModel.DefaultGuildPermissions;
+    public Permissions? DefaultGuildPermissions => jsonModel.DefaultGuildPermissions;
 
     /// <summary>
     /// Parameters for the command (max 25).
@@ -50,40 +53,27 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// <summary>
     /// Indicates whether the command is age-restricted.
     /// </summary>
-    public bool Nsfw => _jsonModel.Nsfw;
+    public bool Nsfw => jsonModel.Nsfw;
 
     /// <summary>
     /// Installation context(s) where the command is available, only for globally-scoped commands.
     /// </summary>
-    public IReadOnlyList<ApplicationIntegrationType>? IntegrationTypes => _jsonModel.IntegrationTypes;
+    public IReadOnlyList<ApplicationIntegrationType>? IntegrationTypes => jsonModel.IntegrationTypes;
 
     /// <summary>
     /// Interaction context(s) where the command can be used, only for globally-scoped commands.
     /// </summary>
-    public IReadOnlyList<InteractionContextType>? Contexts => _jsonModel.Contexts;
+    public IReadOnlyList<InteractionContextType>? Contexts => jsonModel.Contexts;
 
     /// <summary>
     /// Autoincrementing version identifier updated during substantial record changes.
     /// </summary>
-    public ulong Version => _jsonModel.Version;
+    public ulong Version => jsonModel.Version;
 
-    public override string ToString() => $"</{Name}:{Id}>";
+    public override string ToString() => string.Create(null, $"</{Name}:{Id}>");
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
     {
-        var requiredLength = 5 + Name.Length;
-        if (destination.Length < requiredLength || !Id.TryFormat(destination[(3 + Name.Length)..^1], out int length))
-        {
-            charsWritten = 0;
-            return false;
-        }
-
-        "</".CopyTo(destination);
-        Name.CopyTo(destination[2..]);
-        destination[2 + Name.Length] = ':';
-        destination[3 + Name.Length + length] = '>';
-
-        charsWritten = 4 + Name.Length + length;
-        return true;
+        return destination.TryWrite(provider, $"</{Name}:{Id}>", out charsWritten);
     }
 }

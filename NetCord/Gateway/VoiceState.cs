@@ -2,45 +2,75 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class VoiceState : IJsonModel<JsonModels.JsonVoiceState>
+/// <summary>
+/// Represents a user's voice connection state.
+/// </summary>
+public class VoiceState(JsonModels.JsonVoiceState jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonModels.JsonVoiceState>
 {
-    JsonModels.JsonVoiceState IJsonModel<JsonModels.JsonVoiceState>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonVoiceState _jsonModel;
+    JsonModels.JsonVoiceState IJsonModel<JsonModels.JsonVoiceState>.JsonModel => jsonModel;
 
-    public VoiceState(JsonModels.JsonVoiceState jsonModel, ulong guildId, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    /// <summary>
+    /// The ID of the guild this voice state is associated with.
+    /// </summary>
+    public ulong GuildId { get; } = guildId;
 
-        GuildId = guildId;
+    /// <summary>
+    /// The ID of the channel the user is connected to, or <see langword="null"/> if disconnected.
+    /// </summary>
+    public ulong? ChannelId => jsonModel.ChannelId;
 
-        var user = jsonModel.User;
-        if (user is not null)
-            User = new(user, _jsonModel.GuildId.GetValueOrDefault(), client);
-    }
+    /// <summary>
+    /// The ID of the user this voice state is for.
+    /// </summary>
+    public ulong UserId => jsonModel.UserId;
 
-    public ulong GuildId { get; }
+    /// <summary>
+    /// The guild member this voice state is for.
+    /// </summary>
+    public GuildUser? User { get; } = jsonModel.User is { } user ? new(user, jsonModel.GuildId.GetValueOrDefault(), client) : null;
 
-    public ulong? ChannelId => _jsonModel.ChannelId;
+    /// <summary>
+    /// The session ID for this voice state.
+    /// </summary>
+    public string SessionId => jsonModel.SessionId;
 
-    public ulong UserId => _jsonModel.UserId;
+    /// <summary>
+    /// Whether this user is deafened by the server.
+    /// </summary>
+    public bool IsDeafened => jsonModel.IsDeafened;
 
-    public GuildUser? User { get; }
+    /// <summary>
+    /// Whether this user is muted by the server.
+    /// </summary>
+    public bool IsMuted => jsonModel.IsMuted;
 
-    public string SessionId => _jsonModel.SessionId;
+    /// <summary>
+    /// Whether this user is locally deafened.
+    /// </summary>
+    public bool IsSelfDeafened => jsonModel.IsSelfDeafened;
 
-    public bool IsDeafened => _jsonModel.IsDeafened;
+    /// <summary>
+    /// Whether this user is locally muted.
+    /// </summary>
+    public bool IsSelfMuted => jsonModel.IsSelfMuted;
 
-    public bool IsMuted => _jsonModel.IsMuted;
+    /// <summary>
+    /// Whether this user is streaming using "Go Live".
+    /// </summary>
+    public bool? SelfStreamExists => jsonModel.SelfStreamExists;
 
-    public bool IsSelfDeafened => _jsonModel.IsSelfDeafened;
+    /// <summary>
+    /// Whether this user's camera is enabled.
+    /// </summary>
+    public bool SelfVideoExists => jsonModel.SelfVideoExists;
 
-    public bool IsSelfMuted => _jsonModel.IsSelfMuted;
+    /// <summary>
+    /// Whether this user is muted by the current user (suppressed).
+    /// </summary>
+    public bool Suppressed => jsonModel.Suppressed;
 
-    public bool? SelfStreamExists => _jsonModel.SelfStreamExists;
-
-    public bool SelfVideoExists => _jsonModel.SelfVideoExists;
-
-    public bool Suppressed => _jsonModel.Suppressed;
-
-    public DateTimeOffset? RequestToSpeakTimestamp => _jsonModel.RequestToSpeakTimestamp;
+    /// <summary>
+    /// The time at which the user requested to speak in a Stage channel.
+    /// </summary>
+    public DateTimeOffset? RequestToSpeakTimestamp => jsonModel.RequestToSpeakTimestamp;
 }

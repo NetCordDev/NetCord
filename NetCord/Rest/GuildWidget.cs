@@ -1,25 +1,38 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildWidget : Entity
+/// <summary>
+/// Represents a guild widget.
+/// </summary>
+public class GuildWidget(JsonGuildWidget jsonModel, RestClient client) : Entity, IJsonModel<JsonGuildWidget>
 {
-    private readonly JsonModels.JsonGuildWidget _jsonModel;
+    JsonGuildWidget IJsonModel<JsonGuildWidget>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
-    public string Name => _jsonModel.Name;
+    /// <summary>
+    /// The name of the guild.
+    /// </summary>
+    public string Name => jsonModel.Name;
 
-    public string? InstantInvite => _jsonModel.InstantInvite;
+    /// <summary>
+    /// The instant invite code for the guild.
+    /// </summary>
+    public string? InstantInvite => jsonModel.InstantInvite;
 
-    public IReadOnlyDictionary<ulong, GuildWidgetChannel> Channels { get; }
+    /// <summary>
+    /// The channels in the guild widget.
+    /// </summary>
+    public IReadOnlyDictionary<ulong, GuildWidgetChannel> Channels { get; } = jsonModel.Channels.ToDictionary(c => c.Id, c => new GuildWidgetChannel(c));
 
-    public IReadOnlyDictionary<ulong, User> Users { get; }
+    /// <summary>
+    /// The online users in the guild widget.
+    /// </summary>
+    public IReadOnlyDictionary<ulong, User> Users { get; } = jsonModel.Users.ToDictionary(u => u.Id, u => new User(u, client));
 
-    public int PresenceCount => _jsonModel.PresenceCount;
-
-    public GuildWidget(JsonModels.JsonGuildWidget jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        Channels = _jsonModel.Channels.ToDictionary(c => c.Id, c => new GuildWidgetChannel(c));
-        Users = _jsonModel.Users.ToDictionary(u => u.Id, u => new User(u, client));
-    }
+    /// <summary>
+    /// The number of online members in the guild widget.
+    /// </summary>
+    public int PresenceCount => jsonModel.PresenceCount;
 }

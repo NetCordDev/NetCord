@@ -10,20 +10,20 @@ public class ImageAttachment(JsonModels.JsonAttachment jsonModel) : Attachment(j
     /// <summary>
     /// The height of the attachment in pixels.
     /// </summary>
-    public int Height => _jsonModel.Height.GetValueOrDefault();
+    public int Height => jsonModel.Height.GetValueOrDefault();
 
     /// <summary>
     /// The width of the attachment in pixels.
     /// </summary>
-    public int Width => _jsonModel.Width.GetValueOrDefault();
+    public int Width => jsonModel.Width.GetValueOrDefault();
 
     /// <summary>
     /// The attachment's <see href="https://evanw.github.io/thumbhash/">thumbhash</see> placeholder.
     /// </summary>
-    public string? Placeholder => _jsonModel.Placeholder;
+    public string? Placeholder => jsonModel.Placeholder;
 
     /// <summary>
     /// The <see cref="Placeholder"/>'s version.
     /// </summary>
-    public int PlaceholderVersion => _jsonModel.PlaceholderVersion.GetValueOrDefault();
+    public int PlaceholderVersion => jsonModel.PlaceholderVersion.GetValueOrDefault();
 }

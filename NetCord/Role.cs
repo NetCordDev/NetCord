@@ -6,40 +6,39 @@ namespace NetCord;
 /// <summary>
 /// Represents a role in a guild.
 /// </summary>
-public partial class Role : ClientEntity, IJsonModel<JsonRole>
+public partial class Role(JsonRole jsonModel, ulong guildId, RestClient client) : ClientEntity(client), IJsonModel<JsonRole>
 {
-    JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
-    private readonly JsonRole _jsonModel;
+    JsonRole IJsonModel<JsonRole>.JsonModel => jsonModel;
 
     /// <summary>
     /// The <see cref="Role"/>'s ID.
     /// </summary>
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// The name of the <see cref="Role"/>.
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
     /// <summary>
     /// The <see cref="Role"/>'s colors.
     /// </summary>
-    public RoleColors Colors { get; }
+    public RoleColors Colors { get; } = new(jsonModel.Colors);
 
     /// <summary>
     /// Whether this <see cref="Role"/> causes users with it to be displayed in a separate section in the guild users list.
     /// </summary>
-    public bool Hoist => _jsonModel.Hoist;
+    public bool Hoist => jsonModel.Hoist;
 
     /// <summary>
     /// The <see cref="Role"/>'s icon hash.
     /// </summary>
-    public string? IconHash => _jsonModel.IconHash;
+    public string? IconHash => jsonModel.IconHash;
 
     /// <summary>
     /// The <see cref="Role"/>'s Unicode emoji.
     /// </summary>
-    public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
+    public string? UnicodeEmoji => jsonModel.UnicodeEmoji;
 
     /// <summary>
     /// The raw position of this <see cref="Role"/>.
@@ -47,7 +46,7 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     /// <remarks>
     /// Use <see cref="Position"/> to get a properly comparable and sortable position value.
     /// </remarks>
-    public int RawPosition => _jsonModel.Position;
+    public int RawPosition => jsonModel.Position;
 
     /// <summary>
     /// The position of this <see cref="Role"/> for sorting and comparing.
@@ -57,44 +56,32 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     /// <summary>
     /// The permission bit set for this <see cref="Role"/>.
     /// </summary>
-    public Permissions Permissions => _jsonModel.Permissions;
+    public Permissions Permissions => jsonModel.Permissions;
 
     /// <summary>
     /// Whether this <see cref="Role"/> is managed by an integration.
     /// </summary>
-    public bool Managed => _jsonModel.Managed;
+    public bool Managed => jsonModel.Managed;
 
     /// <summary>
     /// Whether this <see cref="Role"/> is mentionable.
     /// </summary>
-    public bool Mentionable => _jsonModel.Mentionable;
+    public bool Mentionable => jsonModel.Mentionable;
 
     /// <summary>
     /// The tags this <see cref="Role"/> has.
     /// </summary>
-    public RoleTags? Tags { get; }
+    public RoleTags? Tags { get; } = jsonModel.Tags is { } tags ? new(tags) : null;
 
     /// <summary>
     /// The <see cref="Role"/>'s flags combined as a bitfield.
     /// </summary>
-    public RoleFlags Flags => _jsonModel.Flags;
+    public RoleFlags Flags => jsonModel.Flags;
 
     /// <summary>
     /// The ID of the guild this <see cref="Role"/> belongs to.
     /// </summary>
-    public ulong GuildId { get; }
-
-    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        Colors = new(jsonModel.Colors);
-
-        if (jsonModel.Tags is { } tags)
-            Tags = new(tags);
-
-        GuildId = guildId;
-    }
+    public ulong GuildId { get; } = guildId;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the <see cref="Role"/>'s icon.

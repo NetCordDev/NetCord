@@ -1,3 +1,4 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -5,29 +6,20 @@ namespace NetCord;
 /// <summary>
 /// Represents an <see cref="Attachment"/> with properties relevant to stream clips.
 /// </summary>
-public class ClipAttachment : Attachment
+public class ClipAttachment(JsonAttachment jsonModel, RestClient client) : Attachment(jsonModel)
 {
-    public ClipAttachment(JsonModels.JsonAttachment jsonModel, RestClient client) : base(jsonModel)
-    {
-        ClipParticipants = jsonModel.ClipParticipants!.Select(p => new User(p, client)).ToArray();
-
-        var application = jsonModel.Application;
-        if (application is not null)
-            Application = new(application, client);
-    }
-
     /// <summary>
     /// A list of users present in the stream clip.
     /// </summary>
-    public IReadOnlyList<User> ClipParticipants { get; }
+    public IReadOnlyList<User> ClipParticipants { get; } = jsonModel.ClipParticipants!.Select(p => new User(p, client)).ToArray();
 
     /// <summary>
     /// When the clip was created.
     /// </summary>
-    public DateTimeOffset ClipCreatedAt => _jsonModel.ClipCreatedAt.GetValueOrDefault();
+    public DateTimeOffset ClipCreatedAt => jsonModel.ClipCreatedAt.GetValueOrDefault();
 
     /// <summary>
     /// The application in the stream clip, if recognized.
     /// </summary>
-    public Application? Application { get; }
+    public Application? Application { get; } = jsonModel.Application is { } application ? new(application, client) : null;
 }

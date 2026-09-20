@@ -13,5 +13,5 @@ public partial class PublicGuildThread(JsonModels.JsonChannel jsonModel, RestCli
     /// <remarks>
     /// Only available if the thread is within a <see cref="ForumGuildChannel"/> or <see cref="MediaForumGuildChannel"/>.
     /// </remarks>
-    public IReadOnlyList<ulong>? AppliedTags => _jsonModel.AppliedTags;
+    public IReadOnlyList<ulong>? AppliedTags => jsonModel.AppliedTags;
 }

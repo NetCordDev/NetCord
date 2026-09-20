@@ -5,50 +5,37 @@ namespace NetCord;
 /// <summary>
 /// Represents a poll within a message.
 /// </summary>
-public class MessagePoll : IJsonModel<JsonMessagePoll>
+public class MessagePoll(JsonMessagePoll jsonModel) : IJsonModel<JsonMessagePoll>
 {
-    JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => _jsonModel;
-    private readonly JsonMessagePoll _jsonModel;
-
-    public MessagePoll(JsonMessagePoll jsonModel)
-    {
-        _jsonModel = jsonModel;
-
-        Question = new(jsonModel.Question);
-        Answers = jsonModel.Answers.Select(a => new MessagePollAnswer(a)).ToArray();
-
-        var results = jsonModel.Results;
-        if (results is not null)
-            Results = new(results);
-    }
+    JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => jsonModel;
 
     /// <summary>
     /// The question displayed in the poll.
     /// </summary>
-    public MessagePollMedia Question { get; }
+    public MessagePollMedia Question { get; } = new(jsonModel.Question);
 
     /// <summary>
     /// The set of answers available in the poll.
     /// </summary>
-    public IReadOnlyList<MessagePollAnswer> Answers { get; }
+    public IReadOnlyList<MessagePollAnswer> Answers { get; } = jsonModel.Answers.Select(a => new MessagePollAnswer(a)).ToArray();
 
     /// <summary>
     /// A timestamp specifying the poll's expiry date.
     /// </summary>
-    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
+    public DateTimeOffset? ExpiresAt => jsonModel.ExpiresAt;
 
     /// <summary>
     /// Whether a user can submit multiple answers to the poll.
     /// </summary>
-    public bool AllowMultiselect => _jsonModel.AllowMultiselect;
+    public bool AllowMultiselect => jsonModel.AllowMultiselect;
 
     /// <summary>
     /// The poll's displayed layout type.
     /// </summary>
-    public MessagePollLayoutType LayoutType => _jsonModel.LayoutType;
+    public MessagePollLayoutType LayoutType => jsonModel.LayoutType;
 
     /// <summary>
     /// The poll's results.
     /// </summary>
-    public MessagePollResults? Results { get; }
+    public MessagePollResults? Results { get; } = jsonModel.Results is { } results ? new(results) : null;
 }

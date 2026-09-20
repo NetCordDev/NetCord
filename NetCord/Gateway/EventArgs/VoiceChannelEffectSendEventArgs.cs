@@ -3,39 +3,66 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class VoiceChannelEffectSendEventArgs : IJsonModel<JsonVoiceChannelEffectSendEventArgs>
+/// <summary>
+/// Represents event arguments for a voice channel effect send event.
+/// </summary>
+public class VoiceChannelEffectSendEventArgs(JsonVoiceChannelEffectSendEventArgs jsonModel, RestClient client) : IJsonModel<JsonVoiceChannelEffectSendEventArgs>
 {
-    JsonVoiceChannelEffectSendEventArgs IJsonModel<JsonVoiceChannelEffectSendEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonVoiceChannelEffectSendEventArgs _jsonModel;
+    JsonVoiceChannelEffectSendEventArgs IJsonModel<JsonVoiceChannelEffectSendEventArgs>.JsonModel => jsonModel;
 
-    public VoiceChannelEffectSendEventArgs(JsonVoiceChannelEffectSendEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    /// <summary>
+    /// The ID of the voice channel the effect was sent in.
+    /// </summary>
+    public ulong ChannelId => jsonModel.ChannelId;
 
-        var emoji = jsonModel.Emoji;
-        if (emoji is not null)
-            Emoji = Emoji.CreateFromJson(emoji, jsonModel.GuildId, client);
-    }
+    /// <summary>
+    /// The ID of the guild the effect was sent in.
+    /// </summary>
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    /// <summary>
+    /// The ID of the user who sent the effect.
+    /// </summary>
+    public ulong UserId => jsonModel.UserId;
 
-    public ulong GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The emoji sent with the effect.
+    /// </summary>
+    public Emoji? Emoji { get; } = jsonModel.Emoji is { } emoji ? Emoji.CreateFromJson(emoji, jsonModel.GuildId, client) : null;
 
-    public ulong UserId => _jsonModel.UserId;
+    /// <summary>
+    /// The type of animation for the effect.
+    /// </summary>
+    public VoiceChannelEffectSendAnimationType? AnimationType => jsonModel.AnimationType;
 
-    public Emoji? Emoji { get; }
+    /// <summary>
+    /// The ID of the animation for the effect.
+    /// </summary>
+    public ulong? AnimationId => jsonModel.AnimationId;
 
-    public VoiceChannelEffectSendAnimationType? AnimationType => _jsonModel.AnimationType;
+    /// <summary>
+    /// The ID of the soundboard sound played with the effect.
+    /// </summary>
+    public ulong? SoundId => jsonModel.SoundId;
 
-    public ulong? AnimationId => _jsonModel.AnimationId;
-
-    public ulong? SoundId => _jsonModel.SoundId;
-
-    public double? SoundVolume => _jsonModel.SoundVolume;
+    /// <summary>
+    /// The volume of the sound associated with the effect (from 0 to 1).
+    /// </summary>
+    public double? SoundVolume => jsonModel.SoundVolume;
 }
 
+/// <summary>
+/// Represents the animation type of a voice channel effect.
+/// </summary>
 public enum VoiceChannelEffectSendAnimationType : byte
 {
+    /// <summary>
+    /// A premium animation.
+    /// </summary>
     Premium = 0,
+
+    /// <summary>
+    /// A basic animation.
+    /// </summary>
     Basic = 1,
 }

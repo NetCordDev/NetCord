@@ -1,60 +1,113 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
+/// <summary>
+/// Represents a guild scheduled event.
+/// </summary>
+public partial class GuildScheduledEvent(JsonGuildScheduledEvent jsonModel, RestClient client) 
+    : ClientEntity(client), IJsonModel<JsonGuildScheduledEvent>
 {
-    JsonModels.JsonGuildScheduledEvent IJsonModel<JsonModels.JsonGuildScheduledEvent>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildScheduledEvent _jsonModel;
+    JsonGuildScheduledEvent IJsonModel<JsonGuildScheduledEvent>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    /// <summary>
+    /// The ID of the scheduled event.
+    /// </summary>
+    public override ulong Id => jsonModel.Id;
 
-    public ulong GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The ID of the guild which the scheduled event belongs to.
+    /// </summary>
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong? ChannelId => _jsonModel.ChannelId;
+    /// <summary>
+    /// The ID of the channel in which the scheduled event will be hosted, or <see langword="null"/> if it is an external event.
+    /// </summary>
+    public ulong? ChannelId => jsonModel.ChannelId;
 
-    public ulong? CreatorId => _jsonModel.CreatorId;
+    /// <summary>
+    /// The ID of the user that created the scheduled event.
+    /// </summary>
+    public ulong? CreatorId => jsonModel.CreatorId;
 
-    public string Name => _jsonModel.Name;
+    /// <summary>
+    /// The name of the scheduled event.
+    /// </summary>
+    public string Name => jsonModel.Name;
 
-    public string? Description => _jsonModel.Description;
+    /// <summary>
+    /// The description of the scheduled event.
+    /// </summary>
+    public string? Description => jsonModel.Description;
 
-    public DateTimeOffset ScheduledStartTime => _jsonModel.ScheduledStartTime;
+    /// <summary>
+    /// The time the scheduled event will start.
+    /// </summary>
+    public DateTimeOffset ScheduledStartTime => jsonModel.ScheduledStartTime;
 
-    public DateTimeOffset? ScheduledEndTime => _jsonModel.ScheduledEndTime;
+    /// <summary>
+    /// The time the scheduled event will end, or <see langword="null"/> if not specified.
+    /// </summary>
+    /// <remarks>
+    /// Required for external events (<see cref="GuildScheduledEventEntityType.External"/>).
+    /// </remarks>
+    public DateTimeOffset? ScheduledEndTime => jsonModel.ScheduledEndTime;
 
-    public GuildScheduledEventPrivacyLevel PrivacyLevel => _jsonModel.PrivacyLevel;
+    /// <summary>
+    /// The privacy level of the scheduled event.
+    /// </summary>
+    public GuildScheduledEventPrivacyLevel PrivacyLevel => jsonModel.PrivacyLevel;
 
-    public GuildScheduledEventStatus Status => _jsonModel.Status;
+    /// <summary>
+    /// The status of the scheduled event.
+    /// </summary>
+    public GuildScheduledEventStatus Status => jsonModel.Status;
 
-    public GuildScheduledEventEntityType EntityType => _jsonModel.EntityType;
+    /// <summary>
+    /// The type of the scheduled event (e.g., Voice, Stage, or External).
+    /// </summary>
+    public GuildScheduledEventEntityType EntityType => jsonModel.EntityType;
 
-    public ulong? EntityId => _jsonModel.EntityId;
+    /// <summary>
+    /// The ID of the internal entity associated with the event (e.g., a Stage instance ID).
+    /// </summary>
+    public ulong? EntityId => jsonModel.EntityId;
 
-    public string? Location => _jsonModel.EntityMetadata?.Location;
+    /// <summary>
+    /// The physical or digital location of the event, if it is an external event.
+    /// </summary>
+    public string? Location => jsonModel.EntityMetadata?.Location;
 
-    public User? Creator { get; }
+    /// <summary>
+    /// The user that created the scheduled event, if available.
+    /// </summary>
+    public User? Creator { get; } = jsonModel.Creator is { } creator ? new(creator, client) : null;
 
-    public int? UserCount => _jsonModel.UserCount;
+    /// <summary>
+    /// The number of users subscribed to the scheduled event, if provided.
+    /// </summary>
+    public int? UserCount => jsonModel.UserCount;
 
-    public string? CoverImageHash => _jsonModel.CoverImageHash;
+    /// <summary>
+    /// The cover image hash of the scheduled event, or <see langword="null"/> if not set.
+    /// </summary>
+    public string? CoverImageHash => jsonModel.CoverImageHash;
 
-    public GuildScheduledEventRecurrenceRule? RecurrenceRule { get; }
+    /// <summary>
+    /// The recurrence rule for the scheduled event, defining how it repeats.
+    /// </summary>
+    public GuildScheduledEventRecurrenceRule? RecurrenceRule { get; } = jsonModel.RecurrenceRule is { } recurrenceRule ? new(recurrenceRule) : null;
 
-    public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        var creator = _jsonModel.Creator;
-        if (creator is not null)
-            Creator = new(creator, client);
-
-        var recurrenceRule = _jsonModel.RecurrenceRule;
-        if (recurrenceRule is not null)
-            RecurrenceRule = new(recurrenceRule);
-    }
-
+    /// <summary>
+    /// Gets a value indicating whether the scheduled event has a cover image set.
+    /// </summary>
     public bool HasCoverImage => CoverImageHash is not null;
 
-    public ImageUrl? GetCoverImageUrl(ImageFormat format) => _jsonModel.CoverImageHash is string hash ? ImageUrl.GuildScheduledEventCover(Id, hash, format) : null;
+    /// <summary>
+    /// Gets the <see cref="ImageUrl"/> of the scheduled event's cover image.
+    /// </summary>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
+    /// <returns>An <see cref="ImageUrl"/> pointing to the cover image, or <see langword="null"/> if the event does not have one.</returns>
+    public ImageUrl? GetCoverImageUrl(ImageFormat format) => jsonModel.CoverImageHash is string hash ? ImageUrl.GuildScheduledEventCover(Id, hash, format) : null;
 }

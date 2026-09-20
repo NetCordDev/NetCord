@@ -2,31 +2,50 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>
+/// <summary>
+/// Represents the event arguments for a gateway ready event, containing initial session configuration and data.
+/// </summary>
+public class ReadyEventArgs(JsonModels.EventArgs.JsonReadyEventArgs jsonModel, RestClient client) : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>
 {
-    JsonModels.EventArgs.JsonReadyEventArgs IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonReadyEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonReadyEventArgs IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>.JsonModel => jsonModel;
 
-    public ApiVersion Version => _jsonModel.Version;
+    /// <summary>
+    /// The gateway API version being used.
+    /// </summary>
+    public ApiVersion Version => jsonModel.Version;
 
-    public CurrentUser User { get; }
+    /// <summary>
+    /// Information about the current bot user.
+    /// </summary>
+    public CurrentUser User { get; } = new(jsonModel.User, client);
 
-    public IReadOnlyList<ulong> GuildIds { get; }
+    /// <summary>
+    /// A list of IDs for the guilds that the bot is currently in.
+    /// </summary>
+    public IReadOnlyList<ulong> GuildIds { get; } = jsonModel.Guilds.Select(g => g.Id).ToArray();
 
-    public string SessionId => _jsonModel.SessionId;
+    /// <summary>
+    /// The unique session identifier used for resuming connections.
+    /// </summary>
+    public string SessionId => jsonModel.SessionId;
 
-    public string ResumeGatewayUrl => _jsonModel.ResumeGatewayUrl;
+    /// <summary>
+    /// The specific gateway URL used for resuming an interrupted session.
+    /// </summary>
+    public string ResumeGatewayUrl => jsonModel.ResumeGatewayUrl;
 
-    public Shard? Shard => _jsonModel.Shard;
+    /// <summary>
+    /// Information about the current gateway shard, if applicable.
+    /// </summary>
+    public Shard? Shard => jsonModel.Shard;
 
-    public ulong ApplicationId => _jsonModel.Application.Id;
+    /// <summary>
+    /// The unique identifier of the bot application.
+    /// </summary>
+    public ulong ApplicationId => jsonModel.Application.Id;
 
-    public ApplicationFlags ApplicationFlags => _jsonModel.Application.Flags.GetValueOrDefault();
-
-    public ReadyEventArgs(JsonModels.EventArgs.JsonReadyEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        User = new(jsonModel.User, client);
-        GuildIds = _jsonModel.Guilds.Select(g => g.Id).ToArray();
-    }
+    /// <summary>
+    /// The configuration and capability flags applied to the bot application.
+    /// </summary>
+    public ApplicationFlags ApplicationFlags => jsonModel.Application.Flags.GetValueOrDefault();
 }

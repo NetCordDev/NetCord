@@ -3,25 +3,25 @@ namespace NetCord;
 /// <summary>
 /// Represents a sticker within Discord.
 /// </summary>
-public abstract class Sticker : Entity, IJsonModel<JsonModels.JsonSticker>
+public abstract class Sticker(JsonModels.JsonSticker jsonModel) : Entity, IJsonModel<JsonModels.JsonSticker>
 {
-    JsonModels.JsonSticker IJsonModel<JsonModels.JsonSticker>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonSticker _jsonModel;
+    /// <inheritdoc />
+    JsonModels.JsonSticker IJsonModel<JsonModels.JsonSticker>.JsonModel => jsonModel;
 
     /// <summary>
     /// The sticker's unique ID.
     /// </summary>
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// The sticker's name.
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
     /// <summary>
     /// The sticker's description.
     /// </summary>
-    public string Description => _jsonModel.Description;
+    public string Description => jsonModel.Description;
 
     /// <summary>
     /// A list of sticker tags, used for autocomplete/suggestions.
@@ -29,18 +29,12 @@ public abstract class Sticker : Entity, IJsonModel<JsonModels.JsonSticker>
     /// <remarks>
     /// The total character count for all entries cannot exceed 200.
     /// </remarks>
-    public IReadOnlyList<string> Tags { get; }
+    public IReadOnlyList<string> Tags { get; } = jsonModel.Tags.Split(',');
 
     /// <summary>
     /// The sticker's image format.
     /// </summary>
-    public StickerFormat Format => _jsonModel.Format;
-
-    private protected Sticker(JsonModels.JsonSticker jsonModel)
-    {
-        _jsonModel = jsonModel;
-        Tags = _jsonModel.Tags.Split(',');
-    }
+    public StickerFormat Format => jsonModel.Format;
 
     /// <inheritdoc cref="ImageUrl.Sticker" />
     public ImageUrl GetImageUrl(ImageFormat format) => ImageUrl.Sticker(Id, Format, format);

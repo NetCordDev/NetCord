@@ -6,26 +6,19 @@ namespace NetCord;
 /// <summary>
 /// Represents a base Discord emoji.
 /// </summary>
-public class Emoji : IJsonModel<JsonEmoji>
+public class Emoji(JsonEmoji jsonModel) : IJsonModel<JsonEmoji>
 {
-    JsonEmoji IJsonModel<JsonEmoji>.JsonModel => _jsonModel;
-
-    private protected readonly JsonEmoji _jsonModel;
+    JsonEmoji IJsonModel<JsonEmoji>.JsonModel => jsonModel;
 
     /// <summary>
     /// The emoji's name.
     /// </summary>
-    public string Name => _jsonModel.Name!;
+    public string Name => jsonModel.Name!;
 
     /// <summary>
     /// Whether the emoji is animated.
     /// </summary>
-    public bool Animated => _jsonModel.Animated;
-
-    private protected Emoji(JsonEmoji jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public bool Animated => jsonModel.Animated;
 
     public override string ToString() => Name;
 

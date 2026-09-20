@@ -1,30 +1,37 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public class IntegrationApplication : Entity, IJsonModel<JsonModels.JsonIntegrationApplication>
+/// <summary>
+/// Represents an application for a guild integration.
+/// </summary>
+public class IntegrationApplication(JsonIntegrationApplication jsonModel, RestClient client) : Entity, IJsonModel<JsonIntegrationApplication>
 {
-    JsonModels.JsonIntegrationApplication IJsonModel<JsonModels.JsonIntegrationApplication>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonIntegrationApplication _jsonModel;
+    JsonIntegrationApplication IJsonModel<JsonIntegrationApplication>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    /// <summary>
+    /// The unique identifier of the application.
+    /// </summary>
+    public override ulong Id => jsonModel.Id;
 
-    public string Name => _jsonModel.Name;
+    /// <summary>
+    /// The name of the application.
+    /// </summary>
+    public string Name => jsonModel.Name;
 
-    public string? IconHash => _jsonModel.IconHash;
+    /// <summary>
+    /// The icon hash of the application.
+    /// </summary>
+    public string? IconHash => jsonModel.IconHash;
 
-    public string Description => _jsonModel.Description;
+    /// <summary>
+    /// The description of the application.
+    /// </summary>
+    public string Description => jsonModel.Description;
 
-    public string Summary => _jsonModel.Summary;
-
-    public User? Bot { get; }
-
-    public IntegrationApplication(JsonModels.JsonIntegrationApplication jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        var bot = _jsonModel.Bot;
-        if (bot is not null)
-            Bot = new(bot, client);
-    }
+    /// <summary>
+    /// The bot user associated with this application.
+    /// </summary>
+    public User? Bot { get; } = jsonModel.Bot is { } bot ? new(bot, client) : null;
 }

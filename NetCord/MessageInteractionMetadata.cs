@@ -3,51 +3,45 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class MessageInteractionMetadata : Entity, IJsonModel<JsonMessageInteractionMetadata>
+/// <summary>
+/// Represents metadata about an interaction associated with a message.
+/// </summary>
+public class MessageInteractionMetadata(JsonMessageInteractionMetadata jsonModel, RestClient client) : Entity, IJsonModel<JsonMessageInteractionMetadata>
 {
-    private readonly JsonMessageInteractionMetadata _jsonModel;
-    JsonMessageInteractionMetadata IJsonModel<JsonMessageInteractionMetadata>.JsonModel => _jsonModel;
+    JsonMessageInteractionMetadata IJsonModel<JsonMessageInteractionMetadata>.JsonModel => jsonModel;
 
-    public MessageInteractionMetadata(JsonMessageInteractionMetadata jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        User = new(jsonModel.User, client);
-
-        var triggeringInteractionMetadata = jsonModel.TriggeringInteractionMetadata;
-        if (triggeringInteractionMetadata is not null)
-            TriggeringInteractionMetadata = new(triggeringInteractionMetadata, client);
-    }
-
-    public override ulong Id => _jsonModel.Id;
+    /// <summary>
+    /// The unique identifier of the interaction.
+    /// </summary>
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// Type of interaction.
     /// </summary>
-    public InteractionType Type => _jsonModel.Type;
+    public InteractionType Type => jsonModel.Type;
 
     /// <summary>
     /// The user who triggered the interaction.
     /// </summary>
-    public User User { get; }
+    public User User { get; } = new(jsonModel.User, client);
 
     /// <summary>
     /// IDs for installation context(s) related to an interaction.
     /// </summary>
-    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _jsonModel.AuthorizingIntegrationOwners;
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => jsonModel.AuthorizingIntegrationOwners;
 
     /// <summary>
     /// ID of the original response message, present only on follow-up messages.
     /// </summary>
-    public ulong? OriginalResponseMessageId => _jsonModel.OriginalResponseMessageId;
+    public ulong? OriginalResponseMessageId => jsonModel.OriginalResponseMessageId;
 
     /// <summary>
     /// ID of the message that contained interactive component, present only on messages created from component interactions.
     /// </summary>
-    public ulong? InteractedMessageId => _jsonModel.InteractedMessageId;
+    public ulong? InteractedMessageId => jsonModel.InteractedMessageId;
 
     /// <summary>
     /// Metadata for the interaction that was used to open the modal, present only on modal interactions.
     /// </summary>
-    public MessageInteractionMetadata? TriggeringInteractionMetadata { get; }
+    public MessageInteractionMetadata? TriggeringInteractionMetadata { get; } = jsonModel.TriggeringInteractionMetadata is { } triggeringInteractionMetadata ? new(triggeringInteractionMetadata, client) : null;
 }

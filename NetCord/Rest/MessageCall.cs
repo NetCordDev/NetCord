@@ -5,7 +5,6 @@ namespace NetCord.Rest;
 /// <summary>
 /// Represents a call in a private channel.
 /// </summary>
-/// <param name="jsonModel"></param>
 public class MessageCall(JsonMessageCall jsonModel) : IJsonModel<JsonMessageCall>
 {
     JsonMessageCall IJsonModel<JsonMessageCall>.JsonModel => jsonModel;
