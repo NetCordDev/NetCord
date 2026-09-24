@@ -16,7 +16,12 @@ public static class PartialGuildUserExtensions
     public static IEnumerable<Role> GetRoles(this PartialGuildUser user, RestGuild guild)
     {
         var roles = guild.Roles;
-        return user.RoleIds.Select(r => roles[r]);
+
+        foreach (var roleId in user.RoleIds)
+        {
+            if (roles.TryGetValue(roleId, out var role))
+                yield return role;
+        }
     }
 
     /// <summary>
