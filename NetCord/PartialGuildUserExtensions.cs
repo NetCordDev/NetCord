@@ -11,6 +11,9 @@ public static class PartialGuildUserExtensions
     /// <summary>
     /// Returns an <see cref="IEnumerable{Role}"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
+    /// <remarks>
+    /// IDs of roles that do not exist in the <see cref="RestGuild"/> will be ignored.
+    /// </remarks>
     /// <param name="user">The <see cref="PartialGuildUser"/> to acquire roles for.</param>
     /// <param name="guild">The <see cref="RestGuild"/> to acquire the roles from.</param>
     public static IEnumerable<Role> GetRoles(this PartialGuildUser user, RestGuild guild)

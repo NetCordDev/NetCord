@@ -38,6 +38,9 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     /// <summary>
     /// A list of <see cref="ulong"/> IDs representing the user's current roles.
     /// </summary>
+    /// <remarks>
+    /// It is possible for this list to contain IDs of roles that no longer exist.
+    /// </remarks>
     public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
 
     /// <summary>
