@@ -85,10 +85,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheGuildUser(GuildUser user)
     {
         if (_guilds.TryGetValue(user.GuildId, out var guild))
-        {
-            var users = Cast(guild.Users);
-            users[user.Id] = user;
-        }
+            Cast(guild.Users)[user.Id] = user;
 
         return this;
     }
@@ -128,10 +125,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheRole(Role role)
     {
         if (_guilds.TryGetValue(role.GuildId, out var guild))
-        {
-            var roles = Cast(guild.Roles);
-            roles[role.Id] = role;
-        }
+            Cast(guild.Roles)[role.Id] = role;
 
         return this;
     }
@@ -139,10 +133,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheGuildScheduledEvent(GuildScheduledEvent scheduledEvent)
     {
         if (_guilds.TryGetValue(scheduledEvent.GuildId, out var guild))
-        {
-            var scheduledEvents = Cast(guild.ScheduledEvents);
-            scheduledEvents[scheduledEvent.Id] = scheduledEvent;
-        }
+            Cast(guild.ScheduledEvents)[scheduledEvent.Id] = scheduledEvent;
 
         return this;
     }
@@ -150,10 +141,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheGuildThread(GuildThread thread)
     {
         if (_guilds.TryGetValue(thread.GuildId, out var guild))
-        {
-            var threads = Cast(guild.ActiveThreads);
-            threads[thread.Id] = thread;
-        }
+            Cast(guild.ActiveThreads)[thread.Id] = thread;
 
         return this;
     }
@@ -161,10 +149,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheGuildChannel(IGuildChannel channel)
     {
         if (_guilds.TryGetValue(channel.GuildId, out var guild))
-        {
-            var channels = Cast(guild.Channels);
-            channels[channel.Id] = channel;
-        }
+            Cast(guild.Channels)[channel.Id] = channel;
 
         return this;
     }
@@ -172,10 +157,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheStageInstance(StageInstance stageInstance)
     {
         if (_guilds.TryGetValue(stageInstance.GuildId, out var guild))
-        {
-            var stageInstances = Cast(guild.StageInstances);
-            stageInstances[stageInstance.Id] = stageInstance;
-        }
+            Cast(guild.StageInstances)[stageInstance.Id] = stageInstance;
 
         return this;
     }
@@ -190,10 +172,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheVoiceState(VoiceState voiceState)
     {
         if (_guilds.TryGetValue(voiceState.GuildId, out var guild))
-        {
-            var voiceStates = Cast(guild.VoiceStates);
-            voiceStates[voiceState.UserId] = voiceState;
-        }
+            Cast(guild.VoiceStates)[voiceState.UserId] = voiceState;
 
         return this;
     }
@@ -201,10 +180,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CachePresence(Presence presence)
     {
         if (_guilds.TryGetValue(presence.GuildId, out var guild))
-        {
-            var presences = Cast(guild.Presences);
-            presences[presence.User.Id] = presence;
-        }
+            Cast(guild.Presences)[presence.User.Id] = presence;
 
         return this;
     }
@@ -270,8 +246,9 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     {
         if (_guilds.TryGetValue(guildId, out var guild))
         {
-            var users = Cast(guild.Users);
-            users.TryRemove(userId, out _);
+            Cast(guild.Users).TryRemove(userId, out _);
+
+            Cast(guild.Presences).TryRemove(userId, out _);
         }
 
         return this;
@@ -280,10 +257,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache RemoveRole(ulong guildId, ulong roleId)
     {
         if (_guilds.TryGetValue(guildId, out var guild))
-        {
-            var roles = Cast(guild.Roles);
-            roles.TryRemove(roleId, out _);
-        }
+            Cast(guild.Roles).TryRemove(roleId, out _);
 
         return this;
     }
@@ -291,10 +265,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache RemoveGuildScheduledEvent(ulong guildId, ulong scheduledEventId)
     {
         if (_guilds.TryGetValue(guildId, out var guild))
-        {
-            var scheduledEvents = Cast(guild.ScheduledEvents);
-            scheduledEvents.TryRemove(scheduledEventId, out _);
-        }
+            Cast(guild.ScheduledEvents).TryRemove(scheduledEventId, out _);
 
         return this;
     }
@@ -302,10 +273,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache RemoveGuildThread(ulong guildId, ulong threadId)
     {
         if (_guilds.TryGetValue(guildId, out var guild))
-        {
-            var threads = Cast(guild.ActiveThreads);
-            threads.TryRemove(threadId, out _);
-        }
+            Cast(guild.ActiveThreads).TryRemove(threadId, out _);
 
         return this;
     }
@@ -314,8 +282,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     {
         if (_guilds.TryGetValue(guildId, out var guild))
         {
-            var channels = Cast(guild.Channels);
-            channels.TryRemove(channelId, out _);
+            Cast(guild.Channels).TryRemove(channelId, out _);
 
             var activeThreads = Cast(guild.ActiveThreads);
 
@@ -332,10 +299,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache RemoveStageInstance(ulong guildId, ulong stageInstanceId)
     {
         if (_guilds.TryGetValue(guildId, out var guild))
-        {
-            var stageInstances = Cast(guild.StageInstances);
-            stageInstances.TryRemove(stageInstanceId, out _);
-        }
+            Cast(guild.StageInstances).TryRemove(stageInstanceId, out _);
 
         return this;
     }
@@ -343,10 +307,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache RemoveVoiceState(ulong guildId, ulong userId)
     {
         if (_guilds.TryGetValue(guildId, out var guild))
-        {
-            var voiceStates = Cast(guild.VoiceStates);
-            voiceStates.TryRemove(userId, out _);
-        }
+            Cast(guild.VoiceStates).TryRemove(userId, out _);
 
         return this;
     }

@@ -337,7 +337,10 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         if (guilds.TryGetValue(guildId, out var guild))
         {
             var newGuild = guild.Clone();
+
             newGuild.Users = Cast(guild.Users).Remove(userId);
+
+            newGuild.Presences = Cast(guild.Presences).Remove(userId);
 
             return Create(_user,
                           guilds.SetItem(guildId, newGuild));
