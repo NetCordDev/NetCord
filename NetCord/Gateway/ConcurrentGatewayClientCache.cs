@@ -316,6 +316,14 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
         {
             var channels = Cast(guild.Channels);
             channels.TryRemove(channelId, out _);
+
+            var activeThreads = Cast(guild.ActiveThreads);
+
+            foreach (var thread in activeThreads)
+            {
+                if (thread.Value.ParentId == channelId)
+                    activeThreads.TryRemove(thread.Key, out _);
+            }
         }
 
         return this;
