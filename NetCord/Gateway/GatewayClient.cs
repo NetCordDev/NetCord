@@ -1,4 +1,5 @@
 using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
@@ -1216,7 +1217,12 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var thread = GuildThread.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(_guildThreadUpdate, this, thread, static (client, thread) => client.Cache = client.Cache.CacheGuildThread(thread)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUpdate, this, thread, static (client, thread) =>
+                    {
+                        client.Cache = thread.Metadata.Archived
+                            ? client.Cache.RemoveGuildThread(thread.GuildId, thread.Id)
+                            : client.Cache.CacheGuildThread(thread);
+                    }).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_DELETE":
@@ -1507,10 +1513,9 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                     var json = data.ToObject(Serialization.Default.JsonVoiceState);
                     await InvokeEventAsync(_voiceStateUpdate, this, new(json, json.GuildId.GetValueOrDefault(), Rest), static (client, voiceState) =>
                     {
-                        if (voiceState.ChannelId.HasValue)
-                            client.Cache = client.Cache.CacheVoiceState(voiceState);
-                        else
-                            client.Cache = client.Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
+                        client.Cache = voiceState.ChannelId.HasValue
+                            ? client.Cache.CacheVoiceState(voiceState)
+                            : client.Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
                     }).ConfigureAwait(false);
                 }
                 break;
@@ -1620,7 +1625,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         "The latency of the Discord Gateway.",
         advice: new() { HistogramBucketBoundaries = GetLatencyBucketBoundaries() });
 
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<GatewayClient, object?> s_gatewayClientTable = [];
+    private static readonly ConditionalWeakTable<GatewayClient, object?> s_gatewayClientTable = [];
 
     static GatewayClient()
     {
