@@ -909,7 +909,7 @@ public partial class RestClient
             async s =>
             {
                 var result = await s.ToObjectAsync(Serialization.Default.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-                return (GuildThreadGenerator.CreateThreads(result, this), result.HasMore);
+                return (GuildThreadGenerator.CreateThreads(result.Threads, result.Users, this), result.HasMore);
             },
             t => t.Metadata.ArchiveTimestamp,
             HttpMethod.Get,
@@ -936,7 +936,7 @@ public partial class RestClient
             async s =>
             {
                 var result = await s.ToObjectAsync(Serialization.Default.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-                return (GuildThreadGenerator.CreateThreads(result, this), result.HasMore);
+                return (GuildThreadGenerator.CreateThreads(result.Threads, result.Users, this), result.HasMore);
             },
             t => t.Metadata.ArchiveTimestamp,
             HttpMethod.Get,
@@ -963,7 +963,7 @@ public partial class RestClient
             async s =>
             {
                 var result = await s.ToObjectAsync(Serialization.Default.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-                return (GuildThreadGenerator.CreateThreads(result, this), result.HasMore);
+                return (GuildThreadGenerator.CreateThreads(result.Threads, result.Users, this), result.HasMore);
             },
             t => t.Id,
             HttpMethod.Get,

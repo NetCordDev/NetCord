@@ -141,7 +141,21 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public IGatewayClientCache CacheGuildThread(GuildThread thread)
     {
         if (_guilds.TryGetValue(thread.GuildId, out var guild))
-            Cast(guild.ActiveThreads)[thread.Id] = thread;
+        {
+            var activeThreads = Cast(guild.ActiveThreads);
+
+            var threadId = thread.Id;
+
+            if (thread.CurrentUser is null
+                && activeThreads.TryGetValue(threadId, out var oldThread)
+                && oldThread.CurrentUser is { } oldCurrentUser)
+            {
+                thread = thread.Clone();
+                thread.CurrentUser = oldCurrentUser;
+            }
+
+            activeThreads[threadId] = thread;
+        }
 
         return this;
     }

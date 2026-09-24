@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 using NetCord.Rest;
 
 namespace NetCord;
@@ -5,7 +7,7 @@ namespace NetCord;
 /// <summary>
 /// Represents a thread within a guild.
 /// </summary>
-public abstract partial class GuildThread : TextGuildChannel
+public abstract partial class GuildThread : TextGuildChannel, ICloneable
 {
     /// <summary>
     /// The ID of the <see cref="TextGuildChannel"/> this thread was created in.
@@ -38,7 +40,7 @@ public abstract partial class GuildThread : TextGuildChannel
     /// <summary>
     /// A minimal thread user object for the current user, if they have joined the thread.
     /// </summary>
-    public ThreadCurrentUser? CurrentUser { get; }
+    public ThreadCurrentUser? CurrentUser { get; set; }
 
     /// <summary>
     /// The total number of messages sent in the thread, including deletions.
@@ -64,4 +66,8 @@ public abstract partial class GuildThread : TextGuildChannel
             _ => new UnknownGuildThread(jsonChannel, client),
         };
     }
+
+    object ICloneable.Clone() => MemberwiseClone();
+
+    internal GuildThread Clone() => Unsafe.As<GuildThread>(MemberwiseClone());
 }
