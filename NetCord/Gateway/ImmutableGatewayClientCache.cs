@@ -397,7 +397,12 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         if (guilds.TryGetValue(guildId, out var guild))
         {
             var newGuild = guild.Clone();
+
             newGuild.Channels = Cast(guild.Channels).Remove(channelId);
+
+            var activeThreads = Cast(guild.ActiveThreads);
+
+            newGuild.ActiveThreads = activeThreads.RemoveRange(activeThreads.Where(t => t.Value.ParentId == channelId).Select(t => t.Key));
 
             return Create(_user,
                           guilds.SetItem(guildId, newGuild));
