@@ -20,9 +20,13 @@ public static class PartialGuildUserExtensions
     {
         var roles = guild.Roles;
 
-        foreach (var roleId in user.RoleIds)
+        var roleIds = user.RoleIds;
+
+        int count = roleIds.Count;
+
+        for (int i = 0; i < count; i++)
         {
-            if (roles.TryGetValue(roleId, out var role))
+            if (roles.TryGetValue(roleIds[i], out var role))
                 yield return role;
         }
     }
