@@ -318,7 +318,7 @@ public sealed class GatewayHandlerTester : GatewayHandlerTesterBase, ISingleClas
             return default;
         }
 
-        public ValueTask HandleAsync(ApplicationCommandPermission arg)
+        public ValueTask HandleAsync(ApplicationCommandGuildPermissions arg)
         {
             _applicationCommandPermissionsUpdateCounter.HandlerCount++;
 

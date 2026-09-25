@@ -1,7 +1,7 @@
 namespace NetCord;
 
 /// <summary>
-/// Indicates the scope of an <see cref="ApplicationCommandPermission"/> object.
+/// Indicates the scope of an <see cref="ApplicationCommandGuildPermission"/> object.
 /// </summary>
 public enum ApplicationCommandGuildPermissionType
 {

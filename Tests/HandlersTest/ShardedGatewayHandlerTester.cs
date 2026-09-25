@@ -334,7 +334,7 @@ public sealed class ShardedGatewayHandlerTester : GatewayHandlerTesterBase, ISin
             return default;
         }
 
-        public ValueTask HandleAsync(GatewayClient client, ApplicationCommandPermission arg)
+        public ValueTask HandleAsync(GatewayClient client, ApplicationCommandGuildPermissions arg)
         {
             _applicationCommandPermissionsUpdateCounter.HandlerCount++;
 
