@@ -5,20 +5,20 @@ namespace NetCord.JsonModels;
 public class JsonInteractionResolvedData
 {
     [JsonPropertyName("users")]
-    public IReadOnlyDictionary<ulong, JsonUser>? Users { get; set; }
+    public Dictionary<ulong, JsonUser>? Users { get; set; }
 
     [JsonPropertyName("members")]
-    public IReadOnlyDictionary<ulong, JsonGuildUser>? GuildUsers { get; set; }
+    public Dictionary<ulong, JsonGuildUser>? GuildUsers { get; set; }
 
     [JsonPropertyName("roles")]
-    public IReadOnlyDictionary<ulong, JsonRole>? Roles { get; set; }
+    public Dictionary<ulong, JsonRole>? Roles { get; set; }
 
     [JsonPropertyName("channels")]
-    public IReadOnlyDictionary<ulong, JsonChannel>? Channels { get; set; }
+    public Dictionary<ulong, JsonChannel>? Channels { get; set; }
 
     [JsonPropertyName("messages")]
-    public IReadOnlyDictionary<ulong, JsonMessage>? Messages { get; set; }
+    public Dictionary<ulong, JsonMessage>? Messages { get; set; }
 
     [JsonPropertyName("attachments")]
-    public IReadOnlyDictionary<ulong, JsonAttachment>? Attachments { get; set; }
+    public Dictionary<ulong, JsonAttachment>? Attachments { get; set; }
 }
