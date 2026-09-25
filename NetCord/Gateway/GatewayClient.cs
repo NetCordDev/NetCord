@@ -46,13 +46,13 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when an application command's permissions are updated.
-    /// The inner payload is an <see cref="ApplicationCommandPermission"/> object.
+    /// The inner payload is an <see cref="ApplicationCommandGuildPermissions"/> object.
     /// </summary>
     /// <remarks>
     /// Required Intents: None <br/>
     /// Optional Intents: None
     /// </remarks>
-    public partial event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
+    public partial event Func<ApplicationCommandGuildPermissions, ValueTask>? ApplicationCommandPermissionsUpdate;
 
     /// <summary>
     /// Sent when a rule is created.
@@ -1158,7 +1158,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
                 {
-                    await InvokeEventAsync(_applicationCommandPermissionsUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermission))).ConfigureAwait(false);
+                    await InvokeEventAsync(_applicationCommandPermissionsUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermissions))).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_CREATE":
