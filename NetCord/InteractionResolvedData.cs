@@ -39,12 +39,14 @@ public class InteractionResolvedData
         {
             if (jsonModel.GuildUsers is { } guildUsers)
             {
+                var guildIdValue = guildId.GetValueOrDefault();
+
                 Users = users.ToDictionary(u => u.Key, u =>
                 {
                     if (guildUsers.TryGetValue(u.Key, out var guildUser))
                     {
                         guildUser.User = u.Value;
-                        return new GuildInteractionUser(guildUser, guildId.GetValueOrDefault(), client);
+                        return new GuildInteractionUser(guildUser, guildIdValue, client);
                     }
                     else
                         return new User(u.Value, client);
