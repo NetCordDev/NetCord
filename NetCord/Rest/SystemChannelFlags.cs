@@ -1,5 +1,8 @@
 namespace NetCord.Rest;
 
+/// <summary>
+/// Represents a system channel's configuration state.
+/// </summary>
 [Flags]
 public enum SystemChannelFlags
 {

@@ -59,7 +59,7 @@ public static class InteractionCallback
         => new(InteractionCallbackType.Modal, modal);
 
     /// <summary>
-    /// Launch the Activity associated with the app. Only available for apps with Activities enabled.
+    /// Launch the Activity associated with the application. Only available for apps with Activities enabled.
     /// </summary>
     public static InteractionCallbackProperties LaunchActivity
         => new(InteractionCallbackType.LaunchActivity);

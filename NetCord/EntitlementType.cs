@@ -38,7 +38,7 @@ public enum EntitlementType
     PremiumPurchase = 7,
 
     /// <summary>
-    /// Entitlement was purchased as an app subscription.
+    /// Entitlement was purchased as an application subscription.
     /// </summary>
     ApplicationSubscription = 8
 }

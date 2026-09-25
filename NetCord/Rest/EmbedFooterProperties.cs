@@ -2,18 +2,18 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <inheritdoc cref="EmbedFooter"/>
 [GenerateMethodsForProperties]
 public partial class EmbedFooterProperties
 {
-    /// <summary>
-    /// Text of the footer.
-    /// </summary>
+
+    /// <inheritdoc cref="EmbedFooter.Text"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("text")]
     public string? Text { get; set; }
 
     /// <summary>
-    /// Url of the footer icon.
+    /// Points to an image, which is displayed in a small circular format to the left of the <see cref="Text"/>.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("icon_url")]

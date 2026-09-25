@@ -27,7 +27,7 @@ public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
 
     public User? User { get; }
 
-    public Account Account { get; }
+    public IntegrationAccount Account { get; }
 
     public DateTimeOffset? SyncedAt => _jsonModel.SyncedAt;
 

@@ -3,9 +3,19 @@ using NetCord.Rest;
 
 namespace NetCord;
 
+/// <summary>
+/// Represents a generic text channel.
+/// </summary>
 public abstract partial class TextChannel(JsonChannel jsonModel, RestClient client) : Channel(jsonModel, client)
 {
+    /// <summary>
+    /// The ID corresponding to the last message sent within the channel. Can be <see langword="null"/> if the channel is empty.
+    /// </summary>
     public ulong? LastMessageId => _jsonModel.LastMessageId;
+
+    /// <summary>
+    /// The timestamp of the last pinned message, if any, otherwise <see langword="null"/>.
+    /// </summary>
     public DateTimeOffset? LastPin => _jsonModel.LastPin;
 
     public static new TextChannel CreateFromJson(JsonChannel jsonChannel, RestClient client)

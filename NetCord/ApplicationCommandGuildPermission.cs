@@ -3,7 +3,7 @@ namespace NetCord;
 /// <summary>
 /// Represents a permission override for a command in a guild.
 /// </summary>
-public class ApplicationCommandPermission(JsonModels.JsonApplicationCommandGuildPermission jsonModel) : Entity, IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>
+public class ApplicationCommandGuildPermission(JsonModels.JsonApplicationCommandGuildPermission jsonModel) : Entity, IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>
 {
     JsonModels.JsonApplicationCommandGuildPermission IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>.JsonModel => jsonModel;
 

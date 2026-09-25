@@ -51,11 +51,26 @@ public abstract class GatewayHandlerTesterBase
         {
             SequenceNumber = seq,
             Event = "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
-            Data = JsonSerializer.SerializeToElement(new JsonApplicationCommandGuildPermission()
+            Data = JsonSerializer.SerializeToElement(new JsonApplicationCommandGuildPermissions()
             {
-                Id = 123,
-                Type = ApplicationCommandGuildPermissionType.Role,
-                Permission = true,
+                CommandId = 123,
+                ApplicationId = 456,
+                GuildId = 789,
+                Permissions =
+                [
+                    new()
+                    {
+                        Id = 987,
+                        Type = ApplicationCommandGuildPermissionType.Role,
+                        Permission = true,
+                    },
+                    new()
+                    {
+                        Id = 654,
+                        Type = ApplicationCommandGuildPermissionType.User,
+                        Permission = false,
+                    },
+                ],
             }),
             Opcode = GatewayOpcode.Dispatch,
         };

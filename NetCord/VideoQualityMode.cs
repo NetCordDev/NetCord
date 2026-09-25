@@ -1,14 +1,22 @@
 namespace NetCord;
 
+/// <summary>
+/// Determines Discord's behaviour towards video quality optimization.
+/// </summary>
 public enum VideoQualityMode
 {
-    None = 0,
     /// <summary>
-    /// Discord chooses the quality for optimal performance
+    /// No video quality mode specified.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// Allows discord to adjust the quality for optimal performance.
     /// </summary>
     Auto = 1,
+
     /// <summary>
-    /// 720p
+    /// Locks all video to 720p.
     /// </summary>
     Full = 2,
 }

@@ -113,4 +113,7 @@ public class JsonMessage : JsonEntity
 
     [JsonPropertyName("call")]
     public JsonMessageCall? Call { get; set; }
+
+    [JsonPropertyName("shared_client_theme")]
+    public JsonSharedClientTheme? SharedClientTheme { get; set; }
 }

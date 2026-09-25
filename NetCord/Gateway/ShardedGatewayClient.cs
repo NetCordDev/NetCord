@@ -157,10 +157,24 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             if (_state is not { Clients: { } clients })
             {
                 ThrowConnectionNotStarted();
-                return null!;
+                return null;
             }
 
-            return clients[shardId];
+            var firstShard = clients[0].Shard.GetValueOrDefault();
+
+            var index = shardId - firstShard.Id;
+
+            if ((uint)index >= (uint)clients.Length)
+                ThrowOutOfRange(shardId);
+
+            return clients[index];
+
+            [DoesNotReturn]
+            [StackTraceHidden]
+            static void ThrowOutOfRange(int shardId)
+            {
+                throw new ArgumentOutOfRangeException(nameof(shardId), $"The shard #{shardId} is not in the shard range of this client.");
+            }
         }
     }
 
@@ -171,10 +185,24 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             if (_state is not { Clients: { } clients })
             {
                 ThrowConnectionNotStarted();
-                return null!;
+                return null;
             }
 
-            return clients[Snowflake.ShardId(guildId, clients.Length)];
+            var firstShard = clients[0].Shard.GetValueOrDefault();
+
+            var index = Snowflake.ShardId(guildId, firstShard.Count) - firstShard.Id;
+
+            if ((uint)index >= (uint)clients.Length)
+                ThrowOutOfRange(guildId);
+
+            return clients[index];
+
+            [DoesNotReturn]
+            [StackTraceHidden]
+            static void ThrowOutOfRange(ulong guildId)
+            {
+                throw new ArgumentOutOfRangeException(nameof(guildId), $"The guild with ID '{guildId}' is not in the shard range of this client.");
+            }
         }
     }
 
@@ -429,7 +457,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                 ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(@event, handler, out var exists);
 
                 if (!exists)
-                    list = new(1);
+                    list = [with(1)];
 
                 Func<ValueTask>[] handlers;
 
@@ -462,7 +490,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                 ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(@event, handler, out var exists);
 
                 if (!exists)
-                    list = new(1);
+                    list = [with(1)];
 
                 Func<T, ValueTask>[] handlers;
 

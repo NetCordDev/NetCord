@@ -3,6 +3,9 @@ using NetCord.Rest;
 
 namespace NetCord;
 
+/// <summary>
+/// Represents a custom (user-uploaded) emoji.
+/// </summary>
 public abstract class CustomEmoji : Emoji, ISpanFormattable
 {
     private protected RestClient _client;
@@ -16,16 +19,37 @@ public abstract class CustomEmoji : Emoji, ISpanFormattable
             Creator = new(creator, client);
     }
 
+    /// <summary>
+    /// The emoji's unique ID.
+    /// </summary>
     public ulong Id => _jsonModel.Id.GetValueOrDefault();
 
+    /// <summary>
+    /// The user that uploaded the emoji.
+    /// </summary>
     public User? Creator { get; }
 
+    /// <summary>
+    /// Whether this emoji must be wrapped in colons.
+    /// </summary>
     public bool? RequireColons => _jsonModel.RequireColons;
 
+    /// <summary>
+    /// Whether the emoji is managed by an application.
+    /// </summary>
+    /// <remarks>
+    /// Managed emoji can only be created by apps with the <see cref="ApplicationFlags.ManagedEmoji"/> flag set.
+    /// </remarks>
     public bool? Managed => _jsonModel.Managed;
 
+    /// <summary>
+    /// Whether the emoji is available for use. Can be <see langword="false"/> if server boosts are lost.
+    /// </summary>
     public bool? Available => _jsonModel.Available;
 
+    /// <summary>
+    /// Returns an image representation of the emoji.
+    /// </summary>
     public ImageUrl GetImageUrl(ImageFormat format) => ImageUrl.CustomEmoji(Id, format);
 
     public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";

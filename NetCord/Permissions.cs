@@ -1,5 +1,12 @@
 namespace NetCord;
 
+/// <summary>
+/// Permissions are a way to limit and grant certain abilities to users in Discord. A set of base permissions can be configured at the guild level for different roles.
+/// When these roles are attached to users, they grant or revoke specific privileges within the guild.
+/// </summary>
+/// <remarks>
+/// Along with the guild-level permissions, Discord also supports permission overwrites via <see cref="PermissionOverwrite"/> that can be assigned to individual roles or members on a per-channel basis.
+/// </remarks>
 [Flags]
 public enum Permissions : ulong
 {
@@ -11,26 +18,41 @@ public enum Permissions : ulong
     /// <summary>
     /// Allows kicking guild users.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     KickUsers = 1uL << 1,
 
     /// <summary>
     /// Allows banning guild users.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     BanUsers = 1uL << 2,
 
     /// <summary>
     /// Allows all permissions and bypasses channel permission overwrites.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     Administrator = 1uL << 3,
 
     /// <summary>
     /// Allows management and editing of channels.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ManageChannels = 1uL << 4,
 
     /// <summary>
     /// Allows management and editing of the guild.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ManageGuild = 1uL << 5,
 
     /// <summary>
@@ -71,6 +93,9 @@ public enum Permissions : ulong
     /// <summary>
     /// Allows for deletion of other users messages.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ManageMessages = 1uL << 13,
 
     /// <summary>
@@ -146,16 +171,25 @@ public enum Permissions : ulong
     /// <summary>
     /// Allows management and editing of roles.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ManageRoles = 1uL << 28,
 
     /// <summary>
     /// Allows management and editing of webhooks.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ManageWebhooks = 1uL << 29,
 
     /// <summary>
     /// Allows for editing and deleting emojis, stickers, and soundboard sounds created by all users.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ManageGuildExpressions = 1uL << 30,
 
     /// <summary>
@@ -176,6 +210,9 @@ public enum Permissions : ulong
     /// <summary>
     /// Allows for deleting and archiving threads, and viewing all private threads.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ManageThreads = 1uL << 34,
 
     /// <summary>
@@ -211,6 +248,9 @@ public enum Permissions : ulong
     /// <summary>
     /// Allows for viewing role subscription insights.
     /// </summary>
+    /// <remarks>
+    /// For applications, owners must have 2FA enabled if server-wide 2FA is enabled.
+    /// </remarks>
     ViewCreatorMonetizationAnalytics = 1uL << 41,
 
     /// <summary>
@@ -239,13 +279,22 @@ public enum Permissions : ulong
     SendVoiceMessages = 1uL << 46,
 
     /// <summary>
+    /// Allows setting voice channel status.
+    /// </summary>
+    SetVoiceChannelStatus = 1uL << 48,
+
+    /// <summary>
     /// Allows sending polls.
     /// </summary>
     SendPolls = 1uL << 49,
 
     /// <summary>
-    /// Allows user-installed apps to send public responses. When disabled, users will still be allowed to use their apps but the responses will be ephemeral. This only applies to apps not also installed to the server.
+    /// Allows user-installed apps to send public responses. 
     /// </summary>
+    /// <remarks>
+    /// <para>When disabled, users will still be allowed to use their apps but the responses will be ephemeral.</para>
+    /// <para>This only applies to apps not also installed to the server.</para>
+    /// </remarks>
     UseExternalApplications = 1uL << 50,
 
     /// <summary>

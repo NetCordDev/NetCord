@@ -1,4 +1,5 @@
 using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
@@ -45,13 +46,13 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when an application command's permissions are updated.
-    /// The inner payload is an <see cref="ApplicationCommandPermission"/> object.
+    /// The inner payload is an <see cref="ApplicationCommandGuildPermissions"/> object.
     /// </summary>
     /// <remarks>
     /// Required Intents: None <br/>
     /// Optional Intents: None
     /// </remarks>
-    public partial event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
+    public partial event Func<ApplicationCommandGuildPermissions, ValueTask>? ApplicationCommandPermissionsUpdate;
 
     /// <summary>
     /// Sent when a rule is created.
@@ -1072,7 +1073,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     }
 
     /// <summary>
-    /// Joins, moves, or disconnects the app from a voice channel.
+    /// Joins, moves, or disconnects the application from a voice channel.
     /// </summary>
     public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
     {
@@ -1082,7 +1083,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     }
 
     /// <summary>
-    /// Updates an app's presence.
+    /// Updates an application's presence.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
     /// <param name="properties"></param>
@@ -1157,7 +1158,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
                 {
-                    await InvokeEventAsync(_applicationCommandPermissionsUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermission))).ConfigureAwait(false);
+                    await InvokeEventAsync(_applicationCommandPermissionsUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermissions))).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_CREATE":
@@ -1216,7 +1217,12 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var thread = GuildThread.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(_guildThreadUpdate, this, thread, static (client, thread) => client.Cache = client.Cache.CacheGuildThread(thread)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUpdate, this, thread, static (client, thread) =>
+                    {
+                        client.Cache = thread.Metadata.Archived
+                            ? client.Cache.RemoveGuildThread(thread.GuildId, thread.Id)
+                            : client.Cache.CacheGuildThread(thread);
+                    }).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_DELETE":
@@ -1229,7 +1235,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildThreadListSyncEventArgs);
                     GuildThreadListSyncEventArgs args = new(json, Rest, Cache);
-                    await InvokeEventAsync(_guildThreadListSync, this, args, static (client, args) => client.Cache = client.Cache.SyncGuildActiveThreads(args.GuildId, args.Threads)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadListSync, this, args, static (client, args) => client.Cache = client.Cache.SyncGuildActiveThreads(args.GuildId, args.ChannelIds, args.Threads)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_MEMBER_UPDATE":
@@ -1507,10 +1513,9 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                     var json = data.ToObject(Serialization.Default.JsonVoiceState);
                     await InvokeEventAsync(_voiceStateUpdate, this, new(json, json.GuildId.GetValueOrDefault(), Rest), static (client, voiceState) =>
                     {
-                        if (voiceState.ChannelId.HasValue)
-                            client.Cache = client.Cache.CacheVoiceState(voiceState);
-                        else
-                            client.Cache = client.Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
+                        client.Cache = voiceState.ChannelId.HasValue
+                            ? client.Cache.CacheVoiceState(voiceState)
+                            : client.Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
                     }).ConfigureAwait(false);
                 }
                 break;
@@ -1620,7 +1625,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         "The latency of the Discord Gateway.",
         advice: new() { HistogramBucketBoundaries = GetLatencyBucketBoundaries() });
 
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<GatewayClient, object?> s_gatewayClientTable = [];
+    private static readonly ConditionalWeakTable<GatewayClient, object?> s_gatewayClientTable = [];
 
     static GatewayClient()
     {

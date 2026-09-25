@@ -88,7 +88,7 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         if (user is not null)
             jsonModel.User = ((IJsonModel<JsonUser>)user).JsonModel;
 
-        jsonModel.Guilds = _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel).ToArray();
+        jsonModel.Guilds = [.. _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel)];
 
         return jsonModel;
     }
@@ -184,7 +184,18 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         if (guilds.TryGetValue(guildId, out var guild))
         {
             var newGuild = guild.Clone();
-            newGuild.ActiveThreads = Cast(guild.ActiveThreads).SetItem(thread.Id, thread);
+
+            var activeThreads = Cast(guild.ActiveThreads);
+
+            if (thread.CurrentUser is null
+                && activeThreads.TryGetValue(thread.Id, out var oldThread)
+                && oldThread.CurrentUser is { } oldCurrentUser)
+            {
+                thread = thread.Clone();
+                thread.CurrentUser = oldCurrentUser;
+            }
+
+            newGuild.ActiveThreads = activeThreads.SetItem(thread.Id, thread);
 
             return Create(_user,
                           guilds.SetItem(guildId, newGuild));
@@ -293,13 +304,23 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads)
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyList<ulong>? channelIds, IReadOnlyDictionary<ulong, GuildThread> threads)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
             var newGuild = guild.Clone();
-            newGuild.ActiveThreads = threads;
+            if (channelIds is null)
+                newGuild.ActiveThreads = threads;
+            else
+            {
+                var activeThreads = Cast(guild.ActiveThreads);
+
+                HashSet<ulong> channelIdsSet = [.. channelIds];
+
+                newGuild.ActiveThreads = activeThreads.RemoveRange(activeThreads.Where(t => channelIdsSet.Contains(t.Value.ParentId)).Select(t => t.Key))
+                                                      .SetItems(threads);
+            }
 
             return Create(_user,
                           guilds.SetItem(guildId, newGuild));
@@ -327,7 +348,10 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         if (guilds.TryGetValue(guildId, out var guild))
         {
             var newGuild = guild.Clone();
+
             newGuild.Users = Cast(guild.Users).Remove(userId);
+
+            newGuild.Presences = Cast(guild.Presences).Remove(userId);
 
             return Create(_user,
                           guilds.SetItem(guildId, newGuild));
@@ -387,7 +411,12 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         if (guilds.TryGetValue(guildId, out var guild))
         {
             var newGuild = guild.Clone();
+
             newGuild.Channels = Cast(guild.Channels).Remove(channelId);
+
+            var activeThreads = Cast(guild.ActiveThreads);
+
+            newGuild.ActiveThreads = activeThreads.RemoveRange(activeThreads.Where(t => t.Value.ParentId == channelId).Select(t => t.Key));
 
             return Create(_user,
                           guilds.SetItem(guildId, newGuild));

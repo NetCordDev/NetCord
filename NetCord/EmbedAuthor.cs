@@ -8,17 +8,17 @@ public class EmbedAuthor(JsonModels.JsonEmbedAuthor jsonModel) : IJsonModel<Json
     JsonModels.JsonEmbedAuthor IJsonModel<JsonModels.JsonEmbedAuthor>.JsonModel => jsonModel;
 
     /// <summary>
-    /// The name of the author, displayed next to the icon if one is specified in <see cref="IconUrl"/>.
+    /// The name of the author, displayed next to the icon if one is specified.
     /// </summary>
     public string? Name => jsonModel.Name;
 
     /// <summary>
-    /// When set, turns the <see cref="Name"/> into a clickable link, pointing to the specified URL.
+    /// When set, turns the name into a clickable link, pointing to the specified URL.
     /// </summary>
     public string? Url => jsonModel.Url;
 
     /// <summary>
-    /// Points to an image, which is displayed in a small circular format to the left of the <see cref="Name"/>.
+    /// Points to an image, which is displayed in a small circular format to the left of the name.
     /// </summary>
     public string? IconUrl => jsonModel.IconUrl;
 

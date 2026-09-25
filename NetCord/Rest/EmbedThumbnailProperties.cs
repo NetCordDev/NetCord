@@ -2,16 +2,12 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="url">Url of the thumbnail.</param>
+/// <inheritdoc cref="EmbedThumbnail"/>
+/// <param name="url"><inheritdoc cref="Url" path="/summary"/></param>
 [GenerateMethodsForProperties]
 public partial class EmbedThumbnailProperties(string? url)
 {
-    /// <summary>
-    /// Url of the thumbnail.
-    /// </summary>
+    /// <inheritdoc cref="EmbedThumbnail.Url"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; set; } = url;
