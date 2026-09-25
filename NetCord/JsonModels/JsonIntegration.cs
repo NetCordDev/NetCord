@@ -32,7 +32,7 @@ public class JsonIntegration : JsonEntity
     public JsonUser? User { get; set; }
 
     [JsonPropertyName("account")]
-    public JsonAccount Account { get; set; }
+    public JsonIntegrationAccount Account { get; set; }
 
     [JsonPropertyName("synced_at")]
     public DateTimeOffset? SyncedAt { get; set; }
