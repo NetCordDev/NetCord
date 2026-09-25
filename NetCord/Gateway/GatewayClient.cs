@@ -46,7 +46,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when an application command's permissions are updated.
-    /// The inner payload is an <see cref="ApplicationCommandGuildPermission"/> object.
+    /// The inner payload is an <see cref="ApplicationCommandGuildPermissions"/> object.
     /// </summary>
     /// <remarks>
     /// Required Intents: None <br/>
