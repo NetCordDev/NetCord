@@ -1,0 +1,32 @@
+{
+  ...
+  "Resources": {
+    "AspNetCoreFunction": {
+      ...
+      "Properties": {
+        ...
+        "Events": {
+          "ProxyResource": {
++           "Type": "HttpApi",
+-           "Type": "Api",
+            ...
+          },
+          "RootResource": {
++           "Type": "HttpApi",
+-           "Type": "Api",
+            ...
+          }
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ApiURL": {
+      ...
+      "Value": {
++       "Fn::Sub": "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+-       "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+      }
+    }
+  }
+}

@@ -20,10 +20,13 @@ public interface IHttpInteractionProcessor
 internal sealed class HttpInteractionProcessor(IServiceProvider services) : IHttpInteractionProcessor
 {
     private readonly IHttpInteractionParser _parser = services.GetService<IHttpInteractionParser>()
-            ?? new HttpInteractionParser(services.GetRequiredService<RestClient>(), services.GetRequiredService<IOptions<IDiscordOptions>>());
+        ?? new HttpInteractionParser(services.GetRequiredService<RestClient>(),
+                                     services.GetRequiredService<IOptions<IDiscordOptions>>());
 
     private readonly IHttpInteractionHandlerInvoker _invoker = services.GetService<IHttpInteractionHandlerInvoker>()
-            ?? new HttpInteractionHandlerInvoker(services.GetRequiredService<ILogger<HttpInteractionHandlerInvoker>>(), services.GetServices<IHttpInteractionHandlerMetadata>(), services);
+        ?? new HttpInteractionHandlerInvoker(services.GetRequiredService<ILogger<HttpInteractionHandlerInvoker>>(),
+                                             services.GetServices<IHttpInteractionHandlerMetadata>(),
+                                             services);
 
     public async ValueTask ProcessAsync(HttpContext context)
     {

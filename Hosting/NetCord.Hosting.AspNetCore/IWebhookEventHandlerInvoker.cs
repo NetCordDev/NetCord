@@ -24,7 +24,9 @@ internal sealed partial class WebhookEventHandlerInvoker : HttpEventHandlerInvok
 
     private readonly Storage _storage;
 
-    public WebhookEventHandlerInvoker(ILogger<WebhookEventHandlerInvoker> logger, IEnumerable<IWebhookHandlerMetadata> handlersMetadata, IServiceProvider services)
+    public WebhookEventHandlerInvoker(ILogger<WebhookEventHandlerInvoker> logger,
+                                      IEnumerable<IWebhookHandlerMetadata> handlersMetadata,
+                                      IServiceProvider services)
     {
         StorageBuilder builder = new();
 
