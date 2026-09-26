@@ -16,8 +16,8 @@ internal static partial class Zstandard
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool IsError(nuint code);
 
-    [LibraryImport(DllName, EntryPoint = "ZSTD_getErrorName", StringMarshalling = StringMarshalling.Utf8)]
-    public static partial string GetErrorName(nuint code);
+    [LibraryImport(DllName, EntryPoint = "ZSTD_getErrorName")]
+    public static partial byte* GetErrorName(nuint code);
 
     [LibraryImport(DllName, EntryPoint = "ZSTD_createDStream")]
     public static partial DStreamHandle CreateDStream();
@@ -43,7 +43,7 @@ internal static partial class Zstandard
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Buffer
+    public struct Buffer
     {
         public byte* Ptr;
         public nuint Size;

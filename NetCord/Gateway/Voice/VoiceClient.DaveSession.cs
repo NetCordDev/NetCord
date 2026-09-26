@@ -74,7 +74,7 @@ public partial class VoiceClient
         }
 
         [UnmanagedCallersOnly]
-        private static unsafe void LogSink(LoggingSeverity severity, byte* file, int line, byte* message)
+        private static void LogSink(LoggingSeverity severity, byte* file, int line, byte* message)
         {
 #if DEBUG
             var fileString = Marshal.PtrToStringUTF8((nint)file);
