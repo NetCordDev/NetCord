@@ -9,7 +9,7 @@ namespace NetCord;
 public static class PartialGuildUserExtensions
 {
     /// <summary>
-    /// Returns the roles belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
+    /// Returns roles of the <see cref="PartialGuildUser"/> by acquiring them from the specificied <see cref="RestGuild"/>.
     /// </summary>
     /// <remarks>
     /// IDs of roles that do not exist in the <see cref="RestGuild"/> will be ignored.
