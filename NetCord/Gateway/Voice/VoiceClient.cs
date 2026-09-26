@@ -314,7 +314,7 @@ public sealed partial class VoiceClient : WebSocketClient
     }
 
     [UnmanagedCallersOnly]
-    private static unsafe void LogMlsFailure(byte* source, byte* reason, void* userData)
+    private static void LogMlsFailure(byte* source, byte* reason, void* userData)
     {
         try
         {
