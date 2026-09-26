@@ -32,5 +32,5 @@ public class JsonGuildScheduledEventRecurrenceRule
     public int[]? ByYearDay { get; set; }
 
     [JsonPropertyName("count")]
-    public int? Count { get; }
+    public int? Count { get; set; }
 }
