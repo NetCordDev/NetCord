@@ -1,5 +1,7 @@
 using System.Buffers;
 using System.Buffers.Text;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -44,32 +46,36 @@ public readonly struct Color : IEquatable<Color>
 
     public class ColorConverter : JsonConverter<Color>
     {
-        public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        [DoesNotReturn]
+        [StackTraceHidden]
+        private static void ThrowFormatException()
         {
-            if (reader.TokenType == JsonTokenType.String)
-                return ReadFromHex(reader.HasValueSequence ? reader.ValueSequence.Slice(1).ToArray() : reader.ValueSpan[1..]);
-
-            var span = reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan;
-            if (Utf8Parser.TryParse(span, out int value, out int bytesConsumed) && span.Length == bytesConsumed)
-                return new(value);
-
             throw new FormatException("Either the JSON value is not in a supported format, or is out of bounds for a Int32.");
         }
 
-        private static Color ReadFromHex(ReadOnlySpan<byte> bytes)
+        public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            int result = 0;
-
-            for (int i = 5; i >= 0; i--)
+            int value;
+            if (!(reader.TokenType switch
             {
-                var character = bytes[5 - i];
+                JsonTokenType.String => TryReadHex(ref reader, out value),
+                _ => reader.TryGetInt32(out value)
+            }))
+                ThrowFormatException();
 
-                int numericValue = character <= '9' ? character - '0' : character - ('a' - 10);
+            return new(value);
+        }
 
-                result |= numericValue << (i * 4);
-            }
+        private static bool TryReadHex(ref Utf8JsonReader reader, out int value)
+        {
+            var span = reader.HasValueSequence
+                ? reader.ValueSequence.ToArray()
+                : reader.ValueSpan;
 
-            return new(result);
+            if (span is [(byte)'#', ..])
+                span = span[1..];
+
+            return Utf8Parser.TryParse(span, out value, out int bytesConsumed, 'x') && span.Length == bytesConsumed;
         }
 
         public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options)
