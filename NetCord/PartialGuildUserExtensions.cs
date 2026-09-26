@@ -9,26 +9,16 @@ namespace NetCord;
 public static class PartialGuildUserExtensions
 {
     /// <summary>
-    /// Returns an <see cref="IEnumerable{Role}"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
+    /// Returns the roles belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
     /// <remarks>
     /// IDs of roles that do not exist in the <see cref="RestGuild"/> will be ignored.
     /// </remarks>
     /// <param name="user">The <see cref="PartialGuildUser"/> to acquire roles for.</param>
     /// <param name="guild">The <see cref="RestGuild"/> to acquire the roles from.</param>
-    public static IEnumerable<Role> GetRoles(this PartialGuildUser user, RestGuild guild)
+    public static GuildUserRoles GetRoles(this PartialGuildUser user, RestGuild guild)
     {
-        var roles = guild.Roles;
-
-        var roleIds = user.RoleIds;
-
-        int count = roleIds.Count;
-
-        for (int i = 0; i < count; i++)
-        {
-            if (roles.TryGetValue(roleIds[i], out var role))
-                yield return role;
-        }
+        return new(user.RoleIds, guild.Roles);
     }
 
     /// <summary>
