@@ -33,7 +33,12 @@ public partial class RestClient
             g => g.Id,
             HttpMethod.Get,
             $"/users/@me/guilds",
-            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_counts={paginationProperties.WithCounts}&"),
+            new(paginationProperties.BatchSize.GetValueOrDefault(),
+                paginationProperties.Direction.GetValueOrDefault(),
+                id => id.ToString(),
+                paginationProperties.Shard is { } shard
+                    ? $"?shard={shard}&with_counts={paginationProperties.WithCounts}&"
+                    : $"?with_counts={paginationProperties.WithCounts}&"),
             null,
             properties);
     }
