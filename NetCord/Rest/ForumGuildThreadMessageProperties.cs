@@ -1,7 +1,11 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Represents a message sent in a <see cref="ForumGuildThread"/>.
+/// </summary>
+[GenerateMethodsForProperties]
 public partial class ForumGuildThreadMessageProperties : IMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -18,8 +22,11 @@ public partial class ForumGuildThreadMessageProperties : IMessageProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("components")]
-    public IEnumerable<IComponentProperties>? Components { get; set; }
+    public IEnumerable<IMessageComponentProperties>? Components { get; set; }
 
+    /// <summary>
+    /// A list of up to 3 sticker IDs to include in the message.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("sticker_ids")]
     public IEnumerable<ulong>? StickerIds { get; set; }

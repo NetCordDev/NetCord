@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.Compression;
+using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
@@ -11,11 +11,11 @@ internal static class GatewayClientConfigurationFactory
 {
     public static GatewayClientConfiguration Create(IWebSocketConnectionProvider? webSocketConnectionProvider,
                                                     IRateLimiterProvider? rateLimiterProvider,
-                                                    WebSocketPayloadProperties? defaultPayloadProperties,
+                                                    WebSocketMessageProperties? defaultMessageProperties,
                                                     IReconnectStrategy? reconnectStrategy,
                                                     ILatencyTimer? latencyTimer,
                                                     ApiVersion? version,
-                                                    IGatewayClientCache? cache,
+                                                    IGatewayClientCacheProvider? cacheProvider,
                                                     IGatewayCompression? compression,
                                                     GatewayIntents? intents,
                                                     string? hostname,
@@ -30,11 +30,11 @@ internal static class GatewayClientConfigurationFactory
         {
             WebSocketConnectionProvider = webSocketConnectionProvider,
             RateLimiterProvider = rateLimiterProvider,
-            DefaultPayloadProperties = defaultPayloadProperties,
+            DefaultMessageProperties = defaultMessageProperties,
             ReconnectStrategy = reconnectStrategy,
             LatencyTimer = latencyTimer,
             Version = version,
-            Cache = cache,
+            CacheProvider = cacheProvider,
             Compression = compression,
             Intents = intents,
             Hostname = hostname,

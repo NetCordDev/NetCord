@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using NetCord.Services.Helpers;
 using NetCord.Services.Utils;
@@ -12,7 +12,7 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
     public Type ElementType { get; }
     public Type NonNullableElementType { get; }
     public Type Type { get; }
-    public bool HasDefaultValue { get; }
+    public bool IsOptional { get; }
     public object? DefaultValue { get; }
     public bool Params { get; }
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
@@ -20,15 +20,15 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
 
     internal ComponentInteractionParameter(ParameterInfo parameter, MethodInfo method, ComponentInteractionServiceConfiguration<TContext> configuration)
     {
-        HasDefaultValue = parameter.HasDefaultValue;
+        IsOptional = parameter.IsOptional;
 
-        var attributesIEnumerable = parameter.GetCustomAttributes();
-        Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
+        var parameterAttributes = Attribute.GetCustomAttributes(parameter);
+        var attributes = Attributes = parameterAttributes.ToRankedFrozenDictionary(a => a.GetType());
 
         Type? typeReaderType;
-        if (Attributes.TryGetValue(typeof(ComponentInteractionParameterAttribute), out var attributes))
+        if (attributes.TryGetValue(typeof(ComponentInteractionParameterAttribute), out var componentInteractionParameterAttributes))
         {
-            var commandParameterAttribute = (ComponentInteractionParameterAttribute)attributes[0];
+            var commandParameterAttribute = (ComponentInteractionParameterAttribute)componentInteractionParameterAttributes[0];
             Name = commandParameterAttribute.Name ?? parameter.Name!;
             typeReaderType = commandParameterAttribute.TypeReaderType;
         }
@@ -38,22 +38,14 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
             typeReaderType = null;
         }
 
-        var type = Type = parameter.ParameterType;
-        Type elementType;
-        if (Attributes.ContainsKey(typeof(ParamArrayAttribute)))
-        {
-            Params = true;
-            elementType = ElementType = type.GetElementType()!;
-        }
-        else
-            elementType = ElementType = type;
+        var (_, elementType) = (Params, ElementType) = ParametersHelper.GetParamsInfo(parameter, Type = parameter.ParameterType, attributes, method);
 
         (TypeReader, NonNullableElementType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, IInteractionTypeReader, ComponentInteractionTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
-        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
+        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(parameterAttributes, method);
     }
 
-    public async ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public async ValueTask<ComponentInteractionTypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         try
         {
@@ -61,7 +53,7 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
         }
         catch (Exception ex)
         {
-            return new TypeReaderExceptionResult(ex);
+            return new ComponentInteractionTypeReaderExceptionResult(ex);
         }
     }
 

@@ -1,11 +1,11 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class TextDisplay(JsonComponent jsonModel) : IComponent, IJsonModel<JsonComponent>
+public class TextDisplay(JsonTextDisplayComponent jsonModel) : IMessageComponent, IModalComponent, IComponentContainerComponent, IComponentSectionComponent, IJsonModel<JsonTextDisplayComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonTextDisplayComponent IJsonModel<JsonTextDisplayComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
-    public string Content => jsonModel.Content!;
+    public string Content { get; } = jsonModel.Content ?? string.Empty;
 }

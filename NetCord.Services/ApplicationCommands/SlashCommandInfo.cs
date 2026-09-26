@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -12,58 +12,49 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     internal SlashCommandInfo(MethodInfo method,
                               [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                               SlashCommandAttribute attribute,
-                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+                              ApplicationCommandServiceConfiguration<TContext> configuration,
+                              AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(attribute, configuration, method, out var methodAttributes)
     {
         Description = attribute.Description;
 
-        var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, LocalizationPath);
+        var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, LocalizationPath, autocompleteDelegateProvider);
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes, declaringType);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal SlashCommandInfo(string name,
-                              string description,
-                              Delegate handler,
-                              Permissions? defaultGuildUserPermissions,
-                              bool? dMPermission,
-                              bool defaultPermission,
-                              IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                              IEnumerable<InteractionContextType>? contexts,
-                              bool nsfw,
-                              ulong? guildId,
-                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                     defaultGuildUserPermissions,
-                                                                                                     dMPermission,
-                                                                                                     defaultPermission,
-                                                                                                     integrationTypes,
-                                                                                                     contexts,
-                                                                                                     nsfw,
-                                                                                                     guildId,
-                                                                                                     configuration)
+    internal SlashCommandInfo(SlashCommandBuilder builder,
+                              ApplicationCommandServiceConfiguration<TContext> configuration,
+                              AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(builder,
+                                                                                                          configuration,
+                                                                                                          builder.Handler.Method,
+                                                                                                          out var methodAttributes)
     {
-        Description = description;
+        Description = builder.Description;
+
+        var handler = builder.Handler;
 
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
-        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath);
+        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath, autocompleteDelegateProvider);
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
+    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
     public string Description { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
-    public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
+    public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
@@ -99,20 +90,16 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         for (int i = 0; i < count; i++)
             options[i] = await parameters[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
-#pragma warning disable CS0618 // Type or member is obsolete
         return new SlashCommandProperties(Name, Description)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
             DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             Options = options,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     public async ValueTask<IExecutionResult> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
@@ -133,14 +120,6 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
             return SuccessResult.Instance;
         }
 
-        return new NotFoundResult("Command not found.");
-    }
-
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
-    {
-        var parameters = Parameters;
-        var count = parameters.Count;
-        for (int i = 0; i < count; i++)
-            parameters[i].InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
+        return NotFoundResult.Command;
     }
 }

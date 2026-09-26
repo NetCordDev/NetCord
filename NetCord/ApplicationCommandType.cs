@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Indicates how a command is invoked client-side.
@@ -19,4 +19,9 @@ public enum ApplicationCommandType
     /// UI-based. Displayed when right clicking or tapping on a message.
     /// </summary>
     Message = 3,
+
+    /// <summary>
+    /// UI-based. Represents the primary way to invoke an application's Activity.
+    /// </summary>
+    EntryPoint = 4,
 }

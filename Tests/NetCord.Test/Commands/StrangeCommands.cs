@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 using NetCord.Rest;
 using NetCord.Services;
@@ -6,6 +6,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 
+[Command("strange")]
 public partial class StrangeCommands : CommandModule<CommandContext>
 {
     [Command("x")]
@@ -59,8 +60,8 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     [Command("button")]
     public Task Button()
     {
-        ButtonProperties button = new("click it", "Click it!", new(888159212109197382), ButtonStyle.Success);
-        ButtonProperties button2 = new("click it2", "Click it2!", new(888159212109197382), ButtonStyle.Danger);
+        ButtonProperties button = new("click it", "Click it!", EmojiProperties.Custom(888159212109197382), ButtonStyle.Success);
+        ButtonProperties button2 = new("click it2", "Click it2!", EmojiProperties.Custom(888159212109197382), ButtonStyle.Danger);
         ActionRowProperties actionRow = new([button, button2]);
         MessageProperties messageBuilder = new()
         {
@@ -100,7 +101,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("s")]
-    public Task S([DefaultParameterValue(null)] params string[]? s)
+    public Task S([DefaultParameterValue(null)] params IEnumerable<string>? s)
     {
         if (s is not null)
             return ReplyAsync("s: " + string.Join('\n', s));
@@ -161,7 +162,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         var fields = new EmbedFieldProperties[]
         {
             new() { Name = "Id", Value = id.ToString()! },
-            new() { Name = "Created At", Value = new Timestamp(Snowflake.CreatedAt(id)).ToString() },
+            new() { Name = "Created At", Value = new Timestamp(Snowflake.Timestamp(id)).ToString() },
             new() { Name = "Internal Worker Id", Value = Snowflake.InternalWorkerId(id).ToString() },
             new() { Name = "Internal Process Id", Value = Snowflake.InternalProcessId(id).ToString() },
             new() { Name = "Increment", Value = Snowflake.Increment(id).ToString() },

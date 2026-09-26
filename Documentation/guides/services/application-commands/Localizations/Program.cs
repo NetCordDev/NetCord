@@ -1,4 +1,4 @@
-﻿using NetCord;
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Logging;
 using NetCord.Rest;
@@ -37,7 +37,7 @@ client.InteractionCreate += async interaction =>
     }
 };
 
-await applicationCommandService.CreateCommandsAsync(client.Rest, client.Id);
+await applicationCommandService.RegisterCommandsAsync(client.Rest, client.Id);
 
 await client.StartAsync();
 await Task.Delay(-1);

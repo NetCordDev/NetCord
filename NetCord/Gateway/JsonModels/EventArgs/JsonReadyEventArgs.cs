@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
@@ -25,5 +25,5 @@ public class JsonReadyEventArgs
     public Shard? Shard { get; set; }
 
     [JsonPropertyName("application")]
-    public JsonApplication? Application { get; set; }
+    public JsonApplication Application { get; set; }
 }

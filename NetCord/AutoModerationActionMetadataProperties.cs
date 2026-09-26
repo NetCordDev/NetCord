@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord;
 
+[GenerateMethodsForProperties]
 public partial class AutoModerationActionMetadataProperties
 {
     [JsonPropertyName("channel_id")]

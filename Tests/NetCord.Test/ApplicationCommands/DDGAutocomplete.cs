@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;

@@ -1,16 +1,21 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
+using NetCord.Services.Utils;
 
 namespace NetCord.Services.ApplicationCommands;
 
 public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal SubSlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type,
+                                      SubSlashCommandAttribute attribute,
+                                      ApplicationCommandServiceConfiguration<TContext> configuration,
+                                      ImmutableList<LocalizationPathSegment> path,
+                                      AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider)
     {
         var name = Name = attribute.Name;
 
@@ -18,50 +23,59 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
+        var attributes = Attribute.GetCustomAttributes(type);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
         Description = attribute.Description;
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type, attributes);
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, localizationPath)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, localizationPath, autocompleteDelegateProvider)));
         }
 
         if (subCommands.Count == 0)
-            throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
+            throw new InvalidDefinitionException($"No sub commands found.", type);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
-    internal SubSlashCommandGroupInfo(string name, string description, Action<SubSlashCommandBuilder> builder, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandGroupInfo(SubSlashCommandGroupBuilder builder,
+                                      ApplicationCommandServiceConfiguration<TContext> configuration,
+                                      ImmutableList<LocalizationPathSegment> path,
+                                      AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider)
     {
-        Name = name;
+        var name = Name = builder.Name;
 
         var localizationPath = LocalizationPath = path.Add(new SubSlashCommandGroupLocalizationPathSegment(name));
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
-        Description = description;
+        Attributes = FrozenDictionary<Type, IReadOnlyList<Attribute>>.Empty;
+
+        Description = builder.Description;
 
         Preconditions = [];
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
-        SubSlashCommandBuilder slashCommandBuilder = new();
-        builder(slashCommandBuilder);
+        var subCommandBuilders = builder._subCommands;
+        int subCommandCount = subCommandBuilders.Count;
 
-        var subCommandsInfo = slashCommandBuilder.SubCommands;
-        int subCommandsCount = subCommandsInfo.Count;
-
-        for (int i = 0; i < subCommandsCount; i++)
+        for (int i = 0; i < subCommandCount; i++)
         {
-            var subCommandInfo = subCommandsInfo[i];
-            SubSlashCommandInfo<TContext> subCommand = new(subCommandInfo.Name, subCommandInfo.Description, subCommandInfo.Handler, configuration, localizationPath);
-            subCommands.Add(new(subCommandInfo.Name, subCommand));
+            var subCommandBuilder = subCommandBuilders[i];
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, localizationPath, autocompleteDelegateProvider);
+            subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
+
+        if (subCommands.Count == 0)
+            throw new InvalidDefinitionException($"No sub commands found.", builder.Name);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
@@ -69,6 +83,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Description { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
@@ -81,7 +96,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         var option = options[0];
         if (!SubCommands.TryGetValue(option.Name, out var subCommand))
-            return new NotFoundResult("Command not found.");
+            return NotFoundResult.Command;
 
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
@@ -110,12 +125,6 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         if (SubCommands.TryGetValue(option.Name, out var subCommand))
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
-        return new(new NotFoundResult("Command not found."));
-    }
-
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
-    {
-        foreach (var subCommand in SubCommands.Values)
-            subCommand.InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
+        return new(NotFoundResult.Command);
     }
 }

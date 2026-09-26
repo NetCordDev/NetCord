@@ -8,41 +8,6 @@ namespace VoiceEncryptionTest;
 public class Test
 {
     [TestMethod]
-    public void XSalsa20Poly1305EncryptionTest()
-    {
-        using XSalsa20Poly1305Encryption encryption = new();
-        TestEncryption(encryption);
-    }
-
-    [TestMethod]
-    public void XSalsa20Poly1305LiteEncryptionTest()
-    {
-        using XSalsa20Poly1305LiteEncryption encryption = new();
-        TestEncryption(encryption);
-    }
-
-    [TestMethod]
-    public void XSalsa20Poly1305SuffixEncryptionTest()
-    {
-        using XSalsa20Poly1305SuffixEncryption encryption = new();
-        TestEncryption(encryption);
-    }
-
-    [TestMethod]
-    public void Aes256GcmEncryptionTest()
-    {
-        using Aes256GcmEncryption encryption = new();
-        TestEncryption(encryption);
-    }
-
-    [TestMethod]
-    public void XSalsa20Poly1305LiteRtpSizeEncryptionTest()
-    {
-        using XSalsa20Poly1305LiteRtpSizeEncryption encryption = new();
-        TestEncryption(encryption);
-    }
-
-    [TestMethod]
     public void Aes256GcmRtpSizeEncryptionTest()
     {
         using Aes256GcmRtpSizeEncryption encryption = new();
@@ -72,22 +37,45 @@ public class Test
         var key = Enumerable.Range(0, 32).Select(i => (byte)i).ToArray();
         encryption.SetKey(key);
 
+        TestEncryptionRegularMethods(encryption, headerExtension);
+        TestEncryptionTryMethods(encryption, headerExtension);
+    }
+
+    private static void TestEncryptionRegularMethods(IVoiceEncryption encryption, HeaderExtensionInfo headerExtension)
+    {
         int dataLength = 324;
 
-        var plaintext = GetData(dataLength, encryption.ExtensionEncryption, headerExtension);
+        var plaintext = GetData(dataLength, headerExtension);
 
-        var datagram = CreateDatagram(dataLength, encryption.Expansion, encryption.ExtensionEncryption, headerExtension);
+        var datagram = CreateDatagram(dataLength, encryption.Expansion, headerExtension);
 
-        encryption.Encrypt(plaintext, new(datagram, encryption.ExtensionEncryption));
+        encryption.Encrypt(plaintext, new(datagram));
 
         var plaintext2 = new byte[plaintext.Length];
 
-        encryption.Decrypt(new(datagram, encryption.ExtensionEncryption), plaintext2);
+        encryption.Decrypt(new(datagram), plaintext2);
 
         CollectionAssert.AreEqual(plaintext, plaintext2);
     }
 
-    private static byte[] CreateDatagram(int dataLength, int expansion, bool extensionEncryption, HeaderExtensionInfo headerExtension)
+    private static void TestEncryptionTryMethods(IVoiceEncryption encryption, HeaderExtensionInfo headerExtension)
+    {
+        int dataLength = 324;
+
+        var plaintext = GetData(dataLength, headerExtension);
+
+        var datagram = CreateDatagram(dataLength, encryption.Expansion, headerExtension);
+
+        Assert.IsTrue(encryption.TryEncrypt(plaintext, new(datagram)));
+
+        var plaintext2 = new byte[plaintext.Length];
+
+        Assert.IsTrue(encryption.TryDecrypt(new(datagram), plaintext2));
+
+        CollectionAssert.AreEqual(plaintext, plaintext2);
+    }
+
+    private static byte[] CreateDatagram(int dataLength, int expansion, HeaderExtensionInfo headerExtension)
     {
         int length = 12 + expansion + dataLength;
 
@@ -101,22 +89,19 @@ public class Test
         datagram[0] = headerExtension.Enabled ? (byte)0x90 : (byte)0x80;
         datagram[1] = 0x78;
 
-        if (!extensionEncryption && headerExtension.Enabled)
+        if (headerExtension.Enabled)
             headerExtension.Write(datagram[12..]);
 
         return result;
     }
 
-    private static byte[] GetData(int length, bool extensionEncryption, HeaderExtensionInfo headerExtension)
+    private static byte[] GetData(int length, HeaderExtensionInfo headerExtension)
     {
         int extensionLength = 0;
 
         if (headerExtension.Enabled)
         {
             extensionLength += 4 * headerExtension.Length;
-
-            if (extensionEncryption)
-                extensionLength += 4;
         }
 
         length += extensionLength;
@@ -124,9 +109,6 @@ public class Test
         var result = new byte[length];
 
         var data = result.AsSpan();
-
-        if (extensionEncryption && headerExtension.Enabled)
-            headerExtension.Write(data);
 
         for (int i = extensionLength; i < length; i++)
             data[i] = (byte)i;

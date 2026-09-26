@@ -1,4 +1,4 @@
-﻿using NetCord.Hosting;
+using NetCord.Hosting;
 
 namespace NetCord.Test.Hosting.AspNetCore;
 

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 internal class QueryPaginationAsyncEnumerable<T, TFrom>(
     RestClient client,

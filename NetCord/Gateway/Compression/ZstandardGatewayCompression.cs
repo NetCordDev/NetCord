@@ -1,4 +1,4 @@
-﻿using static NetCord.Gateway.Compression.Zstandard;
+using static NetCord.Gateway.Compression.Zstandard;
 
 namespace NetCord.Gateway.Compression;
 
@@ -20,7 +20,7 @@ public sealed partial class ZstandardGatewayCompression : IGatewayCompression
     public unsafe ReadOnlySpan<byte> Decompress(ReadOnlySpan<byte> payload)
     {
         var writer = _writer;
-        var zstdStream = _zstdStream!;
+        var zstdStream = _zstdStream;
 
         writer.Clear();
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
@@ -7,12 +7,12 @@ namespace NetCord.Services.EnumTypeReaders;
 
 internal static class EnumValueTypeReader
 {
-    public unsafe static IEnumTypeReader Create(Type enumType, CultureInfo cultureInfo)
+    public static IEnumTypeReader Create(Type enumType, CultureInfo cultureInfo)
     {
         return Create(enumType, EnumHelper.GetFields(enumType), cultureInfo);
     }
 
-    public unsafe static IEnumTypeReader Create(Type enumType, FieldInfo[] fields, CultureInfo cultureInfo)
+    public static unsafe IEnumTypeReader Create(Type enumType, FieldInfo[] fields, CultureInfo cultureInfo)
     {
         return Type.GetTypeCode(enumType) switch
         {

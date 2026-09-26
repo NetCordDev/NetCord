@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
@@ -14,9 +14,8 @@ builder.Services
                           | GatewayIntents.DirectMessageReactions
                           | GatewayIntents.GuildMessageReactions;
     })
-    .AddGatewayEventHandlers(typeof(Program).Assembly);
+    .AddGatewayHandlers(typeof(Program).Assembly);
 
-var host = builder.Build()
-    .UseGatewayEventHandlers();
+var host = builder.Build();
 
 await host.RunAsync();

@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +25,12 @@ public class ApplicationCommandModule : ApplicationCommandModule<ApplicationComm
     public static string Length(RestMessage message)
     {
         return message.Content.Length.ToString();
+    }
+
+    [EntryPointCommand("Launch", "Launch!")]
+    public static InteractionCallbackProperties Launch()
+    {
+        return InteractionCallback.LaunchActivity;
     }
 }
 

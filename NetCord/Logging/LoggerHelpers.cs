@@ -1,4 +1,4 @@
-﻿namespace NetCord.Logging;
+namespace NetCord.Logging;
 
 internal static class LoggerHelpers
 {
@@ -19,5 +19,10 @@ internal static class LoggerHelpers
             LogLevel.Critical => "Crit ",
             _ => throw new ArgumentOutOfRangeException(nameof(logLevel))
         };
+    }
+
+    public static bool IsLogLevelEnabled(LogLevel logLevel, LogLevel minimumLogLevel)
+    {
+        return logLevel >= minimumLogLevel;
     }
 }

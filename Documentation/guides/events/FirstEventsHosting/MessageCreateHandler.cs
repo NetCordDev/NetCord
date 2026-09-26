@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 
 namespace MyBot;
 
-[GatewayEvent(nameof(GatewayClient.MessageCreate))]
-public class MessageCreateHandler(ILogger<MessageCreateHandler> logger) : IGatewayEventHandler<Message>
+public class MessageCreateHandler(ILogger<MessageCreateHandler> logger) : IMessageCreateGatewayHandler
 {
     public ValueTask HandleAsync(Message message)
     {

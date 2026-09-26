@@ -1,33 +1,43 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Represents a modification to apply to a message.
+/// </summary>
+[GenerateMethodsForProperties]
 public partial class MessageOptions : IHttpSerializable
 {
     internal MessageOptions()
     {
     }
 
+    /// <inheritdoc cref="IMessageProperties.Content"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("content")]
     public string? Content { get; set; }
 
+    /// <inheritdoc cref="IMessageProperties.Embeds"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("embeds")]
     public IEnumerable<EmbedProperties>? Embeds { get; set; }
 
+    /// <inheritdoc cref="IMessageProperties.Flags"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("flags")]
     public MessageFlags? Flags { get; set; }
 
+    /// <inheritdoc cref="IMessageProperties.AllowedMentions"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("allowed_mentions")]
     public AllowedMentionsProperties? AllowedMentions { get; set; }
 
+    /// <inheritdoc cref="IMessageProperties.Components"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("components")]
-    public IEnumerable<IComponentProperties>? Components { get; set; }
+    public IEnumerable<IMessageComponentProperties>? Components { get; set; }
 
+    /// <inheritdoc cref="IMessageProperties.Attachments"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]
     [JsonPropertyName("attachments")]
@@ -35,11 +45,6 @@ public partial class MessageOptions : IHttpSerializable
 
     public HttpContent Serialize()
     {
-        MultipartFormDataContent content = new()
-        {
-            { new JsonContent<MessageOptions>(this, Serialization.Default.MessageOptions), "payload_json" },
-        };
-        AttachmentProperties.AddAttachments(content, Attachments);
-        return content;
+        return IMessageProperties.Serialize(this, Serialization.Default.MessageOptions, Attachments);
     }
 }

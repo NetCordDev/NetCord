@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -31,6 +31,9 @@ public class JsonInteraction : JsonEntity
     [JsonPropertyName("token")]
     public string Token { get; set; }
 
+    [JsonPropertyName("version")]
+    public int Version { get; set; }
+
     [JsonPropertyName("message")]
     public JsonMessage? Message { get; set; }
 
@@ -51,4 +54,7 @@ public class JsonInteraction : JsonEntity
 
     [JsonPropertyName("context")]
     public InteractionContextType? Context { get; set; }
+
+    [JsonPropertyName("attachment_size_limit")]
+    public long AttachmentSizeLimit { get; set; }
 }

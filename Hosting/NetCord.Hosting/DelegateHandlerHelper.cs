@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 using NetCord.Hosting.Services;
 using NetCord.Services.Helpers;

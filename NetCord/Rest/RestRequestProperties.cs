@@ -1,5 +1,9 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
+/// <summary>
+/// A set of optional properties that can be used to customize requests.
+/// </summary>
+[GenerateMethodsForProperties]
 public sealed partial class RestRequestProperties
 {
     /// <summary>
@@ -13,9 +17,9 @@ public sealed partial class RestRequestProperties
     public string? AuditLogReason { get; set; }
 
     /// <summary>
-    /// The error localization. This is used to localize error messages returned by Discord.
+    /// The localization used for data returned by Discord.
     /// </summary>
-    public string? ErrorLocalization { get; set; }
+    public string? Localization { get; set; }
 
     internal readonly record struct RestRequestHeaderInfo(string Name, IEnumerable<string> Values);
 
@@ -25,8 +29,8 @@ public sealed partial class RestRequestProperties
         if (auditLogReason is not null)
             yield return new("X-Audit-Log-Reason", [Uri.EscapeDataString(auditLogReason)]);
 
-        var errorLocalization = ErrorLocalization;
-        if (errorLocalization is not null)
-            yield return new("Accept-Language", [Uri.EscapeDataString(errorLocalization)]);
+        var localization = Localization;
+        if (localization is not null)
+            yield return new("Accept-Language", [Uri.EscapeDataString(localization)]);
     }
 }

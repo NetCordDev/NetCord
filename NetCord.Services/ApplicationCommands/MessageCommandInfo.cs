@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
@@ -11,47 +11,37 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
     internal MessageCommandInfo(MethodInfo method,
                                 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                                 MessageCommandAttribute attribute,
-                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration, method, out var methodAttributes)
     {
         var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(RestMessage));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes, declaringType);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal MessageCommandInfo(string name,
-                                Delegate handler,
-                                Permissions? defaultGuildUserPermissions,
-                                bool? dMPermission,
-                                bool defaultPermission,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                                IEnumerable<InteractionContextType>? contexts,
-                                bool nsfw,
-                                ulong? guildId,
-                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                       defaultGuildUserPermissions,
-                                                                                                       dMPermission,
-                                                                                                       defaultPermission,
-                                                                                                       integrationTypes,
-                                                                                                       contexts,
-                                                                                                       nsfw,
-                                                                                                       guildId,
-                                                                                                       configuration)
+    internal MessageCommandInfo(MessageCommandBuilder builder,
+                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
+                                                                                                       configuration,
+                                                                                                       builder.Handler.Method,
+                                                                                                       out var methodAttributes)
     {
+        var handler = builder.Handler;
+
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
         var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(RestMessage));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     private readonly bool _messageParameter;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.Message;
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
@@ -78,17 +68,13 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
 
     public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         return new MessageCommandProperties(Name)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

@@ -1,0 +1,39 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace NetCord.Rest;
+
+/// <summary>
+/// Entry point command serves as the primary way for users to open an application's Activity from the App Launcher.
+/// You can create only a single Entry Point command per application.
+/// </summary>
+/// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /></param>
+/// <param name="description"><inheritdoc cref="Description" path="/summary" /></param>
+/// <param name="handler"><inheritdoc cref="Handler" path="/summary" /></param>
+[GenerateMethodsForProperties]
+public partial class EntryPointCommandProperties(string name, string description, EntryPointCommandHandler handler) : ApplicationCommandProperties(ApplicationCommandType.EntryPoint, name)
+{
+    /// <summary>
+    /// Description of the command (1-100 characters).
+    /// </summary>
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = description;
+
+    /// <summary>
+    /// Localizations of <see cref="Description"/> (1-100 characters each).
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("description_localizations")]
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }
+
+    /// <summary>
+    /// Determines whether the interaction is handled by the application's interactions handler or by Discord.
+    /// </summary>
+    [JsonPropertyName("handler")]
+    public EntryPointCommandHandler Handler { get; set; } = handler;
+
+    private protected override void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.EntryPointCommandProperties);
+    }
+}

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
@@ -11,47 +11,37 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
     internal UserCommandInfo(MethodInfo method,
                              [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                              UserCommandAttribute attribute,
-                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration, method, out var methodAttributes)
     {
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(User));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes, declaringType);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal UserCommandInfo(string name,
-                             Delegate handler,
-                             Permissions? defaultGuildUserPermissions,
-                             bool? dMPermission,
-                             bool defaultPermission,
-                             IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                             IEnumerable<InteractionContextType>? contexts,
-                             bool nsfw,
-                             ulong? guildId,
-                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                    defaultGuildUserPermissions,
-                                                                                                    dMPermission,
-                                                                                                    defaultPermission,
-                                                                                                    integrationTypes,
-                                                                                                    contexts,
-                                                                                                    nsfw,
-                                                                                                    guildId,
-                                                                                                    configuration)
+    internal UserCommandInfo(UserCommandBuilder builder,
+                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
+                                                                                                    configuration,
+                                                                                                    builder.Handler.Method,
+                                                                                                    out var methodAttributes)
     {
+        var handler = builder.Handler;
+
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(User));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     private readonly bool _userParameter;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.User;
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
@@ -78,17 +68,13 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
 
     public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         return new UserCommandProperties(Name)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

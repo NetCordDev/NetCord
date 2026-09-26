@@ -1,9 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class StringMenuProperties(string customId, IEnumerable<StringMenuSelectOptionProperties> options) : MenuProperties(customId), IStringMenuProperties, IEnumerable<StringMenuSelectOptionProperties>
 {
     public StringMenuProperties(string customId) : this(customId, [])
@@ -12,11 +14,20 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
 
     public override ComponentType ComponentType => ComponentType.StringMenu;
 
-    [JsonPropertyName("options")]
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; } = options;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Add(StringMenuSelectOptionProperties option) => AddOptions(option);
+
+    private protected override void WriteToMessage(Utf8JsonWriter writer)
+    {
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.IStringMenuProperties);
+    }
+
+    private protected override void WriteToLabel(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.IStringMenuProperties);
+    }
 
     IEnumerator<StringMenuSelectOptionProperties> IEnumerable<StringMenuSelectOptionProperties>.GetEnumerator() => Options.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Options).GetEnumerator();
@@ -24,11 +35,8 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
 
 // Required not to serialize 'StringMenuProperties' as 'IEnumerable<out T>'
 // https://github.com/dotnet/runtime/issues/63791
-internal interface IStringMenuProperties : IComponentProperties
+internal interface IStringMenuProperties : IInteractiveComponentProperties
 {
-    [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; set; }
@@ -47,4 +55,8 @@ internal interface IStringMenuProperties : IComponentProperties
 
     [JsonPropertyName("options")]
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
 }

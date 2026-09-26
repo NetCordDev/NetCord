@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.Voice.JsonModels;
@@ -8,6 +8,9 @@ internal class JsonSessionDescription
     [JsonConverter(typeof(ByteArrayOfLength32Converter))]
     [JsonPropertyName("secret_key")]
     public byte[] SecretKey { get; set; }
+
+    [JsonPropertyName("dave_protocol_version")]
+    public ushort DaveProtocolVersion { get; set; }
 
     public class ByteArrayOfLength32Converter : JsonConverter<byte[]>
     {

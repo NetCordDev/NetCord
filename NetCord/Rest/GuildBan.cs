@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public partial class GuildBan(JsonModels.JsonGuildBan jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonModels.JsonGuildBan>
 {

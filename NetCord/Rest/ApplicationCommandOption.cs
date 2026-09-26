@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCommandOption>, ISpanFormattable
 {
@@ -74,6 +74,11 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
     /// If autocomplete interactions are enabled for the option.
     /// </summary>
     public bool Autocomplete => _jsonModel.Autocomplete;
+
+    /// <summary>
+    /// File types to filter for; can be <c>image</c>, <c>video</c>, <c>audio</c>, or any dot-prefixed extension such as <c>.pdf</c> (max 10).
+    /// </summary>
+    public IReadOnlyList<string>? FileTypes => _jsonModel.FileTypes;
 
     private readonly string _fullName;
 

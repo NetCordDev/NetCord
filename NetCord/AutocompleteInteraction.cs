@@ -1,9 +1,13 @@
-﻿using NetCord.Gateway;
+using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public class AutocompleteInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client) : Interaction(jsonModel, guild, sendResponseAsync, client)
+public class AutocompleteInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : Interaction(jsonModel, guild, sendResponseAsync, client)
 {
     public override AutocompleteInteractionData Data { get; } = new(jsonModel.Data!, jsonModel.GuildId, client);
+}
+
+public class AutocompleteInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : SlashCommandInteractionData(jsonModel, guildId, client)
+{
 }

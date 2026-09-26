@@ -400,7 +400,25 @@ article,
   border-radius: 8px;
   box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
   text-align: left;
+  transition: transform ease 0.3s;
+  position: relative;
 }
+
+  .feature-item::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 -7px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .feature-item:hover {
+    transform: translateY(-7px);
+  }
+
+    .feature-item:hover::after {
+      pointer-events: auto;
+    }
 
 [data-bs-theme="dark"]
 .feature-item {

@@ -1,34 +1,35 @@
-﻿using System.Collections;
-
 using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class MentionableMenu : EntityMenu
+public class MentionableMenu : EntityMenu, IJsonModel<JsonMentionableMenuComponent>
 {
-    public MentionableMenu(JsonComponent jsonModel, int parentId) : base(jsonModel, GetDefaultValues(jsonModel, out var defaultValues), parentId)
+    JsonMentionableMenuComponent IJsonModel<JsonMentionableMenuComponent>.JsonModel => GetJsonModel<JsonMentionableMenuComponent>();
+
+    public MentionableMenu(JsonMentionableMenuComponent jsonModel, int parentId) : base(jsonModel,
+                                                                         GetDefaultValues(jsonModel, out var defaultValues),
+                                                                         parentId)
     {
         DefaultValues = defaultValues;
     }
 
-    private static DefaultValuesWrapper GetDefaultValues(JsonComponent jsonModel, out MentionableMenuDefaultValue[] defaultValues)
+    public unsafe MentionableMenu(JsonMentionableMenuComponent jsonModel,
+                                  int parentId,
+                                  InteractionResolvedData? resolvedData) : base(jsonModel,
+                                                                                GetDefaultValues(jsonModel, out var defaultValues),
+                                                                                parentId,
+                                                                                GetSelectedValues(jsonModel, &EntityMenuHelper.GetMentionableValues, out var selectedValues, resolvedData))
+    {
+        DefaultValues = defaultValues;
+
+        SelectedValues = selectedValues;
+    }
+
+    private static EntityArrayWrapper<MentionableMenuDefaultValue> GetDefaultValues(JsonMentionableMenuComponent jsonModel,
+                                                                                    out MentionableMenuDefaultValue[] defaultValues)
         => new(defaultValues = jsonModel.DefaultValues.SelectOrEmpty(d => new MentionableMenuDefaultValue(d)).ToArray());
 
     public new IReadOnlyList<MentionableMenuDefaultValue> DefaultValues { get; }
 
-    private class DefaultValuesWrapper(MentionableMenuDefaultValue[] defaultValues) : IReadOnlyList<ulong>
-    {
-        public ulong this[int index] => defaultValues[index].Id;
-
-        public int Count => defaultValues.Length;
-
-        public IEnumerator<ulong> GetEnumerator()
-        {
-            int length = defaultValues.Length;
-            for (int i = 0; i < length; i++)
-                yield return defaultValues[i].Id;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    public new IReadOnlyList<Mentionable>? SelectedValues { get; }
 }

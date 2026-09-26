@@ -1,6 +1,11 @@
 # Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
 
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
 # C# files
 [*.cs]
 
@@ -10,10 +15,6 @@ root = true
 indent_size = 4
 indent_style = space
 tab_width = 4
-
-# New line preferences
-end_of_line = crlf
-insert_final_newline = true
 
 #### .NET Coding Conventions ####
 
@@ -231,7 +232,6 @@ csharp_style_prefer_extended_property_pattern = true:suggestion
 csharp_style_prefer_top_level_statements = true:silent
 
 [*.{cs,vb}]
-end_of_line= crlf
 dotnet_diagnostic.CA2007.severity=warning
 dotnet_style_prefer_conditional_expression_over_assignment= true:silent
 dotnet_style_prefer_conditional_expression_over_return= true:silent

@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GuildChannelOptions
 {
     internal GuildChannelOptions()
@@ -66,7 +67,8 @@ public partial class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_reaction_emoji")]
-    public ForumGuildChannelDefaultReactionProperties? DefaultReactionEmoji { get; set; }
+    [JsonConverter(typeof(EmojiProperties.GuildChannelEmojiPropertiesConverter))]
+    public EmojiProperties? DefaultReactionEmoji { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_thread_rate_limit_per_user")]

@@ -1,15 +1,17 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public partial class ComponentSectionThumbnailProperties(ComponentMediaProperties media) : IComponentSectionAccessoryProperties
+[GenerateMethodsForProperties]
+public partial class ComponentSectionThumbnailProperties(ComponentMediaProperties media) : IComponentSectionAccessoryComponentProperties
 {
+    [JsonPropertyName("type")]
+    public ComponentType ComponentType => ComponentType.Thumbnail;
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public int? Id { get; set; }
-
-    [JsonPropertyName("type")]
-    public ComponentType ComponentType => ComponentType.Thumbnail;
 
     [JsonPropertyName("media")]
     public ComponentMediaProperties Media { get; set; } = media;
@@ -20,4 +22,9 @@ public partial class ComponentSectionThumbnailProperties(ComponentMediaPropertie
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("spoiler")]
     public bool Spoiler { get; set; }
+
+    void IJsonSerializable<IComponentSectionAccessoryComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.ComponentSectionThumbnailProperties);
+    }
 }

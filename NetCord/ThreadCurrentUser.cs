@@ -1,9 +1,17 @@
-﻿namespace NetCord;
+using NetCord.JsonModels;
 
-public class ThreadCurrentUser(JsonModels.JsonThreadCurrentUser jsonModel) : IJsonModel<JsonModels.JsonThreadCurrentUser>
+namespace NetCord;
+
+/// <summary>
+/// Represents the current user within an already joined thread.
+/// </summary>
+public class ThreadCurrentUser(JsonThreadCurrentUser jsonModel) : IJsonModel<JsonThreadCurrentUser>
 {
-    JsonModels.JsonThreadCurrentUser IJsonModel<JsonModels.JsonThreadCurrentUser>.JsonModel => jsonModel;
+    JsonThreadCurrentUser IJsonModel<JsonThreadCurrentUser>.JsonModel => jsonModel;
 
+    /// <inheritdoc cref="ThreadUser.JoinTimestamp"/>
     public DateTimeOffset JoinTimestamp => jsonModel.JoinTimestamp;
-    public int Flags => jsonModel.Flags;
+
+    /// <inheritdoc cref="ThreadUser.Flags"/>
+    public ThreadUserFlags Flags => jsonModel.Flags;
 }

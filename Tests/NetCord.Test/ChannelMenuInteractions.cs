@@ -1,4 +1,4 @@
-﻿using NetCord.Rest;
+using NetCord.Rest;
 using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
@@ -8,6 +8,6 @@ public class ChannelMenuInteractions : ComponentInteractionModule<ChannelMenuInt
     [ComponentInteraction("channels")]
     public Task ChannelsAsync()
     {
-        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedChannels)}"));
+        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedValues)}"));
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class AutoModerationActionExecutionEventArgs : IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>
 {

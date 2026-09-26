@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
@@ -19,5 +19,5 @@ public class JsonGuildThreadUsersUpdateEventArgs
     public JsonThreadUser[]? AddedUsers { get; set; }
 
     [JsonPropertyName("removed_member_ids")]
-    public ulong[] RemovedUserIds { get; set; }
+    public ulong[]? RemovedUserIds { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.Compression;
+using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
@@ -11,18 +11,20 @@ internal static class ShardedGatewayClientConfigurationFactory
 {
     public static ShardedGatewayClientConfiguration Create(Func<Shard, IWebSocketConnectionProvider?>? webSocketConnectionProviderFactory,
                                                            Func<Shard, IRateLimiterProvider?>? rateLimiterProviderFactory,
-                                                           Func<Shard, WebSocketPayloadProperties?>? defaultPayloadPropertiesFactory,
+                                                           Func<Shard, WebSocketMessageProperties?>? defaultMessagePropertiesFactory,
                                                            Func<Shard, IReconnectStrategy?>? reconnectStrategyFactory,
                                                            Func<Shard, ILatencyTimer?>? latencyTimerFactory,
                                                            Func<Shard, ApiVersion?>? versionFactory,
-                                                           Func<Shard, IGatewayClientCache?>? cacheFactory,
+                                                           Func<Shard, IGatewayClientCacheProvider?>? cacheProviderFactory,
                                                            Func<Shard, IGatewayCompression?>? compressionFactory,
                                                            Func<Shard, GatewayIntents?>? intentsFactory,
                                                            string? hostname,
                                                            Func<Shard, ConnectionPropertiesProperties?>? connectionPropertiesFactory,
                                                            Func<Shard, int?>? largeThresholdFactory,
                                                            Func<Shard, PresenceProperties?>? presenceFactory,
-                                                           int? shardCount,
+                                                           int? maxConcurrency,
+                                                           Range? shardRange,
+                                                           int? totalShardCount,
                                                            RestClientConfiguration? restClientConfiguration,
                                                            Func<Shard?, IGatewayLogger?>? loggerFactory)
     {
@@ -30,18 +32,20 @@ internal static class ShardedGatewayClientConfigurationFactory
         {
             WebSocketConnectionProviderFactory = webSocketConnectionProviderFactory,
             RateLimiterProviderFactory = rateLimiterProviderFactory,
-            DefaultPayloadPropertiesFactory = defaultPayloadPropertiesFactory,
+            DefaultMessagePropertiesFactory = defaultMessagePropertiesFactory,
             ReconnectStrategyFactory = reconnectStrategyFactory,
             LatencyTimerFactory = latencyTimerFactory,
             VersionFactory = versionFactory,
-            CacheFactory = cacheFactory,
+            CacheProviderFactory = cacheProviderFactory,
             CompressionFactory = compressionFactory,
             IntentsFactory = intentsFactory,
             Hostname = hostname,
             ConnectionPropertiesFactory = connectionPropertiesFactory,
             LargeThresholdFactory = largeThresholdFactory,
             PresenceFactory = presenceFactory,
-            ShardCount = shardCount,
+            MaxConcurrency = maxConcurrency,
+            ShardRange = shardRange,
+            TotalShardCount = totalShardCount,
             RestClientConfiguration = restClientConfiguration,
             LoggerFactory = loggerFactory,
         };

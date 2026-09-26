@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class MessageActivity(JsonModels.JsonMessageActivity jsonModel) : IJsonModel<JsonModels.JsonMessageActivity>
 {

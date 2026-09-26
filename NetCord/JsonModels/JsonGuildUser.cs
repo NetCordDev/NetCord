@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -19,11 +19,8 @@ public class JsonGuildUser
     [JsonPropertyName("roles")]
     public ulong[] RoleIds { get; set; }
 
-    [JsonPropertyName("hoisted_role")]
-    public ulong? HoistedRoleId { get; set; }
-
     [JsonPropertyName("joined_at")]
-    public DateTimeOffset JoinedAt { get; set; }
+    public DateTimeOffset? JoinedAt { get; set; }
 
     [JsonPropertyName("premium_since")]
     public DateTimeOffset? GuildBoostStart { get; set; }

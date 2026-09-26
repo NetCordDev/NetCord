@@ -1,4 +1,4 @@
-﻿using NetCord;
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Logging;
 using NetCord.Rest;
@@ -15,9 +15,9 @@ GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), 
 ApplicationCommandService<ApplicationCommandContext> applicationCommandService = new();
 
 // Add commands using minimal APIs
-applicationCommandService.AddSlashCommand("ping", "Ping!", () => "Pong!");
-applicationCommandService.AddUserCommand("Username", (User user) => user.Username);
-applicationCommandService.AddMessageCommand("Length", (RestMessage message) => message.Content.Length.ToString());
+applicationCommandService.AddSlashCommand(new SlashCommandBuilder("ping", "Ping!", () => "Pong!"));
+applicationCommandService.AddUserCommand(new UserCommandBuilder("Username", (User user) => user.Username));
+applicationCommandService.AddMessageCommand(new MessageCommandBuilder("Length", (RestMessage message) => message.Content.Length.ToString()));
 
 // Add commands from modules
 applicationCommandService.AddModules(typeof(Program).Assembly);
@@ -46,8 +46,8 @@ client.InteractionCreate += async interaction =>
     }
 };
 
-// Create the commands so that you can use them in the Discord client
-await applicationCommandService.CreateCommandsAsync(client.Rest, client.Id);
+// Register the commands so that you can use them in the Discord client
+await applicationCommandService.RegisterCommandsAsync(client.Rest, client.Id);
 
 await client.StartAsync();
 await Task.Delay(-1);

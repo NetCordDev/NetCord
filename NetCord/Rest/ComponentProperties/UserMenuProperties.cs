@@ -1,10 +1,11 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using NetCord.JsonConverters;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class UserMenuProperties(string customId) : EntityMenuProperties(customId)
 {
     public override ComponentType ComponentType => ComponentType.UserMenu;
@@ -16,6 +17,16 @@ public partial class UserMenuProperties(string customId) : EntityMenuProperties(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_values")]
     public IEnumerable<ulong>? DefaultValues { get; set; }
+
+    private protected override void WriteToMessage(Utf8JsonWriter writer)
+    {
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.UserMenuProperties);
+    }
+
+    private protected override void WriteToLabel(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.UserMenuProperties);
+    }
 
     public class DefaultValuesConverter : MenuPropertiesDefaultValuesConverter
     {

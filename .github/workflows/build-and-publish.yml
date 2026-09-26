@@ -3,54 +3,65 @@ name: Build and Publish
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+-*'
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-         fetch-depth: 0
-         filter: tree:0
+          fetch-depth: 0
+          filter: tree:0
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+
+      - name: Setup dev environment
+        shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
+        run: 'true'
 
       - name: Restore dependencies
+        shell: *dev-shell
         run: dotnet restore
 
       - name: Build
+        shell: *dev-shell
         run: dotnet build -c Release --no-restore --warnaserror
 
       - name: Test
+        shell: *dev-shell
         run: dotnet test -c Release --no-build --verbosity normal
 
       - name: Pack Packages
+        shell: *dev-shell
         run: |
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
+          dotnet pack Hosting/NetCord.Hosting.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup docs environment
+        shell: &docs-shell 'nix develop .#docs -c bash -eo pipefail {0}'
+        run: 'true'
 
       - name: Build Documentation
+        shell: *docs-shell
         working-directory: Documentation
         run: |
-          dotnet tool install docfx -g --version 2.78.3
-          npm install
+          npm ci
           npm run lint
           npm run test
           npm run build
 
       - name: Publish Packages
+        shell: *dev-shell
         env:
           KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
@@ -61,7 +72,7 @@ jobs:
           dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Deploy Documentation
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
@@ -71,9 +82,43 @@ jobs:
           source: Documentation/_site
           strip_components: 2
           target: ~/NetCord/html
-          
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          IS_PRERELEASE: ${{ contains(github.ref_name, '-') }}
+        run: |
+          cp -r Documentation/_site "Documentation-$TAG"
+
+          zip -r "Documentation-$TAG.zip" "Documentation-$TAG"
+          tar -czvf "Documentation-$TAG.tar.gz" "Documentation-$TAG"
+
+          rm -r "Documentation-$TAG"
+
+          FILES=(
+            NetCord/bin/Release/*.*nupkg
+            NetCord.Services/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting.Services/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.*nupkg
+            "Documentation-$TAG.zip"
+            "Documentation-$TAG.tar.gz"
+          )
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" \
+              --clobber \
+              "${FILES[@]}"
+          else
+            gh release create "$TAG" \
+              --generate-notes \
+              --prerelease="$IS_PRERELEASE" \
+              "${FILES[@]}"
+          fi
+
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Build Artifacts
           path: |
@@ -84,7 +129,7 @@ jobs:
             Hosting/NetCord.Hosting.AspNetCore/bin/Release
 
       - name: Upload Documentation Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Documentation Artifacts
           path: Documentation/_site

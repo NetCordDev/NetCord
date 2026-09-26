@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class VoiceRegion(JsonModels.JsonVoiceRegion jsonModel) : IJsonModel<JsonModels.JsonVoiceRegion>
 {

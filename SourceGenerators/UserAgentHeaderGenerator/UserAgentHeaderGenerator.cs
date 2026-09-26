@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
@@ -26,9 +26,11 @@ public class UserAgentHeaderGenerator : IIncrementalGenerator
         {
             context.AddSource("RestClient.g.cs", SourceText.From(
                 $$"""
+                #nullable enable
+
                 namespace NetCord.Rest;
 
-                public partial class RestClient
+                partial class RestClient
                 {
                     private const string UserAgentHeader = "DiscordBot ({{version}}, {{ProjectUrl}})";
                 }

@@ -1,4 +1,3 @@
-﻿using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -7,44 +6,89 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ApplicationCommands;
 
+/// <summary>
+/// Provides functionality for managing and executing application commands with autocomplete support.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
+/// <typeparam name="TAutocompleteContext">The context the invoked autocomplete interactions use.</typeparam>
+/// <param name="configuration">The configuration for the application command service.</param>
 public class ApplicationCommandService<TContext, TAutocompleteContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : ApplicationCommandService<TContext>(configuration) where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
 {
+    /// <summary>
+    /// Executes an autocomplete interaction.
+    /// </summary>
+    /// <param name="context">The autocomplete interaction context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public ValueTask<IExecutionResult> ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
-        var interaction = context.Interaction;
-        var data = interaction.Data;
-        if (TryGetApplicationCommandInfo(data.Id, out var command))
-            return ((IAutocompleteInfo)command).InvokeAutocompleteAsync(context, data.Options, serviceProvider);
+        try
+        {
+            var data = context.Interaction.Data;
+            if (_storage.TryGetCommand(data, out var command) && command is IAutocompleteInfo autocompleteInfo)
+                return autocompleteInfo.InvokeAutocompleteAsync(context, data.Options, serviceProvider);
+        }
+        catch (Exception exception)
+        {
+            return new(new ExecutionExceptionResult(exception));
+        }
 
-        return new(new NotFoundResult("Command not found."));
+        return new(NotFoundResult.Command);
     }
 
-    private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
+    internal override Delegate CreateAutocompleteDelegate([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type autocompleteProviderType,
+                                                          IServiceResolverProvider serviceResolverProvider,
+                                                          MethodInfo method)
     {
-        autocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(_configuration.ServiceResolverProvider);
+        return SlashCommandParameter<TContext>.CreateInvokeAutocompleteDelegate<TAutocompleteContext>(autocompleteProviderType, serviceResolverProvider, method);
     }
 }
 
-public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : IApplicationCommandService where TContext : IApplicationCommandContext
+/// <summary>
+/// Provides functionality for managing and executing application commands.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
+public class ApplicationCommandService<TContext> : IApplicationCommandService where TContext : IApplicationCommandContext
 {
-    private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration = configuration ?? ApplicationCommandServiceConfiguration<TContext>.Default;
-    private protected FrozenDictionary<ulong, ApplicationCommandInfo<TContext>> _commands = FrozenDictionary<ulong, ApplicationCommandInfo<TContext>>.Empty;
+    /// <inheritdoc cref="ApplicationCommandService{TContext}" path="/summary" />
+    /// <param name="configuration"><inheritdoc cref="Configuration" path="/summary" /></param>
+    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
+    {
+        if (configuration is null)
+        {
+            _configuration = ApplicationCommandServiceConfiguration<TContext>.Default;
+            _storage = new NameAndTypeApplicationCommandServiceStorage<TContext>();
+        }
+        else
+        {
+            _configuration = configuration;
+            _storage = configuration.Storage ?? new NameAndTypeApplicationCommandServiceStorage<TContext>();
+        }
+    }
 
-    internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = [];
-    internal readonly Dictionary<ulong, List<ApplicationCommandInfo<TContext>>> _guildCommandsToCreate = [];
+    private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
+    private protected IApplicationCommandServiceStorage<TContext> _storage;
 
-    IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GlobalCommands => _globalCommandsToCreate;
+    private readonly List<ApplicationCommandInfo<TContext>> _commands = [];
 
-    IEnumerable<GuildCommands> IApplicationCommandService.GuildCommands => _guildCommandsToCreate.Select(c => new GuildCommands(c.Key, c.Value));
+    IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.Commands => _commands;
 
+    IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GetCommands() => [.. _commands];
+
+    /// <summary>
+    /// The configuration for the application command service.
+    /// </summary>
     public ApplicationCommandServiceConfiguration<TContext> Configuration => _configuration;
 
-    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => _commands;
+    /// <inheritdoc cref="IApplicationCommandService.GetCommands" />
+    public IReadOnlyList<ApplicationCommandInfo<TContext>> GetCommands() => [.. _commands];
+
+    private AutocompleteDelegateProvider<TContext> GetAutocompleteDelegateProvider() => new(this);
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        foreach (var type in ServiceHelpers.GetModules(typeof(BaseApplicationCommandModule<TContext>), assembly))
+        foreach (var type in ServiceHelpers.GetTopLevelModules(typeof(BaseApplicationCommandModule<TContext>), assembly))
             AddModuleCore(type);
     }
 
@@ -69,14 +113,26 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
         foreach (var slashCommandAttribute in type.GetCustomAttributes<SlashCommandAttribute>())
         {
-            SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(type, slashCommandAttribute, configuration);
-            OnAutocompleteAdd(slashCommandGroupInfo);
+            SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(type, slashCommandAttribute, configuration, GetAutocompleteDelegateProvider());
             AddCommandInfo(slashCommandGroupInfo);
 
             slashCommandGroup = true;
         }
 
-        if (slashCommandGroup)
+        bool entryPointCommand = false;
+
+        foreach (var entryPointCommandAttribute in type.GetCustomAttributes<EntryPointCommandAttribute>())
+        {
+            if (slashCommandGroup)
+                throw new InvalidOperationException($"The type '{type}' cannot have both a slash command and an entry point command defined.");
+
+            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(type, entryPointCommandAttribute, configuration);
+            AddCommandInfo(entryPointCommandInfo);
+
+            entryPointCommand = true;
+        }
+
+        if (slashCommandGroup || entryPointCommand)
             return;
 
         foreach (var method in type.GetMethods())
@@ -85,8 +141,7 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
             {
                 if (applicationCommandAttribute is SlashCommandAttribute slashCommandAttribute)
                 {
-                    SlashCommandInfo<TContext> slashCommandInfo = new(method, type, slashCommandAttribute, configuration);
-                    OnAutocompleteAdd(slashCommandInfo);
+                    SlashCommandInfo<TContext> slashCommandInfo = new(method, type, slashCommandAttribute, configuration, GetAutocompleteDelegateProvider());
                     AddCommandInfo(slashCommandInfo);
                 }
 
@@ -95,198 +150,79 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
                 if (applicationCommandAttribute is MessageCommandAttribute messageCommandAttribute)
                     AddCommandInfo(new MessageCommandInfo<TContext>(method, type, messageCommandAttribute, configuration));
+
+                if (applicationCommandAttribute is EntryPointCommandAttribute entryPointCommandAttribute)
+                    AddCommandInfo(new EntryPointCommandInfo<TContext>(method, type, entryPointCommandAttribute, configuration));
             }
         }
     }
 
-    public void AddSlashCommand(string name,
-                                string description,
-                                Delegate handler,
-                                Permissions? defaultGuildUserPermissions = null,
-                                bool? dMPermission = null,
-                                bool defaultPermission = true,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                IEnumerable<InteractionContextType>? contexts = null,
-                                bool nsfw = false,
-                                ulong? guildId = null)
+    public void AddSlashCommand(SlashCommandBuilder builder)
     {
-        SlashCommandInfo<TContext> slashCommandInfo = new(name,
-                                                          description,
-                                                          handler,
-                                                          defaultGuildUserPermissions,
-                                                          dMPermission,
-                                                          defaultPermission,
-                                                          integrationTypes,
-                                                          contexts,
-                                                          nsfw,
-                                                          guildId,
-                                                          _configuration);
-        OnAutocompleteAdd(slashCommandInfo);
-        AddCommandInfo(slashCommandInfo);
+        AddCommandInfo(new SlashCommandInfo<TContext>(builder, _configuration, GetAutocompleteDelegateProvider()));
     }
 
-    public void AddSlashCommand(string name,
-                                string description,
-                                Action<SlashCommandBuilder> builder,
-                                Permissions? defaultGuildUserPermissions = null,
-                                bool? dMPermission = null,
-                                bool defaultPermission = true,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                IEnumerable<InteractionContextType>? contexts = null,
-                                bool nsfw = false,
-                                ulong? guildId = null)
+    public void AddSlashCommandGroup(SlashCommandGroupBuilder builder)
     {
-        SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(name,
-                                                                    description,
-                                                                    builder,
-                                                                    defaultGuildUserPermissions,
-                                                                    dMPermission,
-                                                                    defaultPermission,
-                                                                    integrationTypes,
-                                                                    contexts,
-                                                                    nsfw,
-                                                                    guildId,
-                                                                    _configuration);
-
-        OnAutocompleteAdd(slashCommandGroupInfo);
-        AddCommandInfo(slashCommandGroupInfo);
+        AddCommandInfo(new SlashCommandGroupInfo<TContext>(builder, _configuration, GetAutocompleteDelegateProvider()));
     }
 
-    public void AddUserCommand(string name,
-                               Delegate handler,
-                               Permissions? defaultGuildUserPermissions = null,
-                               bool? dMPermission = null,
-                               bool defaultPermission = true,
-                               IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                               IEnumerable<InteractionContextType>? contexts = null,
-                               bool nsfw = false,
-                               ulong? guildId = null)
+    public void AddUserCommand(UserCommandBuilder builder)
     {
-        AddCommandInfo(new UserCommandInfo<TContext>(name,
-                                                     handler,
-                                                     defaultGuildUserPermissions,
-                                                     dMPermission,
-                                                     defaultPermission,
-                                                     integrationTypes,
-                                                     contexts,
-                                                     nsfw,
-                                                     guildId,
-                                                     _configuration));
+        AddCommandInfo(new UserCommandInfo<TContext>(builder, _configuration));
     }
 
-    public void AddMessageCommand(string name,
-                                  Delegate handler,
-                                  Permissions? defaultGuildUserPermissions = null,
-                                  bool? dMPermission = null,
-                                  bool defaultPermission = true,
-                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                  IEnumerable<InteractionContextType>? contexts = null,
-                                  bool nsfw = false,
-                                  ulong? guildId = null)
+    public void AddMessageCommand(MessageCommandBuilder builder)
     {
-        AddCommandInfo(new MessageCommandInfo<TContext>(name,
-                                                        handler,
-                                                        defaultGuildUserPermissions,
-                                                        dMPermission,
-                                                        defaultPermission,
-                                                        integrationTypes,
-                                                        contexts,
-                                                        nsfw,
-                                                        guildId,
-                                                        _configuration));
+        AddCommandInfo(new MessageCommandInfo<TContext>(builder, _configuration));
     }
 
-    void IApplicationCommandService.SetCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands)
+    public void AddEntryPointCommand(EntryPointCommandBuilder builder)
     {
-        _commands = commands.ToFrozenDictionary(c => c.Key, c => (ApplicationCommandInfo<TContext>)c.Value);
+        AddCommandInfo(new EntryPointCommandInfo<TContext>(builder, _configuration));
     }
 
-    int IApplicationCommandService.GetApproximateCommandsCount(bool includeGuildCommands)
-        => includeGuildCommands ? _globalCommandsToCreate.Count + _guildCommandsToCreate.Count : _globalCommandsToCreate.Count;
+    void IApplicationCommandService.AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo> commands)
+    {
+        _storage.AddRegisteredCommands([.. commands.Select(c => new RegisteredApplicationCommandInfo<TContext>(c.Command, (ApplicationCommandInfo<TContext>)c.CommandInfo))]);
+    }
 
     private void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)
     {
-        if (applicationCommandInfo.GuildId.HasValue)
-        {
-            var guildCommandsToCreate = _guildCommandsToCreate;
-            if (!guildCommandsToCreate.TryGetValue(applicationCommandInfo.GuildId.GetValueOrDefault(), out var list))
-                guildCommandsToCreate.Add(applicationCommandInfo.GuildId.GetValueOrDefault(), list = []);
-
-            list.Add(applicationCommandInfo);
-        }
-        else
-            _globalCommandsToCreate.Add(applicationCommandInfo);
+        _commands.Add(applicationCommandInfo);
+        _storage.AddCommand(applicationCommandInfo);
     }
 
-    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ApplicationCommand>> RegisterCommandsAsync(RestClient client, ulong applicationId, ulong? guildId = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        var globalCommandsToCreate = _globalCommandsToCreate;
-        int globalCount = globalCommandsToCreate.Count;
-        var globalProperties = new ApplicationCommandProperties[globalCount];
-
-        for (int i = 0; i < globalCount; i++)
-            globalProperties[i] = await globalCommandsToCreate[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
-
-        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties, cancellationToken).ConfigureAwait(false);
-
-        int count = ((IApplicationCommandService)this).GetApproximateCommandsCount(includeGuildCommands);
-        List<KeyValuePair<ulong, ApplicationCommandInfo<TContext>>> commands = new(count);
-        List<ApplicationCommand> result = new(count);
-
-        foreach (var (command, commandInfo) in created.Zip(globalCommandsToCreate))
-        {
-            commands.Add(new(command.Id, commandInfo));
-            result.Add(command);
-        }
-
-        if (includeGuildCommands)
-        {
-            foreach (var guildCommandsPair in _guildCommandsToCreate)
-            {
-                var guildCommands = guildCommandsPair.Value;
-                var guildCount = guildCommands.Count;
-                var guildProperties = new ApplicationCommandProperties[guildCount];
-
-                for (int i = 0; i < guildCount; i++)
-                    guildProperties[i] = await guildCommands[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
-
-                var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsPair.Key, guildProperties, properties, cancellationToken).ConfigureAwait(false);
-                foreach (var (command, commandInfo) in guildCreated.Zip(guildCommands))
-                {
-                    commands.Add(new(command.Id, commandInfo));
-                    result.Add(command);
-                }
-            }
-        }
-
-        _commands = commands.ToFrozenDictionary();
-
-        return result;
+        return ApplicationCommandServiceManager.RegisterCommandsAsync([this], client, applicationId, guildId, properties, cancellationToken);
     }
 
+    /// <summary>
+    /// Executes an application command.
+    /// </summary>
+    /// <param name="context">The application command context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
-        if (TryGetApplicationCommandInfo(context.Interaction.Data.Id, out var command))
+        try
         {
-            try
-            {
+            if (_storage.TryGetCommand(context.Interaction.Data, out var command))
                 return await command.InvokeAsync(context, _configuration, serviceProvider).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                return new ExecutionExceptionResult(exception);
-            }
+        }
+        catch (Exception exception)
+        {
+            return new ExecutionExceptionResult(exception);
         }
 
-        return new NotFoundResult("Command not found.");
+        return NotFoundResult.Command;
     }
 
-    private protected bool TryGetApplicationCommandInfo(ulong commandId, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> result)
+    internal virtual Delegate CreateAutocompleteDelegate([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type autocompleteProviderType, IServiceResolverProvider serviceResolverProvider, MethodInfo method)
     {
-        return _commands.TryGetValue(commandId, out result);
-    }
-
-    private protected virtual void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
-    {
+        throw new InvalidDefinitionException(
+            $"Autocomplete is not supported by '{typeof(ApplicationCommandService<>)}'. Use '{typeof(ApplicationCommandService<,>)}' instead to enable autocomplete support.",
+            method);
     }
 }

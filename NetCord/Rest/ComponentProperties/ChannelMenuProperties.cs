@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using NetCord.JsonConverters;
@@ -9,6 +9,7 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="customId">ID for the menu (max 100 characters).</param>
+[GenerateMethodsForProperties]
 public partial class ChannelMenuProperties(string customId) : EntityMenuProperties(customId)
 {
     public override ComponentType ComponentType => ComponentType.ChannelMenu;
@@ -27,6 +28,16 @@ public partial class ChannelMenuProperties(string customId) : EntityMenuProperti
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_types")]
     public IEnumerable<ChannelType>? ChannelTypes { get; set; }
+
+    private protected override void WriteToMessage(Utf8JsonWriter writer)
+    {
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.ChannelMenuProperties);
+    }
+
+    private protected override void WriteToLabel(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.ChannelMenuProperties);
+    }
 
     public class DefaultValuesConverter : MenuPropertiesDefaultValuesConverter
     {

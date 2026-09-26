@@ -1,12 +1,12 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class ComponentSeparator(JsonComponent jsonModel) : IComponent, IJsonModel<JsonComponent>
+public class ComponentSeparator(JsonComponentSeparatorComponent jsonModel) : IMessageComponent, IComponentContainerComponent, IJsonModel<JsonComponentSeparatorComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonComponentSeparatorComponent IJsonModel<JsonComponentSeparatorComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
-    public bool Divider => jsonModel.Divider.GetValueOrDefault();
-    public ComponentSeparatorSpacingSize Spacing => jsonModel.Spacing.GetValueOrDefault();
+    public bool Divider => jsonModel.Divider.GetValueOrDefault(true);
+    public ComponentSeparatorSpacingSize Spacing => jsonModel.Spacing.GetValueOrDefault(ComponentSeparatorSpacingSize.Small);
 }

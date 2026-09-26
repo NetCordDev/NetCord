@@ -1,4 +1,4 @@
-﻿using NetCord.Rest;
+using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.Commands;
 

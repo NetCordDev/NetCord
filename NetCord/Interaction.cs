@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway;
+using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -8,9 +8,9 @@ public abstract partial class Interaction : ClientEntity, IInteraction
     JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonInteraction _jsonModel;
 
-    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> _sendResponseAsync;
+    private readonly InteractionResponseDelegate _sendResponseAsync;
 
-    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client) : base(client)
+    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
 
@@ -47,6 +47,8 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public string Token => _jsonModel.Token;
 
+    public int Version => _jsonModel.Version;
+
     public Permissions AppPermissions => _jsonModel.AppPermissions;
 
     public string UserLocale => _jsonModel.UserLocale!;
@@ -59,9 +61,11 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public InteractionContextType Context => _jsonModel.Context.GetValueOrDefault();
 
+    public long AttachmentSizeLimit => _jsonModel.AttachmentSizeLimit;
+
     public abstract InteractionData Data { get; }
 
-    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client)
+    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client)
     {
         return jsonModel.Type switch
         {
@@ -70,6 +74,7 @@ public abstract partial class Interaction : ClientEntity, IInteraction
                 ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, sendResponseAsync, client),
                 ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, sendResponseAsync, client),
                 ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+                ApplicationCommandType.EntryPoint => new EntryPointCommandInteraction(jsonModel, guild, sendResponseAsync, client),
                 _ => throw new InvalidOperationException(),
             },
             InteractionType.MessageComponent => jsonModel.Data!.ComponentType.GetValueOrDefault() switch
@@ -92,8 +97,19 @@ public abstract partial class Interaction : ClientEntity, IInteraction
     {
         var guildId = jsonModel.GuildId;
         var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
-        return CreateFromJson(jsonModel, guild, (interaction, interactionCallback, properties, cancellationToken) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, interactionCallback, properties, cancellationToken), client);
+        return CreateFromJson(jsonModel, guild, (interaction, callback, withResponse, properties, cancellationToken) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, callback, withResponse, properties, cancellationToken), client);
     }
 
-    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, properties, cancellationToken);
+    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
+}
+
+public abstract class InteractionData : IJsonModel<JsonModels.JsonInteractionData>
+{
+    JsonModels.JsonInteractionData IJsonModel<JsonModels.JsonInteractionData>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonInteractionData _jsonModel;
+
+    private protected InteractionData(JsonModels.JsonInteractionData jsonModel)
+    {
+        _jsonModel = jsonModel;
+    }
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
@@ -31,7 +31,7 @@ public class JsonMessageReactionAddEventArgs
     public bool Burst { get; set; }
 
     [JsonPropertyName("burst_colors")]
-    public Color[] BurstColors { get; set; }
+    public Color[]? BurstColors { get; set; }
 
     [JsonPropertyName("type")]
     public ReactionType Type { get; set; }

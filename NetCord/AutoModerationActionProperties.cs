@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord;
 
+[GenerateMethodsForProperties]
 public partial class AutoModerationActionProperties(AutoModerationActionType type)
 {
     [JsonPropertyName("type")]

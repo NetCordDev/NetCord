@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class GuildScheduledEventUserEventArgs(JsonModels.EventArgs.JsonGuildScheduledEventUserEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonGuildScheduledEventUserEventArgs>
 {

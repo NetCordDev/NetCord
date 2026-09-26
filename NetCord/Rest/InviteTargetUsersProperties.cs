@@ -1,0 +1,140 @@
+using System.Buffers.Text;
+using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Rest;
+
+[GenerateMethodsForProperties]
+public partial class InviteTargetUsersProperties : IHttpSerializable
+{
+    private readonly Stream _stream;
+    private byte _read;
+
+    private InviteTargetUsersProperties(Stream stream)
+    {
+        _stream = stream;
+    }
+
+    public static InviteTargetUsersProperties FromStream(Stream stream) => new(stream);
+
+    public static InviteTargetUsersProperties FromEnumerable(IEnumerable<ulong> userIds) => new(new UserIdsStream(userIds));
+
+    HttpContent IHttpSerializable.Serialize() => Serialize();
+
+    internal HttpContent Serialize()
+    {
+        if (Interlocked.Exchange(ref _read, 1) is 1)
+            ThrowAlreadySent();
+
+        return new StreamContent(_stream);
+    }
+
+    [DoesNotReturn]
+    private static void ThrowAlreadySent()
+    {
+        throw new InvalidOperationException("The invite target users have already been sent.");
+    }
+
+    private sealed class UserIdsStream(IEnumerable<ulong> userIds) : Stream
+    {
+        private readonly IEnumerator<ulong> _enumerator = userIds.GetEnumerator();
+        private readonly byte[] _buffer = new byte[22];
+        private int _startPosition;
+        private int _endPosition;
+
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => false;
+
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+
+        public override void Flush() => throw new NotSupportedException();
+
+        public override int Read(byte[] buffer, int offset, int count) => Read(new Span<byte>(buffer, offset, count));
+
+        public override int Read(Span<byte> buffer)
+        {
+            int totalWritten = 0;
+
+            if (_startPosition != _endPosition)
+            {
+                var bufferedLength = _endPosition - _startPosition;
+
+                var length = Math.Min(bufferedLength, buffer.Length);
+
+                _buffer.AsSpan(_startPosition, length).CopyTo(buffer);
+                _startPosition += length;
+
+                if (length != bufferedLength)
+                    return length;
+
+                totalWritten += length;
+            }
+
+            var newLine = "\r\n"u8;
+
+            while (_enumerator.MoveNext())
+            {
+                var userId = _enumerator.Current;
+                if (!Utf8Formatter.TryFormat(userId, buffer[totalWritten..], out var written))
+                {
+                    _ = Utf8Formatter.TryFormat(userId, _buffer, out var writtenToBuffer);
+
+                    _buffer.AsSpan(0, _startPosition = written = buffer.Length - totalWritten).CopyTo(buffer[totalWritten..]);
+
+                    totalWritten += written;
+
+                    newLine.CopyTo(_buffer.AsSpan(writtenToBuffer));
+                    _endPosition = writtenToBuffer + newLine.Length;
+                    break;
+                }
+
+                totalWritten += written;
+
+                if (!newLine.TryCopyTo(buffer[totalWritten..]))
+                {
+                    var remaining = buffer.Length - totalWritten;
+                    if (remaining > 0)
+                    {
+                        newLine[..remaining].CopyTo(buffer[totalWritten..]);
+                        totalWritten += remaining;
+                    }
+
+                    newLine[remaining..].CopyTo(_buffer);
+                    _startPosition = 0;
+                    _endPosition = newLine.Length - remaining;
+
+                    break;
+                }
+
+                totalWritten += newLine.Length;
+            }
+
+            return totalWritten;
+        }
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            return ReadAsync(new Memory<byte>(buffer, offset, count), cancellationToken).AsTask();
+        }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return new(Read(buffer.Span));
+        }
+
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _enumerator.Dispose();
+        }
+    }
+}
+

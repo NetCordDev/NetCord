@@ -1,5 +1,7 @@
-﻿namespace NetCord.Gateway.Compression;
+using System.Runtime.InteropServices;
 
-public class ZstandardException(nuint code) : Exception($"Zstandard returned an '{Zstandard.GetErrorName(code)}' error.")
+namespace NetCord.Gateway.Compression;
+
+public unsafe class ZstandardException(nuint code) : Exception($"Zstandard returned an '{Marshal.PtrToStringUTF8((nint)Zstandard.GetErrorName(code))}' error.")
 {
 }

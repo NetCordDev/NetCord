@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord.Services.ApplicationCommands;
@@ -71,7 +71,7 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
 
     public SlashCommandTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
 
-    public bool DefaultDMPermission { get; init; } = true;
+    public IApplicationCommandServiceStorage<TContext>? Storage { get; init; }
 
     public IEnumerable<ApplicationIntegrationType>? DefaultIntegrationTypes { get; init; }
 

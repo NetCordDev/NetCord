@@ -1,4 +1,4 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -25,7 +25,7 @@ public class MessageSnapshotMessage(JsonMessageSnapshotMessage jsonModel, ulong?
     /// <summary>
     /// A list of <see cref="Attachment"/> objects indexed by their IDs, containing any files attached in the message.
     /// </summary>
-    public IReadOnlyList<Attachment> Attachments { get; } = jsonModel.Attachments.Select(Attachment.CreateFromJson).ToArray();
+    public IReadOnlyList<Attachment> Attachments { get; } = jsonModel.Attachments.Select(a => Attachment.CreateFromJson(a, client)).ToArray();
 
     /// <summary>
     /// When the message was edited (or null if never).
@@ -54,4 +54,14 @@ public class MessageSnapshotMessage(JsonMessageSnapshotMessage jsonModel, ulong?
     /// A list of IDs corresponding to roles specifically mentioned in the message.
     /// </summary>
     public IReadOnlyList<ulong> MentionedRoleIds => jsonModel.MentionedRoleIds;
+
+    /// <summary>
+    /// A list of <see cref="IMessageComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
+    /// </summary>
+    public IReadOnlyList<IMessageComponent> Components { get; } = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
+
+    /// <summary>
+    /// Contains stickers contained in the message, if any.
+    /// </summary>
+    public IReadOnlyList<MessageSticker> Stickers { get; } = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
 }

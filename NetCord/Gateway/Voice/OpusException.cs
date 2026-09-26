@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.Voice;
+namespace NetCord.Gateway.Voice;
 
 public class OpusException(OpusError error) : Exception($"Opus returned an '{error}' error.")
 {

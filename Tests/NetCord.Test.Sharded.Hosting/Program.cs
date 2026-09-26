@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NetCord;
@@ -13,14 +13,13 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddApplicationCommands()
     .AddCommands()
-    .ConfigureDiscordShardedGateway(o => (o.Presence, o.ShardCount) = (new(UserStatusType.Idle), 3))
+    .ConfigureDiscordShardedGateway(o => (o.Presence, o.TotalShardCount) = (new(UserStatusType.Idle), 3))
     .AddDiscordShardedGateway()
-    .AddShardedGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, GatewayClient client, ILogger<Message> logger) => logger.LogInformation(new EventId(client.Shard.GetValueOrDefault().Id), "Content: {}", message.Content));
+    .AddShardedGatewayHandler(GatewayEvent.MessageCreate, (Message message, GatewayClient client, ILogger<Message> logger) => logger.LogInformation(new EventId(client.Shard.GetValueOrDefault().Id), "Content: {}", message.Content));
 
 var host = builder.Build();
 
-host.AddSlashCommand("ping", "Ping!", (ApplicationCommandContext context) => "Pong!")
-    .AddCommand(["ping"], () => "Pong!")
-    .UseShardedGatewayEventHandlers();
+host.AddSlashCommand("ping", "Ping!", (ApplicationCommandContext context) => "Pong!");
+host.AddCommand(["ping"], () => "Pong!");
 
 await host.RunAsync();

@@ -1,4 +1,4 @@
-﻿using NetCord.Services;
+using NetCord.Services;
 using NetCord.Services.Commands;
 
 namespace MyBot;

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -18,4 +18,7 @@ public class JsonGuildThreadMetadata
 
     [JsonPropertyName("invitable")]
     public bool? Invitable { get; set; }
+
+    [JsonPropertyName("create_timestamp")]
+    public DateTimeOffset? CreatedAt { get; set; }
 }

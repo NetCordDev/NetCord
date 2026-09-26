@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.WebSockets;
+namespace NetCord.Gateway.WebSockets;
 
 #pragma warning disable IDE0032 // Use auto property
 

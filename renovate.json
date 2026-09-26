@@ -1,0 +1,60 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":gitSignOff",
+    ":disableRateLimiting",
+    "helpers:pinGitHubActionDigests",
+    "abandonments:recommended"
+  ],
+  "dependencyDashboard": true,
+  "rebaseWhen": "conflicted",
+  "nix": {
+    "enabled": true,
+    "lockFileMaintenance": {
+      "enabled": true
+    }
+  },
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "packageRules": [
+    {
+      "description": "Group all non-major NuGet updates into one PR",
+      "matchManagers": [ "nuget" ],
+      "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
+      "groupName": "NuGet non-major",
+      "matchPackageNames": [
+        "!dotnet-sdk"
+      ]
+    },
+    {
+      "description": ".NET SDK update",
+      "matchManagers": [ "nuget" ],
+      "matchPackageNames": [ "dotnet-sdk" ],
+      "groupName": "dotnet-sdk",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Nixpkgs update",
+      "matchManagers": [ "nix" ],
+      "matchUpdateTypes": [ "lockFileMaintenance" ],
+      "schedule": [ "at any time" ],
+      "recreateWhen": "auto",
+      "groupName": "nixpkgs",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Group all non-major npm updates into one PR",
+      "matchManagers": [ "npm" ],
+      "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
+      "groupName": "npm non-major"
+    },
+    {
+      "description": "Group non-major GitHub Actions updates",
+      "matchManagers": [ "github-actions" ],
+      "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
+      "groupName": "GitHub Actions non-major"
+    }
+  ]
+}

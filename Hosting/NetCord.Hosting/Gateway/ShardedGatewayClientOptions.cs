@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
 using Microsoft.Extensions.Options;
@@ -26,14 +26,16 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    public bool? AutoStartStop { get; set; }
+
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.WebSocketConnectionProviderFactory" />
     public Func<Shard, IWebSocketConnectionProvider?>? WebSocketConnectionProviderFactory { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.RateLimiterProviderFactory" />
     public Func<Shard, IRateLimiterProvider?>? RateLimiterProviderFactory { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultPayloadPropertiesFactory" />
-    public Func<Shard, WebSocketPayloadProperties?>? DefaultPayloadPropertiesFactory { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultMessagePropertiesFactory" />
+    public Func<Shard, WebSocketMessageProperties?>? DefaultMessagePropertiesFactory { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.ReconnectStrategyFactory" />
     public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; set; }
@@ -44,8 +46,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.VersionFactory" />
     public Func<Shard, ApiVersion?>? VersionFactory { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheFactory" />
-    public Func<Shard, IGatewayClientCache?>? CacheFactory { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheProviderFactory" />
+    public Func<Shard, IGatewayClientCacheProvider?>? CacheProviderFactory { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.CompressionFactory" />
     public Func<Shard, IGatewayCompression?>? CompressionFactory { get; set; }
@@ -65,8 +67,14 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.PresenceFactory" />
     public Func<Shard, PresenceProperties?>? PresenceFactory { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ShardCount" />
-    public int? ShardCount { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.MaxConcurrency" />
+    public int? MaxConcurrency { get; set; }
+
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ShardRange" />
+    public Range? ShardRange { get; set; }
+
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.TotalShardCount" />
+    public int? TotalShardCount { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.RestClientConfiguration" />
     public RestClientConfiguration? RestClientConfiguration { get; set; }
@@ -79,8 +87,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.RateLimiterProviderFactory" />
     public IRateLimiterProvider? RateLimiterProvider { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultPayloadPropertiesFactory" />
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultMessagePropertiesFactory" />
+    public WebSocketMessageProperties? DefaultMessageProperties { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.ReconnectStrategyFactory" />
     public IReconnectStrategy? ReconnectStrategy { get; set; }
@@ -91,8 +99,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.VersionFactory" />
     public ApiVersion? Version { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheFactory" />
-    public IGatewayClientCache? Cache { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheProviderFactory" />
+    public IGatewayClientCacheProvider? CacheProvider { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.CompressionFactory" />
     public IGatewayCompression? Compression { get; set; }
@@ -113,18 +121,20 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     {
         return ShardedGatewayClientConfigurationFactory.Create(CreateFactory(WebSocketConnectionProvider, WebSocketConnectionProviderFactory),
                                                                CreateFactory(RateLimiterProvider, RateLimiterProviderFactory),
-                                                               CreateFactory(DefaultPayloadProperties, DefaultPayloadPropertiesFactory),
+                                                               CreateFactory(DefaultMessageProperties, DefaultMessagePropertiesFactory),
                                                                CreateFactory(ReconnectStrategy, ReconnectStrategyFactory),
                                                                CreateFactory(LatencyTimer, LatencyTimerFactory),
                                                                CreateFactory(Version, VersionFactory),
-                                                               CreateFactory(Cache, CacheFactory),
+                                                               CreateFactory(CacheProvider, CacheProviderFactory),
                                                                CreateFactory(Compression, CompressionFactory),
                                                                CreateFactory(Intents, IntentsFactory),
                                                                Hostname,
                                                                CreateFactory(ConnectionProperties, ConnectionPropertiesFactory),
                                                                CreateFactory(LargeThreshold, LargeThresholdFactory),
                                                                CreateFactory(Presence, PresenceFactory),
-                                                               ShardCount,
+                                                               MaxConcurrency,
+                                                               ShardRange,
+                                                               TotalShardCount,
                                                                RestClientConfiguration,
                                                                CreateLogger);
 

@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class StageInstanceProperties(ulong channelId, string topic)
 {
     [JsonPropertyName("channel_id")]

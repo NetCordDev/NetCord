@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class GatewaySessionStartLimit(JsonModels.JsonGatewaySessionStartLimit jsonModel) : IJsonModel<JsonModels.JsonGatewaySessionStartLimit>
 {

@@ -1,11 +1,12 @@
+using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels;
+using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
-
-using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
+using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
@@ -34,14 +35,24 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<ReadyEventArgs, ValueTask>? Ready;
 
     /// <summary>
-    /// Sent when an application command's permissions are updated.
-    /// The inner payload is an <see cref="ApplicationCommandPermission"/> object.
+    /// Sent when the application has been rate limited for a gateway opcode.
+    /// The inner payload is an <see cref="RateLimitedEventArgs"/> object.<br/>
     /// </summary>
     /// <remarks>
     /// Required Intents: None <br/>
     /// Optional Intents: None
     /// </remarks>
-    public partial event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
+    public partial event Func<RateLimitedEventArgs, ValueTask>? RateLimited;
+
+    /// <summary>
+    /// Sent when an application command's permissions are updated.
+    /// The inner payload is an <see cref="ApplicationCommandGuildPermissions"/> object.
+    /// </summary>
+    /// <remarks>
+    /// Required Intents: None <br/>
+    /// Optional Intents: None
+    /// </remarks>
+    public partial event Func<ApplicationCommandGuildPermissions, ValueTask>? ApplicationCommandPermissionsUpdate;
 
     /// <summary>
     /// Sent when a rule is created.
@@ -293,7 +304,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<AuditLogEntry, ValueTask>? GuildAuditLogEntryCreate;
 
     /// <summary>
-    /// Sent when a user is banned from a guild.<br/>
+    /// Sent when a user is banned from a guild. This event is only sent to bots with the <see cref="Permissions.BanUsers"/> or <see cref="Permissions.ViewAuditLog"/> permission.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
@@ -302,7 +313,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
 
     /// <summary>
-    /// Sent when a user is unbanned from a guild.<br/>
+    /// Sent when a user is unbanned from a guild. This event is only sent to bots with the <see cref="Permissions.BanUsers"/> or <see cref="Permissions.ViewAuditLog"/> permission.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
@@ -372,7 +383,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<GuildUser, ValueTask>? GuildUserUpdate;
 
     /// <summary>
-    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, WebSocketPayloadProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
+    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, WebSocketMessageProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: None
@@ -791,16 +802,6 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<StageInstance, ValueTask>? StageInstanceDelete;
 
     /// <summary>
-    /// Not documented by Discord.
-    /// </summary>
-    public partial event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
-
-    /// <summary>
-    /// Not documented by Discord.
-    /// </summary>
-    public partial event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
-
-    /// <summary>
     /// An unknown event.
     /// </summary>
     public partial event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
@@ -832,10 +833,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     /// </summary>
     public Shard? Shard { get; }
 
-    /// <summary>
-    /// The application flags of the <see cref="GatewayClient"/>.
-    /// </summary>
-    public ApplicationFlags ApplicationFlags { get; private set; }
+    private readonly string? _shardId;
 
     /// <summary>
     /// The <see cref="Rest.RestClient"/> of the <see cref="GatewayClient"/>.
@@ -862,7 +860,11 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     {
         Token = token;
 
-        Shard = configuration.Shard;
+        if (configuration.Shard is { } shard)
+        {
+            Shard = shard;
+            _shardId = shard.Id.ToString();
+        }
         _connectionProperties = configuration.ConnectionProperties ?? ConnectionPropertiesProperties.Default;
         _largeThreshold = configuration.LargeThreshold;
         _presence = configuration.Presence;
@@ -870,8 +872,11 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
         var compression = _compression = configuration.Compression ?? IGatewayCompression.CreateDefault();
         Uri = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}&encoding=json&compress={compression.Name}", UriKind.Absolute);
-        Cache = configuration.Cache ?? new GatewayClientCache();
         Rest = rest;
+        var cacheProvider = configuration.CacheProvider ?? ImmutableGatewayClientCacheProvider.Empty;
+        Cache = cacheProvider.Create(token.Id, rest);
+
+        SetUpMetrics(this);
     }
 
     private protected override void OnConnected()
@@ -900,16 +905,18 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     private ValueTask SendIdentifyAsync(ConnectionState connectionState, PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(Token.RawToken)
+        GatewayMessageProperties<GatewayIdentifyProperties> message = new(GatewayOpcode.Identify, new(Token.RawToken)
         {
             ConnectionProperties = _connectionProperties,
             LargeThreshold = _largeThreshold,
             Shard = Shard,
             Presence = presence ?? _presence,
             Intents = _intents,
-        }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
+        });
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(nameof(GatewayOpcode.Identify), connectionState, message, Serialization.Default.GatewayMessagePropertiesGatewayIdentifyProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     /// <summary>
@@ -928,7 +935,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     /// Resumes the session specified by <paramref name="sessionId"/>.
     /// </summary>
     /// <param name="sessionId">The session to resume.</param>
-    /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
+    /// <param name="sequenceNumber">The sequence number of the message to resume from.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
     public async ValueTask ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
@@ -937,8 +944,8 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
-    private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
-        => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
+    private protected override bool Reconnect(int? status, string? description)
+        => status is not (4004 or 4010 or 4011 or 4012 or 4013 or 4014);
 
     private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
@@ -952,56 +959,74 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     private ValueTask TryResumeAsync(ConnectionState connectionState, string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
+        GatewayMessageProperties<GatewayResumeProperties> message = new(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber));
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(nameof(GatewayOpcode.Resume), connectionState, message, Serialization.Default.GatewayMessagePropertiesGatewayResumeProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(Serialization.Default.GatewayPayloadPropertiesInt32);
+        GatewayMessageProperties<int> message = new(GatewayOpcode.Heartbeat, SequenceNumber);
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(nameof(GatewayOpcode.Heartbeat), connectionState, message, Serialization.Default.GatewayMessagePropertiesInt32, _internalTextMessageProperties, cancellationToken);
     }
 
-    private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
+    private readonly record struct MessageData(int CompressedLength, int UncompressedLength);
+
+    private protected override ValueTask ProcessMessageAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> message)
     {
-        var jsonPayload = JsonSerializer.Deserialize(_compression.Decompress(payload), Serialization.Default.JsonGatewayPayload)!;
-        return HandlePayloadAsync(state, connectionState, jsonPayload);
+        var uncompressedMessage = _compression.Decompress(message);
+
+        var jsonMessage = JsonSerializer.Deserialize(uncompressedMessage, Serialization.Default.JsonGatewayMessage)!;
+
+        return HandleMessageAsync(state, connectionState, jsonMessage, new(message.Length, uncompressedMessage.Length));
     }
 
-    private async ValueTask HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
+    private async ValueTask HandleMessageAsync(State state, ConnectionState connectionState, JsonGatewayMessage message, MessageData messageData)
     {
-        switch (payload.Opcode)
+        var opcode = message.Opcode;
+
+        switch (opcode)
         {
             case GatewayOpcode.Dispatch:
-                SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
+                SequenceNumber = message.SequenceNumber.GetValueOrDefault();
 
-                Log(LogLevel.Debug, payload, null, static (s, e) =>
+                RecordMessageReceived(nameof(GatewayOpcode.Dispatch), message.Event, messageData);
+
+                Log(LogLevel.Debug, message, null, static (s, e) =>
                 {
                     return $"'{s.Event}' event received.";
                 });
 
                 try
                 {
-                    await ProcessEventAsync(state, connectionState, payload).ConfigureAwait(false);
+                    await ProcessEventAsync(state, connectionState, message, messageData).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    Log(LogLevel.Error, payload, ex, static (s, e) =>
+                    Log(LogLevel.Error, message, ex, static (s, e) =>
                     {
                         return $"An error occurred while processing '{s.Event}' event.{Environment.NewLine}{e}";
                     });
                 }
                 break;
             case GatewayOpcode.Heartbeat:
+                RecordMessageReceived(nameof(GatewayOpcode.Heartbeat), null, messageData);
                 break;
             case GatewayOpcode.Reconnect:
+                RecordMessageReceived(nameof(GatewayOpcode.Reconnect), null, messageData);
+
                 Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
 
                 await AbortAndResumeAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
+                RecordMessageReceived(nameof(GatewayOpcode.InvalidSession), null, messageData);
+
                 Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");
 
                 try
@@ -1012,16 +1037,20 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                     {
-                        return $"An error occurred while sending the identify payload.{Environment.NewLine}{e}";
+                        return $"An error occurred while sending the identify message.{Environment.NewLine}{e}";
                     });
                 }
                 break;
             case GatewayOpcode.Hello:
+                RecordMessageReceived(nameof(GatewayOpcode.Hello), null, messageData);
+
                 Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
 
-                StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                StartHeartbeating(connectionState, message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
+                RecordMessageReceived(nameof(GatewayOpcode.HeartbeatACK), null, messageData);
+
                 var latency = _latencyTimer.Elapsed;
 
                 Log(LogLevel.Debug, latency, null, static (s, e) =>
@@ -1029,45 +1058,58 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                     return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
                 });
 
-                await UpdateLatencyAsync(latency).ConfigureAwait(false);
+                await UpdateLatencyWithMetricsAsync(latency).ConfigureAwait(false);
+                break;
+            default:
+                RecordMessageReceived(((byte)opcode).ToString(), null, messageData);
+
+                Log(LogLevel.Debug, (Opcode: opcode, Data: messageData), null, static (s, e) =>
+                {
+                    return $"Received an unknown opcode '{(byte)s.Opcode}' with a length of {s.Data.CompressedLength} bytes ({s.Data.UncompressedLength} bytes uncompressed).";
+                });
+
                 break;
         }
     }
 
     /// <summary>
-    /// Joins, moves, or disconnects the app from a voice channel.
+    /// Joins, moves, or disconnects the application from a voice channel.
     /// </summary>
-    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesVoiceStateProperties), properties, cancellationToken);
+        GatewayMessageProperties<VoiceStateProperties> message = new(GatewayOpcode.VoiceStateUpdate, voiceState);
+
+        return SendObjectAsync(nameof(GatewayOpcode.VoiceStateUpdate), message, Serialization.Default.GatewayMessagePropertiesVoiceStateProperties, properties, cancellationToken);
     }
 
     /// <summary>
-    /// Updates an app's presence.
+    /// Updates an application's presence.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
     /// <param name="properties"></param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-    public ValueTask UpdatePresenceAsync(PresenceProperties presence, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask UpdatePresenceAsync(PresenceProperties presence, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesPresenceProperties), properties, cancellationToken);
+        GatewayMessageProperties<PresenceProperties> message = new(GatewayOpcode.PresenceUpdate, presence);
+
+        return SendObjectAsync(nameof(GatewayOpcode.PresenceUpdate), message, Serialization.Default.GatewayMessagePropertiesPresenceProperties, properties, cancellationToken);
     }
 
     /// <summary>
     /// Requests users for a guild.
     /// </summary>
-    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), properties, cancellationToken);
+        GatewayMessageProperties<GuildUsersRequestProperties> message = new(GatewayOpcode.RequestGuildUsers, requestProperties);
+
+        return SendObjectAsync(nameof(GatewayOpcode.RequestGuildUsers), message, Serialization.Default.GatewayMessagePropertiesGuildUsersRequestProperties, properties, cancellationToken);
     }
 
-    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
+    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonGatewayMessage message, MessageData messageData)
     {
-        var data = payload.Data.GetValueOrDefault();
-        var name = payload.Event!;
+        var data = message.Data.GetValueOrDefault();
+        var name = message.Event!;
+
         switch (name)
         {
             case "READY":
@@ -1076,19 +1118,20 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
                     Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
 
-                    var updateLatencyTask = UpdateLatencyAsync(latency);
+                    var updateLatencyTask = UpdateLatencyWithMetricsAsync(latency);
+
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
-                    await InvokeEventAsync(_ready, args, data =>
+                    await InvokeEventAsync(_ready, this, (Args: args, State: state, ConnectionState: connectionState), static data => data.Args, static (client, data) =>
                     {
-                        var cache = Cache;
-                        cache = cache.CacheCurrentUser(data.User);
-                        cache = cache.SyncGuilds(data.GuildIds);
-                        Cache = cache;
+                        var args = data.Args;
 
-                        SessionId = args.SessionId;
-                        ApplicationFlags = args.ApplicationFlags;
+                        client.Cache = client.Cache
+                            .CacheCurrentUser(args.User)
+                            .SyncGuilds(args.GuildIds);
 
-                        state.IndicateReady(connectionState);
+                        client.SessionId = args.SessionId;
+
+                        data.State.IndicateReady(data.ConnectionState);
                     }).ConfigureAwait(false);
                     await updateLatencyTask.ConfigureAwait(false);
                 }
@@ -1099,7 +1142,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
                     Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
 
-                    var updateLatencyTask = UpdateLatencyAsync(latency);
+                    var updateLatencyTask = UpdateLatencyWithMetricsAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 
                     state.IndicateReady(connectionState);
@@ -1108,94 +1151,101 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                     await resumeTask.ConfigureAwait(false);
                 }
                 break;
+            case "RATE_LIMITED":
+                {
+                    await InvokeEventAsync(_rateLimited, data, static data => new(data.ToObject(Serialization.Default.JsonRateLimitedEventArgs))).ConfigureAwait(false);
+                }
+                break;
             case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
                 {
-                    await InvokeEventAsync(_applicationCommandPermissionsUpdate, () => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermission))).ConfigureAwait(false);
+                    await InvokeEventAsync(_applicationCommandPermissionsUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermissions))).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_CREATE":
                 {
-                    await InvokeEventAsync(_autoModerationRuleCreate, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationRuleCreate, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonAutoModerationRule), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_UPDATE":
                 {
-                    await InvokeEventAsync(_autoModerationRuleUpdate, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationRuleUpdate, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonAutoModerationRule), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_DELETE":
                 {
-                    await InvokeEventAsync(_autoModerationRuleDelete, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationRuleDelete, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonAutoModerationRule), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_ACTION_EXECUTION":
                 {
-                    await InvokeEventAsync(_autoModerationActionExecution, () => new(data.ToObject(Serialization.Default.JsonAutoModerationActionExecutionEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationActionExecution, data, static data => new(data.ToObject(Serialization.Default.JsonAutoModerationActionExecutionEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
-                    await InvokeEventAsync(_guildChannelCreate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildChannelCreate, this, channel, static (client, channel) => client.Cache = client.Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
-                    await InvokeEventAsync(_guildChannelUpdate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildChannelUpdate, this, channel, static (client, channel) => client.Cache = client.Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
-                    await InvokeEventAsync(_guildChannelDelete, channel, channel => Cache = Cache.RemoveGuildChannel(channel.GuildId, channel.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildChannelDelete, this, (Json: json, RestClient: Rest), static data => IGuildChannel.CreateFromJson(data.Json, data.Json.GuildId.GetValueOrDefault(), data.RestClient), static (client, data) => client.Cache = client.Cache.RemoveGuildChannel(data.Json.GuildId.GetValueOrDefault(), data.Json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_PINS_UPDATE":
                 {
-                    await InvokeEventAsync(_channelPinsUpdate, () => new(data.ToObject(Serialization.Default.JsonChannelPinsUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_channelPinsUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonChannelPinsUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var thread = GuildThread.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(_guildThreadCreate, () => new(thread, json.NewlyCreated.GetValueOrDefault()), () => Cache = Cache.CacheGuildThread(thread)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadCreate, this, (Json: json, Thread: thread), static data => new(data.Thread, data.Json.NewlyCreated.GetValueOrDefault()), static (client, data) => client.Cache = client.Cache.CacheGuildThread(data.Thread)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var thread = GuildThread.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(_guildThreadUpdate, thread, t => Cache = Cache.CacheGuildThread(t)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUpdate, this, thread, static (client, thread) =>
+                    {
+                        client.Cache = thread.Metadata.Archived
+                            ? client.Cache.RemoveGuildThread(thread.GuildId, thread.Id)
+                            : client.Cache.CacheGuildThread(thread);
+                    }).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(_guildThreadDelete, () => new(json.Id, guildId, json.ParentId.GetValueOrDefault(), json.Type), () => Cache = Cache.RemoveGuildThread(guildId, json.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadDelete, this, json, static json => new(json.Id, json.GuildId.GetValueOrDefault(), json.ParentId.GetValueOrDefault(), json.Type), static (client, json) => client.Cache = client.Cache.RemoveGuildThread(json.GuildId.GetValueOrDefault(), json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_LIST_SYNC":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildThreadListSyncEventArgs);
-                    GuildThreadListSyncEventArgs args = new(json, Rest);
-                    var guildId = args.GuildId;
-                    await InvokeEventAsync(_guildThreadListSync, args, args => Cache = Cache.SyncGuildActiveThreads(guildId, args.Threads)).ConfigureAwait(false);
+                    GuildThreadListSyncEventArgs args = new(json, Rest, Cache);
+                    await InvokeEventAsync(_guildThreadListSync, this, args, static (client, args) => client.Cache = client.Cache.SyncGuildActiveThreads(args.GuildId, args.ChannelIds, args.Threads)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_MEMBER_UPDATE":
                 {
-                    await InvokeEventAsync(_guildThreadUserUpdate, () => new(new(data.ToObject(Serialization.Default.JsonThreadUser), Rest), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUserUpdate, (Data: data, RestClient: Rest), static data => new(new(data.Data.ToObject(Serialization.Default.JsonThreadUser), data.RestClient), GetGuildId(data.Data))).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_MEMBERS_UPDATE":
                 {
-                    await InvokeEventAsync(_guildThreadUsersUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildThreadUsersUpdateEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUsersUpdate, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonGuildThreadUsersUpdateEventArgs), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_CREATE":
@@ -1203,327 +1253,320 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                     var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
                     var id = jsonGuild.Id;
                     if (jsonGuild.IsUnavailable)
-                        await InvokeEventAsync(_guildCreate, () => new(id, null)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildCreate, id, static id => new(id, null)).ConfigureAwait(false);
                     else
                     {
-                        Guild guild = new(jsonGuild, Id, Rest);
-                        await InvokeEventAsync(_guildCreate, () => new(id, guild), () => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
+                        Guild guild = new(jsonGuild, Id, Rest, Cache);
+                        await InvokeEventAsync(_guildCreate, this, (Id: id, Guild: guild), static data => new(data.Id, data.Guild), static (client, data) => client.Cache = client.Cache.CacheGuild(data.Guild)).ConfigureAwait(false);
                     }
                 }
                 break;
             case "GUILD_UPDATE":
                 {
-                    var guildId = GetGuildId();
+                    var guildId = GetGuildId(data);
                     if (Cache.Guilds.TryGetValue(guildId, out var oldGuild))
-                        await InvokeEventAsync(_guildUpdate, new(data.ToObject(Serialization.Default.JsonGuild), Id, oldGuild), guild => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildUpdate, this, new(data.ToObject(Serialization.Default.JsonGuild), Id, oldGuild, Cache), static (client, guild) => client.Cache = client.Cache.CacheGuild(guild)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_DELETE":
                 {
-                    var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
-                    await InvokeEventAsync(_guildDelete, () => new(jsonGuild), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
+                    var json = data.ToObject(Serialization.Default.JsonGuild);
+                    await InvokeEventAsync(_guildDelete, this, json, static json => new(json), static (client, jsonGuild) => client.Cache = client.Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
                 {
-                    await InvokeEventAsync(_guildAuditLogEntryCreate, () => new(data.ToObject(Serialization.Default.JsonAuditLogEntry), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildAuditLogEntryCreate, data, static data => new(data.ToObject(Serialization.Default.JsonAuditLogEntry), GetGuildId(data))).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_BAN_ADD":
                 {
-                    await InvokeEventAsync(_guildBanAdd, () => new(data.ToObject(Serialization.Default.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildBanAdd, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonGuildBanEventArgs), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_BAN_REMOVE":
                 {
-                    await InvokeEventAsync(_guildBanRemove, () => new(data.ToObject(Serialization.Default.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildBanRemove, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonGuildBanEventArgs), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_EMOJIS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildEmojisUpdateEventArgs);
-                    await InvokeEventAsync(_guildEmojisUpdate, new(json, Rest), args => Cache = Cache.CacheGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildEmojisUpdate, this, new(json, Rest, Cache), static (client, args) => client.Cache = client.Cache.SyncGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildStickersUpdateEventArgs);
-                    await InvokeEventAsync(_guildStickersUpdate, new(json, Rest), args => Cache = Cache.CacheGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildStickersUpdate, this, new(json, Rest, Cache), static (client, args) => client.Cache = client.Cache.SyncGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_INTEGRATIONS_UPDATE":
                 {
-                    await InvokeEventAsync(_guildIntegrationsUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildIntegrationsUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationsUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonGuildIntegrationsUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_ADD":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUser);
-                    await InvokeEventAsync(_guildUserAdd, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildUserAdd, this, new(json, GetGuildId(data), Rest), static (client, user) => client.Cache = client.Cache.CacheGuildUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUser);
-                    await InvokeEventAsync(_guildUserUpdate, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildUserUpdate, this, new(json, GetGuildId(data), Rest), static (client, user) => client.Cache = client.Cache.CacheGuildUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_REMOVE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUserRemoveEventArgs);
-                    await InvokeEventAsync(_guildUserRemove, new(json, Rest), args => Cache = Cache.RemoveGuildUser(args.GuildId, args.User.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildUserRemove, this, new(json, Rest), static (client, args) => client.Cache = client.Cache.RemoveGuildUser(args.GuildId, args.User.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBERS_CHUNK":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUserChunkEventArgs);
-                    await InvokeEventAsync(_guildUserChunk, new(json, Rest), args =>
+                    await InvokeEventAsync(_guildUserChunk, this, new(json, Rest), static (client, args) =>
                     {
                         var guildId = args.GuildId;
-                        var cache = Cache.CacheGuildUsers(guildId, args.Users);
+                        var cache = client.Cache.CacheGuildUsers(guildId, args.Users);
                         var presences = args.Presences;
                         if (presences is not null)
                             cache = cache.CachePresences(guildId, presences);
-                        Cache = cache;
+                        client.Cache = cache;
                     }).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleEventArgs);
-                    await InvokeEventAsync(_roleCreate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
+                    await InvokeEventAsync(_roleCreate, this, new(json.Role, json.GuildId, Rest), static (client, role) => client.Cache = client.Cache.CacheRole(role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleEventArgs);
-                    await InvokeEventAsync(_roleUpdate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
+                    await InvokeEventAsync(_roleUpdate, this, new(json.Role, json.GuildId, Rest), static (client, role) => client.Cache = client.Cache.CacheRole(role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleDeleteEventArgs);
-                    await InvokeEventAsync(_roleDelete, new(json), args => Cache = Cache.RemoveRole(args.GuildId, args.RoleId)).ConfigureAwait(false);
+                    await InvokeEventAsync(_roleDelete, this, json, static json => new(json), static (client, json) => client.Cache = client.Cache.RemoveRole(json.GuildId, json.RoleId)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(_guildScheduledEventCreate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventCreate, this, new(json, Rest), static (client, scheduledEvent) => client.Cache = client.Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(_guildScheduledEventUpdate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventUpdate, this, new(json, Rest), static (client, scheduledEvent) => client.Cache = client.Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(_guildScheduledEventDelete, new(json, Rest), scheduledEvent => Cache = Cache.RemoveGuildScheduledEvent(scheduledEvent.GuildId, scheduledEvent.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventDelete, this, (Json: json, RestClient: Rest), static data => new(data.Json, data.RestClient), static (client, data) => client.Cache = client.Cache.RemoveGuildScheduledEvent(data.Json.GuildId, data.Json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_ADD":
                 {
-                    await InvokeEventAsync(_guildScheduledEventUserAdd, () => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventUserAdd, data, static data => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_REMOVE":
                 {
-                    await InvokeEventAsync(_guildScheduledEventUserRemove, () => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventUserRemove, data, static data => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "INTEGRATION_CREATE":
                 {
-                    await InvokeEventAsync(_guildIntegrationCreate, () => new(new(data.ToObject(Serialization.Default.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationCreate, (Data: data, RestClient: Rest), static data => new(new(data.Data.ToObject(Serialization.Default.JsonIntegration), data.RestClient), GetGuildId(data.Data))).ConfigureAwait(false);
                 }
                 break;
             case "INTEGRATION_UPDATE":
                 {
-                    await InvokeEventAsync(_guildIntegrationUpdate, () => new(new(data.ToObject(Serialization.Default.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationUpdate, (Data: data, RestClient: Rest), static data => new(new(data.Data.ToObject(Serialization.Default.JsonIntegration), data.RestClient), GetGuildId(data.Data))).ConfigureAwait(false);
                 }
                 break;
             case "INTEGRATION_DELETE":
                 {
-                    await InvokeEventAsync(_guildIntegrationDelete, () => new(data.ToObject(Serialization.Default.JsonGuildIntegrationDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationDelete, data, static data => new(data.ToObject(Serialization.Default.JsonGuildIntegrationDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "INTERACTION_CREATE":
                 {
-                    await InvokeEventAsync(_interactionCreate, () => Interaction.CreateFromJson(data.ToObject(Serialization.Default.JsonInteraction), Cache, Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_interactionCreate, (Data: data, Client: this), static data => Interaction.CreateFromJson(data.Data.ToObject(Serialization.Default.JsonInteraction), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
                 }
                 break;
             case "SUBSCRIPTION_CREATE":
                 {
-                    await InvokeEventAsync(_subscriptionCreate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                    await InvokeEventAsync(_subscriptionCreate, data, static data => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
                 }
                 break;
             case "SUBSCRIPTION_UPDATE":
                 {
-                    await InvokeEventAsync(_subscriptionUpdate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                    await InvokeEventAsync(_subscriptionUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
                 }
                 break;
             case "SUBSCRIPTION_DELETE":
                 {
-                    await InvokeEventAsync(_subscriptionDelete, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                    await InvokeEventAsync(_subscriptionDelete, data, static data => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_CREATE":
                 {
-                    await InvokeEventAsync(_inviteCreate, () => new(data.ToObject(Serialization.Default.JsonInvite), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_inviteCreate, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonInvite), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_DELETE":
                 {
-                    await InvokeEventAsync(_inviteDelete, () => new(data.ToObject(Serialization.Default.JsonInviteDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_inviteDelete, data, static data => new(data.ToObject(Serialization.Default.JsonInviteDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_CREATE":
                 {
-                    await InvokeEventAsync(_messageCreate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageCreate, (Data: data, Client: this), static data => Message.CreateFromJson(data.Data.ToObject(Serialization.Default.JsonMessage), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_UPDATE":
                 {
-                    await InvokeEventAsync(_messageUpdate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageUpdate, (Data: data, Client: this), static data => Message.CreateFromJson(data.Data.ToObject(Serialization.Default.JsonMessage), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_DELETE":
                 {
-                    await InvokeEventAsync(_messageDelete, () => new(data.ToObject(Serialization.Default.JsonMessageDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageDelete, data, static data => new(data.ToObject(Serialization.Default.JsonMessageDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_DELETE_BULK":
                 {
-                    await InvokeEventAsync(_messageDeleteBulk, () => new(data.ToObject(Serialization.Default.JsonMessageDeleteBulkEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageDeleteBulk, data, static data => new(data.ToObject(Serialization.Default.JsonMessageDeleteBulkEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_ADD":
                 {
-                    await InvokeEventAsync(_messageReactionAdd, () => new(data.ToObject(Serialization.Default.JsonMessageReactionAddEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionAdd, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonMessageReactionAddEventArgs), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_REMOVE":
                 {
-                    await InvokeEventAsync(_messageReactionRemove, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionRemove, data, static data => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_REMOVE_ALL":
                 {
-                    await InvokeEventAsync(_messageReactionRemoveAll, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveAllEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionRemoveAll, data, static data => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveAllEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_REMOVE_EMOJI":
                 {
-                    await InvokeEventAsync(_messageReactionRemoveEmoji, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEmojiEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionRemoveEmoji, data, static data => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEmojiEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "PRESENCE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonPresence);
-                    await InvokeEventAsync(_presenceUpdate, new(json, null, Rest), presence => Cache = Cache.CachePresence(presence)).ConfigureAwait(false);
+                    await InvokeEventAsync(_presenceUpdate, this, new(json, null, Rest), static (client, presence) => client.Cache = client.Cache.CachePresence(presence)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonStageInstance);
-                    await InvokeEventAsync(_stageInstanceCreate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
+                    await InvokeEventAsync(_stageInstanceCreate, this, new(json, Rest), static (client, stageInstance) => client.Cache = client.Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonStageInstance);
-                    await InvokeEventAsync(_stageInstanceUpdate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
+                    await InvokeEventAsync(_stageInstanceUpdate, this, new(json, Rest), static (client, stageInstance) => client.Cache = client.Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonStageInstance);
-                    await InvokeEventAsync(_stageInstanceDelete, new(json, Rest), stageInstance => Cache = Cache.RemoveStageInstance(stageInstance.GuildId, stageInstance.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_stageInstanceDelete, this, (Json: json, RestClient: Rest), static data => new(data.Json, data.RestClient), static (client, data) => client.Cache = client.Cache.RemoveStageInstance(data.Json.GuildId, data.Json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "TYPING_START":
                 {
-                    await InvokeEventAsync(_typingStart, () => new(data.ToObject(Serialization.Default.JsonTypingStartEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_typingStart, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonTypingStartEventArgs), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "USER_UPDATE":
                 {
-                    await InvokeEventAsync(_currentUserUpdate, new(data.ToObject(Serialization.Default.JsonUser), Rest), user => Cache = Cache.CacheCurrentUser(user)).ConfigureAwait(false);
+                    await InvokeEventAsync(_currentUserUpdate, this, new(data.ToObject(Serialization.Default.JsonUser), Rest), static (client, user) => client.Cache = client.Cache.CacheCurrentUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_CHANNEL_EFFECT_SEND":
                 {
-                    await InvokeEventAsync(_voiceChannelEffectSend, () => new(data.ToObject(Serialization.Default.JsonVoiceChannelEffectSendEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_voiceChannelEffectSend, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonVoiceChannelEffectSendEventArgs), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_STATE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonVoiceState);
-                    await InvokeEventAsync(_voiceStateUpdate, new(json, json.GuildId.GetValueOrDefault(), Rest), voiceState =>
+                    await InvokeEventAsync(_voiceStateUpdate, this, new(json, json.GuildId.GetValueOrDefault(), Rest), static (client, voiceState) =>
                     {
-                        if (voiceState.ChannelId.HasValue)
-                            Cache = Cache.CacheVoiceState(voiceState);
-                        else
-                            Cache = Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
+                        client.Cache = voiceState.ChannelId.HasValue
+                            ? client.Cache.CacheVoiceState(voiceState)
+                            : client.Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
                     }).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_SERVER_UPDATE":
                 {
-                    await InvokeEventAsync(_voiceServerUpdate, () => new(data.ToObject(Serialization.Default.JsonVoiceServerUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_voiceServerUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonVoiceServerUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "WEBHOOKS_UPDATE":
                 {
-                    await InvokeEventAsync(_webhooksUpdate, () => new(data.ToObject(Serialization.Default.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_webhooksUpdate, data, static data => new(data.ToObject(Serialization.Default.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_POLL_VOTE_ADD":
                 {
-                    await InvokeEventAsync(_messagePollVoteAdd, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messagePollVoteAdd, data, static data => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_POLL_VOTE_REMOVE":
                 {
-                    await InvokeEventAsync(_messagePollVoteRemove, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messagePollVoteRemove, data, static data => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_CREATE":
                 {
-                    await InvokeEventAsync(_entitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_entitlementCreate, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonEntitlement), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_UPDATE":
                 {
-                    await InvokeEventAsync(_entitlementUpdate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_entitlementUpdate, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonEntitlement), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_DELETE":
                 {
-                    await InvokeEventAsync(_entitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
-                }
-                break;
-            case "GUILD_JOIN_REQUEST_UPDATE":
-                {
-                    await InvokeEventAsync(_guildJoinRequestUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestUpdateEventArgs), Rest)).ConfigureAwait(false);
-                }
-                break;
-            case "GUILD_JOIN_REQUEST_DELETE":
-                {
-                    await InvokeEventAsync(_guildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_entitlementDelete, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonEntitlement), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             default:
                 {
-                    await InvokeEventAsync(_unknownEvent, () => new(name, data)).ConfigureAwait(false);
+                    Log(LogLevel.Debug, (Name: name, Data: messageData), null, static (s, e) =>
+                    {
+                        return $"Received an unknown event '{s.Name}' with a length of {s.Data.CompressedLength} bytes ({s.Data.UncompressedLength} bytes uncompressed).";
+                    });
+
+                    await InvokeEventAsync(_unknownEvent, (Name: name, Data: data), static data => new(data.Name, data.Data)).ConfigureAwait(false);
                 }
                 break;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        ulong GetGuildId() => data.GetProperty("guild_id"u8).ToObject(Serialization.Default.UInt64);
+        static ulong GetGuildId(JsonElement data) => data.GetProperty("guild_id"u8).ToObject(Serialization.Default.UInt64);
     }
 
     protected override void Dispose(bool disposing)
@@ -1537,4 +1580,172 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         }
         base.Dispose(disposing);
     }
+
+    #region Metrics
+    private static readonly Meter s_meter = new("NetCord.Gateway.GatewayClient");
+
+    private static readonly Counter<int> s_bytesSentCounter = s_meter.CreateCounter<int>(
+        "gateway.sent.bytes",
+        "By",
+        "The number of bytes sent to the Discord Gateway.");
+
+    private static readonly Counter<int> s_messagesSentCounter = s_meter.CreateCounter<int>(
+        "gateway.sent.messages",
+        "{message}",
+        "The number of messages sent to the Discord Gateway.");
+
+    private static readonly Counter<int> s_rateLimitTriggeredCounter = s_meter.CreateCounter<int>(
+        "gateway.rate_limit.triggered",
+        "{trigger}",
+        "The number of times a rate limit was triggered when sending a message to the Discord Gateway.");
+
+    private static readonly Histogram<double> s_rateLimitResetAfterHistogram = s_meter.CreateHistogram<double>(
+        "gateway.rate_limit.reset_after",
+        "s",
+        "The time in seconds after which a message can be sent again after a rate limit was triggered when sending a message to the Discord Gateway.");
+
+    private static readonly Counter<int> s_bytesReceivedCompressedCounter = s_meter.CreateCounter<int>(
+        "gateway.received.bytes.compressed",
+        "By",
+        "The number of compressed bytes received from the Discord Gateway.");
+
+    private static readonly Counter<int> s_bytesReceivedUncompressedCounter = s_meter.CreateCounter<int>(
+        "gateway.received.bytes.uncompressed",
+        "By",
+        "The number of uncompressed bytes received from the Discord Gateway.");
+
+    private static readonly Counter<int> s_messagesReceivedCounter = s_meter.CreateCounter<int>(
+        "gateway.received.messages",
+        "{message}",
+        "The number of messages received from the Discord Gateway.");
+
+    private static readonly Histogram<double> s_latencyHistogram = s_meter.CreateHistogram<double>(
+        "gateway.latency",
+        "s",
+        "The latency of the Discord Gateway.",
+        advice: new() { HistogramBucketBoundaries = GetLatencyBucketBoundaries() });
+
+    private static readonly ConditionalWeakTable<GatewayClient, object?> s_gatewayClientTable = [];
+
+    static GatewayClient()
+    {
+        s_meter.CreateObservableUpDownCounter(
+            "gateway.cache.guilds",
+            static () => s_gatewayClientTable.Select(p => new Measurement<long>(p.Key.Cache.Guilds.Count, p.Key.GetShardIdTag())),
+            "{guild}",
+            "The number of guilds in the cache for the Discord Gateway.");
+
+        s_meter.CreateObservableUpDownCounter(
+            "gateway.cache.entities",
+            static () => s_gatewayClientTable.SelectMany(GetCacheEntityMeasurements),
+            "{entity}",
+            "The number of entities in the cache for the Discord Gateway.");
+    }
+
+    private KeyValuePair<string, object?> GetShardIdTag() => new("shard_id", _shardId);
+
+    private static KeyValuePair<string, object?> GetOpTag(string? op) => new("op", op);
+
+    private static void SetUpMetrics(GatewayClient client)
+    {
+        s_gatewayClientTable.Add(client, null);
+    }
+
+    private protected override void RecordMessageSent(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties)
+    {
+        var opTag = GetOpTag(op);
+
+        s_messagesSentCounter.Add(1, opTag, GetShardIdTag());
+
+        s_bytesSentCounter.Add(buffer.Length, opTag, GetShardIdTag());
+    }
+
+    private protected override void RecordRateLimitTriggered(string? op, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties properties, string action, int resetAfter)
+    {
+        var opTag = GetOpTag(op);
+
+        KeyValuePair<string, object?> actionTag = new("action", action);
+
+        s_rateLimitTriggeredCounter.Add(1, actionTag, opTag, GetShardIdTag());
+
+        s_rateLimitResetAfterHistogram.Record((double)resetAfter / 1000, actionTag, opTag, GetShardIdTag());
+    }
+
+    private void RecordMessageReceived(string? op, string? @event, MessageData messageData)
+    {
+        var opTag = GetOpTag(op);
+
+        KeyValuePair<string, object?> eventTag = new("event", @event);
+
+        s_messagesReceivedCounter.Add(1, opTag, eventTag, GetShardIdTag());
+
+        s_bytesReceivedCompressedCounter.Add(messageData.CompressedLength, eventTag, opTag, GetShardIdTag());
+
+        s_bytesReceivedUncompressedCounter.Add(messageData.UncompressedLength, eventTag, opTag, GetShardIdTag());
+    }
+
+    private void RecordLatency(TimeSpan latency)
+    {
+        s_latencyHistogram.Record(latency.TotalSeconds, GetShardIdTag());
+    }
+
+    private ValueTask UpdateLatencyWithMetricsAsync(TimeSpan latency)
+    {
+        RecordLatency(latency);
+
+        return UpdateLatencyAsync(latency);
+    }
+
+    private static IEnumerable<Measurement<long>> GetCacheEntityMeasurements(KeyValuePair<GatewayClient, object?> pair)
+    {
+        var client = pair.Key;
+        var cache = client.Cache;
+
+        // From RestGuild
+        long roleCount = 0;
+        long emojiCount = 0;
+        long stickerCount = 0;
+
+        // From Guild
+        long voiceStateCount = 0;
+        long userCount = 0;
+        long channelCount = 0;
+        long activeThreadCount = 0;
+        long presenceCount = 0;
+        long stageInstanceCount = 0;
+        long scheduledEventCount = 0;
+
+        foreach (var guild in cache.Guilds.Values)
+        {
+            roleCount += guild.Roles.Count;
+            emojiCount += guild.Emojis.Count;
+            stickerCount += guild.Stickers.Count;
+
+            voiceStateCount += guild.VoiceStates.Count;
+            userCount += guild.Users.Count;
+            channelCount += guild.Channels.Count;
+            activeThreadCount += guild.ActiveThreads.Count;
+            presenceCount += guild.Presences.Count;
+            stageInstanceCount += guild.StageInstances.Count;
+            scheduledEventCount += guild.ScheduledEvents.Count;
+        }
+
+        var shardIdTag = client.GetShardIdTag();
+
+        return
+        [
+            new(roleCount, new("entity", nameof(RestGuild.Roles)), shardIdTag),
+            new(emojiCount, new("entity", nameof(RestGuild.Emojis)), shardIdTag),
+            new(stickerCount, new("entity", nameof(RestGuild.Stickers)), shardIdTag),
+
+            new(voiceStateCount, new("entity", nameof(Guild.VoiceStates)), shardIdTag),
+            new(userCount, new("entity", nameof(Guild.Users)), shardIdTag),
+            new(channelCount, new("entity", nameof(Guild.Channels)), shardIdTag),
+            new(activeThreadCount, new("entity", nameof(Guild.ActiveThreads)), shardIdTag),
+            new(presenceCount, new("entity", nameof(Guild.Presences)), shardIdTag),
+            new(stageInstanceCount, new("entity", nameof(Guild.StageInstances)), shardIdTag),
+            new(scheduledEventCount, new("entity", nameof(Guild.ScheduledEvents)), shardIdTag),
+        ];
+    }
+    #endregion
 }

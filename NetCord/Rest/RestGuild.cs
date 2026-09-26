@@ -1,29 +1,36 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 
 using NetCord.Gateway;
+using NetCord.JsonModels;
 
 namespace NetCord.Rest;
 
 /// <summary>
 /// Represents an isolated collection of users and channels, often referred to as a server in the UI.
 /// </summary>
-public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>, IComparer<PartialGuildUser>
+public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<PartialGuildUser>
 {
-    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    internal readonly NetCord.JsonModels.JsonGuild _jsonModel;
+    JsonGuild IJsonModel<JsonGuild>.JsonModel => GetJsonModel();
+    private protected readonly JsonGuild _jsonModel;
 
-    public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
+    public RestGuild(JsonGuild jsonModel, RestClient client) : this(jsonModel, client, IDictionaryProvider.OfDictionary)
+    {
+    }
+
+    private protected RestGuild(JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : base(client)
     {
         _jsonModel = jsonModel;
-        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new Role(r, Id, client));
+        Roles = dictionaryProvider.CreateDictionary(jsonModel.Roles ?? [], r => r.Id, r => new Role(r, Id, client));
         // Guild emoji always have Id.
-        Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
+        Emojis = dictionaryProvider.CreateDictionary(jsonModel.Emojis ?? [], e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Stickers = dictionaryProvider.CreateDictionary(jsonModel.Stickers ?? [], s => s.Id, s => new GuildSticker(s, client));
 
         var welcomeScreen = jsonModel.WelcomeScreen;
         if (welcomeScreen is not null)
             WelcomeScreen = new(welcomeScreen);
     }
+
+    private protected virtual JsonGuild GetJsonModel() => _jsonModel;
 
     public int Compare(PartialGuildUser? x, PartialGuildUser? y)
     {
@@ -36,32 +43,46 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
         if (y is null)
             return 1;
 
-        var (xId, yId) = (x.Id, y.Id);
-
-        if (xId == yId)
-            return 0;
-
         var ownerId = OwnerId;
-        if (xId == ownerId)
-            return 1;
 
-        if (yId == ownerId)
+        if (x.Id == ownerId)
+            return y.Id == ownerId ? 0 : 1;
+
+        if (y.Id == ownerId)
             return -1;
 
-        return GetHighestRolePosition(x).CompareTo(GetHighestRolePosition(y));
+        using var xRoleEnumerator = x.GetRoles(this).GetEnumerator();
 
-        int GetHighestRolePosition(PartialGuildUser user)
+        if (!xRoleEnumerator.MoveNext())
         {
-            int highestPosition = 0;
-            foreach (var role in user.GetRoles(this))
-            {
-                var position = role.Position;
-                if (position > highestPosition)
-                    highestPosition = position;
-            }
+            using var yRoleEnumerator = y.GetRoles(this).GetEnumerator();
 
-            return highestPosition;
+            return yRoleEnumerator.MoveNext() ? -1 : 0;
         }
+
+        var xPosition = xRoleEnumerator.Current.Position;
+
+        while (xRoleEnumerator.MoveNext())
+        {
+            var currentPosition = xRoleEnumerator.Current.Position;
+
+            if (currentPosition > xPosition)
+                xPosition = currentPosition;
+        }
+
+        int result = 1;
+
+        foreach (var role in y.GetRoles(this))
+        {
+            int comparisonResult = xPosition.CompareTo(role.Position);
+
+            if (comparisonResult < 0)
+                return -1;
+
+            result = Math.Min(result, comparisonResult);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -181,12 +202,12 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// <summary>
     /// A dictionary of <see cref="Role"/> objects indexed by their IDs, representing the <see cref="RestGuild"/>'s roles.
     /// </summary>
-    public ImmutableDictionary<ulong, Role> Roles { get; set; }
+    public IReadOnlyDictionary<ulong, Role> Roles { get; set; }
 
     /// <summary>
     /// A dictionary of <see cref="GuildEmoji"/> objects, indexed by their IDs, representing the <see cref="RestGuild"/>'s custom emojis.
     /// </summary>
-    public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; set; }
+    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; set; }
 
     /// <summary>
     /// A list of <see cref="RestGuild"/> feature strings, representing what features are currently enabled.
@@ -314,7 +335,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// <summary>
     /// A dictionary of <see cref="GuildSticker"/> objects indexed by their IDs, representing the <see cref="RestGuild"/>'s custom stickers.
     /// </summary>
-    public ImmutableDictionary<ulong, GuildSticker> Stickers { get; set; }
+    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; set; }
 
     /// <summary>
     /// Whether the <see cref="RestGuild"/> has the boost progress bar enabled.
@@ -332,5 +353,6 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// <returns>The guild's base role, applied to all users or <see langword="null"/> if the guild is partial.</returns>
     public Role? EveryoneRole => Roles.GetValueOrDefault(Id);
 
-    public ImageUrl GetWidgetUrl(GuildWidgetStyle? style = null, string? hostname = null, ApiVersion? version = null) => ImageUrl.GuildWidget(Id, style, hostname, version);
+    /// <inheritdoc cref="ImageUrl.GuildWidget" />
+    public ImageUrl GetWidgetUrl(GuildWidgetStyle? style = null, string hostname = Discord.RestHostname, ApiVersion? version = null) => ImageUrl.GuildWidget(Id, style, hostname, version);
 }

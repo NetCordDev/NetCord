@@ -1,18 +1,41 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
 
 namespace NetCord.Hosting.Gateway;
 
-internal class GatewayClientHostedService(GatewayClient client) : IHostedService
+internal partial class GatewayClientHostedService(IServiceProvider services) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        return client.StartAsync(cancellationToken: cancellationToken).AsTask();
+        var client = services.GetRequiredService<GatewayClient>();
+
+        foreach (var handlerMetadata in services.GetServices<IGatewayHandlerMetadata>())
+        {
+            if (handlerMetadata is ClassHandlerMetadata classHandlerMetadata)
+                RegisterClassHandler(services, client, classHandlerMetadata);
+            else
+                RegisterDelegateHandler(services, client, (DelegateHandlerMetadata<GatewayEventId>)handlerMetadata);
+        }
+
+        var options = services.GetRequiredService<IOptions<GatewayClientOptions>>().Value;
+
+        return options.AutoStartStop.GetValueOrDefault(true)
+            ? client.StartAsync(cancellationToken: cancellationToken).AsTask()
+            : Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        var options = services.GetRequiredService<IOptions<GatewayClientOptions>>().Value;
+
+        if (!options.AutoStartStop.GetValueOrDefault(true))
+            return Task.CompletedTask;
+
+        var client = services.GetRequiredService<GatewayClient>();
+
         return client.CloseAsync(cancellationToken: cancellationToken).AsTask();
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Buffers.Text;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -8,26 +8,27 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 /// <summary>
-/// 
+/// Represents an image.
 /// </summary>
 /// <param name="format">The format of the image.</param>
 /// <param name="data">The data of the image.</param>
 /// <param name="isBase64">Whether <paramref name="data"/> is in Base64 format.</param>
 [JsonConverter(typeof(ImagePropertiesConverter))]
+[GenerateMethodsForProperties]
 public partial struct ImageProperties(ImageFormat format, ReadOnlyMemory<byte> data, bool isBase64 = false)
 {
     /// <summary>
-    /// The format of the image.
+    /// The image's format.
     /// </summary>
     public ImageFormat Format { get; set; } = format;
 
     /// <summary>
-    /// The data of the image.
+    /// The image's contents, represented as a block of bytes.
     /// </summary>
     public ReadOnlyMemory<byte> Data { get; set; } = data;
 
     /// <summary>
-    /// Whether <see cref="Data"/> is in Base64 format.
+    /// Whether the contents of <see cref="Data"/> are encoded in Base64.
     /// </summary>
     public bool IsBase64 { get; set; } = isBase64;
 

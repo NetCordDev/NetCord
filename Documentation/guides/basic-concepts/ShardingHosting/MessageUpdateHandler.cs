@@ -1,10 +1,9 @@
-﻿using NetCord.Gateway;
+using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 
 namespace MyBot;
 
-[GatewayEvent(nameof(GatewayClient.MessageUpdate))]
-public class MessageUpdateHandler : IShardedGatewayEventHandler<Message>
+public class MessageUpdateHandler : IMessageUpdateShardedGatewayHandler
 {
     public async ValueTask HandleAsync(GatewayClient client, Message message)
     {

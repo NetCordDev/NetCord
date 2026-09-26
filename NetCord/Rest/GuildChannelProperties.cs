@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GuildChannelProperties(string name, ChannelType type)
 {
     [JsonPropertyName("name")]
@@ -56,7 +57,8 @@ public partial class GuildChannelProperties(string name, ChannelType type)
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_reaction_emoji")]
-    public ForumGuildChannelDefaultReactionProperties? DefaultReactionEmoji { get; set; }
+    [JsonConverter(typeof(EmojiProperties.GuildChannelEmojiPropertiesConverter))]
+    public EmojiProperties? DefaultReactionEmoji { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("available_tags")]

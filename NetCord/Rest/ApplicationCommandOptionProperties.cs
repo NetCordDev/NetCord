@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -8,6 +8,7 @@ namespace NetCord.Rest;
 /// <param name="type">Type of the option.</param>
 /// <param name="name">Name of the option (1-32 characters).</param>
 /// <param name="description">Description of the option (1-100 characters).</param>
+[GenerateMethodsForProperties]
 public partial class ApplicationCommandOptionProperties(ApplicationCommandOptionType type, string name, string description)
 {
     /// <summary>
@@ -104,4 +105,11 @@ public partial class ApplicationCommandOptionProperties(ApplicationCommandOption
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("autocomplete")]
     public bool? Autocomplete { get; set; }
+
+    /// <summary>
+    /// File types to filter for; can be <c>image</c>, <c>video</c>, <c>audio</c>, or any dot-prefixed extension such as <c>.pdf</c> (max 10).
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("file_types")]
+    public IEnumerable<string>? FileTypes { get; set; }
 }

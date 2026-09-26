@@ -1,9 +1,10 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(NoncePropertiesConverter))]
+[GenerateMethodsForProperties]
 public partial class NonceProperties
 {
     private readonly string? _s;

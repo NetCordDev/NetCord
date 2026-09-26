@@ -1,78 +1,105 @@
-﻿namespace NetCord.Rest;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
-public partial class AttachmentProperties : IHttpSerializable
+namespace NetCord.Rest;
+
+/// <inheritdoc cref="Attachment"/>
+[GenerateMethodsForProperties]
+public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable<AttachmentProperties, int>
 {
+    private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
+    private static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");
+    private static readonly JsonEncodedText _title = JsonEncodedText.Encode("title");
+    private static readonly JsonEncodedText _description = JsonEncodedText.Encode("description");
+
     /// <summary>
-    /// 
+    /// Creates an attachment from the provided stream, with the given filename.
     /// </summary>
-    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-    /// <param name="stream">Content of the file.</param>
+    /// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+    /// <param name="stream">A stream containing the attachment's contents.</param>
     public AttachmentProperties(string fileName, Stream stream) : this(fileName)
     {
         _stream = stream;
     }
 
     /// <summary>
-    /// 
+    /// Creates an empty attachment with the given filename.
     /// </summary>
-    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
+    /// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
     protected AttachmentProperties(string fileName)
     {
         FileName = fileName;
     }
 
-    /// <summary>
-    /// Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).
-    /// </summary>
+    /// <inheritdoc cref="Attachment.FileName"/>
     public string FileName { get; set; }
 
-    /// <summary>
-    /// Title of the attachment.
-    /// </summary>
+    /// <inheritdoc cref="Attachment.Title"/>
     public string? Title { get; set; }
 
-    /// <summary>
-    /// Description for the file (max 1024 characters for attachments sent by message, max 200 characters for attachments used for sticker creation).
-    /// </summary>
+    /// <inheritdoc cref="Attachment.Description"/>
     public string? Description { get; set; }
 
     protected Stream? GetStream()
     {
-        if (_read)
-            throw new InvalidOperationException("The attachment has already been sent.");
-        else
-            _read = true;
+        if (Interlocked.Exchange(ref _read, 1) is 1)
+            ThrowAttachmentAlreadySent();
 
         return _stream;
     }
 
-    private readonly Stream? _stream;
-    private bool _read;
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowAttachmentAlreadySent()
+    {
+        throw new InvalidOperationException("The attachment has already been sent.");
+    }
 
+    private readonly Stream? _stream;
+    private byte _read;
+
+    /// <summary>
+    /// Whether the attachment supports HTTP serialization.
+    /// </summary>
     public virtual bool SupportsHttpSerialization => true;
 
+    /// <inheritdoc/>
     public virtual HttpContent Serialize() => new StreamContent(GetStream()!);
 
-    internal static void AddAttachments(MultipartFormDataContent content, IEnumerable<AttachmentProperties>? attachments)
+    private protected void WriteCommonProperties(Utf8JsonWriter writer, int attachmentId)
     {
-        if (attachments is not null)
-        {
-            int i = 0;
-            foreach (var attachment in attachments)
-            {
-                if (attachment.SupportsHttpSerialization)
-                    content.Add(attachment.Serialize(), $"files[{i}]", attachment.FileName);
-                i++;
-            }
-        }
+        writer.WriteNumber(_id, attachmentId);
+
+        writer.WriteString(_fileName, FileName);
+
+        var title = Title;
+        if (title is not null)
+            writer.WriteString(_title, title);
+
+        var description = Description;
+        if (description is not null)
+            writer.WriteString(_description, description);
+    }
+
+    void IJsonSerializable<AttachmentProperties, int>.WriteTo(Utf8JsonWriter writer, int attachmentId) => WriteTo(writer, attachmentId);
+
+    protected internal virtual void WriteTo(Utf8JsonWriter writer, int attachmentId)
+    {
+        writer.WriteStartObject();
+
+        WriteCommonProperties(writer, attachmentId);
+
+        writer.WriteEndObject();
     }
 }
 
 /// <summary>
-/// 
+/// Represents an attachment with Base64 encoded contents.
 /// </summary>
-/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-/// <param name="stream">Content of the file encoded in Base64.</param>
+/// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+/// <param name="stream">A stream containing the attachment's contents, encoded in Base64.</param>
+[GenerateMethodsForProperties]
 public partial class Base64AttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
     public override HttpContent Serialize()
@@ -84,10 +111,11 @@ public partial class Base64AttachmentProperties(string fileName, Stream stream) 
 }
 
 /// <summary>
-/// 
+/// Represents an attachment with quoted-printable encoded contents.
 /// </summary>
-/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-/// <param name="stream">Content of the file encoded in Quoted-Printable.</param>
+/// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+/// <param name="stream">A stream containing the attachment's contents, encoded in quoted-printable.</param>
+[GenerateMethodsForProperties]
 public partial class QuotedPrintableAttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
     public override HttpContent Serialize()
@@ -99,14 +127,17 @@ public partial class QuotedPrintableAttachmentProperties(string fileName, Stream
 }
 
 /// <summary>
-/// 
+/// Represents an attachment hosted on Google Cloud.
 /// </summary>
-/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-/// <param name="uploadedFileName">Name of the upload.</param>
+/// <param name="fileName"><inheritdoc cref="Attachment.FileName" path="/summary"/></param>
+/// <param name="uploadedFileName"><inheritdoc cref="UploadedFileName" path="/summary"/></param>
+[GenerateMethodsForProperties]
 public partial class GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : AttachmentProperties(fileName)
 {
+    private static readonly JsonEncodedText _uploadedFileName = JsonEncodedText.Encode("uploaded_filename");
+
     /// <summary>
-    /// Name of the upload.
+    /// The file name used in the uploaded storage bucket.
     /// </summary>
     public string UploadedFileName { get; set; } = uploadedFileName;
 
@@ -115,5 +146,16 @@ public partial class GoogleCloudPlatformAttachmentProperties(string fileName, st
     public override HttpContent Serialize()
     {
         throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support HTTP serialization.");
+    }
+
+    protected internal override void WriteTo(Utf8JsonWriter writer, int attachmentId)
+    {
+        writer.WriteStartObject();
+
+        WriteCommonProperties(writer, attachmentId);
+
+        writer.WriteString(_uploadedFileName, UploadedFileName);
+
+        writer.WriteEndObject();
     }
 }

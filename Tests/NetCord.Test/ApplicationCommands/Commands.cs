@@ -1,8 +1,43 @@
-﻿using NetCord.Rest;
+using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.ApplicationCommands;
+
+public enum UserProfileState
+{
+    None,
+    State1,
+    State2,
+    State3,
+    State4,
+    State5,
+    State6,
+    State7,
+}
+
+internal class UserProfileStateAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
+{
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
+    {
+        return new([
+            new(Enum.GetName(UserProfileState.State1)!, (double)UserProfileState.State1),
+            new(Enum.GetName(UserProfileState.State2)!, (double)UserProfileState.State2),
+            new(Enum.GetName(UserProfileState.State3)!, (double)UserProfileState.State3),
+            new(Enum.GetName(UserProfileState.State4)!, (double)UserProfileState.State4),
+        ]);
+    }
+}
+
+[SlashCommand("profile", "Profile-related commands.")]
+public class ProfileModule : ApplicationCommandModule<SlashCommandContext>
+{
+    [SubSlashCommand("setimage", "Set profile image")]
+    public static string SetImage([SlashCommandParameter(AutocompleteProviderType = typeof(UserProfileStateAutocompleteProvider))] UserProfileState state)
+    {
+        return state.ToString();
+    }
+}
 
 [SlashCommand("pn", "PN")]
 [SlashCommand("permission-nested", "Permission")]
@@ -17,7 +52,7 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SubSlashCommand("remove", "Permission remove")]
-    public static InteractionCallback Remove(int i, Permissions permission)
+    public static InteractionCallbackProperties Remove(int i, Permissions permission)
     {
         _ = i;
         return InteractionCallback.Message(permission.ToString());
@@ -29,7 +64,7 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     {
         [SubSlashCommand("u", "U")]
         [SubSlashCommand("user", "Permission list user")]
-        public static InteractionCallback User(int i, Permissions permission)
+        public static InteractionCallbackProperties User(int i, Permissions permission)
         {
             _ = i;
             return InteractionCallback.Message(permission.ToString());
@@ -46,6 +81,88 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
+    [SlashCommand("search", "Search for messages!")]
+    public async Task SearchAsync(int? from = null,
+                                  PaginationDirection? direction = null,
+                                  int? batchSize = null,
+                                  GuildMessagesSearchSortingMode? sortBy = null,
+                                  string? content = null,
+                                  int? slop = null,
+                                  string? contents = null,
+                                  User? author = null,
+                                  GuildMessagesSearchAuthorTypes? authorTypes = null,
+                                  string? mention = null,
+                                  bool? mentionEveryone = null,
+                                  string? minId = null,
+                                  string? maxId = null,
+                                  GuildMessagesSearchHasOptions? has = null,
+                                  string? linkHostname = null,
+                                  string? embedProvider = null,
+                                  GuildMessagesSearchEmbedTypes? embedTypes = null,
+                                  string? attachmentExtension = null,
+                                  string? attachmentFilename = null,
+                                  bool? pinned = null,
+                                  string? commandId = null,
+                                  string? commandName = null,
+                                  bool? includeNsfw = null,
+                                  TextChannel? channel = null,
+                                  int? limit = null)
+    {
+        await RespondAsync(InteractionCallback.Message("Searching..."));
+
+        GuildMessagesSearchPaginationProperties searchProperties = new()
+        {
+            From = from,
+            Direction = direction,
+            BatchSize = batchSize,
+            SortBy = sortBy,
+            Content = content,
+            Slop = slop,
+            Contents = contents is not null ? [contents] : null,
+            AuthorIds = author is not null ? [author.Id] : null,
+            AuthorTypes = authorTypes,
+            Mentions = mention is not null ? [Snowflake.Parse(mention)] : null,
+            MentionEveryone = mentionEveryone,
+            MinId = minId is not null ? Snowflake.Parse(minId) : null,
+            MaxId = maxId is not null ? Snowflake.Parse(maxId) : null,
+            Has = has,
+            LinkHostnames = linkHostname is not null ? [linkHostname] : null,
+            EmbedProviders = embedProvider is not null ? [embedProvider] : null,
+            EmbedTypes = embedTypes,
+            AttachmentExtensions = attachmentExtension is not null ? [attachmentExtension] : null,
+            AttachmentFilenames = attachmentFilename is not null ? [attachmentFilename] : null,
+            Pinned = pinned,
+            CommandId = commandId is not null ? Snowflake.Parse(commandId) : null,
+            CommandName = commandName,
+            IncludeNsfw = includeNsfw,
+            ChannelIds = channel is not null ? [channel.Id] : null
+        };
+
+        int count = 0;
+
+        var results = Context.Guild!.SearchMessagesAsync(searchProperties);
+
+        if (limit.HasValue)
+            results = results.Take(limit.GetValueOrDefault());
+
+        await foreach (var result in results)
+        {
+            switch (result)
+            {
+                case GuildMessageSearchResult.Success successResult:
+                    Console.WriteLine(successResult.Message.Content);
+                    count++;
+                    break;
+                case GuildMessageSearchResult.Indexing indexingResult:
+                    Console.WriteLine($"Waiting {indexingResult.RetryAfter} seconds");
+                    await Task.Delay(indexingResult.RetryAfter * 1000);
+                    break;
+            }
+        }
+
+        Console.WriteLine($"Listed {count} messages!");
+    }
+
     [SlashCommand("cv2", "Components V2")]
     public static InteractionMessageProperties CV2()
     {
@@ -75,14 +192,14 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return RespondAsync(InteractionCallback.Message(channel.ToString()));
     }
 
-    [SlashCommand("test", "it's test", DefaultGuildUserPermissions = Permissions.AddReactions)]
+    [SlashCommand("test", "it's test", DefaultGuildPermissions = Permissions.AddReactions)]
     public Task TestAsync([SlashCommandParameter(MinValue = 10, MaxValue = 100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
-    [SlashCommand("search", "Search using DuckDuckGo")]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), MaxLength = 500)] string searchQuery)
+    [SlashCommand("ddg", "Search using DuckDuckGo")]
+    public Task DdgAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), MaxLength = 500)] string searchQuery)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"https://duckduckgo.com/?q={Uri.EscapeDataString(searchQuery)}"));
     }
@@ -137,22 +254,23 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("add-role", "Adds role to user or users")]
     public async Task AddRole(Mentionable mentionable, [SlashCommandParameter(Name = "role", Description = "Role to give")] Role roleToAdd)
     {
-        if (mentionable.Type == MentionableType.Role)
+        if (mentionable is Mentionable.Role { Value: var role })
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
-            var roleId = mentionable.Role!.Id;
+            var roleId = role.Id;
             foreach (var user in Context.Client.Cache.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd.Id)))
                 await user.AddRoleAsync(roleToAdd.Id);
             await Context.Interaction.ModifyResponseAsync(x =>
             {
-                x.Content = $"Role {roleToAdd} was given to users with {mentionable.Role} role";
+                x.Content = $"Role {roleToAdd} was given to users with {role} role";
                 x.AllowedMentions = AllowedMentionsProperties.None;
             });
         }
         else
         {
-            await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd.Id);
-            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
+            var user = ((Mentionable.User)mentionable).Value;
+            await ((GuildUser)user).AddRoleAsync(roleToAdd.Id);
+            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"Role {roleToAdd} was given {user}", AllowedMentions = AllowedMentionsProperties.None }));
         }
     }
 
@@ -162,7 +280,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         throw new();
     }
 
-    [SlashCommand("dżejuś", "Shows dżejuś", GuildId = 856183259972763669)]
+    [SlashCommand("dżejuś", "Shows dżejuś", Register = false)]
     public Task DzejusAsync()
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message("https://cdn.discordapp.com/attachments/927877869173084171/937493837335646238/dzejus.gif"));
@@ -230,14 +348,29 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     [RequireNsfw<SlashCommandContext>()]
     [SlashCommand("nsfw", "You can use this command in nsfw channel"/*, Nsfw = true*/)]
-    public static InteractionCallback Nsfw()
+    public static InteractionCallbackProperties Nsfw()
     {
         return InteractionCallback.Message("You used nsfw command!");
     }
 
     [SlashCommand("test2", "This is test")]
 #pragma warning disable IDE0060 // Remove unused parameter
-    public Task TestAsync(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, Int128 i8, nint i9, sbyte i10, float i11, ushort i12, uint i13, ulong i14, UInt128 i15, nuint i16)
+    public Task TestAsync(byte? i1 = 10,
+                          decimal? i2 = 10,
+                          double? i3 = 10,
+                          Half? i4 = default,
+                          short? i5 = 10,
+                          int? i6 = 10,
+                          long? i7 = 10,
+                          Int128? i8 = default,
+                          nint? i9 = 10,
+                          sbyte? i10 = 10,
+                          float? i11 = 10,
+                          ushort? i12 = 10,
+                          uint? i13 = 10,
+                          ulong? i14 = 10,
+                          UInt128? i15 = default,
+                          nuint? i16 = 10)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         return RespondAsync(InteractionCallback.Message("Wzium"));
@@ -263,7 +396,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("button", "Sends button")]
-    public static InteractionCallback Button()
+    public static InteractionCallbackProperties Button()
     {
         return InteractionCallback.Message(new()
         {
@@ -272,9 +405,9 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             [
                 new ActionRowProperties(
                 [
-                    new ButtonProperties("id", new EmojiProperties(1112841336022892604), ButtonStyle.Success),
-                    new ButtonProperties("xd", new EmojiProperties("⭐"), ButtonStyle.Primary),
-                    new LinkButtonProperties(new("https://google.com"), new EmojiProperties(1067878891273850991)),
+                    new ButtonProperties("id", EmojiProperties.Custom(1112841336022892604), ButtonStyle.Success),
+                    new ButtonProperties("xd", EmojiProperties.Standard("⭐"), ButtonStyle.Primary),
+                    new LinkButtonProperties(new("https://google.com"), EmojiProperties.Custom(1067878891273850991)),
                 ]),
             ],
         });
@@ -353,20 +486,20 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
 public enum DeleteMessagesDays
 {
-    [SlashCommandChoice("Don't remove")]
+    [SlashCommandChoice(Name = "Don't remove")]
     DontRemove = 0 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 24 hours")]
+    [SlashCommandChoice(Name = "Last 24 hours")]
     Last24Hours = 1 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 2 days")]
+    [SlashCommandChoice(Name = "Last 2 days")]
     Last2Days = 2 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 3 days")]
+    [SlashCommandChoice(Name = "Last 3 days")]
     Last3Days = 3 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 4 days")]
+    [SlashCommandChoice(Name = "Last 4 days")]
     Last4Days = 4 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 5 days")]
+    [SlashCommandChoice(Name = "Last 5 days")]
     Last5Days = 5 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 6 days")]
+    [SlashCommandChoice(Name = "Last 6 days")]
     Last6Days = 6 * 24 * 60 * 60,
-    [SlashCommandChoice("Last week")]
+    [SlashCommandChoice(Name = "Last week")]
     LastWeek = 7 * 24 * 60 * 60,
 }

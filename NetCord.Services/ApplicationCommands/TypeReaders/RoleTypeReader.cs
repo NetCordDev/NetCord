@@ -1,11 +1,11 @@
-﻿namespace NetCord.Services.ApplicationCommands.TypeReaders;
+namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class RoleTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Role;
 
-    public override ValueTask<TypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<SlashCommandTypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new(TypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Roles![Snowflake.Parse(value)]));
+        return new(SlashCommandTypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Roles![Snowflake.Parse(value)]));
     }
 }

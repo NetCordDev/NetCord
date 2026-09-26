@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.JsonModels;
 
@@ -8,5 +8,5 @@ public class JsonParty
     public string? Id { get; set; }
 
     [JsonPropertyName("size")]
-    public int[]? Size { get; set; }
+    public long[]? Size { get; set; }
 }

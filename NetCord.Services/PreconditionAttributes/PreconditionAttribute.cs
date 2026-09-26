@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public abstract class PreconditionAttribute<TContext> : Attribute, IPreconditionAttribute

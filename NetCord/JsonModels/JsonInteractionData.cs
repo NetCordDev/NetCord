@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -18,6 +18,9 @@ public class JsonInteractionData
 
     [JsonPropertyName("options")]
     public JsonApplicationCommandInteractionDataOption[]? Options { get; set; }
+
+    [JsonPropertyName("guild_id")]
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("custom_id")]
     public string? CustomId { get; set; }

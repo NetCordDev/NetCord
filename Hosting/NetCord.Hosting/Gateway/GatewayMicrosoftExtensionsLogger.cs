@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using NetCord.Gateway;
@@ -20,5 +20,15 @@ internal class GatewayMicrosoftExtensionsLogger(IServiceProvider services) : IGa
     void IRestLogger.Log<TState>(NCLogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         _restLogger.Log((MSLogLevel)logLevel, default, state, exception, formatter);
+    }
+
+    bool IGatewayLogger.IsEnabled(NCLogLevel logLevel)
+    {
+        return _gatewayLogger.IsEnabled((MSLogLevel)logLevel);
+    }
+
+    bool IRestLogger.IsEnabled(NCLogLevel logLevel)
+    {
+        return _restLogger.IsEnabled((MSLogLevel)logLevel);
     }
 }

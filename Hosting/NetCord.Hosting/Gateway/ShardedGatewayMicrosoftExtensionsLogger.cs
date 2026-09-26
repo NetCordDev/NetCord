@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using NetCord.Gateway;
@@ -14,5 +14,10 @@ internal class ShardedGatewayMicrosoftExtensionsLogger(int shardId, IServiceProv
     void IGatewayLogger.Log<TState>(NCLogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         _gatewayLogger.Log((MSLogLevel)logLevel, _eventId, state, exception, formatter);
+    }
+
+    bool IGatewayLogger.IsEnabled(NCLogLevel logLevel)
+    {
+        return _gatewayLogger.IsEnabled((MSLogLevel)logLevel);
     }
 }

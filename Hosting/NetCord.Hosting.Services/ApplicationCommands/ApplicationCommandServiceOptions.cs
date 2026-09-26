@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.Options;
@@ -11,8 +11,6 @@ namespace NetCord.Hosting.Services.ApplicationCommands;
 
 public class ApplicationCommandServiceOptions
 {
-    public bool? DefaultDMPermission { get; set; }
-
     public IEnumerable<ApplicationIntegrationType>? DefaultIntegrationTypes { get; set; }
 
     public IEnumerable<InteractionContextType>? DefaultContexts { get; set; }
@@ -28,6 +26,8 @@ public class ApplicationCommandServiceOptions
     public ILocalizationsProvider? LocalizationsProvider { get; set; }
 
     public bool? UseScopes { get; set; }
+
+    public bool? AutoRegisterCommands { get; set; }
 }
 
 public class ApplicationCommandServiceOptions<TInteraction, TContext>
@@ -38,7 +38,7 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
 
     public SlashCommandTypeReader<TContext>? EnumTypeReader { get; set; }
 
-    public bool? DefaultDMPermission { get; set; }
+    public IApplicationCommandServiceStorage<TContext>? Storage { get; set; }
 
     public IEnumerable<ApplicationIntegrationType>? DefaultIntegrationTypes { get; set; }
 
@@ -60,17 +60,17 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
 
     public bool? UseScopes { get; set; }
 
+    public bool? AutoRegisterCommands { get; set; }
+
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
     public IApplicationCommandResultHandler<TContext>? ResultHandler { get; set; }
 
+    public IApplicationCommandPreExecutionHandler<TContext>? PreExecutionHandler { get; set; }
+
     internal void Apply(IOptions<ApplicationCommandServiceOptions> options)
     {
         var value = options.Value;
-
-        var defaultDMPermission = value.DefaultDMPermission;
-        if (defaultDMPermission.HasValue)
-            DefaultDMPermission = defaultDMPermission.GetValueOrDefault();
 
         var defaultIntegrationTypes = value.DefaultIntegrationTypes;
         if (defaultIntegrationTypes is not null)
@@ -95,6 +95,10 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
         var useScopes = value.UseScopes;
         if (useScopes.HasValue)
             UseScopes = useScopes;
+
+        var autoRegisterCommands = value.AutoRegisterCommands;
+        if (autoRegisterCommands.HasValue)
+            AutoRegisterCommands = autoRegisterCommands;
     }
 
     internal ApplicationCommandServiceConfiguration<TContext> CreateConfiguration()
@@ -105,7 +109,7 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
         {
             TypeReaders = TypeReaders.ToImmutableDictionary(),
             EnumTypeReader = EnumTypeReader ?? configuration.EnumTypeReader,
-            DefaultDMPermission = DefaultDMPermission ?? configuration.DefaultDMPermission,
+            Storage = Storage ?? configuration.Storage,
             DefaultIntegrationTypes = DefaultIntegrationTypes ?? configuration.DefaultIntegrationTypes,
             DefaultContexts = DefaultContexts ?? configuration.DefaultContexts,
             ParameterNameProcessor = ParameterNameProcessor ?? configuration.ParameterNameProcessor,
@@ -126,4 +130,6 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompl
     public Func<AutocompleteInteraction, GatewayClient?, IServiceProvider, TAutocompleteContext>? CreateAutocompleteContext { get; set; }
 
     public IAutocompleteInteractionResultHandler<TAutocompleteContext>? AutocompleteResultHandler { get; set; }
+
+    public IAutocompleteInteractionPreExecutionHandler<TAutocompleteContext>? AutocompletePreExecutionHandler { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public enum ComponentType
 {
@@ -18,4 +18,9 @@ public enum ComponentType
     Separator = 14,
     ContentInventoryEntry = 16,
     Container = 17,
+    Label = 18,
+    FileUpload = 19,
+    RadioGroup = 21,
+    CheckboxGroup = 22,
+    Checkbox = 23,
 }

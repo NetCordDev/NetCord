@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Displays embedded content such as an image or URL, alongside a title and various other fields. You can only have up to 10 embeds per message, and the total text of all embeds must be less than or equal to 6000 characters.
@@ -34,7 +34,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public DateTimeOffset? Timestamp => _jsonModel.Timestamp;
 
     /// <summary>
-    /// The color of the embed’s border in an RGB format.
+    /// The color of the embed's border in an RGB format.
     /// </summary>
     public Color? Color => _jsonModel.Color;
 

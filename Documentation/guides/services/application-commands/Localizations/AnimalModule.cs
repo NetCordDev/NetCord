@@ -1,4 +1,4 @@
-﻿using NetCord.Services.ApplicationCommands;
+using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;
 
@@ -17,6 +17,6 @@ public enum Animal
     Dog,
     Cat,
     Fish,
-    [SlashCommandChoice("Guinea Pig")]
+    [SlashCommandChoice(Name = "Guinea Pig")]
     GuineaPig,
 }

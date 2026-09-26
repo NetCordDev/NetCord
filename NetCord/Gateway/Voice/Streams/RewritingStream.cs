@@ -1,12 +1,14 @@
-﻿namespace NetCord.Gateway.Voice;
+namespace NetCord.Gateway.Voice;
 
 /// <summary>
 /// 
 /// </summary>
 /// <param name="next">The stream that this stream is writing to.</param>
-public abstract class RewritingStream(Stream next) : Stream
+/// <param name="leaveOpen">Whether to leave the next stream open when this stream is disposed.</param>
+public abstract class RewritingStream(Stream next, bool leaveOpen = false) : Stream
 {
     private protected readonly Stream _next = next;
+    private readonly bool _leaveOpen = leaveOpen;
 
     public override bool CanRead => false;
     public override bool CanSeek => false;
@@ -40,7 +42,7 @@ public abstract class RewritingStream(Stream next) : Stream
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && !_leaveOpen)
             _next.Dispose();
     }
 }

@@ -1,4 +1,4 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -38,17 +38,15 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     /// <summary>
     /// A list of <see cref="ulong"/> IDs representing the user's current roles.
     /// </summary>
+    /// <remarks>
+    /// It is possible for this list to contain IDs of roles that no longer exist.
+    /// </remarks>
     public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
-
-    /// <summary>
-    /// The ID of the user's hoisted role, used to categorize the user in the member list.
-    /// </summary>
-    public ulong? HoistedRoleId => _jsonModel.HoistedRoleId;
 
     /// <summary>
     /// When the user joined the guild.
     /// </summary>
-    public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
+    public DateTimeOffset? JoinedAt => _jsonModel.JoinedAt;
 
     /// <summary>
     /// When the user started boosting the guild. <see langword="null"/> if the user has never boosted.

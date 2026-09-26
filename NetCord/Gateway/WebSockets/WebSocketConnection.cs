@@ -1,10 +1,17 @@
-﻿using System.Net.WebSockets;
+using System.Net.WebSockets;
 
 namespace NetCord.Gateway.WebSockets;
 
 internal sealed class WebSocketConnection : IWebSocketConnection
 {
-    private readonly ClientWebSocket _webSocket = new();
+    private readonly ClientWebSocket _webSocket;
+
+    public WebSocketConnection(Action<ClientWebSocketOptions>? configureOptions)
+    {
+        ClientWebSocket webSocket = new();
+        configureOptions?.Invoke(webSocket.Options);
+        _webSocket = webSocket;
+    }
 
     public int? CloseStatus => (int?)_webSocket.CloseStatus;
 

@@ -1,13 +1,12 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class TextInput(JsonComponent jsonModel, int parentId) : IComponent, IJsonModel<JsonComponent>
+public class TextInput(JsonTextInputComponent jsonModel) : IInteractiveComponent, ILabelComponent, IJsonModel<JsonTextInputComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonTextInputComponent IJsonModel<JsonTextInputComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
-    public string CustomId => jsonModel.CustomId!;
-    public string Value => jsonModel.Value!;
-    public int ParentId => parentId;
+    public string CustomId => jsonModel.CustomId;
+    public string Value => jsonModel.Value;
 }

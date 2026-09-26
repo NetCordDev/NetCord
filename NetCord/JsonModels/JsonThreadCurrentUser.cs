@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -8,5 +8,5 @@ public class JsonThreadCurrentUser
     public DateTimeOffset JoinTimestamp { get; set; }
 
     [JsonPropertyName("flags")]
-    public int Flags { get; set; }
+    public ThreadUserFlags Flags { get; set; }
 }

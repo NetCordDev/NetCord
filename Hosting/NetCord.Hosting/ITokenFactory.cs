@@ -1,4 +1,4 @@
-﻿namespace NetCord.Hosting;
+namespace NetCord.Hosting;
 
 /// <summary>
 /// Represents a factory that creates <see cref="IToken"/> instances.

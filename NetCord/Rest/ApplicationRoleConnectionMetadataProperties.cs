@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ApplicationRoleConnectionMetadataProperties(ApplicationRoleConnectionMetadataType type, string key, string name, string description)
 {
     [JsonPropertyName("type")]

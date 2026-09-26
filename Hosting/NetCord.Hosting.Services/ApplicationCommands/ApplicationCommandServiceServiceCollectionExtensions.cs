@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 using NetCord.Hosting.Gateway;
@@ -174,10 +175,25 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IApplicationCommandService>(services => services.GetRequiredService<ApplicationCommandService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ApplicationCommandService<TContext>>());
 
+        services.AddSingleton<IApplicationCommandsBuilder<TContext>, ApplicationCommandsBuilder<TContext>>();
+        services.AddSingleton<IApplicationCommandsBuilder>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext>>());
+
+        services.AddSingleton(services =>
+        {
+            return new ApplicationCommandServiceData(
+                services.GetRequiredService<ApplicationCommandService<TContext>>(),
+                services.GetRequiredService<IApplicationCommandsBuilder<TContext>>(),
+                () => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext>>>().Value.AutoRegisterCommands);
+        });
+
+        services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
+
         services.AddSingleton<ApplicationCommandInteractionHandler<TInteraction, TContext>>();
-        services.AddGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
-        services.AddShardedGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddShardedGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+
+        services.TryAddTransient(CreateServiceManager);
 
         services.AddHostedService<ApplicationCommandServiceHostedService>();
 
@@ -239,18 +255,48 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IApplicationCommandService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
 
+        services.AddSingleton<IApplicationCommandsBuilder<TContext, TAutocompleteContext>, ApplicationCommandsBuilder<TContext, TAutocompleteContext>>();
+        services.AddSingleton<IApplicationCommandsBuilder<TContext>>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext, TAutocompleteContext>>());
+        services.AddSingleton<IApplicationCommandsBuilder>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext, TAutocompleteContext>>());
+
+        services.AddSingleton(services =>
+        {
+            return new ApplicationCommandServiceData(
+                services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>(),
+                services.GetRequiredService<IApplicationCommandsBuilder<TContext, TAutocompleteContext>>(),
+                () => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>>().Value.AutoRegisterCommands);
+        });
+
+        services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
+        services.AddSingleton<IContextAccessor<TAutocompleteContext>, ContextAccessor<TAutocompleteContext>>();
+
         services.AddSingleton<ApplicationCommandInteractionHandler<TInteraction, TContext>>();
-        services.AddGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
-        services.AddShardedGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddShardedGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
 
         services.AddSingleton<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>();
-        services.AddGatewayEventHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
-        services.AddShardedGatewayEventHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
+        services.AddGatewayHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
+        services.AddShardedGatewayHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
+
+        services.TryAddTransient(CreateServiceManager);
 
         services.AddHostedService<ApplicationCommandServiceHostedService>();
 
         return services;
+    }
+
+    private static ApplicationCommandServiceManager CreateServiceManager(IServiceProvider services)
+    {
+        List<IApplicationCommandService> managerServices = [];
+
+        foreach (var serviceData in services.GetServices<ApplicationCommandServiceData>())
+        {
+            serviceData.Builder.Build();
+            managerServices.Add(serviceData.Service);
+        }
+
+        return new(managerServices);
     }
 }

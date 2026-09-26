@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 public class ExecutionExceptionResult(Exception exception) : IExceptionResult
 {

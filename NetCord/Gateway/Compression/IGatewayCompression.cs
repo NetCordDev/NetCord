@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.Compression;
+namespace NetCord.Gateway.Compression;
 
 public interface IGatewayCompression : IDisposable
 {

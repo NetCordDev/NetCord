@@ -1,9 +1,10 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 
 namespace NetCord;
-public class PremiumButton(JsonComponent jsonModel) : IButton, IJsonModel<JsonComponent>
+
+public class PremiumButton(JsonButtonComponent jsonModel) : IButton, IJsonModel<JsonButtonComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonButtonComponent IJsonModel<JsonButtonComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
     public ulong SkuId => jsonModel.SkuId.GetValueOrDefault();

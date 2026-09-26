@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// The flags on a <see cref="User"/>'s account.
@@ -59,7 +59,7 @@ public enum UserFlags : ulong
     PremiumEarlySupporter = 1uL << 9,
 
     /// <summary>
-    /// User is a team. See <see href="https://discord.com/developers/docs/topics/teams"/>.
+    /// User is a <see cref="TeamUser"/>.
     /// </summary>
     TeamPseudoUser = 1uL << 10,
 
@@ -96,12 +96,12 @@ public enum UserFlags : ulong
     VerifiedBot = 1uL << 16,
 
     /// <summary>
-    /// User has the 'Early Verified Developer' badge.
+    /// User has the 'Early Verified Bot Developer' badge.
     /// </summary>
     VerifiedDeveloper = 1uL << 17,
 
     /// <summary>
-    /// User has the 'Moderator Program Alumni' badge.
+    /// User has the 'Moderator Programs Alumni' badge.
     /// </summary>
     CertifiedModerator = 1uL << 18,
 
@@ -111,7 +111,7 @@ public enum UserFlags : ulong
     BotHttpInteractions = 1uL << 19,
 
     /// <summary>
-    /// Undocumented. User's account is flagged for spamming.
+    /// Undocumented. User's account is disabled for spamming.
     /// </summary>
     Spammer = 1uL << 20,
 
@@ -121,7 +121,7 @@ public enum UserFlags : ulong
     DisablePremium = 1uL << 21,
 
     /// <summary>
-    /// User has the 'Active Developer' badge. See <see href="https://support-dev.discord.com/hc/articles/10113997751447"/>.
+    /// User is an active developer.
     /// </summary>
     ActiveDeveloper = 1uL << 22,
 

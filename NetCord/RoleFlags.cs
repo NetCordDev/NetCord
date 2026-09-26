@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 [Flags]
 public enum RoleFlags

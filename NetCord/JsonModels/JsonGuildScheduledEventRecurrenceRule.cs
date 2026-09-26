@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -32,5 +32,5 @@ public class JsonGuildScheduledEventRecurrenceRule
     public int[]? ByYearDay { get; set; }
 
     [JsonPropertyName("count")]
-    public int? Count { get; }
+    public int? Count { get; set; }
 }

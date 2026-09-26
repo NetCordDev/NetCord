@@ -1,16 +1,22 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
+using NetCord.Services.Utils;
 
 namespace NetCord.Services.ApplicationCommands;
 
 public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal SubSlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandInfo(MethodInfo method,
+                                 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
+                                 SubSlashCommandAttribute attribute,
+                                 ApplicationCommandServiceConfiguration<TContext> configuration,
+                                 ImmutableList<LocalizationPathSegment> path,
+                                 AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider)
     {
         Name = attribute.Name;
 
@@ -18,35 +24,48 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
+        var attributes = Attribute.GetCustomAttributes(method);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
         Description = attribute.Description;
 
-        var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, localizationPath);
+        var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, localizationPath, autocompleteDelegateProvider);
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal SubSlashCommandInfo(string name, string description, Delegate handler, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandInfo(SubSlashCommandBuilder builder,
+                                 ApplicationCommandServiceConfiguration<TContext> configuration,
+                                 ImmutableList<LocalizationPathSegment> path,
+                                 AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider)
     {
-        Name = name;
+        var name = Name = builder.Name;
 
         var localizationPath = LocalizationPath = path.Add(new SubSlashCommandLocalizationPathSegment(name));
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
-        Description = description;
+        var handler = builder.Handler;
 
         var method = handler.Method;
 
+        var attributes = Attribute.GetCustomAttributes(method);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
+        Description = builder.Description;
+
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
-        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath);
+        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath, autocompleteDelegateProvider);
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
@@ -54,6 +73,7 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Description { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
@@ -119,14 +139,6 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
             return SuccessResult.Instance;
         }
 
-        return new NotFoundResult("Command not found.");
-    }
-
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
-    {
-        var parameters = Parameters;
-        var count = parameters.Count;
-        for (int i = 0; i < count; i++)
-            parameters[i].InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
+        return NotFoundResult.Command;
     }
 }

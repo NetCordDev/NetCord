@@ -1,13 +1,13 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class ComponentContainer(JsonComponent jsonModel) : IComponent, IJsonModel<JsonComponent>
+public class ComponentContainer(JsonComponentContainerComponent jsonModel) : IMessageComponent, IJsonModel<JsonComponentContainerComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonComponentContainerComponent IJsonModel<JsonComponentContainerComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
     public Color? AccentColor => jsonModel.AccentColor;
     public bool Spoiler => jsonModel.Spoiler.GetValueOrDefault();
-    public IReadOnlyList<IComponent> Components { get; } = jsonModel.Components!.Select(IComponent.CreateFromJson).ToArray();
+    public IReadOnlyList<IComponentContainerComponent> Components { get; } = jsonModel.Components.Select(IComponentContainerComponent.CreateFromJson).ToArray();
 }

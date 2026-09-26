@@ -1,8 +1,12 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class StringMenu(JsonComponent jsonModel, int parentId) : Menu(jsonModel, parentId)
+public class StringMenu(JsonStringMenuComponent jsonModel, int parentId) : Menu(jsonModel, parentId), IJsonModel<JsonStringMenuComponent>
 {
-    public IReadOnlyList<StringMenuSelectOption> Options { get; } = jsonModel.Options.Select(o => new StringMenuSelectOption(o)).ToArray();
+    JsonStringMenuComponent IJsonModel<JsonStringMenuComponent>.JsonModel => GetJsonModel<JsonStringMenuComponent>();
+
+    public IReadOnlyList<StringMenuSelectOption> Options { get; } = jsonModel.Options.SelectOrEmpty(o => new StringMenuSelectOption(o)).ToArray();
+
+    public IReadOnlyList<string>? SelectedValues => GetJsonModel<JsonStringMenuComponent>().SelectedValues;
 }

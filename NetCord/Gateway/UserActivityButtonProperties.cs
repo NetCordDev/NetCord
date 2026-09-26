@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway;
 
+[GenerateMethodsForProperties]
 public partial class UserActivityButtonProperties(string label, string url)
 {
     [JsonPropertyName("label")]

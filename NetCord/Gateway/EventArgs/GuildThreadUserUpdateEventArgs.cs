@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class GuildThreadUserUpdateEventArgs(ThreadUser user, ulong guildId)
 {

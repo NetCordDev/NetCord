@@ -1,8 +1,12 @@
-﻿namespace NetCord.Services.ComponentInteractions;
+namespace NetCord.Services.ComponentInteractions;
 
 #nullable disable
 
-public class BaseComponentInteractionModule<TContext> : IBaseModule<TContext> where TContext : IComponentInteractionContext
+/// <summary>
+/// Represents a base module for component interactions.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked component interactions use.</typeparam>
+public abstract class BaseComponentInteractionModule<TContext> : IBaseModule<TContext> where TContext : IComponentInteractionContext
 {
     public TContext Context => _context;
 

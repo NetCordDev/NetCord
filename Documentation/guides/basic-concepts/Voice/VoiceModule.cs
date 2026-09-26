@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using NetCord;
 using NetCord.Gateway.Voice;
@@ -52,11 +52,11 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await RespondAsync(InteractionCallback.Message($"Playing {Path.GetFileName(track)}!"));
 
         // Create a stream that sends voice to Discord
-        var outStream = voiceClient.CreateOutputStream();
+        var voiceStream = voiceClient.CreateVoiceStream();
 
         // We create this stream to automatically convert the PCM data returned by FFmpeg to Opus data.
-        // The Opus data is then written to 'outStream' that sends the data to Discord
-        OpusEncodeStream stream = new(outStream, PcmFormat.Short, VoiceChannels.Stereo, OpusApplication.Audio);
+        // The Opus data is then written to 'voiceStream' that sends the data to Discord
+        OpusEncodeStream stream = new(voiceStream, PcmFormat.Short, VoiceChannels.Stereo, OpusApplication.Audio);
 
         ProcessStartInfo startInfo = new("ffmpeg")
         {
@@ -102,7 +102,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         // Start the FFmpeg process
         var ffmpeg = Process.Start(startInfo)!;
 
-        // Copy the FFmpeg stdout to 'stream', which encodes the voice using Opus and passes it to 'outStream'
+        // Copy the FFmpeg stdout to 'stream', which encodes the voice using Opus and passes it to 'voiceStream'
         await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
 
         // Flush 'stream' to make sure all the data has been sent and to indicate to Discord that we have finished sending
@@ -129,7 +129,6 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
             voiceState.ChannelId.GetValueOrDefault(),
             new VoiceClientConfiguration
             {
-                ReceiveHandler = new VoiceReceiveHandler(), // Required to receive voice
                 Logger = new ConsoleLogger(),
             });
 
@@ -139,14 +138,12 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         // Enter speaking state, to be able to send voice
         await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
-        // Create a stream that sends voice to Discord
-        var outStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
-
         voiceClient.VoiceReceive += args =>
         {
-            // Pass current user voice directly to the output to create echo
-            if (voiceClient.Cache.Users.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
-                outStream.Write(args.Frame);
+            // Send the received voice back if the received voice is from the user that invoked the command
+            if (voiceClient.Cache.SsrcUsers.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
+                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
+
             return default;
         };
 

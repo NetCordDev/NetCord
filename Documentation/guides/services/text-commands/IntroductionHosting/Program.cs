@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
@@ -13,12 +13,9 @@ builder.Services
 var host = builder.Build();
 
 // Add a command using minimal APIs
-host.AddCommand(["ping"], () => "Pong!");
+host.AddCommand(["pong"], () => "Ping!");
 
 // Add commands from modules
 host.AddModules(typeof(Program).Assembly);
-
-// Add handlers to handle the commands
-host.UseGatewayEventHandlers();
 
 await host.RunAsync();

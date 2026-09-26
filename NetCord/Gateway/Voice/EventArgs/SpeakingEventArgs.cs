@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.Voice.JsonModels;
+using NetCord.Gateway.Voice.JsonModels;
 
 namespace NetCord.Gateway.Voice;
 

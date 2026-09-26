@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.Compression;
+using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
@@ -20,7 +20,7 @@ public class GatewayClientConfiguration : IWebSocketClientConfiguration, IRestCl
     public IRateLimiterProvider? RateLimiterProvider { get; init; }
 
     /// <inheritdoc/>
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; init; }
+    public WebSocketMessageProperties? DefaultMessageProperties { get; init; }
 
     /// <inheritdoc/>
     public IReconnectStrategy? ReconnectStrategy { get; init; }
@@ -34,9 +34,9 @@ public class GatewayClientConfiguration : IWebSocketClientConfiguration, IRestCl
     public ApiVersion? Version { get; init; }
 
     /// <summary>
-    /// The cache for the <see cref="GatewayClient"/>. Defaults to <see cref="GatewayClientCache"/>.
+    /// The cache provider for the <see cref="GatewayClient"/>. Defaults to <see cref="ImmutableGatewayClientCacheProvider.Empty"/>.
     /// </summary>
-    public IGatewayClientCache? Cache { get; init; }
+    public IGatewayClientCacheProvider? CacheProvider { get; init; }
 
     /// <summary>
     /// The compression provider for the <see cref="GatewayClient"/>. Defaults to <see cref="ZstandardGatewayCompression"/> if available, otherwise <see cref="ZLibGatewayCompression"/>.

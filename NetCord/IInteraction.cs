@@ -1,4 +1,6 @@
-﻿using NetCord.Rest;
+global using InteractionResponseDelegate = System.Func<NetCord.IInteraction, NetCord.Rest.InteractionCallbackProperties, bool, NetCord.Rest.RestRequestProperties?, System.Threading.CancellationToken, System.Threading.Tasks.Task<NetCord.Rest.InteractionCallbackResponse?>>;
+
+using NetCord.Rest;
 
 namespace NetCord;
 
@@ -10,11 +12,15 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
 
     public string Token { get; }
 
+    public int Version { get; }
+
     public Permissions AppPermissions { get; }
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
-    public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client)
+    public long AttachmentSizeLimit { get; }
+
+    public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, InteractionResponseDelegate sendResponseAsync, RestClient client)
     {
         if (jsonModel.Type is InteractionType.Ping)
             return new PingInteraction(jsonModel, sendResponseAsync, client);
@@ -22,5 +28,5 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
         return Interaction.CreateFromJson(jsonModel, null, sendResponseAsync, client);
     }
 
-    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default);
+    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default);
 }

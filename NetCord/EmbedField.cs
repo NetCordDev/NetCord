@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Contains information about an embed field, of which a maximum of 25 can be set per embed.
@@ -18,7 +18,7 @@ public class EmbedField(JsonModels.JsonEmbedField jsonModel) : IJsonModel<JsonMo
     public string Value => jsonModel.Value;
 
     /// <summary>
-    /// When set alongside another field with <see cref="Inline"/> set, displays the fields side by side.
+    /// When set alongside another field with <see cref="Inline"/> set, displays the fields side by side when supported.
     /// </summary>
     public bool Inline => jsonModel.Inline;
 }

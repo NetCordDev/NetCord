@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 /// <summary>
 /// Indicates how a <see cref="GuildUser"/> joined a guild.

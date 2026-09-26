@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Globalization;
 
 using Microsoft.Extensions.Options;
@@ -65,9 +65,13 @@ public class CommandServiceOptions<TContext>
 
     public Func<Message, GatewayClient, IServiceProvider, ValueTask<int>>? GetPrefixLengthAsync { get; set; }
 
+    public Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>>? GetCommandTextAsync { get; set; }
+
     public Func<Message, GatewayClient, IServiceProvider, TContext>? CreateContext { get; set; }
 
     public ICommandResultHandler<TContext>? ResultHandler { get; set; }
+
+    public ICommandPreExecutionHandler<TContext>? PreExecutionHandler { get; set; }
 
     internal void Apply(IOptions<CommandServiceOptions> options)
     {

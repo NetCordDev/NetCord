@@ -1,4 +1,4 @@
-﻿using NetCord.Rest;
+using NetCord.Rest;
 using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
@@ -8,6 +8,6 @@ public class MentionableMenuInteractions : ComponentInteractionModule<Mentionabl
     [ComponentInteraction("mentionables")]
     public Task MentionablesAsync()
     {
-        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedMentionables)}"));
+        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedValues)}"));
     }
 }

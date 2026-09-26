@@ -1,4 +1,4 @@
-﻿using NetCord;
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Logging;
 using NetCord.Rest;
@@ -15,7 +15,7 @@ GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), 
 ComponentInteractionService<ButtonInteractionContext> interactionService = new();
 
 // Add a component interaction using minimal APIs
-interactionService.AddInteraction("ping", () => "Pong!");
+interactionService.AddComponentInteraction(new ComponentInteractionBuilder("ping", () => "Pong!"));
 
 // Add component interactions from modules
 interactionService.AddModules(typeof(Program).Assembly);

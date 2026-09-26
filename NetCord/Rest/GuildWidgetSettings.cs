@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class GuildWidgetSettings(JsonModels.JsonGuildWidgetSettings jsonModel) : IJsonModel<JsonModels.JsonGuildWidgetSettings>
 {

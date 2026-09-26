@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
+using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.Services.Commands;
 using NetCord.Hosting.Services.ComponentInteractions;
@@ -30,73 +31,216 @@ using NetCord.Test.Hosting;
 
 //builder.ConfigureServices(services =>
 //{
-//    //services.AddGatewayEventHandler<MessageReactionAddHandler>();
-//    //services.AddGatewayEventHandler<ConnectHandler>();
-//    //services.AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>();
-//    services.AddGatewayEventHandlers(typeof(Program).Assembly);
+//    //services.AddGatewayHandler<MessageReactionAddHandler>();
+//    //services.AddGatewayHandler<ConnectHandler>();
+//    //services.AddGatewayHandler<ChannelCreateUpdateDeleteHandler>();
+//    services.AddGatewayHandlers(typeof(Program).Assembly);
 //});
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
+    .AddSingleton<HttpClient>()
+    .AddGatewayHandler(GatewayEvent.InteractionCreate, (Interaction interaction) => Console.WriteLine(interaction))
     .ConfigureDiscordGateway(o => o.Presence = new(UserStatusType.DoNotDisturb))
     .ConfigureCommands<CommandContext>(o => o.Prefix = "!")
     .ConfigureCommands(o => o.Prefix = ">")
     .ConfigureApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
     .ConfigureApplicationCommands(o => o.DefaultParameterDescriptionFormat = "XD")
-    .AddDiscordGateway(o => o.Intents = GatewayIntents.All)
+    .ConfigureApplicationCommands(o => o.AutoRegisterCommands = true)
+    .AddDiscordGateway(o =>
+    {
+        o.Intents = GatewayIntents.All;
+        o.AutoStartStop = true;
+    })
     .AddApplicationCommands(options =>
     {
         options.ResultHandler = new CustomApplicationCommandResultHandler();
     })
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
+    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
     .AddCommands()
-    .AddGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
-    .AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>()
-    .AddGatewayEventHandler<ConnectHandler>()
-    .AddGatewayEventHandler<MessageReactionAddAndMessageDeleteHandler>()
+    .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger, IServiceProvider p) => logger.LogInformation("Content: {}", message.Content), ServiceLifetime.Scoped)
+    .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
+    .AddGatewayHandler<ConnectHandler>(ServiceLifetime.Scoped)
+    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>(ServiceLifetime.Scoped)
     .AddSingleton("Wzium")
     .AddKeyedSingleton("key", "Wzium2");
 
-var host = builder.Build()
-    .AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
-    .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands()!.Values.Select(c => c.Name)))
-    .AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}")
-    .AddSlashCommand("button", "Button!", () =>
+var host = builder.Build();
+
+host.AddSlashCommand("file_types", "File Types!", ([SlashCommandParameter(FileTypes = ["image"])] Attachment attachment) => new InteractionMessageProperties().WithContent($"File name: {attachment.FileName}").WithFlags(MessageFlags.Ephemeral));
+
+host.AddSlashCommand("file_types2", "File Types 2!", () => new ModalProperties("file_types2", "File Types 2").AddComponents(new LabelProperties("File", new FileUploadProperties("file").AddFileTypes("image"))));
+
+host.AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}");
+host.AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Select(c => c.Name)));
+host.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}");
+host.AddSlashCommand("button", "Button!", () =>
+{
+    return new InteractionMessageProperties()
     {
-        return new InteractionMessageProperties()
-        {
-            Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
-        };
-    })
-    .AddSlashCommand("exception", "Exception!", (Action<string>)(s => throw new("Exception!")))
-    .AddSlashCommand("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])))
-    .AddUserCommand("ping", () => "Pong!")
-    .AddMessageCommand("Content", (RestMessage message) => message.Content)
-    .AddUserCommand("Name", (GatewayClient client, ApplicationCommandContext context, User user) => user.Username)
-    .AddMessageCommand("ping", () => "Pong!")
-    .AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!")
-    .AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((provider, context) => throw new("Exception!")))
-    .AddCommand(["ping"], () => "Pong!")
-    .AddCommand(["exception"], (Action)(() => throw new("Exception!")))
-    .AddSlashCommand("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])))
-    .AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD")
-    .AddApplicationCommandModule<ApplicationCommandModule>()
-    .AddApplicationCommandModule<DITestModule>()
-    .AddSlashCommand("yellow", "Yellow!", builder =>
+        Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
+    };
+});
+host.AddSlashCommand("exception", "Exception!", (Action<string>)(s => throw new("Exception!")));
+host.AddSlashCommand("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])));
+host.AddUserCommand("ping", () => "Pong!");
+host.AddMessageCommand("Content", (RestMessage message) => message.Content);
+host.AddUserCommand("Name", (GatewayClient client, ApplicationCommandContext context, User user) => user.Username);
+host.AddMessageCommand("ping", () => "Pong!");
+host.AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!");
+host.AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((provider, context) => throw new("Exception!")));
+host.AddCommand(["ping"], () => "Pong!");
+host.AddCommand(["exception"], (Action)(() => throw new("Exception!")));
+host.AddSlashCommand("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])));
+host.AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD");
+host.AddApplicationCommandModule<ApplicationCommandModule>();
+host.AddApplicationCommandModule<DITestModule>();
+
+host.AddSlashCommandGroup("yellow", "Yellow!", builder =>
+{
+    builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
+    (string wzium,
+                                              ApplicationCommandContext context,
+                                              [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
+
+    builder.AddSubCommand("blue", "Blue!", () => "blue");
+
+    builder.AddSubCommandGroup("red", "Red!", builder =>
     {
-        builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
-        (string wzium,
-                                                  ApplicationCommandContext context,
-                                                  [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
-        builder.AddSubCommand("blue", "Blue!", () => "blue");
-        builder.AddSubCommand("red", "Red!", builder =>
-        {
-            builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
-            builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
-        });
-    })
-    .UseGatewayEventHandlers();
+        builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
+        builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+    });
+});
+
+//var yellowGroup = host.AddSlashCommandGroup("yellow", "Yellow!");
+
+//yellowGroup.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
+//                                             (string wzium,
+//                                              ApplicationCommandContext context,
+//                                              [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
+
+//yellowGroup.AddSubCommand("blue", "Blue!", () => "blue");
+
+//var redYellowGroup = yellowGroup.AddSubCommandGroup("red", "Red!");
+
+//redYellowGroup.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
+
+//redYellowGroup.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+
+host.AddCommandGroup(["yellow"], builder =>
+{
+    builder.AddSubCommand(["green"], [RequireContext<CommandContext>(RequiredContext.DM)]
+    (string wzium,
+                                      CommandContext context,
+                                      string value) => $"green {value}, wzium: {wzium}");
+
+    builder.AddSubCommand(["blue"], () => "blue");
+
+    builder.AddSubCommandGroup(["red"], builder =>
+    {
+        builder.AddSubCommand(["orange"], [RequireContext<CommandContext>(RequiredContext.DM)] () => "orange");
+        builder.AddSubCommand(["purple"], (string s) => $"purple {s}");
+    });
+});
+
+host.AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(ContextAccessorAutocompleteProvider))] string s) =>
+{
+    string? content;
+
+    if (contextAccessor.Context is { } accessorContext)
+    {
+        content = $"{accessorContext == context} {s}";
+    }
+    else
+        content = $"Context is null. {s}";
+
+    return new InteractionMessageProperties()
+        .WithContent(content)
+        .AddComponents(new ActionRowProperties().AddComponents(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+});
+
+host.AddComponentInteraction<ButtonInteractionContext>("context-accessor", (IContextAccessor<ButtonInteractionContext> contextAccessor, ButtonInteractionContext context) =>
+{
+    string? content;
+
+    if (contextAccessor.Context is { } accessorContext)
+        content = (accessorContext == context).ToString();
+    else
+        content = "Context is null.";
+
+    return content;
+});
+
+host.AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextAccessor, CommandContext context) =>
+{
+    string? content;
+
+    if (contextAccessor.Context is { } accessorContext)
+        content = (accessorContext == context).ToString();
+    else
+        content = "Context is null.";
+
+    return new ReplyMessageProperties()
+        .WithContent(content)
+        .AddComponents(new ActionRowProperties().AddComponents(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+});
+
+host.AddSlashCommand("modal", "Modal", () =>
+{
+    return new ModalProperties("modal", "Modal")
+    {
+        new LabelProperties("Mentionable", new MentionableMenuProperties("mentionable")),
+        new TextDisplayProperties("""
+            ```cs
+            Console.WriteLine("Wzium");
+            ```
+            """),
+        new LabelProperties("User", new UserMenuProperties("user")),
+        new LabelProperties("Channel", new ChannelMenuProperties("channel")),
+        new LabelProperties("Role", new RoleMenuProperties("role")),
+    };
+});
+
+host.AddSlashCommand("file-upload", "File Upload!", () =>
+{
+    return new ModalProperties("file upload", "File Upload")
+    {
+        new LabelProperties("Upload", new FileUploadProperties("xd").WithRequired(false).WithMinValues(2).WithMaxValues(3)),
+    };
+});
+
+host.AddComponentInteraction<ModalInteractionContext>("file upload", async (HttpClient client, ModalInteractionContext context) =>
+{
+    var attachments = context.Components.OfType<Label>()
+                                        .Select(l => l.Component)
+                                        .OfType<FileUpload>()
+                                        .SelectMany(u => u.Attachments)
+                                        .ToArray();
+
+    return new InteractionMessageProperties()
+    {
+        Flags = MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+        Attachments = await Task.WhenAll(attachments.Select(async a => new AttachmentProperties(a.FileName, await client.GetStreamAsync(a.Url)))),
+        Components = attachments.Select(a => (IMessageComponentProperties)new FileDisplayProperties(new($"attachment://{a.FileName}")))
+                                .Prepend(new TextDisplayProperties("Uploaded files:"))
+    };
+});
+
+host.AddSlashCommand("modal-test", "Radio Group!", () =>
+{
+    ModalProperties modal = new("modal", "Radio Group Test");
+    modal.AddComponents(new LabelProperties("Radio Group", new RadioGroupProperties("xdd", Enumerable.Range(0, 5).Select(i => new RadioGroupOptionProperties($"L{i}", $"V{i}")))
+    {
+        new RadioGroupOptionProperties("2", "2")
+    }.WithRequired(false)));
+    modal.AddComponents(new LabelProperties("Checkbox Group", new CheckboxGroupProperties("xddd", Enumerable.Range(0, 5).Select(i => new CheckboxGroupOptionProperties($"L{i}", $"V{i}").WithDefault(i % 2 == 0))).WithMinValues(2)));
+    modal.AddComponents(new LabelProperties("Checkbox", new CheckboxProperties("xdddd").WithDefault()));
+    return InteractionCallback.Modal(modal);
+});
+
+host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => new InteractionMessageProperties().WithContent("a").WithFlags(MessageFlags.Ephemeral));
 
 await host.RunAsync();

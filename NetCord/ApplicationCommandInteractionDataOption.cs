@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Contains information on an <see cref="ApplicationCommandInteraction"/> parameter.

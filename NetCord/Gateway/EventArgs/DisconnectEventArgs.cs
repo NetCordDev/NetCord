@@ -1,7 +1,19 @@
-﻿namespace NetCord.Gateway;
+using System.Net.WebSockets;
 
-public class DisconnectEventArgs(bool reconnect)
+namespace NetCord.Gateway;
+
+public class DisconnectEventArgs(WebSocketCloseStatus? closeStatus, string? closeStatusDescription, bool reconnect)
 {
+    /// <summary>
+    /// The close status of the disconnect.
+    /// </summary>
+    public WebSocketCloseStatus? CloseStatus => closeStatus;
+
+    /// <summary>
+    /// The close status description of the disconnect.
+    /// </summary>
+    public string? CloseStatusDescription => closeStatusDescription;
+
     /// <summary>
     /// Whether the client will attempt to reconnect after the disconnect.
     /// </summary>

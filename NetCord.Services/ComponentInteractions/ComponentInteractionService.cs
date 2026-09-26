@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Services.Helpers;
@@ -7,19 +7,31 @@ namespace NetCord.Services.ComponentInteractions;
 
 #pragma warning disable IDE0032 // Use auto property
 
+/// <summary>
+/// Provides functionality for handling component interactions.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked component interactions use.</typeparam>
+/// <param name="configuration"><inheritdoc cref="Configuration" path="/summary" /></param>
 public class ComponentInteractionService<TContext>(ComponentInteractionServiceConfiguration<TContext>? configuration = null) : IComponentInteractionService where TContext : IComponentInteractionContext
 {
     private readonly ComponentInteractionServiceConfiguration<TContext> _configuration = configuration ?? ComponentInteractionServiceConfiguration<TContext>.Default;
-    private readonly Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
+    private readonly Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> _componentInteractions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
 
+    /// <summary>
+    /// The configuration for the component interaction service.
+    /// </summary>
     public ComponentInteractionServiceConfiguration<TContext> Configuration => _configuration;
 
-    public IReadOnlyDictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> GetInteractions() => new Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>>(_interactions);
+    /// <summary>
+    /// Gets the collection of component interactions registered in the service.
+    /// </summary>
+    /// <returns>The collection of component interactions registered in the service.</returns>
+    public IReadOnlyDictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> GetComponentInteractions() => new Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>>(_componentInteractions);
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        foreach (var type in ServiceHelpers.GetModules(typeof(BaseComponentInteractionModule<TContext>), assembly))
+        foreach (var type in ServiceHelpers.GetTopLevelModules(typeof(BaseComponentInteractionModule<TContext>), assembly))
             AddModuleCore(type);
     }
 
@@ -41,20 +53,37 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         var configuration = _configuration;
         foreach (var method in type.GetMethods())
         {
-            ComponentInteractionAttribute? interactionAttribute = method.GetCustomAttribute<ComponentInteractionAttribute>();
-            if (interactionAttribute is null)
+            var attribute = method.GetCustomAttribute<ComponentInteractionAttribute>();
+            if (attribute is null)
                 continue;
-            ComponentInteractionInfo<TContext> interactionInfo = new(method, type, configuration);
-            _interactions.Add(interactionAttribute.CustomId.AsMemory(), interactionInfo);
+
+            ComponentInteractionInfo<TContext> info = new(method, type, configuration);
+            AddComponentInteractionInfo(attribute.CustomId, info, method);
         }
     }
 
-    public void AddInteraction(string customId, Delegate handler)
+    public void AddComponentInteraction(ComponentInteractionBuilder builder)
     {
-        ComponentInteractionInfo<TContext> interactionInfo = new(handler, _configuration);
-        _interactions.Add(customId.AsMemory(), interactionInfo);
+        ComponentInteractionInfo<TContext> info = new(builder, _configuration);
+        AddComponentInteractionInfo(builder.CustomId, info, builder.Handler.Method);
     }
 
+    private void AddComponentInteractionInfo(string customId, ComponentInteractionInfo<TContext> info, MethodInfo method)
+    {
+        var customIdMemory = customId.AsMemory();
+
+        if (customIdMemory.Span.Contains(_configuration.ParameterSeparator))
+            throw new InvalidDefinitionException($"The custom ID cannot contain '{nameof(_configuration.ParameterSeparator)}'.", method);
+
+        _componentInteractions.Add(customIdMemory, info);
+    }
+
+    /// <summary>
+    /// Executes a component interaction.
+    /// </summary>
+    /// <param name="context">The component interaction context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         try
@@ -80,7 +109,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             var customId = content;
 
             if (!TryGetInteractionInfo(customId, out interactionInfo))
-                return new NotFoundResult("Interaction not found.");
+                return NotFoundResult.ComponentInteraction;
 
             arguments = default;
         }
@@ -89,7 +118,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             var customId = content[..index];
 
             if (!TryGetInteractionInfo(customId, out interactionInfo))
-                return new NotFoundResult("Interaction not found.");
+                return NotFoundResult.ComponentInteraction;
 
             arguments = content[(index + 1)..];
         }
@@ -117,19 +146,19 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
                 {
                     index = arguments.Span.IndexOf(separator);
                     if (index == -1)
-                        return new ParameterCountMismatchResult(ParameterCountMismatchType.TooFew);
+                        return ParameterCountMismatchResult.TooFew;
 
                     currentArg = arguments[..index];
                     arguments = arguments[(index + 1)..];
                 }
                 object? value;
-                if (parameter.HasDefaultValue && currentArg.IsEmpty)
+                if (parameter.IsOptional && currentArg.IsEmpty)
                     value = parameter.DefaultValue;
                 else
                 {
                     var typeReaderResult = await parameter.ReadAsync(currentArg, context, configuration, serviceProvider).ConfigureAwait(false);
 
-                    if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                    if (typeReaderResult is not ComponentInteractionTypeReaderSuccessResult typeReaderSuccessResult)
                         return typeReaderResult;
 
                     value = typeReaderSuccessResult.Value;
@@ -143,7 +172,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             }
             else
             {
-                if (parameter.HasDefaultValue && arguments.IsEmpty)
+                if (parameter.IsOptional && arguments.IsEmpty)
                     parametersToPass[paramIndex] = parameter.DefaultValue;
                 else
                 {
@@ -176,7 +205,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         {
             var typeReaderResult = await parameter.ReadAsync(arguments[ranges[i]], context, configuration, serviceProvider).ConfigureAwait(false);
 
-            if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+            if (typeReaderResult is not ComponentInteractionTypeReaderSuccessResult typeReaderSuccessResult)
                 return typeReaderResult;
 
             var value = typeReaderSuccessResult.Value;
@@ -212,6 +241,6 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
 
     private bool TryGetInteractionInfo(ReadOnlyMemory<char> customId, [MaybeNullWhen(false)] out ComponentInteractionInfo<TContext> result)
     {
-        return _interactions.TryGetValue(customId, out result);
+        return _componentInteractions.TryGetValue(customId, out result);
     }
 }

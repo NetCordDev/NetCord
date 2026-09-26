@@ -1,4 +1,4 @@
-﻿{
+{
   "commands": {
     "ping": {
       "description": "Sprawdza czy bot jest aktywny",

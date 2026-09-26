@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.Compression;
+using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
@@ -15,8 +15,8 @@ public class ShardedGatewayClientConfiguration : IRestClientOwnerConfiguration
     /// <inheritdoc cref="GatewayClientConfiguration.RateLimiterProvider" />
     public Func<Shard, IRateLimiterProvider?>? RateLimiterProviderFactory { get; init; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.DefaultPayloadProperties" />
-    public Func<Shard, WebSocketPayloadProperties?>? DefaultPayloadPropertiesFactory { get; init; }
+    /// <inheritdoc cref="GatewayClientConfiguration.DefaultMessageProperties" />
+    public Func<Shard, WebSocketMessageProperties?>? DefaultMessagePropertiesFactory { get; init; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.ReconnectStrategy" />
     public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; init; }
@@ -27,8 +27,8 @@ public class ShardedGatewayClientConfiguration : IRestClientOwnerConfiguration
     /// <inheritdoc cref="GatewayClientConfiguration.Version" />
     public Func<Shard, ApiVersion?>? VersionFactory { get; init; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.Cache" />
-    public Func<Shard, IGatewayClientCache?>? CacheFactory { get; init; }
+    /// <inheritdoc cref="GatewayClientConfiguration.CacheProvider" />
+    public Func<Shard, IGatewayClientCacheProvider?>? CacheProviderFactory { get; init; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.Compression" />
     public Func<Shard, IGatewayCompression?>? CompressionFactory { get; init; }
@@ -49,9 +49,22 @@ public class ShardedGatewayClientConfiguration : IRestClientOwnerConfiguration
     public Func<Shard, PresenceProperties?>? PresenceFactory { get; init; }
 
     /// <summary>
-    /// The number of shards to use. If <see langword="null"/>, the number of shards will be determined by Discord.
+    /// The maximum number of shards that can connect concurrently. If <see langword="null"/>, it will be determined by Discord.
     /// </summary>
-    public int? ShardCount { get; init; }
+    public int? MaxConcurrency { get; init; }
+
+    /// <summary>
+    /// The range of shards to use. Note that shard IDs are zero-based and the end value is exclusive. For example, to use shards 2, 3, and 4, set this to <c>2..5</c>. If <see langword="null"/>, all shards from 0 to <see cref="TotalShardCount"/> - 1 will be used.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="TotalShardCount"/> is required to be set when this property is set.
+    /// </remarks>
+    public Range? ShardRange { get; init; }
+
+    /// <summary>
+    /// The total number of shards. If <see langword="null"/>, the number of shards will be determined by Discord.
+    /// </summary>
+    public int? TotalShardCount { get; init; }
 
     /// <summary>
     /// The configuration for the <see cref="RestClient"/> at <see cref="ShardedGatewayClient.Rest"/>

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 using Microsoft.Extensions.Options;
 
@@ -23,14 +23,16 @@ public partial class GatewayClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    public bool? AutoStartStop { get; set; }
+
     /// <inheritdoc cref="GatewayClientConfiguration.WebSocketConnectionProvider" />
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; set; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.RateLimiterProvider" />
     public IRateLimiterProvider? RateLimiterProvider { get; set; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.DefaultPayloadProperties" />
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; set; }
+    /// <inheritdoc cref="GatewayClientConfiguration.DefaultMessageProperties" />
+    public WebSocketMessageProperties? DefaultMessageProperties { get; set; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.ReconnectStrategy" />
     public IReconnectStrategy? ReconnectStrategy { get; set; }
@@ -41,8 +43,8 @@ public partial class GatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="GatewayClientConfiguration.Version" />
     public ApiVersion? Version { get; set; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.Cache" />
-    public IGatewayClientCache? Cache { get; set; }
+    /// <inheritdoc cref="GatewayClientConfiguration.CacheProvider" />
+    public IGatewayClientCacheProvider? CacheProvider { get; set; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.Compression" />
     public IGatewayCompression? Compression { get; set; }
@@ -72,11 +74,11 @@ public partial class GatewayClientOptions : IDiscordOptions
     {
         return GatewayClientConfigurationFactory.Create(WebSocketConnectionProvider,
                                                         RateLimiterProvider,
-                                                        DefaultPayloadProperties,
+                                                        DefaultMessageProperties,
                                                         ReconnectStrategy,
                                                         LatencyTimer,
                                                         Version,
-                                                        Cache,
+                                                        CacheProvider,
                                                         Compression,
                                                         Intents,
                                                         Hostname,

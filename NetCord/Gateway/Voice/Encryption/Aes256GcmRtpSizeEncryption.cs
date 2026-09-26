@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
@@ -6,16 +6,45 @@ namespace NetCord.Gateway.Voice.Encryption;
 
 public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
 {
+    private AesGcm? _decryption;
     private AesGcm? _encryption;
     private int _nonce;
 
     private const int TagSize = 16;
 
+    public static bool IsSupported => AesGcm.IsSupported;
+
     public string Name => "aead_aes256_gcm_rtpsize";
 
     public int Expansion => TagSize + sizeof(int);
 
-    public bool ExtensionEncryption => false;
+    public bool TryDecrypt(RtpPacket packet, Span<byte> plaintext)
+    {
+        try
+        {
+            Decrypt(packet, plaintext);
+        }
+        catch (CryptographicException)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool TryEncrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
+    {
+        try
+        {
+            Encrypt(plaintext, packet);
+        }
+        catch (CryptographicException)
+        {
+            return false;
+        }
+
+        return true;
+    }
 
     public void Decrypt(RtpPacket packet, Span<byte> plaintext)
     {
@@ -32,7 +61,7 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
         var tag = payload[^(TagSize + sizeof(int))..^sizeof(int)];
         var ad = packet.ExtendedHeader;
 
-        _encryption!.Decrypt(nonce, ciphertext, tag, plaintext, ad);
+        _decryption!.Decrypt(nonce, ciphertext, tag, plaintext, ad);
     }
 
     public void Encrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
@@ -59,11 +88,13 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
 
     public void SetKey(byte[] key)
     {
+        _decryption = new(key, TagSize);
         _encryption = new(key, TagSize);
     }
 
     public void Dispose()
     {
+        _decryption?.Dispose();
         _encryption?.Dispose();
     }
 }

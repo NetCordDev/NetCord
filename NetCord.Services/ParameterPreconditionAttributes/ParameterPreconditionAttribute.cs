@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
 public abstract class ParameterPreconditionAttribute<TContext> : Attribute, IParameterPreconditionAttribute

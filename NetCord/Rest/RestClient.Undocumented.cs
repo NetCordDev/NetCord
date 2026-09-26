@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway;
+using NetCord.Gateway;
 
 namespace NetCord.Rest;
 
@@ -25,14 +25,14 @@ public partial class RestClient
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
-                PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildUserSearchResult).ConfigureAwait(false)).Users.Select(i => new GuildUserInfo(i, guildId, this)),
-                PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildUserSearchResult).ConfigureAwait(false)).Users.GetReversedIEnumerable().Select(i => new GuildUserInfo(i, guildId, this)),
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildUsersSearchResult).ConfigureAwait(false)).Users.Select(i => new GuildUserInfo(i, guildId, this)),
+                PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildUsersSearchResult).ConfigureAwait(false)).Users.GetReversedIEnumerable().Select(i => new GuildUserInfo(i, guildId, this)),
                 _ => throw new ArgumentException($"The value of '{nameof(paginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(paginationProperties)),
             },
             i =>
             {
                 var user = i.User;
-                return new(user.JoinedAt, user.Id);
+                return new(user.JoinedAt.GetValueOrDefault(), user.Id);
             },
             HttpMethod.Post,
             $"/guilds/{guildId}/members-search",

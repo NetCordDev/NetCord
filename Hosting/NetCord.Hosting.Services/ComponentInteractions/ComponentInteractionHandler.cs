@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -8,32 +8,33 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-[GatewayEvent(nameof(GatewayClient.InteractionCreate))]
 internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAMT.PublicConstructors)] TContext>
-    : IGatewayEventHandler<Interaction>,
-      IShardedGatewayEventHandler<Interaction>,
+    : IInteractionCreateGatewayHandler,
+      IInteractionCreateShardedGatewayHandler,
       IHttpInteractionHandler
     where TInteraction : ComponentInteraction
     where TContext : IComponentInteractionContext
 {
-    private IServiceProvider Services { get; }
-
+    private readonly IServiceProvider _services;
+    private readonly IContextAccessor<TContext> _contextAccessor;
     private readonly ILogger _logger;
     private readonly ComponentInteractionService<TContext> _componentInteractionService;
     private readonly IServiceScopeFactory? _scopeFactory;
     private readonly delegate*<ComponentInteractionHandler<TInteraction, TContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext> _createContext;
     private readonly IComponentInteractionResultHandler<TContext> _resultHandler;
+    private readonly IComponentInteractionPreExecutionHandler<TContext> _preExecutionHandler;
     private readonly GatewayClient? _client;
 
     public ComponentInteractionHandler(IServiceProvider services,
+                                       IContextAccessor<TContext> contextAccessor,
                                        ILogger<ComponentInteractionHandler<TInteraction, TContext>> logger,
                                        ComponentInteractionService<TContext> interactionService,
                                        IOptions<ComponentInteractionServiceOptions<TInteraction, TContext>> options,
                                        GatewayClient? client = null)
     {
-        Services = services;
-
+        _services = services;
+        _contextAccessor = contextAccessor;
         _logger = logger;
         _componentInteractionService = interactionService;
 
@@ -48,7 +49,8 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
             _handleAsync = &HandleInteractionAsync;
 
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>(_componentInteractionService.Configuration.ServiceResolverProvider);
-        _resultHandler = optionsValue.ResultHandler ?? new ComponentInteractionResultHandler<TContext>();
+        _resultHandler = optionsValue.ResultHandler ?? ComponentInteractionResultHandler<TContext>.Default;
+        _preExecutionHandler = optionsValue.PreExecutionHandler ?? new ComponentInteractionPreExecutionHandler<TContext>();
         _client = client;
     }
 
@@ -83,12 +85,29 @@ internal partial class ComponentInteractionHandler<TInteraction, TContext>
         if (interaction is not TInteraction tInteraction)
             return default;
 
-        return handler.HandleInteractionAsyncCore(tInteraction, client, handler.Services);
+        return handler.HandleInteractionAsyncCore(tInteraction, client, handler._services);
     }
 
     private async ValueTask HandleInteractionAsyncCore(TInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
         var context = _createContext(interaction, client, services);
+
+        _contextAccessor.SetContext(context);
+
+        PreExecutionResult preExecutionResult;
+        try
+        {
+            preExecutionResult = await _preExecutionHandler.HandleAsync(context, client, _logger, services).ConfigureAwait(false);
+        }
+        catch (Exception preExecutionHandlerException)
+        {
+            _logger.LogError(preExecutionHandlerException, "An exception occurred while handling pre-execution, aborting execution");
+            return;
+        }
+
+        if (preExecutionResult is SkipPreExecutionResult)
+            return;
+
         var result = await _componentInteractionService.ExecuteAsync(context, services).ConfigureAwait(false);
 
         try

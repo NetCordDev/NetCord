@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -13,98 +13,80 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "'DynamicallyAccessedMembersAttribute' is inherited for nested types")]
     internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type,
                                    SlashCommandAttribute attribute,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute.Name,
-                                                                                                          attribute._defaultGuildUserPermissions,
-                                                                                                          attribute._dMPermission,
-#pragma warning disable CS0618 // Type or member is obsolete
-                                                                                                          attribute.DefaultPermission,
-#pragma warning restore CS0618 // Type or member is obsolete
-                                                                                                          attribute.IntegrationTypes,
-                                                                                                          attribute.Contexts,
-                                                                                                          attribute.Nsfw,
-                                                                                                          attribute._guildId,
-                                                                                                          configuration)
+                                   ApplicationCommandServiceConfiguration<TContext> configuration,
+                                   AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(attribute,
+                                                                                                               configuration,
+                                                                                                               type,
+                                                                                                               out var typeAttributes)
     {
         Description = attribute.Description;
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type, typeAttributes);
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, LocalizationPath)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, LocalizationPath, autocompleteDelegateProvider)));
         }
 
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
         foreach (var nested in type.GetNestedTypes())
         {
-            if (!nested.IsAssignableTo(baseType))
+            if (!ServiceHelpers.IsModule(baseType, nested))
                 continue;
 
             foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration, LocalizationPath)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration, LocalizationPath, autocompleteDelegateProvider)));
         }
 
         if (subCommands.Count == 0)
-            throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
+            throw new InvalidDefinitionException($"No sub commands found.", type);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
-    internal SlashCommandGroupInfo(string name,
-                                   string description,
-                                   Action<SlashCommandBuilder> builder,
-                                   Permissions? defaultGuildUserPermissions,
-                                   bool? dMPermission,
-                                   bool defaultPermission,
-                                   IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                                   IEnumerable<InteractionContextType>? contexts,
-                                   bool nsfw,
-                                   ulong? guildId,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                          defaultGuildUserPermissions,
-                                                                                                          dMPermission,
-                                                                                                          defaultPermission,
-                                                                                                          integrationTypes,
-                                                                                                          contexts,
-                                                                                                          nsfw,
-                                                                                                          guildId,
-                                                                                                          configuration)
+    internal SlashCommandGroupInfo(SlashCommandGroupBuilder builder,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration,
+                                   AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(builder,
+                                                                                                               configuration,
+                                                                                                               null,
+                                                                                                               out _)
     {
-        Description = description;
+        Description = builder.Description;
 
         Preconditions = [];
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
-        SlashCommandBuilder slashCommandBuilder = new();
-        builder(slashCommandBuilder);
+        var subCommandBuilders = builder._subCommandBuilders;
+        int subCommandCount = subCommandBuilders.Count;
 
-        var subCommandsInfo = slashCommandBuilder.SubCommands;
-        int subCommandsCount = subCommandsInfo.Count;
-
-        for (int i = 0; i < subCommandsCount; i++)
+        for (int i = 0; i < subCommandCount; i++)
         {
-            var subCommandInfo = subCommandsInfo[i];
-            SubSlashCommandInfo<TContext> subCommand = new(subCommandInfo.Name, subCommandInfo.Description, subCommandInfo.Handler, configuration, LocalizationPath);
-            subCommands.Add(new(subCommandInfo.Name, subCommand));
+            var subCommandBuilder = subCommandBuilders[i];
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, LocalizationPath, autocompleteDelegateProvider);
+            subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
 
-        var subCommandGroupsInfo = slashCommandBuilder.SubCommandGroups;
-        int subCommandGroupsCount = subCommandGroupsInfo.Count;
+        var subCommandGroupBuilders = builder._subCommandGroupBuilders;
+        int subCommandGroupCount = subCommandGroupBuilders.Count;
 
-        for (int i = 0; i < subCommandGroupsCount; i++)
+        for (int i = 0; i < subCommandGroupCount; i++)
         {
-            var subCommandGroupInfo = subCommandGroupsInfo[i];
-            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupInfo.Name, subCommandGroupInfo.Description, subCommandGroupInfo.Builder, configuration, LocalizationPath);
-            subCommands.Add(new(subCommandGroupInfo.Name, subCommandGroup));
+            var subCommandGroupBuilder = subCommandGroupBuilders[i];
+            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupBuilder, configuration, LocalizationPath, autocompleteDelegateProvider);
+            subCommands.Add(new(subCommandGroupBuilder.Name, subCommandGroup));
         }
+
+        if (subCommands.Count == 0)
+            throw new InvalidDefinitionException($"No sub commands found.", builder.Name);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
+    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
     public string Description { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
@@ -118,7 +100,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         var slashCommandInteraction = (SlashCommandInteraction)context.Interaction;
         var option = slashCommandInteraction.Data.Options[0];
         if (!SubCommands.TryGetValue(option.Name, out var subCommand))
-            return new NotFoundResult("Command not found.");
+            return NotFoundResult.Command;
 
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
@@ -132,20 +114,16 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         foreach (var subCommand in subCommands.Values)
             options[i++] = await subCommand.GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
-#pragma warning disable CS0618 // Type or member is obsolete
         return new SlashCommandProperties(Name, Description)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
             DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             Options = options,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     public ValueTask<IExecutionResult> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
@@ -154,12 +132,6 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         if (SubCommands.TryGetValue(option.Name, out var subCommand))
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
-        return new(new NotFoundResult("Command not found."));
-    }
-
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
-    {
-        foreach (var subCommand in SubCommands.Values)
-            subCommand.InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
+        return new(NotFoundResult.Command);
     }
 }

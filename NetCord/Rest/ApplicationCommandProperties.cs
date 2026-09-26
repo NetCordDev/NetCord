@@ -1,10 +1,16 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using NetCord.JsonConverters;
 
 namespace NetCord.Rest;
 
-[JsonConverter(typeof(ApplicationCommandPropertiesConverter))]
-public abstract partial class ApplicationCommandProperties
+/// <summary>
+/// Application commands are native ways to interact with apps in the Discord client.
+/// </summary>
+[JsonConverter(typeof(JsonSerializableConverter<ApplicationCommandProperties>))]
+[GenerateMethodsForProperties]
+public abstract partial class ApplicationCommandProperties : IJsonSerializable<ApplicationCommandProperties>
 {
     private protected ApplicationCommandProperties(ApplicationCommandType type, string name)
     {
@@ -36,23 +42,7 @@ public abstract partial class ApplicationCommandProperties
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_member_permissions")]
-    public Permissions? DefaultGuildUserPermissions { get; set; }
-
-    /// <summary>
-    /// Indicates whether the command is available in DMs with the app.
-    /// </summary>
-    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("dm_permission")]
-    public bool? DMPermission { get; set; }
-
-    /// <summary>
-    /// Indicates whether the command is enabled by default when the app is added to a guild.
-    /// </summary>
-    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("default_permission")]
-    public bool? DefaultPermission { get; set; }
+    public Permissions? DefaultGuildPermissions { get; set; }
 
     /// <summary>
     /// Installation context(s) where the command is available.
@@ -75,26 +65,10 @@ public abstract partial class ApplicationCommandProperties
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }
 
-    public class ApplicationCommandPropertiesConverter : JsonConverter<ApplicationCommandProperties>
+    void IJsonSerializable<ApplicationCommandProperties>.WriteTo(Utf8JsonWriter writer)
     {
-        public override ApplicationCommandProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-
-        public override void Write(Utf8JsonWriter writer, ApplicationCommandProperties value, JsonSerializerOptions options)
-        {
-            switch (value)
-            {
-                case SlashCommandProperties slashCommandProperties:
-                    JsonSerializer.Serialize(writer, slashCommandProperties, Serialization.Default.SlashCommandProperties);
-                    break;
-                case UserCommandProperties userCommandProperties:
-                    JsonSerializer.Serialize(writer, userCommandProperties, Serialization.Default.UserCommandProperties);
-                    break;
-                case MessageCommandProperties messageCommandProperties:
-                    JsonSerializer.Serialize(writer, messageCommandProperties, Serialization.Default.MessageCommandProperties);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Invalid {nameof(ApplicationCommandProperties)} value.");
-            }
-        }
+        WriteTo(writer);
     }
+
+    private protected abstract void WriteTo(Utf8JsonWriter writer);
 }

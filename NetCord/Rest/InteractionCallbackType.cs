@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public enum InteractionCallbackType
 {
@@ -36,4 +36,9 @@ public enum InteractionCallbackType
     /// Respond to an interaction with a popup modal.
     /// </summary>
     Modal = 9,
+
+    /// <summary>
+    /// Launch the Activity associated with the application. Only available for apps with Activities enabled.
+    /// </summary>
+    LaunchActivity = 12,
 }

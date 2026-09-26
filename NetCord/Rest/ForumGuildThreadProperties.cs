@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ForumGuildThreadProperties(string name, ForumGuildThreadMessageProperties message) : GuildThreadFromMessageProperties(name), IHttpSerializable
 {
     [JsonPropertyName("message")]
@@ -13,11 +14,6 @@ public partial class ForumGuildThreadProperties(string name, ForumGuildThreadMes
 
     public HttpContent Serialize()
     {
-        MultipartFormDataContent content = new()
-        {
-            { new JsonContent<ForumGuildThreadProperties>(this, Serialization.Default.ForumGuildThreadProperties), "payload_json" },
-        };
-        AttachmentProperties.AddAttachments(content, Message.Attachments);
-        return content;
+        return IMessageProperties.Serialize(this, Serialization.Default.ForumGuildThreadProperties, Message.Attachments);
     }
 }

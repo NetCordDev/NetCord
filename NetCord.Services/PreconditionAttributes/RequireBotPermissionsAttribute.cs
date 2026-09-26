@@ -1,7 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
-
-using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Services;
 
@@ -43,7 +41,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
 
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
-        if (context is IComponentInteractionContext interactionContext)
+        if (context is IInteractionContext interactionContext)
         {
             if (interactionContext.Interaction.Context is not InteractionContextType.Guild)
                 return new(PreconditionResult.Fail("The current guild could not be found."));
@@ -65,7 +63,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (guild is null)
                 return new(PreconditionResult.Fail("The current guild could not be found."));
 
-            var botId = context.Client.Cache.User!.Id;
+            var botId = context.Client.Id;
 
             if (guild.OwnerId == botId)
                 return new(PreconditionResult.Success);
@@ -88,7 +86,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (guild is null)
                 return new(PreconditionResult.Fail("The current guild could not be found."));
 
-            var botId = context.Client.Cache.User!.Id;
+            var botId = context.Client.Id;
 
             if (guild.OwnerId == botId)
                 return new(PreconditionResult.Success);

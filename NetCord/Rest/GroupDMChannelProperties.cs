@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GroupDMChannelProperties(IEnumerable<string> accessTokens)
 {
     [JsonPropertyName("access_tokens")]

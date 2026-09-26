@@ -1,6 +1,7 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace NetCord.Services.Helpers;
 
@@ -24,6 +25,30 @@ internal static class ParametersHelper
         return new(methodParameters.Take(index), context, methodParameters.AsSpan(index + 1));
     }
 
+    public static (bool Params, Type ElementType) GetParamsInfo(ParameterInfo parameter, Type parameterType, IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> attributes, MemberInfo member)
+    {
+        if (attributes.ContainsKey(typeof(ParamArrayAttribute)))
+            return (true, parameterType.GetElementType()!);
+        else if (attributes.ContainsKey(typeof(ParamCollectionAttribute)))
+        {
+            if (parameterType.IsGenericType)
+            {
+                var genericDefinition = parameterType.GetGenericTypeDefinition();
+
+                // Interfaces listed in https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/method-parameters#params-modifier
+                // that can be safely backed by an array
+                if (genericDefinition == typeof(IEnumerable<>)
+                    || genericDefinition == typeof(IReadOnlyCollection<>)
+                    || genericDefinition == typeof(IReadOnlyList<>))
+                    return (true, parameterType.GetGenericArguments()[0]);
+            }
+
+            throw new InvalidDefinitionException($"Parameter '{parameter.Name}' is marked with either 'ParamArrayAttribute' or 'ParamCollectionAttribute', but its type is not supported. Expected 'T[]', 'IEnumerable<T>', 'IReadOnlyCollection<T>' or 'IReadOnlyList<T>'.", member);
+        }
+
+        return (false, parameterType);
+    }
+
     public static (TTypeReader TypeReader, Type NonNullableType, object? DefaultValue) GetParameterInfo<TContext, TTypeReaderBase, TTypeReader>(Type type, ParameterInfo parameter, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? typeReaderType, ImmutableDictionary<Type, TTypeReader> typeReaders, TTypeReader enumTypeReader)
     {
         TTypeReader resultTypeReader;
@@ -35,7 +60,7 @@ internal static class ParametersHelper
         {
             if (underlyingType is null)
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
 
                 if (typeReaders.TryGetValue(type, out var typeReader))
                     resultTypeReader = typeReader;
@@ -48,7 +73,7 @@ internal static class ParametersHelper
             }
             else
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
 
                 if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
                     resultTypeReader = typeReader;
@@ -64,12 +89,12 @@ internal static class ParametersHelper
         {
             if (underlyingType is null)
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
                 resultNonNullableType = type;
             }
             else
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
                 resultNonNullableType = underlyingType;
             }
 

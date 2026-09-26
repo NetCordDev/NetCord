@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.JsonModels.EventArgs;
+using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;

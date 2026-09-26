@@ -1,4 +1,4 @@
-﻿using NetCord.Rest;
+using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
@@ -24,5 +24,5 @@ public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.J
 
     public IReadOnlyList<AddedThreadUser>? AddedUsers { get; }
 
-    public IReadOnlyList<ulong> RemovedUserIds => _jsonModel.RemovedUserIds;
+    public IReadOnlyList<ulong>? RemovedUserIds => _jsonModel.RemovedUserIds;
 }

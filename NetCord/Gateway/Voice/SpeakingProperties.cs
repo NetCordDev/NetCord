@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.Voice;
 
+[GenerateMethodsForProperties]
 public partial class SpeakingProperties(SpeakingFlags speaking)
 {
     [JsonPropertyName("speaking")]

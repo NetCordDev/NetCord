@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -21,4 +21,7 @@ public class JsonComponentMedia
 
     [JsonPropertyName("loading_state")]
     public ComponentMediaLoadingState? LoadingState { get; set; }
+
+    [JsonPropertyName("attachment_id")]
+    public ulong? AttachmentId { get; set; }
 }

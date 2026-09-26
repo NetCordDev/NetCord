@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class MessageReactionRemoveEventArgs(JsonModels.EventArgs.JsonMessageReactionRemoveEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEventArgs>
 {

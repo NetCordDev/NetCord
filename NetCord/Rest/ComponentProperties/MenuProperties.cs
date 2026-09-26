@@ -1,23 +1,22 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
 /// <summary>
 /// 
 /// </summary>
-/// <param name="customId">ID for the menu (max 100 characters).</param>
-public abstract partial class MenuProperties(string customId) : IComponentProperties
+/// <param name="customId"><inheritdoc cref="CustomId" path="/summary" /></param>
+[GenerateMethodsForProperties]
+public abstract partial class MenuProperties(string customId) : IInteractiveComponentProperties, IMessageComponentProperties, IComponentContainerComponentProperties, ILabelComponentProperties
 {
+    [JsonPropertyName("type")]
+    public abstract ComponentType ComponentType { get; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public int? Id { get; set; }
 
-    [JsonPropertyName("type")]
-    public abstract ComponentType ComponentType { get; }
-
-    /// <summary>
-    /// ID for the menu (max 100 characters).
-    /// </summary>
     [JsonPropertyName("custom_id")]
     public string CustomId { get; set; } = customId;
 
@@ -49,6 +48,32 @@ public abstract partial class MenuProperties(string customId) : IComponentProper
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// Whether the menu is required to answer in a modal. Defaults to <see langword="true"/>.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
+
     [JsonIgnore]
     public int? ParentId { get; set; }
+
+    void IJsonSerializable<IMessageComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteToMessage(writer);
+    }
+
+    void IJsonSerializable<IComponentContainerComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteToMessage(writer);
+    }
+
+    void IJsonSerializable<ILabelComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteToLabel(writer);
+    }
+
+    private protected abstract void WriteToMessage(Utf8JsonWriter writer);
+
+    private protected abstract void WriteToLabel(Utf8JsonWriter writer);
 }

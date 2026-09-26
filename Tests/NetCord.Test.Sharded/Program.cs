@@ -1,4 +1,4 @@
-﻿using NetCord;
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Logging;
 using NetCord.Rest;
@@ -9,7 +9,7 @@ using NetCord.Test.Sharded;
 
 CommandService<CommandContext> commandService = new();
 commandService.AddModule<ExampleModule>();
-commandService.AddCommand(["pong"], ReplyMessageProperties () => "ping!");
+commandService.AddCommand(new(["pong"], ReplyMessageProperties () => "ping!"));
 
 var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
 //configuration = configuration with
@@ -19,21 +19,22 @@ var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.
 
 ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
 slashCommandService.AddModule<ExampleModule2>();
-slashCommandService.AddSlashCommand("button", "Button!", () =>
+slashCommandService.AddSlashCommand(new("button", "Button!", () =>
 {
     return new InteractionMessageProperties()
     {
         Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
     };
-});
+}));
 
 ComponentInteractionService<ButtonInteractionContext> buttonInteractionService = new();
-buttonInteractionService.AddInteraction("button", () => "XD");
+buttonInteractionService.AddComponentInteraction(new("button", () => "XD"));
 
 BotToken token = new(Environment.GetEnvironmentVariable("token")!);
 ShardedGatewayClient client = new(token, new()
 {
-    ShardCount = 3,
+    TotalShardCount = 2,
+    ShardRange = ..,
     IntentsFactory = shard => GatewayIntents.All,
     PresenceFactory = shard => new(UserStatusType.Online)
     {
@@ -47,6 +48,7 @@ ShardedGatewayClient client = new(token, new()
     },
     LoggerFactory = ShardedConsoleLogger.GetFactory(LogLevel.Debug),
 });
+
 client.MessageCreate += async (client, message) =>
 {
     if (message.Author.IsBot)
@@ -111,7 +113,8 @@ client.InteractionCreate += async (client, interaction) =>
             }
     }
 };
-var result = await slashCommandService.CreateCommandsAsync(client.Rest, token.Id);
+var result = await slashCommandService.RegisterCommandsAsync(client.Rest, token.Id);
+
 await client.StartAsync();
 
 await Task.Delay(-1);

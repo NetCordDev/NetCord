@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using MyBot;
@@ -30,7 +30,5 @@ host.AddSlashCommand(
         (ISomeService someService, ApplicationCommandContext context, int count) => string.Join(' ',
                                                                                                 someService.GetSomeData()
                                                                                                            .Take(count)));
-
-host.UseGatewayEventHandlers();
 
 await host.RunAsync();

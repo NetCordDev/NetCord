@@ -1,9 +1,9 @@
-﻿using NetCord.Services.Commands;
+using NetCord.Services.Commands;
 
 namespace MyBot;
 
 public class ExampleModule : CommandModule<CommandContext>
 {
-    [Command("pong")]
-    public static string Pong() => "Ping!";
+    [Command("ping")]
+    public string Ping() => $"Pong! {Math.Round(Context.Client.Latency.TotalMilliseconds)} ms";
 }

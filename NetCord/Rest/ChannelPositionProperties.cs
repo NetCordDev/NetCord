@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -6,6 +6,7 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="id">Channel ID.</param>
+[GenerateMethodsForProperties]
 public partial class GuildChannelPositionProperties(ulong id)
 {
     /// <summary>

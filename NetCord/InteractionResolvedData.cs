@@ -1,64 +1,71 @@
-﻿using NetCord.JsonModels;
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
+/// <summary>
+/// Contains an interaction's resolved information.
+/// </summary>
 public class InteractionResolvedData
 {
+    /// <summary>
+    /// A list of user objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, User>? Users { get; }
 
+    /// <summary>
+    /// A list of role objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, Role>? Roles { get; }
 
+    /// <summary>
+    /// A list of channel objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
 
+    /// <summary>
+    /// A list of message objects, mapped to their IDs.
+    /// </summary>
+    public IReadOnlyDictionary<ulong, RestMessage>? Messages { get; }
+
+    /// <summary>
+    /// A list of attachment objects, mapped to their IDs.
+    /// </summary>
     public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 
     public InteractionResolvedData(JsonInteractionResolvedData jsonModel, ulong? guildId, RestClient client)
     {
-        var users = jsonModel.Users;
-        if (users is not null)
+        if (jsonModel.Users is { } users)
         {
-            var guildUsers = jsonModel.GuildUsers;
-            if (guildUsers is not null)
+            if (jsonModel.GuildUsers is { } guildUsers)
             {
-                Dictionary<ulong, User> resultUsers = [];
-                using (var enumerator = users.GetEnumerator())
+                var guildIdValue = guildId.GetValueOrDefault();
+
+                Users = users.ToDictionary(u => u.Key, u =>
                 {
-                    var max = users.Count - guildUsers.Count;
-                    for (var i = 0; i < max; i++)
+                    if (guildUsers.TryGetValue(u.Key, out var guildUser))
                     {
-                        enumerator.MoveNext();
-                        var current = enumerator.Current;
-                        resultUsers.Add(current.Key, new(current.Value, client));
+                        guildUser.User = u.Value;
+                        return new GuildInteractionUser(guildUser, guildIdValue, client);
                     }
-
-                    var guildIdValue = guildId.GetValueOrDefault();
-                    foreach (var guildUser in guildUsers)
-                    {
-                        enumerator.MoveNext();
-                        var current = enumerator.Current;
-
-                        var guildUserModel = guildUser.Value;
-                        guildUserModel.User = current.Value;
-                        resultUsers.Add(current.Key, new GuildInteractionUser(guildUserModel, guildIdValue, client));
-                    }
-                }
-                Users = resultUsers;
+                    else
+                        return new User(u.Value, client);
+                });
             }
             else
                 Users = users.ToDictionary(u => u.Key, u => new User(u.Value, client));
         }
 
-        var roles = jsonModel.Roles;
-        if (roles is not null)
+        if (jsonModel.Roles is { } roles)
             Roles = roles.ToDictionary(r => r.Key, r => new Role(r.Value, guildId.GetValueOrDefault(), client));
 
-        var channels = jsonModel.Channels;
-        if (channels is not null)
+        if (jsonModel.Channels is { } channels)
             Channels = channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
 
-        var attachments = jsonModel.Attachments;
-        if (attachments is not null)
-            Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value));
+        if (jsonModel.Messages is { } messages)
+            Messages = messages.ToDictionary(m => m.Key, m => new RestMessage(m.Value, client));
+
+        if (jsonModel.Attachments is { } attachments)
+            Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value, client));
     }
 }

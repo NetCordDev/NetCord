@@ -1,12 +1,15 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
 /// <summary>
-/// 
+/// Slash commands are application commands that are invoked by typing a slash (/) in the chat input box.
+/// They allow users to interact with your application.
 /// </summary>
-/// <param name="name">Name of the command (1-32 characters).</param>
-/// <param name="description">Description of the command (1-100 characters).</param>
+/// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /> Must be lowercase.</param>
+/// <param name="description"><inheritdoc cref="Description" path="/summary" /></param>
+[GenerateMethodsForProperties]
 public partial class SlashCommandProperties(string name, string description) : ApplicationCommandProperties(ApplicationCommandType.ChatInput, name)
 {
     /// <summary>
@@ -28,4 +31,9 @@ public partial class SlashCommandProperties(string name, string description) : A
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("options")]
     public IEnumerable<ApplicationCommandOptionProperties>? Options { get; set; }
+
+    private protected override void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.SlashCommandProperties);
+    }
 }

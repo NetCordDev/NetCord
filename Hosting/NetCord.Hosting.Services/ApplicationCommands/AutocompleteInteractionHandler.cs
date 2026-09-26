@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -8,35 +8,36 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-[GatewayEvent(nameof(GatewayClient.InteractionCreate))]
 internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
                                                              TContext,
                                                              [DAM(DAMT.PublicConstructors)] TAutocompleteContext>
-    : IGatewayEventHandler<Interaction>,
-      IShardedGatewayEventHandler<Interaction>,
+    : IInteractionCreateGatewayHandler,
+      IInteractionCreateShardedGatewayHandler,
       IHttpInteractionHandler
     where TInteraction : ApplicationCommandInteraction
     where TContext : IApplicationCommandContext
     where TAutocompleteContext : IAutocompleteInteractionContext
 {
-    private IServiceProvider Services { get; }
-
+    private readonly IServiceProvider _services;
+    private readonly IContextAccessor<TAutocompleteContext> _contextAccessor;
     private readonly ILogger _logger;
     private readonly ApplicationCommandService<TContext, TAutocompleteContext> _applicationCommandService;
     private readonly IServiceScopeFactory? _scopeFactory;
     private readonly delegate*<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<AutocompleteInteraction, GatewayClient?, IServiceProvider, TAutocompleteContext> _createContext;
     private readonly IAutocompleteInteractionResultHandler<TAutocompleteContext> _resultHandler;
+    private readonly IAutocompleteInteractionPreExecutionHandler<TAutocompleteContext> _preExecutionHandler;
     private readonly GatewayClient? _client;
 
     public AutocompleteInteractionHandler(IServiceProvider services,
+                                          IContextAccessor<TAutocompleteContext> contextAccessor,
                                           ILogger<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>> logger,
                                           ApplicationCommandService<TContext, TAutocompleteContext> applicationCommandService,
                                           IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> options,
                                           GatewayClient? client = null)
     {
-        Services = services;
-
+        _services = services;
+        _contextAccessor = contextAccessor;
         _logger = logger;
         _applicationCommandService = applicationCommandService;
 
@@ -52,6 +53,7 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
 
         _createContext = optionsValue.CreateAutocompleteContext ?? ContextHelper.CreateContextDelegate<AutocompleteInteraction, GatewayClient?, TAutocompleteContext>(_applicationCommandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.AutocompleteResultHandler ?? new AutocompleteInteractionResultHandler<TAutocompleteContext>();
+        _preExecutionHandler = optionsValue.AutocompletePreExecutionHandler ?? new AutocompleteInteractionPreExecutionHandler<TAutocompleteContext>();
         _client = client;
     }
 
@@ -86,12 +88,29 @@ internal partial class AutocompleteInteractionHandler<TInteraction, TContext, TA
         if (interaction is not AutocompleteInteraction autocompleteInteraction)
             return default;
 
-        return handler.HandleInteractionAsyncCore(autocompleteInteraction, client, handler.Services);
+        return handler.HandleInteractionAsyncCore(autocompleteInteraction, client, handler._services);
     }
 
     private async ValueTask HandleInteractionAsyncCore(AutocompleteInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
         var context = _createContext(interaction, client, services);
+
+        _contextAccessor.SetContext(context);
+
+        PreExecutionResult preExecutionResult;
+        try
+        {
+            preExecutionResult = await _preExecutionHandler.HandleAsync(context, client, _logger, services).ConfigureAwait(false);
+        }
+        catch (Exception preExecutionHandlerException)
+        {
+            _logger.LogError(preExecutionHandlerException, "An exception occurred while handling pre-execution, aborting execution");
+            return;
+        }
+
+        if (preExecutionResult is SkipPreExecutionResult)
+            return;
+
         var result = await _applicationCommandService.ExecuteAutocompleteAsync(context, services).ConfigureAwait(false);
 
         try

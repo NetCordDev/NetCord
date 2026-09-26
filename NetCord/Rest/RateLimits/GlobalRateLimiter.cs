@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest.RateLimits;
+namespace NetCord.Rest.RateLimits;
 
 internal class GlobalRateLimiter(int limit, long duration) : IGlobalRateLimiter
 {

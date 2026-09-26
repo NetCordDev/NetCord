@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace NetCord.Services.Helpers;
@@ -6,15 +6,19 @@ namespace NetCord.Services.Helpers;
 internal static class ServiceHelpers
 {
     [RequiresUnreferencedCode("Types might be removed")]
-    public static IEnumerable<Type> GetModules(Type baseType, Assembly assembly)
+    public static IEnumerable<Type> GetTopLevelModules(Type baseType, Assembly assembly)
     {
-        foreach (var type in assembly.GetExportedTypes())
-        {
-            if (type.IsAbstract || type.IsNested)
-                continue;
+        return assembly.GetExportedTypes()
+            .Where(type => IsTopLevelModule(baseType, type));
+    }
 
-            if (baseType.IsAssignableFrom(type))
-                yield return type;
-        }
+    public static bool IsTopLevelModule(Type baseType, Type type)
+    {
+        return !type.IsNested && IsModule(baseType, type);
+    }
+
+    public static bool IsModule(Type baseType, Type type)
+    {
+        return !type.IsAbstract && baseType.IsAssignableFrom(type);
     }
 }

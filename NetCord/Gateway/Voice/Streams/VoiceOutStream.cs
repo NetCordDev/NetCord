@@ -1,16 +1,30 @@
-﻿using System.Buffers;
-using System.Buffers.Binary;
-using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-
-using NetCord.Gateway.Voice.Encryption;
 
 namespace NetCord.Gateway.Voice;
 
-internal class VoiceOutStream(VoiceClient client) : Stream
+internal sealed class VoiceOutStream : Stream
 {
-    private ushort _sequenceNumber = (ushort)RandomNumberGenerator.GetInt32(ushort.MaxValue);
-    private uint _timestamp = (uint)RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue);
+    private readonly VoiceClient _client;
+    private readonly TimeProvider _timeProvider;
+    private readonly uint _samplesPerChannel;
+    private readonly long _timestampFrequency;
+
+    private ushort _sequenceNumber;
+    private uint _timestamp;
+    private long _flushedTimestamp;
+    private bool _flushed;
+
+    public VoiceOutStream(VoiceClient client, float frameDuration, TimeProvider timeProvider)
+    {
+        _client = client;
+        _timeProvider = timeProvider;
+        _samplesPerChannel = (uint)Opus.GetSamplesPerChannel(frameDuration);
+        _timestampFrequency = timeProvider.TimestampFrequency;
+
+        RandomNumberGenerator.Fill(MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref _sequenceNumber, 1)));
+        RandomNumberGenerator.Fill(MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref _timestamp, 1)));
+    }
 
     public override bool CanRead => false;
     public override bool CanSeek => false;
@@ -18,20 +32,24 @@ internal class VoiceOutStream(VoiceClient client) : Stream
     public override long Length => throw new NotSupportedException();
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
-    public override void Flush()
+    private void FlushInternal()
     {
-        ReadOnlySpan<byte> bytes = [0xF8, 0xFF, 0xFE];
+        if (_flushed)
+            return;
 
-        for (int i = 0; i < 5; i++)
-            Write(bytes);
+        _flushedTimestamp = _timeProvider.GetTimestamp();
+        _flushed = true;
     }
 
-    public override async Task FlushAsync(CancellationToken cancellationToken)
+    public override void Flush()
     {
-        ReadOnlyMemory<byte> bytes = new([0xF8, 0xFF, 0xFE]);
+        FlushInternal();
+    }
 
-        for (int i = 0; i < 5; i++)
-            await WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
+    public override Task FlushAsync(CancellationToken cancellationToken)
+    {
+        FlushInternal();
+        return Task.CompletedTask;
     }
 
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
@@ -48,60 +66,31 @@ internal class VoiceOutStream(VoiceClient client) : Stream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        if (client._udpState is not { Connection: var connection, Encryption: var encryption })
-        {
-            ThrowConnectionNotStarted();
-            return;
-        }
-
-        int datagramLength = buffer.Length + encryption.Expansion + 12;
-
-        var array = ArrayPool<byte>.Shared.Rent(datagramLength);
-
-        WriteDatagram(buffer, new(array, 0, datagramLength), encryption);
-
-        connection.Send(new(array, 0, datagramLength));
-
-        ArrayPool<byte>.Shared.Return(array);
+        _client.SendVoice(++_sequenceNumber, UpdateTimestamp(), buffer);
     }
 
-    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        if (client._udpState is not { Connection: var connection, Encryption: var encryption })
-        {
-            ThrowConnectionNotStarted();
-            return;
-        }
-
-        int datagramLength = buffer.Length + encryption.Expansion + 12;
-
-        var array = ArrayPool<byte>.Shared.Rent(datagramLength);
-
-        WriteDatagram(buffer.Span, new(array, 0, datagramLength), encryption);
-
-        await connection.SendAsync(new(array, 0, datagramLength), cancellationToken).ConfigureAwait(false);
-
-        ArrayPool<byte>.Shared.Return(array);
+        return _client.SendVoiceAsync(++_sequenceNumber, UpdateTimestamp(), buffer, cancellationToken);
     }
 
-    private void WriteDatagram(ReadOnlySpan<byte> buffer, Span<byte> datagram, IVoiceEncryption encryption)
+    private uint UpdateTimestamp()
     {
-        WriteRtpHeader(datagram);
-        encryption.Encrypt(buffer, new(datagram, encryption.ExtensionEncryption));
+        return _flushed
+            ? ResumeTimestamp()
+            : (_timestamp += _samplesPerChannel);
     }
 
-    private void WriteRtpHeader(Span<byte> datagram)
+    private uint ResumeTimestamp()
     {
-        datagram[0] = 0b10000000;
-        datagram[1] = 0b01111000;
-        BinaryPrimitives.WriteUInt16BigEndian(datagram[2..], ++_sequenceNumber);
-        BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], _timestamp += Opus.SamplesPerChannel);
-        BinaryPrimitives.WriteUInt32BigEndian(datagram[8..], client.Cache.Ssrc);
-    }
+        _flushed = false;
 
-    [DoesNotReturn]
-    private static void ThrowConnectionNotStarted()
-    {
-        throw new InvalidOperationException("Connection not started.");
+        var totalTicks = _timeProvider.GetTimestamp() - _flushedTimestamp;
+        var (seconds, ticks) = Math.DivRem(totalTicks, _timestampFrequency);
+        var elapsedSamples = (seconds * Opus.SamplingRate) + (ticks * Opus.SamplingRate / _timestampFrequency);
+
+        return _timestamp += (elapsedSamples <= _samplesPerChannel)
+            ? _samplesPerChannel
+            : (uint)((elapsedSamples + _samplesPerChannel - 1) / _samplesPerChannel * _samplesPerChannel);
     }
 }

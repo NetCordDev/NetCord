@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 internal interface IPaginationProperties<T, TSelf> where T : struct where TSelf : IPaginationProperties<T, TSelf>
 {

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.Voice.UdpSockets;
+namespace NetCord.Gateway.Voice.UdpSockets;
 
 public interface IUdpConnectionProvider
 {

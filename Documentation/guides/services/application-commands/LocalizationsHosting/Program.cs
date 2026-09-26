@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
@@ -15,7 +15,6 @@ builder.Services
     .AddDiscordGateway();
 
 var host = builder.Build()
-    .AddModules(typeof(Program).Assembly)
-    .UseGatewayEventHandlers();
+    .AddModules(typeof(Program).Assembly);
 
 await host.RunAsync();

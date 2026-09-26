@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class FollowedChannel(JsonModels.JsonFollowedChannel jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonFollowedChannel>
 {

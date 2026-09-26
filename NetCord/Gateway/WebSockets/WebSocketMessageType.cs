@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.WebSockets;
+namespace NetCord.Gateway.WebSockets;
 
 public enum WebSocketMessageType : byte
 {
