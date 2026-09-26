@@ -286,15 +286,7 @@ public abstract partial class WebSocketClient : IDisposable
         if (value is null)
             return;
 
-        var currentHandlers = handlers;
-
-        while (true)
-        {
-            var newHandlers = currentHandlers.Add(value);
-            var oldHandlers = Interlocked.CompareExchange(ref handlers, newHandlers, currentHandlers);
-            if (currentHandlers == oldHandlers)
-                break;
-        }
+        ImmutableInterlocked.Update(ref handlers, static (currentHandlers, value) => currentHandlers.Add(value), value);
     }
 
     private protected static void RemoveEventHandler<T>(ref ImmutableList<T> handlers, T? value) where T : class
@@ -302,15 +294,7 @@ public abstract partial class WebSocketClient : IDisposable
         if (value is null)
             return;
 
-        var currentHandlers = handlers;
-
-        while (true)
-        {
-            var newHandlers = currentHandlers.Remove(value);
-            var oldHandlers = Interlocked.CompareExchange(ref handlers, newHandlers, currentHandlers);
-            if (currentHandlers == oldHandlers)
-                break;
-        }
+        ImmutableInterlocked.Update(ref handlers, static (currentHandlers, value) => currentHandlers.Remove(value), value);
     }
 
     private async void HandleConnecting()
