@@ -150,35 +150,57 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
     public DateTimeOffset CreatedAt => Token.CreatedAt;
 
-    public GatewayClient this[int shardId]
+    public GatewayClient GetShard(int shardId)
     {
-        get
+        if (_state is not { Clients: { } clients })
         {
-            if (_state is not { Clients: { } clients })
-            {
-                ThrowConnectionNotStarted();
-                return null;
-            }
+            ThrowConnectionNotStarted();
+            return null;
+        }
 
-            var firstShard = clients[0].Shard.GetValueOrDefault();
+        var firstShard = clients[0].Shard.GetValueOrDefault();
 
-            var index = shardId - firstShard.Id;
+        var index = shardId - firstShard.Id;
 
-            if ((uint)index >= (uint)clients.Length)
-                ThrowOutOfRange(shardId);
+        if ((uint)index >= (uint)clients.Length)
+            ThrowOutOfRange(shardId);
 
-            return clients[index];
+        return clients[index];
 
-            [DoesNotReturn]
-            [StackTraceHidden]
-            static void ThrowOutOfRange(int shardId)
-            {
-                throw new ArgumentOutOfRangeException(nameof(shardId), $"The shard #{shardId} is not in the shard range of this client.");
-            }
+        [DoesNotReturn]
+        [StackTraceHidden]
+        static void ThrowOutOfRange(int shardId)
+        {
+            throw new ArgumentOutOfRangeException(nameof(shardId), $"The shard #{shardId} is not in the shard range of this client.");
         }
     }
 
-    public GatewayClient this[ulong guildId]
+    public GatewayClient GetShardForGuild(ulong guildId)
+    {
+        if (_state is not { Clients: { } clients })
+        {
+            ThrowConnectionNotStarted();
+            return null;
+        }
+
+        var firstShard = clients[0].Shard.GetValueOrDefault();
+
+        var index = Snowflake.ShardId(guildId, firstShard.Count) - firstShard.Id;
+
+        if ((uint)index >= (uint)clients.Length)
+            ThrowOutOfRange(guildId);
+
+        return clients[index];
+
+        [DoesNotReturn]
+        [StackTraceHidden]
+        static void ThrowOutOfRange(ulong guildId)
+        {
+            throw new ArgumentOutOfRangeException(nameof(guildId), $"The guild with ID '{guildId}' is not in the shard range of this client.");
+        }
+    }
+
+    public GatewayClient this[int index]
     {
         get
         {
@@ -188,21 +210,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                 return null;
             }
 
-            var firstShard = clients[0].Shard.GetValueOrDefault();
-
-            var index = Snowflake.ShardId(guildId, firstShard.Count) - firstShard.Id;
-
-            if ((uint)index >= (uint)clients.Length)
-                ThrowOutOfRange(guildId);
-
             return clients[index];
-
-            [DoesNotReturn]
-            [StackTraceHidden]
-            static void ThrowOutOfRange(ulong guildId)
-            {
-                throw new ArgumentOutOfRangeException(nameof(guildId), $"The guild with ID '{guildId}' is not in the shard range of this client.");
-            }
         }
     }
 
