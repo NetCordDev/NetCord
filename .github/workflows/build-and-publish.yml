@@ -55,7 +55,7 @@ jobs:
         shell: *docs-shell
         working-directory: Documentation
         run: |
-          npm install
+          npm ci
           npm run lint
           npm run test
           npm run build

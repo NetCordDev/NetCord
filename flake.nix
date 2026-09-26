@@ -31,8 +31,8 @@
 
         docfx = pkgs.buildDotnetGlobalTool {
           pname = "docfx";
-          version = "2.78.3";
-          nugetHash = "sha256-hLb6OmxqXOOxFaq/N+aZ0sAzEYjU0giX3c1SWQtKDbs=";
+          version = "2.81.0";
+          nugetHash = "sha256-9AQN5UUVVgchNLx8wqXB0GKZGi3sqf0hEaXISGCtPD4=";
           dotnet-sdk = dotnet;
         };
 
