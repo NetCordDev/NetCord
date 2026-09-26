@@ -32,7 +32,7 @@ public class JsonAttachment : JsonEntity
     public int? Width { get; set; }
 
     [JsonPropertyName("placeholder")]
-    public string? Placeholder;
+    public string? Placeholder { get; set; }
 
     [JsonPropertyName("placeholder_version")]
     public int? PlaceholderVersion { get; set; }
