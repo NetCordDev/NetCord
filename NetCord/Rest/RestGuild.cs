@@ -44,6 +44,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
             return 1;
 
         var ownerId = OwnerId;
+
         if (x.Id == ownerId)
             return y.Id == ownerId ? 0 : 1;
 
@@ -73,7 +74,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
 
         foreach (var role in y.GetRoles(this))
         {
-            var comparisonResult = xPosition.CompareTo(role.Position);
+            int comparisonResult = xPosition.CompareTo(role.Position);
 
             if (comparisonResult < 0)
                 return -1;
