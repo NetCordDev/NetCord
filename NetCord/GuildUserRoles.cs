@@ -17,7 +17,7 @@ public readonly struct GuildUserRoles : IEnumerable<Role>
 
     public Enumerator GetEnumerator() => new(_roleIds, _roles);
 
-    IEnumerator<Role> IEnumerable<Role>.GetEnumerator() => new Enumerator(_roleIds, _roles);
+    IEnumerator<Role> IEnumerable<Role>.GetEnumerator() => GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
