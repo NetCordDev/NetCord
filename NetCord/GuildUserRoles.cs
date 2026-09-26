@@ -85,4 +85,3 @@ public readonly struct GuildUserRoles : IEnumerable<Role>
         }
     }
 }
-
