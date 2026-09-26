@@ -17,7 +17,7 @@ internal static partial class Zstandard
     public static partial bool IsError(nuint code);
 
     [LibraryImport(DllName, EntryPoint = "ZSTD_getErrorName")]
-    public static partial nuint GetErrorName(nuint code);
+    public static partial byte* GetErrorName(nuint code);
 
     [LibraryImport(DllName, EntryPoint = "ZSTD_createDStream")]
     public static partial DStreamHandle CreateDStream();
