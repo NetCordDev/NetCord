@@ -5,6 +5,8 @@ public partial record GuildsPaginationProperties : PaginationProperties<ulong>, 
 {
     public bool WithCounts { get; set; }
 
+    public int? Shard { get; set; }
+
     static GuildsPaginationProperties IPaginationProperties<ulong, GuildsPaginationProperties>.Create() => new();
     static GuildsPaginationProperties IPaginationProperties<ulong, GuildsPaginationProperties>.Create(GuildsPaginationProperties properties) => new(properties);
 }
