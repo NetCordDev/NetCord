@@ -15,7 +15,8 @@ public interface IWebhookEventParser
     public ValueTask<IWebhookEventArgs?> ParseAsync(HttpContext context);
 }
 
-internal sealed class WebhookEventParser(RestClient client, IOptions<IDiscordOptions> options) : HttpEventParser<IWebhookEventArgs>(options), IWebhookEventParser
+internal sealed class WebhookEventParser(RestClient client,
+                                         IOptions<IDiscordOptions> options) : HttpEventParser<IWebhookEventArgs>(options), IWebhookEventParser
 {
     protected override IWebhookEventArgs GetData(HttpContext context, ReadOnlySpan<byte> body)
     {
