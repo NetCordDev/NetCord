@@ -12,7 +12,7 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord;
 
-[JsonSourceGenerationOptions(Converters = [typeof(UInt64Converter), typeof(NullableInt64Converter), typeof(PermissionsConverter)])]
+[JsonSourceGenerationOptions(RespectNullableAnnotations = true, Converters = [typeof(UInt64Converter), typeof(NullableInt64Converter), typeof(PermissionsConverter)])]
 [JsonSerializable(typeof(JsonMessage))]
 [JsonSerializable(typeof(VoiceMessageProperties<VoiceHeartbeatProperties>))]
 [JsonSerializable(typeof(VoiceMessageProperties<ProtocolProperties>))]
