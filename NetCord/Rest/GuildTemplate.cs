@@ -27,7 +27,7 @@ public partial class GuildTemplate(JsonGuildTemplate jsonModel, RestClient clien
 
     public ulong SourceGuildId => jsonModel.SourceGuildId;
 
-    public GuildTemplatePreview Preview { get; } = new(jsonModel.Preview, client);
+    public GuildTemplateSerializerSourceGuild SerializedSourceGuild { get; } = new(jsonModel.SerializedSourceGuild, client);
 
     public bool? IsDirty => jsonModel.IsDirty;
 }

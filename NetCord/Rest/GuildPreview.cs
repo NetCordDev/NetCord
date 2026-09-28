@@ -1,36 +1,34 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildPreview : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
+public class GuildPreview(JsonGuildPreview jsonModel, RestClient client) : ClientEntity(client)
 {
-    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    private readonly NetCord.JsonModels.JsonGuild _jsonModel;
+    public override ulong Id { get; } = jsonModel.Id;
 
-    public GuildPreview(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
+    public string Name { get; } = jsonModel.Name;
+
+    public string? IconHash { get; } = jsonModel.IconHash;
+
+    public string? SplashHash { get; } = jsonModel.SplashHash;
+
+    public string? DiscoverySplashHash { get; } = jsonModel.DiscoverySplashHash;
+
+    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; } = CreateEmojis(jsonModel, client);
+
+    private static Dictionary<ulong, GuildEmoji> CreateEmojis(JsonGuildPreview jsonModel, RestClient client)
     {
-        _jsonModel = jsonModel;
-        Emojis = _jsonModel.Emojis.ToDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Stickers = _jsonModel.Stickers.ToDictionary(s => s.Id, s => new GuildSticker(s, client));
+        var guildId = jsonModel.Id;
+        return jsonModel.Emojis.ToDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, guildId, client));
     }
 
-    public override ulong Id => _jsonModel.Id;
+    public IReadOnlyList<string> Features { get; } = jsonModel.Features;
 
-    public string Name => _jsonModel.Name;
+    public int ApproximateUserCount { get; } = jsonModel.ApproximateUserCount;
 
-    public string? IconHash => _jsonModel.IconHash;
+    public int ApproximatePresenceCount { get; } = jsonModel.ApproximatePresenceCount;
 
-    public string? SplashHash => _jsonModel.SplashHash;
+    public string? Description { get; } = jsonModel.Description;
 
-    public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
-
-    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; }
-
-    public IReadOnlyList<string> Features => _jsonModel.Features;
-
-    public int ApproximateUserCount => _jsonModel.ApproximateUserCount.GetValueOrDefault();
-
-    public int ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount.GetValueOrDefault();
-
-    public string? Description => _jsonModel.Description;
-
-    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; }
+    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; } = jsonModel.Stickers.ToDictionary(s => s.Id, s => new GuildSticker(s, client));
 }

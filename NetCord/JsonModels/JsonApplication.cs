@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.JsonModels;
 
 public class JsonApplication : JsonEntity
@@ -44,7 +46,7 @@ public class JsonApplication : JsonEntity
     public ulong? GuildId { get; set; }
 
     [JsonPropertyName("guild")]
-    public JsonGuild? Guild { get; set; }
+    public JsonPartialGuild? Guild { get; set; }
 
     [JsonPropertyName("primary_sku_id")]
     public ulong? PrimarySkuId { get; set; }

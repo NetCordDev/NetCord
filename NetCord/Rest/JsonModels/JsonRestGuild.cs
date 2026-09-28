@@ -1,24 +1,13 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
-using NetCord.Gateway.JsonModels;
-using NetCord.Rest;
+using NetCord.JsonModels;
 
-namespace NetCord.JsonModels;
+namespace NetCord.Rest.JsonModels;
 
-public class JsonGuild : JsonEntity
+public class JsonRestGuild : JsonPartialGuild
 {
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    [JsonPropertyName("icon")]
-    public string? IconHash { get; set; }
-
     [JsonPropertyName("icon_hash")]
     public string? IconHashTemplate { get; set; }
-
-    [JsonPropertyName("splash")]
-    public string? SplashHash { get; set; }
 
     [JsonPropertyName("discovery_splash")]
     public string? DiscoverySplashHash { get; set; }
@@ -44,9 +33,6 @@ public class JsonGuild : JsonEntity
     [JsonPropertyName("widget_channel_id")]
     public ulong? WidgetChannelId { get; set; }
 
-    [JsonPropertyName("verification_level")]
-    public VerificationLevel VerificationLevel { get; set; }
-
     [JsonPropertyName("default_message_notifications")]
     public DefaultMessageNotificationLevel DefaultMessageNotificationLevel { get; set; }
 
@@ -58,9 +44,6 @@ public class JsonGuild : JsonEntity
 
     [JsonPropertyName("emojis")]
     public JsonEmoji[] Emojis { get; set; }
-
-    [JsonPropertyName("features")]
-    public string[] Features { get; set; }
 
     [JsonPropertyName("mfa_level")]
     public MfaLevel MfaLevel { get; set; }
@@ -77,47 +60,11 @@ public class JsonGuild : JsonEntity
     [JsonPropertyName("rules_channel_id")]
     public ulong? RulesChannelId { get; set; }
 
-    [JsonPropertyName("joined_at")]
-    public DateTimeOffset JoinedAt { get; set; }
-
-    [JsonPropertyName("large")]
-    public bool IsLarge { get; set; }
-
-    [JsonPropertyName("unavailable")]
-    public bool IsUnavailable { get; set; }
-
-    [JsonPropertyName("member_count")]
-    public int UserCount { get; set; }
-
-    [JsonPropertyName("voice_states")]
-    public JsonVoiceState[] VoiceStates { get; set; }
-
-    [JsonPropertyName("members")]
-    public JsonGuildUser[] Users { get; set; }
-
-    [JsonPropertyName("channels")]
-    public JsonChannel[] Channels { get; set; }
-
-    [JsonPropertyName("threads")]
-    public JsonChannel[] ActiveThreads { get; set; }
-
-    [JsonPropertyName("presences")]
-    public JsonPresence[] Presences { get; set; }
-
     [JsonPropertyName("max_presences")]
     public int? MaxPresences { get; set; }
 
     [JsonPropertyName("max_members")]
     public int? MaxUsers { get; set; }
-
-    [JsonPropertyName("vanity_url_code")]
-    public string? VanityUrlCode { get; set; }
-
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
-
-    [JsonPropertyName("banner")]
-    public string? BannerHash { get; set; }
 
     [JsonPropertyName("premium_tier")]
     public int PremiumTier { get; set; }
@@ -143,26 +90,15 @@ public class JsonGuild : JsonEntity
     [JsonPropertyName("approximate_presence_count")]
     public int? ApproximatePresenceCount { get; set; }
 
-    [JsonPropertyName("welcome_screen")]
-    public JsonGuildWelcomeScreen? WelcomeScreen { get; set; }
-
     [JsonPropertyName("nsfw_level")]
     public NsfwLevel NsfwLevel { get; set; }
 
-    [JsonPropertyName("stage_instances")]
-    public JsonStageInstance[] StageInstances { get; set; }
-
     [JsonPropertyName("stickers")]
     public JsonSticker[] Stickers { get; set; }
-
-    [JsonPropertyName("guild_scheduled_events")]
-    public JsonGuildScheduledEvent[] ScheduledEvents { get; set; }
 
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool PremiumProgressBarEnabled { get; set; }
 
     [JsonPropertyName("safety_alerts_channel_id")]
     public ulong? SafetyAlertsChannelId { get; set; }
-
-    internal JsonGuild Clone() => Unsafe.As<JsonGuild>(MemberwiseClone());
 }

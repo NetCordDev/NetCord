@@ -34,7 +34,7 @@ public class JsonGuildTemplate
     public ulong SourceGuildId { get; set; }
 
     [JsonPropertyName("serialized_source_guild")]
-    public JsonGuild Preview { get; set; }
+    public JsonGuildTemplateSerializedSourceGuild SerializedSourceGuild { get; set; }
 
     [JsonPropertyName("is_dirty")]
     public bool? IsDirty { get; set; }

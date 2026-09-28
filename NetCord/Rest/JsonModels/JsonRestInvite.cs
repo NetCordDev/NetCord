@@ -13,7 +13,7 @@ public class JsonRestInvite
     public string Code { get; set; }
 
     [JsonPropertyName("guild")]
-    public JsonGuild? Guild { get; set; }
+    public JsonPartialGuild? Guild { get; set; }
 
     [JsonPropertyName("channel")]
     public JsonChannel? Channel { get; set; }

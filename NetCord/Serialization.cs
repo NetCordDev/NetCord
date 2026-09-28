@@ -58,6 +58,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonGuildEmojisUpdateEventArgs))]
 [JsonSerializable(typeof(JsonGuildBanEventArgs))]
 [JsonSerializable(typeof(JsonAuditLogEntry))]
+[JsonSerializable(typeof(JsonRestGuild))]
 [JsonSerializable(typeof(JsonGuild))]
 [JsonSerializable(typeof(JsonGuildThreadUsersUpdateEventArgs))]
 [JsonSerializable(typeof(JsonThreadUser))]
@@ -220,7 +221,7 @@ namespace NetCord;
 [JsonSerializable(typeof(GuildStickerOptions))]
 [JsonSerializable(typeof(GoogleCloudPlatformStorageBucketsProperties))]
 [JsonSerializable(typeof(CurrentUserOptions))]
-[JsonSerializable(typeof(JsonGuild[]))]
+[JsonSerializable(typeof(JsonRestGuild[]))]
 [JsonSerializable(typeof(DMChannelProperties))]
 [JsonSerializable(typeof(GroupDMChannelProperties))]
 [JsonSerializable(typeof(JsonConnection[]))]
@@ -286,4 +287,5 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonCheckboxGroupComponent))]
 [JsonSerializable(typeof(JsonCheckboxComponent))]
 [JsonSerializable(typeof(JsonInviteTargetUsersJobStatus))]
+[JsonSerializable(typeof(JsonGuildPreview))]
 internal partial class Serialization : JsonSerializerContext;

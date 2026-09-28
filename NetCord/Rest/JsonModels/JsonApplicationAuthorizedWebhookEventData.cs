@@ -16,5 +16,5 @@ internal class JsonApplicationAuthorizedWebhookEventData
     public string[] Scopes { get; set; }
 
     [JsonPropertyName("guild")]
-    public JsonGuild? Guild { get; set; }
+    public JsonRestGuild? Guild { get; set; }
 }

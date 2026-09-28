@@ -2,7 +2,7 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public interface IWebhookEventArgs : IJsonModel<JsonWebhookEventArgs>
+public interface IWebhookEventArgs
 {
     public int Version { get; }
 

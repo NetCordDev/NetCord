@@ -453,6 +453,6 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
         public required string[] Scopes { get; set; }
 
         [JsonPropertyName("guild")]
-        public JsonGuild? Guild { get; set; }
+        public JsonRestGuild? Guild { get; set; }
     }
 }
