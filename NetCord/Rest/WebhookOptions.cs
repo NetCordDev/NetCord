@@ -12,7 +12,7 @@ public partial class WebhookOptions
     {
     }
 
-    /// <inheritdoc cref="Webhook.Name"/>c
+    /// <inheritdoc cref="Webhook.Name"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Name { get; set; }

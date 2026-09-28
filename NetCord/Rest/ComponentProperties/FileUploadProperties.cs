@@ -3,6 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Represents a file upload component.
+/// </summary>
+/// <param name="customId"></param>
 [GenerateMethodsForProperties]
 public partial class FileUploadProperties(string customId) : IInteractiveComponentProperties, ILabelComponentProperties
 {
