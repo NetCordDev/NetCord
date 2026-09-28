@@ -18,7 +18,17 @@ public class GuildUserComparison
             jsonRoles[i] = new()
             {
                 Id = id,
+                Name = "Role",
                 Position = position,
+                Flags = default,
+                Mentionable = false,
+                Managed = false,
+                Permissions = default,
+                Hoist = false,
+                Colors = new()
+                {
+                    PrimaryColor = default,
+                },
             };
         }
 
