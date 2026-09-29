@@ -274,4 +274,39 @@ public class ChoicesAndAutocompleteTests
                 ([SlashCommandParameter(AutocompleteProviderType = typeof(TestAutocompleteProvider))] int i) => { }));
         });
     }
+
+    private enum TestEnumWithIgnoredValues
+    {
+        Value1,
+        [SlashCommandIgnore]
+        Value2,
+        Value3,
+    }
+
+    [TestMethod]
+    public async Task TestEnumIgnoreAttribute()
+    {
+        var service = CreateService();
+
+        service.AddSlashCommand(new SlashCommandBuilder(
+            "test",
+            "Test",
+            (TestEnumWithIgnoredValues e) => { }));
+
+        var command = (SlashCommandInfo<ApplicationCommandContext>)service.GetCommands().Single();
+
+        var parameter = command.Parameters.Single();
+
+        Assert.IsNotNull(parameter.ChoicesProvider);
+
+        var choices = await parameter.ChoicesProvider.GetChoicesAsync(parameter).ConfigureAwait(false);
+
+        Assert.IsNotNull(choices);
+
+        var choicesList = choices.ToList();
+
+        Assert.AreEqual(2, choicesList.Count);
+        Assert.AreEqual("Value1", choicesList[0].Name);
+        Assert.AreEqual("Value3", choicesList[1].Name);
+    }
 }
