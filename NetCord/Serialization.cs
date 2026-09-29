@@ -59,7 +59,6 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonGuildBanEventArgs))]
 [JsonSerializable(typeof(JsonAuditLogEntry))]
 [JsonSerializable(typeof(JsonRestGuild))]
-[JsonSerializable(typeof(JsonGuild))]
 [JsonSerializable(typeof(JsonGuildThreadUsersUpdateEventArgs))]
 [JsonSerializable(typeof(JsonThreadUser))]
 [JsonSerializable(typeof(JsonGuildThreadListSyncEventArgs))]
@@ -288,4 +287,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonCheckboxComponent))]
 [JsonSerializable(typeof(JsonInviteTargetUsersJobStatus))]
 [JsonSerializable(typeof(JsonGuildPreview))]
+[JsonSerializable(typeof(IJsonGuild))]
+[JsonSerializable(typeof(JsonUnavailableGuild))]
+[JsonSerializable(typeof(JsonGuild))]
 internal partial class Serialization : JsonSerializerContext;

@@ -7,5 +7,5 @@ namespace NetCord.Rest.JsonModels;
 internal class JsonApplicationDeauthorizedWebhookEventData
 {
     [JsonPropertyName("user")]
-    public JsonUser User { get; set; }
+    public required JsonUser User { get; set; }
 }

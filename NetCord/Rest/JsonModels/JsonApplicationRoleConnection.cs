@@ -11,5 +11,5 @@ public class JsonApplicationRoleConnection
     public string? PlatformUsername { get; set; }
 
     [JsonPropertyName("metadata")]
-    public IReadOnlyDictionary<string, string> Metadata { get; set; }
+    public required IReadOnlyDictionary<string, string> Metadata { get; set; }
 }

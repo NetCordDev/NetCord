@@ -10,19 +10,19 @@ public class JsonApplicationCommand : JsonEntity
     public ApplicationCommandType Type { get; set; } = ApplicationCommandType.ChatInput;
 
     [JsonPropertyName("application_id")]
-    public ulong ApplicationId { get; set; }
+    public required ulong ApplicationId { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public required string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }
@@ -43,5 +43,5 @@ public class JsonApplicationCommand : JsonEntity
     public InteractionContextType[]? Contexts { get; set; }
 
     [JsonPropertyName("version")]
-    public ulong Version { get; set; }
+    public required ulong Version { get; set; }
 }

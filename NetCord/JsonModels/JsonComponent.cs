@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -30,7 +32,7 @@ public class JsonComponent
             while (true)
             {
                 if (!readerCopy.Read())
-                    throw new JsonException("Failed to read the next JSON token.");
+                    ThrowFailedToReadNextToken();
 
                 if (readerCopy.TokenType is JsonTokenType.PropertyName)
                 {
@@ -44,11 +46,20 @@ public class JsonComponent
                 }
 
                 if (readerCopy.TokenType is JsonTokenType.EndObject)
-                    throw new JsonException("Could not find a 'type' property.");
+                {
+                    ThrowCouldNotFindTypeProperty();
+
+                    [DoesNotReturn]
+                    [StackTraceHidden]
+                    static void ThrowCouldNotFindTypeProperty()
+                    {
+                        throw new JsonException("Could not find a 'type' property.");
+                    }
+                }
             }
 
             if (!readerCopy.Read())
-                throw new JsonException("Failed to read the 'type' property value.");
+                ThrowFailedToReadNextToken();
 
             var type = (ComponentType)readerCopy.GetInt32();
 
@@ -86,6 +97,10 @@ public class JsonComponent
                     Id = component.Id,
                 };
             }
+
+            [DoesNotReturn]
+            [StackTraceHidden]
+            static void ThrowFailedToReadNextToken() => throw new JsonException("Failed to read the next JSON token.");
         }
 
         public override void Write(Utf8JsonWriter writer, JsonComponent value, JsonSerializerOptions options)

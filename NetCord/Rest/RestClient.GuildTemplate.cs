@@ -4,11 +4,11 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.Code))]
+    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.Code), ClientName = "client")]
     public async Task<GuildTemplate> GetGuildTemplateAsync(string templateCode, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/templates/{templateCode}", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildTemplate).ConfigureAwait(false), this);
 
-    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.Code), NameOverride = "CreateGuildAsync")]
+    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.Code), NameOverride = "CreateGuildAsync", ClientName = "client")]
     public async Task<RestGuild> CreateGuildFromGuildTemplateAsync(string templateCode, GuildFromGuildTemplateProperties guildProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<GuildFromGuildTemplateProperties>(guildProperties, Serialization.Default.GuildFromGuildTemplateProperties))
@@ -27,12 +27,12 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.SourceGuildId), nameof(GuildTemplate.Code))]
+    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.SourceGuildId), nameof(GuildTemplate.Code), ClientName = "client")]
     public async Task<GuildTemplate> SyncGuildTemplateAsync(ulong guildId, string templateCode, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Put, $"/guilds/{guildId}/templates/{templateCode}", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildTemplate).ConfigureAwait(false), this);
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.SourceGuildId), nameof(GuildTemplate.Code))]
+    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.SourceGuildId), nameof(GuildTemplate.Code), ClientName = "client")]
     public async Task<GuildTemplate> ModifyGuildTemplateAsync(ulong guildId, string templateCode, Action<GuildTemplateOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GuildTemplateOptions guildTemplateOptions = new();
@@ -42,7 +42,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.SourceGuildId), nameof(GuildTemplate.Code))]
+    [GenerateAlias([typeof(GuildTemplate)], nameof(GuildTemplate.SourceGuildId), nameof(GuildTemplate.Code), ClientName = "client")]
     public async Task<GuildTemplate> DeleteGuildTemplateAsync(ulong guildId, string templateCode, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/templates/{templateCode}", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildTemplate).ConfigureAwait(false), this);
 }

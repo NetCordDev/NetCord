@@ -1250,14 +1250,18 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "GUILD_CREATE":
                 {
-                    var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
-                    var id = jsonGuild.Id;
-                    if (jsonGuild.IsUnavailable.GetValueOrDefault())
-                        await InvokeEventAsync(_guildCreate, id, static id => new(id, null)).ConfigureAwait(false);
-                    else
+                    var jsonGuild = data.ToObject(Serialization.Default.IJsonGuild);
+
+                    switch (jsonGuild)
                     {
-                        Guild guild = new(jsonGuild, Rest, Cache);
-                        await InvokeEventAsync(_guildCreate, this, (Id: id, Guild: guild), static data => new(data.Id, data.Guild), static (client, data) => client.Cache = client.Cache.CacheGuild(data.Guild)).ConfigureAwait(false);
+                        case JsonGuild availableGuild:
+                            Guild guild = new(availableGuild, Rest, Cache);
+                            await InvokeEventAsync(_guildCreate, this, guild, static guild => new(guild.Id, guild), static (client, guild) => client.Cache = client.Cache.CacheGuild(guild)).ConfigureAwait(false);
+                            break;
+
+                        default:
+                            await InvokeEventAsync(_guildCreate, jsonGuild, static guild => new(guild.Id, null)).ConfigureAwait(false);
+                            break;
                     }
                 }
                 break;
@@ -1270,7 +1274,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "GUILD_DELETE":
                 {
-                    var json = data.ToObject(Serialization.Default.JsonGuild);
+                    var json = data.ToObject(Serialization.Default.JsonUnavailableGuild);
                     await InvokeEventAsync(_guildDelete, this, json, static json => new(json), static (client, jsonGuild) => client.Cache = client.Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;

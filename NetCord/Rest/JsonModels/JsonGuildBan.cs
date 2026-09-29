@@ -10,5 +10,5 @@ public class JsonGuildBan
     public string? Reason { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser User { get; set; }
+    public required JsonUser User { get; set; }
 }

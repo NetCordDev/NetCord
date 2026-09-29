@@ -5,11 +5,11 @@ namespace NetCord.Rest.JsonModels;
 public class JsonGatewayBot
 {
     [JsonPropertyName("url")]
-    public string Url { get; set; }
+    public required string Url { get; set; }
 
     [JsonPropertyName("shards")]
-    public int ShardCount { get; set; }
+    public required int ShardCount { get; set; }
 
     [JsonPropertyName("session_start_limit")]
-    public JsonGatewaySessionStartLimit SessionStartLimit { get; set; }
+    public required JsonGatewaySessionStartLimit SessionStartLimit { get; set; }
 }

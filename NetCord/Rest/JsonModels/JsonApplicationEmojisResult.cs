@@ -7,5 +7,5 @@ namespace NetCord.Rest.JsonModels;
 internal class JsonApplicationEmojisResult
 {
     [JsonPropertyName("items")]
-    public JsonEmoji[] Items { get; set; }
+    public required JsonEmoji[] Items { get; set; }
 }

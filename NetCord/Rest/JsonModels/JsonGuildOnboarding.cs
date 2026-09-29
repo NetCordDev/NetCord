@@ -5,17 +5,17 @@ namespace NetCord.Rest.JsonModels;
 public class JsonGuildOnboarding
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("prompts")]
-    public JsonGuildOnboardingPrompt[] Prompts { get; set; }
+    public required JsonGuildOnboardingPrompt[] Prompts { get; set; }
 
     [JsonPropertyName("default_channel_ids")]
-    public ulong[] DefaultChannelIds { get; set; }
+    public required ulong[] DefaultChannelIds { get; set; }
 
     [JsonPropertyName("enabled")]
-    public bool Enabled { get; set; }
+    public required bool Enabled { get; set; }
 
     [JsonPropertyName("mode")]
-    public GuildOnboardingMode Mode { get; set; }
+    public required GuildOnboardingMode Mode { get; set; }
 }

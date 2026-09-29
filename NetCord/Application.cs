@@ -3,10 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-/// <summary>
-/// Applications or 'apps', are containers for developer platform features, and can contain bots installable to guilds and/or user accounts.
-/// </summary>
-public partial class Application(JsonApplication jsonModel, RestClient client) : ClientEntity(client)
+public partial class PartialApplication(JsonPartialApplication jsonModel, RestClient client) : ClientEntity(client)
 {
     /// <summary>
     /// The application's ID.
@@ -29,19 +26,30 @@ public partial class Application(JsonApplication jsonModel, RestClient client) :
     public string Description { get; } = jsonModel.Description;
 
     /// <summary>
-    /// A list of the application's RPC origin URLs if enabled, otherwise <see langword="null"/>.
-    /// </summary>
-    public IReadOnlyList<string> RpcOrigins { get; } = jsonModel.RpcOrigins;
-
-    /// <summary>
     /// Whether users other than the owner can add the application to guilds.
     /// </summary>
-    public bool? BotPublic { get; } = jsonModel.BotPublic;
+    public bool BotPublic { get; } = jsonModel.BotPublic;
 
     /// <summary>
     /// Whether the application's bot will only join upon completion of the full OAuth2 code grant flow.
     /// </summary>
-    public bool? BotRequireCodeGrant { get; } = jsonModel.BotRequireCodeGrant;
+    public bool BotRequireCodeGrant { get; } = jsonModel.BotRequireCodeGrant;
+
+    /// <summary>
+    /// A hex-encoded verification key, used for HTTP interactions and the GameSDK's GetTicket endpoint.
+    /// </summary>
+    public string VerifyKey { get; } = jsonModel.VerifyKey;
+}
+
+/// <summary>
+/// Applications or 'apps', are containers for developer platform features, and can contain bots installable to guilds and/or user accounts.
+/// </summary>
+public partial class Application(JsonApplication jsonModel, RestClient client) : PartialApplication(jsonModel, client)
+{
+    /// <summary>
+    /// A list of the application's RPC origin URLs if enabled, otherwise <see langword="null"/>.
+    /// </summary>
+    public IReadOnlyList<string> RpcOrigins { get; } = jsonModel.RpcOrigins;
 
     /// <summary>
     /// The application's user object, representing its bot.
@@ -62,11 +70,6 @@ public partial class Application(JsonApplication jsonModel, RestClient client) :
     /// The application owner's user object.
     /// </summary>
     public User? Owner { get; } = jsonModel.Owner is { } owner ? new(owner, client) : null;
-
-    /// <summary>
-    /// A hex-encoded verification key, used for HTTP interactions and the GameSDK's GetTicket endpoint.
-    /// </summary>
-    public string VerifyKey { get; } = jsonModel.VerifyKey;
 
     /// <summary>
     /// The team the application belongs to, if any.

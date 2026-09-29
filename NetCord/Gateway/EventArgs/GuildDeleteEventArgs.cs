@@ -2,7 +2,7 @@ using NetCord.Gateway.JsonModels;
 
 namespace NetCord.Gateway;
 
-public class GuildDeleteEventArgs(JsonGuild jsonModel)
+public class GuildDeleteEventArgs(JsonUnavailableGuild jsonModel)
 {
     /// <summary>
     /// The ID of the guild.

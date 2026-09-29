@@ -19,18 +19,29 @@ public class ComponentInteractionServiceTester : ServiceTester
     {
         JsonInteraction jsonModel = new()
         {
+            Id = 123456,
             Type = interactionType,
             Data = new()
             {
                 ComponentType = ComponentType.Button,
                 CustomId = customId,
             },
-            User = new(),
-            Channel = new(),
+            User = new()
+            {
+                Id = 123,
+            },
+            Channel = new()
+            {
+                Id = 1234,
+            },
             Entitlements = [],
             Message = new()
             {
-                Author = new(),
+                Id = 12345,
+                Author = new()
+                {
+                    Id = 123,
+                },
                 MentionedUsers = [],
                 Attachments = [],
                 Embeds = [],

@@ -30,6 +30,7 @@ public sealed class HttpInteractionHandlerTester : IHandlerTester
         var interaction = Interaction.CreateFromJson(
             new()
             {
+                Id = 123456,
                 Type = InteractionType.ApplicationCommand,
                 Data = new()
                 {

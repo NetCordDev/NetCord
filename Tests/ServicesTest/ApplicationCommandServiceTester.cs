@@ -17,6 +17,7 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
     {
         JsonInteraction jsonModel = new()
         {
+            Id = 123456,
             Type = InteractionType.ApplicationCommand,
             Data = new()
             {
@@ -34,8 +35,14 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
                     )
                 ],
             },
-            User = new(),
-            Channel = new(),
+            User = new()
+            {
+                Id = 123,
+            },
+            Channel = new()
+            {
+                Id = 1234,
+            },
             Entitlements = [],
         };
 

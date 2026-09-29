@@ -1,38 +1,38 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildOnboardingPrompt(JsonModels.JsonGuildOnboardingPrompt jsonModel, ulong guildId, RestClient client) : Entity, IJsonModel<JsonModels.JsonGuildOnboardingPrompt>
+public class GuildOnboardingPrompt(JsonGuildOnboardingPrompt jsonModel, ulong guildId, RestClient client) : Entity
 {
-    JsonModels.JsonGuildOnboardingPrompt IJsonModel<JsonModels.JsonGuildOnboardingPrompt>.JsonModel => jsonModel;
-
-    public override ulong Id => jsonModel.Id;
+    public override ulong Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// Type of prompt.
     /// </summary>
-    public GuildOnboardingPromptType Type => jsonModel.Type;
+    public GuildOnboardingPromptType Type { get; } = jsonModel.Type;
 
     /// <summary>
     /// Options available within the prompt.
     /// </summary>
-    public IReadOnlyList<GuildOnboardingPromptOption> Options { get; } = jsonModel.Options.Select(o => new GuildOnboardingPromptOption(o, guildId, client)).ToArray();
+    public IReadOnlyList<GuildOnboardingPromptOption> Options { get; } = [.. jsonModel.Options.Select(o => new GuildOnboardingPromptOption(o, guildId, client))];
 
     /// <summary>
     /// Title of the prompt.
     /// </summary>
-    public string Title => jsonModel.Title;
+    public string Title { get; } = jsonModel.Title;
 
     /// <summary>
     /// Indicates whether users are limited to selecting one option for the prompt.
     /// </summary>
-    public bool SingleSelect => jsonModel.SingleSelect;
+    public bool SingleSelect { get; } = jsonModel.SingleSelect;
 
     /// <summary>
     /// Indicates whether the prompt is required before a user completes the onboarding flow.
     /// </summary>
-    public bool Required => jsonModel.Required;
+    public bool Required { get; } = jsonModel.Required;
 
     /// <summary>
     /// Indicates whether the prompt is present in the onboarding flow. If false, the prompt will only appear in the Channels &#38; Roles tab.
     /// </summary>
-    public bool InOnboarding => jsonModel.InOnboarding;
+    public bool InOnboarding { get; } = jsonModel.InOnboarding;
 }

@@ -34,6 +34,7 @@ public class GuildUserComparison
 
         return new(new()
         {
+            Id = 123,
             OwnerId = ownerId,
             Roles = jsonRoles,
             Name = "Guild",
