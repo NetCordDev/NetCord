@@ -13,10 +13,10 @@ public class JsonRestGuild : JsonPartialGuild
     public string? DiscoverySplashHash { get; set; }
 
     [JsonPropertyName("owner")]
-    public bool IsOwner { get; set; }
+    public bool? IsOwner { get; set; }
 
     [JsonPropertyName("owner_id")]
-    public ulong OwnerId { get; set; }
+    public required ulong OwnerId { get; set; }
 
     [JsonPropertyName("permissions")]
     public Permissions? Permissions { get; set; }
@@ -25,7 +25,7 @@ public class JsonRestGuild : JsonPartialGuild
     public ulong? AfkChannelId { get; set; }
 
     [JsonPropertyName("afk_timeout")]
-    public int AfkTimeout { get; set; }
+    public required int AfkTimeout { get; set; }
 
     [JsonPropertyName("widget_enabled")]
     public bool? WidgetEnabled { get; set; }
@@ -34,19 +34,19 @@ public class JsonRestGuild : JsonPartialGuild
     public ulong? WidgetChannelId { get; set; }
 
     [JsonPropertyName("default_message_notifications")]
-    public DefaultMessageNotificationLevel DefaultMessageNotificationLevel { get; set; }
+    public required DefaultMessageNotificationLevel DefaultMessageNotificationLevel { get; set; }
 
     [JsonPropertyName("explicit_content_filter")]
-    public ContentFilter ContentFilter { get; set; }
+    public required ContentFilter ContentFilter { get; set; }
 
     [JsonPropertyName("roles")]
-    public JsonRole[] Roles { get; set; }
+    public required JsonRole[] Roles { get; set; }
 
     [JsonPropertyName("emojis")]
-    public JsonEmoji[] Emojis { get; set; }
+    public required JsonEmoji[] Emojis { get; set; }
 
     [JsonPropertyName("mfa_level")]
-    public MfaLevel MfaLevel { get; set; }
+    public required MfaLevel MfaLevel { get; set; }
 
     [JsonPropertyName("application_id")]
     public ulong? ApplicationId { get; set; }
@@ -55,7 +55,7 @@ public class JsonRestGuild : JsonPartialGuild
     public ulong? SystemChannelId { get; set; }
 
     [JsonPropertyName("system_channel_flags")]
-    public SystemChannelFlags SystemChannelFlags { get; set; }
+    public required SystemChannelFlags SystemChannelFlags { get; set; }
 
     [JsonPropertyName("rules_channel_id")]
     public ulong? RulesChannelId { get; set; }
@@ -67,13 +67,13 @@ public class JsonRestGuild : JsonPartialGuild
     public int? MaxUsers { get; set; }
 
     [JsonPropertyName("premium_tier")]
-    public int PremiumTier { get; set; }
+    public required int PremiumTier { get; set; }
 
     [JsonPropertyName("premium_subscription_count")]
     public int? PremiumSubscriptionCount { get; set; }
 
     [JsonPropertyName("preferred_locale")]
-    public string PreferredLocale { get; set; }
+    public required string PreferredLocale { get; set; }
 
     [JsonPropertyName("public_updates_channel_id")]
     public ulong? PublicUpdatesChannelId { get; set; }
@@ -91,14 +91,17 @@ public class JsonRestGuild : JsonPartialGuild
     public int? ApproximatePresenceCount { get; set; }
 
     [JsonPropertyName("nsfw_level")]
-    public NsfwLevel NsfwLevel { get; set; }
+    public required NsfwLevel NsfwLevel { get; set; }
 
     [JsonPropertyName("stickers")]
-    public JsonSticker[] Stickers { get; set; }
+    public required JsonSticker[] Stickers { get; set; }
 
     [JsonPropertyName("premium_progress_bar_enabled")]
-    public bool PremiumProgressBarEnabled { get; set; }
+    public required bool PremiumProgressBarEnabled { get; set; }
 
     [JsonPropertyName("safety_alerts_channel_id")]
     public ulong? SafetyAlertsChannelId { get; set; }
+
+    [JsonPropertyName("incidents_data")]
+    public JsonGuildIncidentsData? IncidentsData { get; set; }
 }

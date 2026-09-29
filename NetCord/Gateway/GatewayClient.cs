@@ -1256,7 +1256,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                         await InvokeEventAsync(_guildCreate, id, static id => new(id, null)).ConfigureAwait(false);
                     else
                     {
-                        Guild guild = new(jsonGuild, Id, Rest, Cache);
+                        Guild guild = new(jsonGuild, Rest, Cache);
                         await InvokeEventAsync(_guildCreate, this, (Id: id, Guild: guild), static data => new(data.Id, data.Guild), static (client, data) => client.Cache = client.Cache.CacheGuild(data.Guild)).ConfigureAwait(false);
                     }
                 }
@@ -1265,7 +1265,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var guildId = GetGuildId(data);
                     if (Cache.Guilds.TryGetValue(guildId, out var oldGuild))
-                        await InvokeEventAsync(_guildUpdate, this, new(data.ToObject(Serialization.Default.JsonRestGuild), oldGuild, Id, Cache), static (client, guild) => client.Cache = client.Cache.CacheGuild(guild)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildUpdate, this, new(data.ToObject(Serialization.Default.JsonRestGuild), oldGuild, Cache), static (client, guild) => client.Cache = client.Cache.CacheGuild(guild)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_DELETE":

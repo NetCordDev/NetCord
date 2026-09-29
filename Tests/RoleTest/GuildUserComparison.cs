@@ -36,6 +36,18 @@ public class GuildUserComparison
         {
             OwnerId = ownerId,
             Roles = jsonRoles,
+            Name = "Guild",
+            PremiumProgressBarEnabled = false,
+            Stickers = [],
+            NsfwLevel = NsfwLevel.Default,
+            PreferredLocale = "en-US",
+            PremiumTier = 1,
+            SystemChannelFlags = default,
+            MfaLevel = MfaLevel.None,
+            Emojis = [],
+            ContentFilter = ContentFilter.Disabled,
+            DefaultMessageNotificationLevel = DefaultMessageNotificationLevel.AllMessages,
+            AfkTimeout = 60,
         }, null!);
     }
 

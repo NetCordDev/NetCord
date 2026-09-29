@@ -7,7 +7,7 @@ namespace NetCord.Rest.JsonModels;
 public class JsonPartialGuild : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }

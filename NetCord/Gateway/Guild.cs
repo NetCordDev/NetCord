@@ -11,7 +11,7 @@ namespace NetCord.Gateway;
 /// </summary>
 public class Guild : RestGuild, ICloneable
 {
-    public Guild(JsonGuild jsonModel, ulong clientId, RestClient client, IDictionaryProvider dictionaryProvider) : base(jsonModel, client, dictionaryProvider)
+    public Guild(JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : base(jsonModel, client, dictionaryProvider)
     {
         JoinedAt = jsonModel.JoinedAt;
         IsLarge = jsonModel.IsLarge;
@@ -25,11 +25,9 @@ public class Guild : RestGuild, ICloneable
         Presences = CreatePresences(jsonModel, client, dictionaryProvider);
         StageInstances = dictionaryProvider.CreateDictionary(jsonModel.StageInstances, s => s.Id, s => new StageInstance(s, client));
         ScheduledEvents = dictionaryProvider.CreateDictionary(jsonModel.ScheduledEvents, e => e.Id, e => new GuildScheduledEvent(e, client));
-
-        IsOwner = jsonModel.OwnerId == clientId;
     }
 
-    public Guild(JsonRestGuild jsonModel, Guild oldGuild, ulong clientId, IDictionaryProvider dictionaryProvider) : base(jsonModel, oldGuild._client, dictionaryProvider)
+    public Guild(JsonRestGuild jsonModel, Guild oldGuild, IDictionaryProvider dictionaryProvider) : base(jsonModel, oldGuild._client, dictionaryProvider)
     {
         JoinedAt = oldGuild.JoinedAt;
         IsLarge = oldGuild.IsLarge;
@@ -43,8 +41,6 @@ public class Guild : RestGuild, ICloneable
         Presences = oldGuild.Presences;
         StageInstances = oldGuild.StageInstances;
         ScheduledEvents = oldGuild.ScheduledEvents;
-
-        IsOwner = jsonModel.OwnerId == clientId;
     }
 
     object ICloneable.Clone() => MemberwiseClone();
@@ -131,7 +127,4 @@ public class Guild : RestGuild, ICloneable
     /// A dictionary of <see cref="GuildScheduledEvent"/> objects, representing currently scheduled events in the <see cref="Guild"/>.
     /// </summary>
     public IReadOnlyDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; set; }
-
-    /// <inheritdoc/>
-    public override bool IsOwner { get; }
 }

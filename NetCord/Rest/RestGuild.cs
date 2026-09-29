@@ -102,7 +102,7 @@ public partial class RestGuild(JsonRestGuild jsonModel, RestClient client, IDict
     /// <summary>
     /// <see langword="true"/> if the user is the owner of the <see cref="RestGuild"/>.
     /// </summary>
-    public virtual bool IsOwner { get; } = jsonModel.IsOwner;
+    public bool? IsOwner { get; } = jsonModel.IsOwner;
 
     /// <summary>
     /// The ID of the <see cref="RestGuild"/>'s owner.
@@ -281,6 +281,11 @@ public partial class RestGuild(JsonRestGuild jsonModel, RestClient client, IDict
     /// The ID of the channel where admins and moderators of community guilds receive safety alerts from Discord.
     /// </summary>
     public ulong? SafetyAlertsChannelId { get; } = jsonModel.SafetyAlertsChannelId;
+
+    /// <summary>
+    /// The incidents data for the <see cref="RestGuild"/>.
+    /// </summary>
+    public GuildIncidentsData? IncidentsData { get; } = jsonModel.IncidentsData is { } incidentsData ? new(incidentsData) : null;
 
     /// <summary>
     /// The guild's base role, applied to all users.

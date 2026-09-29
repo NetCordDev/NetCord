@@ -8,8 +8,6 @@ public class GuildTemplateSerializerSourceGuild(JsonGuildTemplateSerializedSourc
 
     public string? Description { get; } = jsonModel.Description;
 
-    public string? Region { get; } = jsonModel.Region;
-
     public VerificationLevel? VerificationLevel { get; } = jsonModel.VerificationLevel;
 
     public DefaultMessageNotificationLevel? DefaultMessageNotificationLevel { get; } = jsonModel.DefaultMessageNotificationLevel;

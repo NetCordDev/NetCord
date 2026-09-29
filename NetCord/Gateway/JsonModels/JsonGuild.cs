@@ -5,7 +5,10 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonGuild : JsonRestGuild
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "unavailable")]
+public interface IJsonGuild;
+
+public class JsonGuild : JsonRestGuild, IJsonGuild
 {
     [JsonPropertyName("joined_at")]
     public DateTimeOffset JoinedAt { get; set; }
@@ -40,3 +43,5 @@ public class JsonGuild : JsonRestGuild
     [JsonPropertyName("guild_scheduled_events")]
     public JsonGuildScheduledEvent[] ScheduledEvents { get; set; }
 }
+
+public class JsonUnavailableGuild : JsonEntity, IJsonGuild;
