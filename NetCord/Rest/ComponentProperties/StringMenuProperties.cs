@@ -12,7 +12,7 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
     {
     }
 
-    public override ComponentType ComponentType => ComponentType.StringMenu;
+    public override ComponentType ComponentType => ComponentType.StringSelect;
 
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; } = options;
 

@@ -640,7 +640,7 @@ public class ModalInteractionContext(ModalInteraction interaction, GatewayClient
     /// <summary>
     /// The components submitted with the modal.
     /// </summary>
-    public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
+    public IReadOnlyList<IModalChildComponent> Components => Interaction.Data.Components;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -666,5 +666,5 @@ public class HttpModalInteractionContext(ModalInteraction interaction, RestClien
     /// <summary>
     /// The components submitted with the modal.
     /// </summary>
-    public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
+    public IReadOnlyList<IModalChildComponent> Components => Interaction.Data.Components;
 }

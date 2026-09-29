@@ -1,8 +1,7 @@
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using NetCord.JsonConverters;
 using NetCord.JsonModels;
 using NetCord.Rest.JsonModels;
 
@@ -21,42 +20,9 @@ public interface IJsonGuild
         {
             var readerCopy = reader;
 
-            while (true)
-            {
-                if (!readerCopy.Read())
-                    ThrowFailedToReadNextToken();
-
-                var tokenType = readerCopy.TokenType;
-
-                if (tokenType is JsonTokenType.PropertyName)
-                {
-                    if (readerCopy.ValueTextEquals("unavailable"u8))
-                    {
-                        if (!readerCopy.Read())
-                            ThrowFailedToReadNextToken();
-
-                        var unavailable = readerCopy.GetBoolean();
-
-                        if (unavailable)
-                            return JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonUnavailableGuild);
-
-                        break;
-                    }
-                    else
-                        readerCopy.Skip();
-                }
-                else if (tokenType is JsonTokenType.EndObject)
-                    break;
-            }
-
-            return JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonGuild);
-
-            [DoesNotReturn]
-            [StackTraceHidden]
-            static void ThrowFailedToReadNextToken()
-            {
-                throw new JsonException("Failed to read the next JSON token.");
-            }
+            return JsonConverterHelper.TrySkipToProperty(ref readerCopy, "unavailable"u8) && readerCopy.GetBoolean()
+                ? JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonUnavailableGuild)
+                : JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonGuild);
         }
 
         public override void Write(Utf8JsonWriter writer, IJsonGuild value, JsonSerializerOptions options)

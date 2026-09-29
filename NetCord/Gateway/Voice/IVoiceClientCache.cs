@@ -2,7 +2,7 @@ namespace NetCord.Gateway.Voice;
 
 public interface IVoiceClientCache : IDictionaryProvider, IDisposable
 {
-    public uint Ssrc { get; }
+    public uint? Ssrc { get; }
     public IReadOnlySet<ulong> Users { get; }
     public IReadOnlyDictionary<ulong, uint> UserSsrcs { get; }
     public IReadOnlyDictionary<uint, ulong> SsrcUsers { get; }

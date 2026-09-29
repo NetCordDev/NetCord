@@ -37,10 +37,10 @@ public class ModalInteractionData : ComponentInteractionData
         else
             ResolvedData = resolvedData = new(jsonResolvedData, guildId, client);
 
-        Components = jsonModel.Components!.Select(c => IModalComponent.CreateFromJson(c, resolvedData)).ToArray();
+        Components = jsonModel.Components!.Select(c => IModalChildComponent.CreateFromJson(c, resolvedData)).ToArray();
     }
 
-    public IReadOnlyList<IModalComponent> Components { get; }
+    public IReadOnlyList<IModalChildComponent> Components { get; }
 
     public InteractionResolvedData? ResolvedData { get; }
 }

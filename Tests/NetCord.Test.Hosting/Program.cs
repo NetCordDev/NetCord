@@ -214,9 +214,9 @@ host.AddSlashCommand("file-upload", "File Upload!", () =>
 
 host.AddComponentInteraction<ModalInteractionContext>("file upload", async (HttpClient client, ModalInteractionContext context) =>
 {
-    var attachments = context.Components.OfType<Label>()
+    var attachments = context.Components.OfType<LabelComponent>()
                                         .Select(l => l.Component)
-                                        .OfType<FileUpload>()
+                                        .OfType<FileUploadComponent>()
                                         .SelectMany(u => u.Attachments)
                                         .ToArray();
 

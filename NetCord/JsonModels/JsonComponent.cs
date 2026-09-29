@@ -3,104 +3,61 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using NetCord.JsonConverters;
+
 namespace NetCord.JsonModels;
 
 [JsonConverter(typeof(JsonComponentConverter))]
 public class JsonComponent
 {
     [JsonPropertyName("type")]
-    public ComponentType Type { get; set; }
+    public required ComponentType Type { get; set; }
 
     [JsonPropertyName("id")]
-    public int Id { get; set; }
+    public required int Id { get; set; }
 
     public class JsonComponentConverter : JsonConverter<JsonComponent>
     {
-        internal struct JsonComponentInternal
-        {
-            [JsonPropertyName("type")]
-            public ComponentType Type { get; set; }
-
-            [JsonPropertyName("id")]
-            public int Id { get; set; }
-        }
+        internal class JsonUnknownComponent : JsonComponent;
 
         public override JsonComponent? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var readerCopy = reader;
 
-            while (true)
-            {
-                if (!readerCopy.Read())
-                    ThrowFailedToReadNextToken();
+            if (!JsonConverterHelper.TrySkipToProperty(ref readerCopy, "type"u8))
+                ThrowMissingTypeProperty();
 
-                if (readerCopy.TokenType is JsonTokenType.PropertyName)
-                {
-                    if (readerCopy.ValueTextEquals("type"u8))
-                        break;
-                    else
-                    {
-                        readerCopy.Skip();
-                        continue;
-                    }
-                }
-
-                if (readerCopy.TokenType is JsonTokenType.EndObject)
-                {
-                    ThrowCouldNotFindTypeProperty();
-
-                    [DoesNotReturn]
-                    [StackTraceHidden]
-                    static void ThrowCouldNotFindTypeProperty()
-                    {
-                        throw new JsonException("Could not find a 'type' property.");
-                    }
-                }
-            }
-
-            if (!readerCopy.Read())
-                ThrowFailedToReadNextToken();
-
-            var type = (ComponentType)readerCopy.GetInt32();
-
-            return type switch
+            return (ComponentType)readerCopy.GetInt32() switch
             {
                 ComponentType.ActionRow => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonActionRowComponent),
                 ComponentType.Button => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonButtonComponent),
-                ComponentType.StringMenu => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonStringMenuComponent),
+                ComponentType.StringSelect => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonStringSelectComponent),
                 ComponentType.TextInput => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonTextInputComponent),
-                ComponentType.UserMenu => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonUserMenuComponent),
-                ComponentType.RoleMenu => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonRoleMenuComponent),
-                ComponentType.MentionableMenu => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonMentionableMenuComponent),
-                ComponentType.ChannelMenu => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonChannelMenuComponent),
+                ComponentType.UserSelect => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonUserSelectComponent),
+                ComponentType.RoleSelect => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonRoleSelectComponent),
+                ComponentType.MentionableSelect => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonMentionableSelectComponent),
+                ComponentType.ChannelSelect => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonChannelSelectComponent),
                 ComponentType.Section => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentSectionComponent),
                 ComponentType.TextDisplay => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonTextDisplayComponent),
                 ComponentType.Thumbnail => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonThumbnailComponent),
                 ComponentType.MediaGallery => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonMediaGalleryComponent),
-                ComponentType.File => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonFileDisplayComponent),
-                ComponentType.Separator => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentSeparatorComponent),
-                ComponentType.Container => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentContainerComponent),
+                ComponentType.File => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonFileComponent),
+                ComponentType.Separator => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonSeparatorComponent),
+                ComponentType.Container => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonContainerComponent),
                 ComponentType.Label => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonLabelComponent),
                 ComponentType.FileUpload => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonFileUploadComponent),
                 ComponentType.RadioGroup => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonRadioGroupComponent),
                 ComponentType.CheckboxGroup => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonCheckboxGroupComponent),
                 ComponentType.Checkbox => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonCheckboxComponent),
-                _ => DeserializeUnknown(ref reader),
+                _ => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonUnknownComponent),
             };
-
-            static JsonComponent DeserializeUnknown(ref Utf8JsonReader reader)
-            {
-                var component = JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentInternal);
-                return new()
-                {
-                    Type = component.Type,
-                    Id = component.Id,
-                };
-            }
 
             [DoesNotReturn]
             [StackTraceHidden]
-            static void ThrowFailedToReadNextToken() => throw new JsonException("Failed to read the next JSON token.");
+            static void ThrowMissingTypeProperty()
+            {
+                throw new JsonException("Missing property 'type'.");
+            }
         }
 
         public override void Write(Utf8JsonWriter writer, JsonComponent value, JsonSerializerOptions options)
@@ -113,13 +70,13 @@ public class JsonComponent
 public class JsonActionRowComponent : JsonComponent
 {
     [JsonPropertyName("components")]
-    public JsonComponent[] Components { get; set; }
+    public required JsonComponent[] Components { get; set; }
 }
 
 public class JsonButtonComponent : JsonComponent
 {
     [JsonPropertyName("style")]
-    public ButtonStyle Style { get; set; }
+    public required ButtonStyle Style { get; set; }
 
     [JsonPropertyName("label")]
     public string? Label { get; set; }
@@ -140,10 +97,10 @@ public class JsonButtonComponent : JsonComponent
     public bool? Disabled { get; set; }
 }
 
-public class JsonMenuComponent : JsonComponent
+public class JsonSelectComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public required string CustomId { get; set; }
 
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; set; }
@@ -161,46 +118,55 @@ public class JsonMenuComponent : JsonComponent
     public bool? Disabled { get; set; }
 }
 
-public class JsonStringMenuComponent : JsonMenuComponent
+public class JsonStringSelectComponent : JsonSelectComponent
 {
     [JsonPropertyName("options")]
-    public JsonStringMenuSelectOption[]? Options { get; set; }
-
-    [JsonPropertyName("values")]
-    public string[]? SelectedValues { get; set; }
+    public required JsonStringSelectOption[] Options { get; set; }
 }
 
 public class JsonTextInputComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public required string CustomId { get; set; }
+
+    [JsonPropertyName("style")]
+    public required TextInputStyle Style { get; set; }
+
+    [JsonPropertyName("min_length")]
+    public int? MinLength { get; set; }
+
+    [JsonPropertyName("max_length")]
+    public int? MaxLength { get; set; }
+
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
 
     [JsonPropertyName("value")]
-    public string Value { get; set; }
+    public string? Value { get; set; }
+
+    [JsonPropertyName("placeholder")]
+    public string? Placeholder { get; set; }
 }
 
-public abstract class JsonEntityMenuComponent : JsonMenuComponent
+public abstract class JsonEntitySelectComponent : JsonSelectComponent
 {
     [JsonPropertyName("default_values")]
-    public JsonEntityMenuDefaultValue[]? DefaultValues { get; set; }
-
-    [JsonPropertyName("values")]
-    public ulong[]? SelectedValues { get; set; }
+    public JsonEntitySelectDefaultValue[]? DefaultValues { get; set; }
 }
 
-public class JsonUserMenuComponent : JsonEntityMenuComponent
+public class JsonUserSelectComponent : JsonEntitySelectComponent
 {
 }
 
-public class JsonRoleMenuComponent : JsonEntityMenuComponent
+public class JsonRoleSelectComponent : JsonEntitySelectComponent
 {
 }
 
-public class JsonMentionableMenuComponent : JsonEntityMenuComponent
+public class JsonMentionableSelectComponent : JsonEntitySelectComponent
 {
 }
 
-public class JsonChannelMenuComponent : JsonEntityMenuComponent
+public class JsonChannelSelectComponent : JsonEntitySelectComponent
 {
     [JsonPropertyName("channel_types")]
     public ChannelType[]? ChannelTypes { get; set; }
@@ -209,40 +175,22 @@ public class JsonChannelMenuComponent : JsonEntityMenuComponent
 public class JsonComponentSectionComponent : JsonComponent
 {
     [JsonPropertyName("components")]
-    public JsonComponent[] Components { get; set; }
+    public required JsonComponent[] Components { get; set; }
 
     [JsonPropertyName("accessory")]
-    public JsonComponent Accessory { get; set; }
-}
-
-public class JsonThumbnailComponent : JsonComponent
-{
-    [JsonPropertyName("media")]
-    public JsonComponentMedia Media { get; set; }
-
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
-
-    [JsonPropertyName("spoiler")]
-    public bool? Spoiler { get; set; }
+    public required JsonComponent Accessory { get; set; }
 }
 
 public class JsonTextDisplayComponent : JsonComponent
 {
     [JsonPropertyName("content")]
-    public string? Content { get; set; }
+    public required string Content { get; set; }
 }
 
-public class JsonMediaGalleryComponent : JsonComponent
-{
-    [JsonPropertyName("items")]
-    public JsonMediaGalleryItem[] Items { get; set; }
-}
-
-public class JsonMediaGalleryItem
+public class JsonThumbnailComponent : JsonComponent
 {
     [JsonPropertyName("media")]
-    public JsonComponentMedia Media { get; set; }
+    public required JsonComponentMedia Media { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -251,10 +199,28 @@ public class JsonMediaGalleryItem
     public bool? Spoiler { get; set; }
 }
 
-public class JsonFileDisplayComponent : JsonComponent
+public class JsonMediaGalleryComponent : JsonComponent
+{
+    [JsonPropertyName("items")]
+    public required JsonMediaGalleryItem[] Items { get; set; }
+}
+
+public class JsonMediaGalleryItem
+{
+    [JsonPropertyName("media")]
+    public required JsonComponentMedia Media { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("spoiler")]
+    public bool? Spoiler { get; set; }
+}
+
+public class JsonFileComponent : JsonComponent
 {
     [JsonPropertyName("file")]
-    public JsonComponentMedia File { get; set; }
+    public required JsonComponentMedia File { get; set; }
 
     [JsonPropertyName("spoiler")]
     public bool? Spoiler { get; set; }
@@ -266,19 +232,19 @@ public class JsonFileDisplayComponent : JsonComponent
     public int? Size { get; set; }
 }
 
-public class JsonComponentSeparatorComponent : JsonComponent
+public class JsonSeparatorComponent : JsonComponent
 {
     [JsonPropertyName("divider")]
     public bool? Divider { get; set; }
 
     [JsonPropertyName("spacing")]
-    public ComponentSeparatorSpacingSize? Spacing { get; set; }
+    public SeparatorSpacingSize? Spacing { get; set; }
 }
 
-public class JsonComponentContainerComponent : JsonComponent
+public class JsonContainerComponent : JsonComponent
 {
     [JsonPropertyName("components")]
-    public JsonComponent[] Components { get; set; }
+    public required JsonComponent[] Components { get; set; }
 
     [JsonPropertyName("accent_color")]
     public Color? AccentColor { get; set; }
@@ -289,42 +255,99 @@ public class JsonComponentContainerComponent : JsonComponent
 
 public class JsonLabelComponent : JsonComponent
 {
+    [JsonPropertyName("label")]
+    public required string Label { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
     [JsonPropertyName("component")]
-    public JsonComponent Component { get; set; }
+    public required JsonComponent Component { get; set; }
 }
 
 public class JsonFileUploadComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public required string CustomId { get; set; }
 
-    [JsonPropertyName("values")]
-    public ulong[] Values { get; set; }
+    [JsonPropertyName("min_values")]
+    public int? MinValues { get; set; }
+
+    [JsonPropertyName("max_values")]
+    public int? MaxValues { get; set; }
+
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
+
+    [JsonPropertyName("file_types")]
+    public string[]? FileTypes { get; set; }
 }
 
 public class JsonRadioGroupComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public required string CustomId { get; set; }
 
+    [JsonPropertyName("options")]
+    public required JsonRadioGroupOption[] Options { get; set; }
+
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
+}
+
+public class JsonRadioGroupOption
+{
     [JsonPropertyName("value")]
-    public string? SelectedValue { get; set; }
+    public required string Value { get; set; }
+
+    [JsonPropertyName("label")]
+    public required string Label { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("default")]
+    public bool? Default { get; set; }
 }
 
 public class JsonCheckboxGroupComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public required string CustomId { get; set; }
 
-    [JsonPropertyName("values")]
-    public string[] CheckedValues { get; set; }
+    [JsonPropertyName("options")]
+    public required JsonCheckboxGroupOption[] Options { get; set; }
+
+    [JsonPropertyName("min_values")]
+    public int? MinValues { get; set; }
+
+    [JsonPropertyName("max_values")]
+    public int? MaxValues { get; set; }
+
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
+}
+
+public class JsonCheckboxGroupOption
+{
+    [JsonPropertyName("value")]
+    public required string Value { get; set; }
+
+    [JsonPropertyName("label")]
+    public required string Label { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("default")]
+    public bool? Default { get; set; }
 }
 
 public class JsonCheckboxComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public required string CustomId { get; set; }
 
-    [JsonPropertyName("value")]
-    public bool Checked { get; set; }
+    [JsonPropertyName("default")]
+    public bool? Default { get; set; }
 }

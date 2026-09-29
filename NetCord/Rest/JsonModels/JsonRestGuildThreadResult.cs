@@ -7,8 +7,8 @@ namespace NetCord.Rest.JsonModels;
 internal class JsonRestGuildThreadResult
 {
     [JsonPropertyName("threads")]
-    public JsonChannel[] Threads { get; set; }
+    public required JsonChannel[] Threads { get; set; }
 
     [JsonPropertyName("members")]
-    public JsonThreadUser[] Users { get; set; }
+    public required JsonThreadUser[] Users { get; set; }
 }

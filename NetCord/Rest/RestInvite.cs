@@ -1,6 +1,17 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public partial class RestInvite(JsonModels.JsonRestInvite jsonModel, RestClient client) : IInvite
+public class RestInviteChannel(JsonRestInviteChannel jsonModel) : Entity
+{
+    public override ulong Id { get; } = jsonModel.Id;
+
+    public string Name { get; } = jsonModel.Name;
+
+    public ChannelType Type { get; } = jsonModel.Type;
+}
+
+public partial class RestInvite(JsonRestInvite jsonModel, RestClient client) : IInvite
 {
     public InviteType Type { get; } = jsonModel.Type;
 
@@ -8,7 +19,7 @@ public partial class RestInvite(JsonModels.JsonRestInvite jsonModel, RestClient 
 
     public PartialGuild? Guild { get; } = jsonModel.Guild is { } guild ? new(guild, client) : null;
 
-    public Channel? Channel { get; } = jsonModel.Channel is { } channel ? Channel.CreateFromJson(channel, client) : null;
+    public RestInviteChannel? Channel { get; } = jsonModel.Channel is { } channel ? new(channel) : null;
 
     public User? Inviter { get; } = jsonModel.Inviter is { } inviter ? new(inviter, client) : null;
 

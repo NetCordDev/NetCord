@@ -9,6 +9,6 @@ public class ModalInteractions : ComponentInteractionModule<ModalInteractionCont
     [ComponentInteraction("wzium")]
     public Task WziumAsync(UserId user)
     {
-        return RespondAsync(InteractionCallback.Message($"{user} got wziummed with reason: {((TextInput)((Label)Context.Components[0]).Component).Value}"));
+        return RespondAsync(InteractionCallback.Message($"{user} got wziummed with reason: {((TextInputComponent)((LabelComponent)Context.Components[0]).Component).Value}"));
     }
 }

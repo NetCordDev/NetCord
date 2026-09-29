@@ -27,7 +27,7 @@ host.AddComponentInteraction<UserMenuInteractionContext>("user", (UserMenuIntera
 host.AddComponentInteraction<RoleMenuInteractionContext>("role", (RoleMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
 host.AddComponentInteraction<MentionableMenuInteractionContext>("mentionable", (MentionableMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
 host.AddComponentInteraction<ChannelMenuInteractionContext>("channel", (ChannelMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
-host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => ((TextInput)context.Components[0]).Value);
+host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => ((TextInputComponent)context.Components[0]).Value);
 
 // Add component interactions from modules
 host.AddModules(typeof(Program).Assembly);

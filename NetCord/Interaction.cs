@@ -80,11 +80,11 @@ public abstract partial class Interaction : ClientEntity, IInteraction
             InteractionType.MessageComponent => jsonModel.Data!.ComponentType.GetValueOrDefault() switch
             {
                 ComponentType.Button => new ButtonInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.UserMenu => new UserMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.RoleMenu => new RoleMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.MentionableMenu => new MentionableMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.ChannelMenu => new ChannelMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.StringSelect => new StringMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.UserSelect => new UserMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.RoleSelect => new RoleMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.MentionableSelect => new MentionableMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.ChannelSelect => new ChannelMenuInteraction(jsonModel, guild, sendResponseAsync, client),
                 _ => throw new InvalidOperationException(),
             },
             InteractionType.Autocomplete => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
