@@ -86,8 +86,8 @@ public class Guild : RestGuild, ICloneable
     private static IReadOnlyDictionary<ulong, GuildUser> CreateUsers(JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider)
     {
         var guildId = jsonModel.Id;
-        return dictionaryProvider.CreateDictionary(jsonModel.Users.DistinctBy(u => u.User.Id),
-                                                   u => u.User.Id,
+        return dictionaryProvider.CreateDictionary(jsonModel.Users.DistinctBy(u => u.User!.Id),
+                                                   u => u.User!.Id,
                                                    u => new GuildUser(u, guildId, client));
     }
 
