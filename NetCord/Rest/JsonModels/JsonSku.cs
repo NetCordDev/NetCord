@@ -7,17 +7,17 @@ namespace NetCord.Rest.JsonModels;
 public class JsonSku : JsonEntity
 {
     [JsonPropertyName("type")]
-    public SkuType Type { get; set; }
+    public required SkuType Type { get; set; }
 
     [JsonPropertyName("application_id")]
-    public ulong ApplicationId { get; set; }
+    public required ulong ApplicationId { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("slug")]
-    public string Slug { get; set; }
+    public required string Slug { get; set; }
 
     [JsonPropertyName("flags")]
-    public SkuFlags Flags { get; set; }
+    public required SkuFlags Flags { get; set; }
 }

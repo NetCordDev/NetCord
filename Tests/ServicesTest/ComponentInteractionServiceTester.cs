@@ -30,6 +30,8 @@ public class ComponentInteractionServiceTester : ServiceTester
             User = new()
             {
                 Id = 123,
+                Discriminator = 0,
+                Username = "User",
             },
             Channel = new()
             {
@@ -42,6 +44,8 @@ public class ComponentInteractionServiceTester : ServiceTester
                 Author = new()
                 {
                     Id = 123,
+                    Discriminator = 0,
+                    Username = "User",
                 },
                 MentionedUsers = [],
                 Attachments = [],

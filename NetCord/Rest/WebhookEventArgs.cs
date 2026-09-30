@@ -14,7 +14,7 @@ public abstract class WebhookEventArgs(JsonWebhookEventArgs jsonModel) : IWebhoo
 
     public DateTimeOffset Timestamp { get; } = jsonModel.Event.Timestamp;
 
-    public static WebhookEventArgs CreateFromJson(JsonWebhookEventArgs jsonModel, RestClient client)
+    public static WebhookEventArgs Create(JsonWebhookEventArgs jsonModel, RestClient client)
     {
         return jsonModel.Event!.Type switch
         {

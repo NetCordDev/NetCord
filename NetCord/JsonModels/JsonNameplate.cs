@@ -5,14 +5,14 @@ namespace NetCord.JsonModels;
 public class JsonNameplate
 {
     [JsonPropertyName("sku_id")]
-    public ulong SkuId { get; set; }
+    public required ulong SkuId { get; set; }
 
     [JsonPropertyName("asset")]
-    public string Asset { get; set; }
+    public required string Asset { get; set; }
 
     [JsonPropertyName("label")]
-    public string Label { get; set; }
+    public required string Label { get; set; }
 
     [JsonPropertyName("palette")]
-    public string Palette { get; set; }
+    public required string Palette { get; set; }
 }

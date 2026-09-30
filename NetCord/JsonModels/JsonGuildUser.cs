@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public class JsonGuildUser
 {
     [JsonPropertyName("user")]
-    public JsonUser User { get; set; }
+    public JsonUser? User { get; set; }
 
     [JsonPropertyName("nick")]
     public string? Nickname { get; set; }
@@ -17,7 +17,7 @@ public class JsonGuildUser
     public string? GuildBannerHash { get; set; }
 
     [JsonPropertyName("roles")]
-    public ulong[] RoleIds { get; set; }
+    public required ulong[] RoleIds { get; set; }
 
     [JsonPropertyName("joined_at")]
     public DateTimeOffset? JoinedAt { get; set; }
@@ -26,13 +26,13 @@ public class JsonGuildUser
     public DateTimeOffset? GuildBoostStart { get; set; }
 
     [JsonPropertyName("deaf")]
-    public bool Deafened { get; set; }
+    public required bool Deafened { get; set; }
 
     [JsonPropertyName("mute")]
-    public bool Muted { get; set; }
+    public required bool Muted { get; set; }
 
     [JsonPropertyName("flags")]
-    public GuildUserFlags GuildFlags { get; set; }
+    public required GuildUserFlags GuildFlags { get; set; }
 
     [JsonPropertyName("pending")]
     public bool? IsPending { get; set; }
@@ -45,4 +45,7 @@ public class JsonGuildUser
 
     [JsonPropertyName("avatar_decoration_data")]
     public JsonAvatarDecorationData? GuildAvatarDecorationData { get; set; }
+
+    [JsonPropertyName("collectibles")]
+    public JsonCollectibles? GuildCollectibles { get; set; }
 }

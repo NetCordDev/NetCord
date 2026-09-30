@@ -59,7 +59,12 @@ public class GuildUserComparison
             User = new()
             {
                 Id = id,
+                Discriminator = 0,
+                Username = "User",
             },
+            GuildFlags = default,
+            Muted = false,
+            Deafened = false,
             RoleIds = roleIds,
         }, null!);
     }

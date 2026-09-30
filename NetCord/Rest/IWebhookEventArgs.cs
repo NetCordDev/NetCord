@@ -13,7 +13,7 @@ public interface IWebhookEventArgs
         return jsonModel.Type switch
         {
             WebhookEventType.Ping => new PingWebhookEventArgs(jsonModel),
-            WebhookEventType.Event => WebhookEventArgs.CreateFromJson(jsonModel, client),
+            WebhookEventType.Event => WebhookEventArgs.Create(jsonModel, client),
             _ => throw new InvalidOperationException($"Unknown webhook event type: {jsonModel.Type}."),
         };
     }

@@ -27,6 +27,8 @@ public sealed class CommandServiceTesterSession
             Author = new()
             {
                 Id = 123,
+                Discriminator = 0,
+                Username = "User",
             },
             MentionedUsers = [],
             Attachments = [],

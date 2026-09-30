@@ -44,6 +44,7 @@ public sealed class HttpInteractionHandlerTester : IHandlerTester
                 {
                     Id = 1234,
                     Username = "test",
+                    Discriminator = 0,
                 },
                 Channel = new()
                 {

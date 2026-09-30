@@ -31,7 +31,7 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
     {
         var client = services.GetRequiredService<RestClient>();
 
-        var args = WebhookEventArgs.CreateFromJson(new JsonWebhookEventArgs
+        var args = WebhookEventArgs.Create(new JsonWebhookEventArgs
         {
             Type = WebhookEventType.Event,
             Event = new()
@@ -43,9 +43,13 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
                     {
                         Id = 1234,
                         Username = "test",
+                        Discriminator = 0,
                     },
-                })
-            }
+                }),
+                Timestamp = default,
+            },
+            ApplicationId = 1234,
+            Version = 1,
         }, client);
 
         return invoker.InvokeAsync(args);
@@ -57,7 +61,7 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
 
         var client = services.GetRequiredService<RestClient>();
 
-        var authorizedArgs = WebhookEventArgs.CreateFromJson(new JsonWebhookEventArgs
+        var authorizedArgs = WebhookEventArgs.Create(new JsonWebhookEventArgs
         {
             Type = WebhookEventType.Event,
             Event = new()
@@ -69,10 +73,14 @@ public sealed class WebhookEventHandlerTester : ISingleClassMultipleHandlersSupp
                     {
                         Id = 1234,
                         Username = "test",
+                        Discriminator = 0,
                     },
                     Scopes = [],
                 }),
-            }
+                Timestamp = default,
+            },
+            ApplicationId = 1234,
+            Version = 1,
         }, client);
 
         return invoker.InvokeAsync(authorizedArgs);

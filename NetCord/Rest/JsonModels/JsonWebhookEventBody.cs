@@ -6,10 +6,10 @@ namespace NetCord.Rest.JsonModels;
 public class JsonWebhookEventBody
 {
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public required string Type { get; set; }
 
     [JsonPropertyName("timestamp")]
-    public DateTimeOffset Timestamp { get; set; }
+    public required DateTimeOffset Timestamp { get; set; }
 
     [JsonPropertyName("data")]
     public JsonElement Data { get; set; }
