@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public class JsonGuildScheduledEvent : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
@@ -14,31 +14,31 @@ public class JsonGuildScheduledEvent : JsonEntity
     public ulong? CreatorId { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
     [JsonPropertyName("scheduled_start_time")]
-    public DateTimeOffset ScheduledStartTime { get; set; }
+    public required DateTimeOffset ScheduledStartTime { get; set; }
 
     [JsonPropertyName("scheduled_end_time")]
     public DateTimeOffset? ScheduledEndTime { get; set; }
 
     [JsonPropertyName("privacy_level")]
-    public GuildScheduledEventPrivacyLevel PrivacyLevel { get; set; }
+    public required GuildScheduledEventPrivacyLevel PrivacyLevel { get; set; }
 
     [JsonPropertyName("status")]
-    public GuildScheduledEventStatus Status { get; set; }
+    public required GuildScheduledEventStatus Status { get; set; }
 
     [JsonPropertyName("entity_type")]
-    public GuildScheduledEventEntityType EntityType { get; set; }
+    public required GuildScheduledEventEntityType EntityType { get; set; }
 
     [JsonPropertyName("entity_id")]
     public ulong? EntityId { get; set; }
 
     [JsonPropertyName("entity_metadata")]
-    public JsonGuildScheduledEventMetadata? EntityMetadata { get; set; }
+    public JsonGuildScheduledEventEntityMetadata? EntityMetadata { get; set; }
 
     [JsonPropertyName("creator")]
     public JsonUser? Creator { get; set; }
