@@ -15,16 +15,17 @@ public class ComponentInteractionServiceTester : ServiceTester
 
     public override bool SupportsUser => false;
 
-    private ComponentInteraction CreateInteraction(string customId, InteractionType interactionType)
+    private MessageComponentInteraction CreateMessageComponentInteraction(string customId)
     {
-        JsonInteraction jsonModel = new()
+        JsonMessageComponentInteraction jsonModel = new()
         {
             Id = 123456,
-            Type = interactionType,
-            Data = new()
+            Type = InteractionType.MessageComponent,
+            Data = new JsonButtonInteractionData()
             {
-                ComponentType = ComponentType.Button,
                 CustomId = customId,
+                Id = 123456,
+                Type = ComponentType.Button,
             },
             User = new()
             {
@@ -46,9 +47,15 @@ public class ComponentInteractionServiceTester : ServiceTester
                 Attachments = [],
                 Embeds = [],
             },
+            AttachmentSizeLimit = 10,
+            AuthorizingIntegrationOwners = new Dictionary<ApplicationIntegrationType, ulong>(),
+            AppPermissions = default,
+            Version = 1,
+            Token = "token",
+            ApplicationId = 123456,
         };
 
-        return (ComponentInteraction)Interaction.CreateFromJson(jsonModel, null, (_, _, _, _, _) => Task.FromResult<InteractionCallbackResponse?>(null), _client.Rest);
+        return (MessageComponentInteraction)Interaction.CreateFromJson(jsonModel, null, (_, _, _, _, _) => Task.FromResult<InteractionCallbackResponse?>(null), _client.Rest);
     }
 
     private async ValueTask ExecuteAsyncCore(string customIdBase, string? customId, string[] customIdArguments, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
@@ -77,8 +84,8 @@ public class ComponentInteractionServiceTester : ServiceTester
             customId = customIdBuilder.ToString();
         }
 
-        var interaction = CreateInteraction(customId,
-                                            InteractionType.MessageComponent);
+        var interaction = CreateMessageComponentInteraction(customId);
+
         ComponentInteractionContext context = new(interaction, _client);
         var result = await service.ExecuteAsync(context, services).ConfigureAwait(false);
 

@@ -11,18 +11,18 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddDiscordGateway()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
-    .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
-    .AddComponentInteractions<UserMenuInteraction, UserMenuInteractionContext>()
-    .AddComponentInteractions<RoleMenuInteraction, RoleMenuInteractionContext>()
-    .AddComponentInteractions<MentionableMenuInteraction, MentionableMenuInteractionContext>()
-    .AddComponentInteractions<ChannelMenuInteraction, ChannelMenuInteractionContext>()
-    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>();
+    .AddComponentInteractions<StringSelectInteraction, StringMenuInteractionContext>()
+    .AddComponentInteractions<UserSelectInteraction, UserMenuInteractionContext>()
+    .AddComponentInteractions<RoleSelectInteraction, RoleMenuInteractionContext>()
+    .AddComponentInteractions<MentionableSelectInteraction, MentionableMenuInteractionContext>()
+    .AddComponentInteractions<ChannelSelectInteraction, ChannelMenuInteractionContext>()
+    .AddComponentInteractions<ModalSubmitInteraction, ModalInteractionContext>();
 
 var host = builder.Build();
 
 // Add component interactions using minimal APIs
 host.AddComponentInteraction<ButtonInteractionContext>("ping", () => "Pong!");
-host.AddComponentInteraction<StringMenuInteractionContext>("string", (StringMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
+host.AddComponentInteraction<StringMenuInteractionContext>("string", (StringMenuInteractionContext context) => string.Join("\n", context.Values));
 host.AddComponentInteraction<UserMenuInteractionContext>("user", (UserMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
 host.AddComponentInteraction<RoleMenuInteractionContext>("role", (RoleMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
 host.AddComponentInteraction<MentionableMenuInteractionContext>("mentionable", (MentionableMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
