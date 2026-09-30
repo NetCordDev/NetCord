@@ -67,7 +67,7 @@ public class JsonInteraction : JsonEntity
     public required Permissions AppPermissions { get; set; }
 
     [JsonPropertyName("locale")]
-    public string? UserLocale { get; set; }
+    public string? Locale { get; set; }
 
     [JsonPropertyName("guild_locale")]
     public string? GuildLocale { get; set; }
@@ -76,7 +76,7 @@ public class JsonInteraction : JsonEntity
     public required JsonEntitlement[] Entitlements { get; set; }
 
     [JsonPropertyName("authorizing_integration_owners")]
-    public required IReadOnlyDictionary<ApplicationIntegrationType, ulong>? AuthorizingIntegrationOwners { get; set; }
+    public required IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners { get; set; }
 
     [JsonPropertyName("context")]
     public InteractionContextType? Context { get; set; }

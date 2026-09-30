@@ -1405,7 +1405,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "INTERACTION_CREATE":
                 {
-                    await InvokeEventAsync(_interactionCreate, (Data: data, Client: this), static data => Interaction.CreateFromJson(data.Data.ToObject(Serialization.Default.JsonInteraction), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_interactionCreate, (Data: data, Client: this), static data => Interaction.Create(data.Data.ToObject(Serialization.Default.JsonInteraction), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
                 }
                 break;
             case "SUBSCRIPTION_CREATE":

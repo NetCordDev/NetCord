@@ -28,7 +28,7 @@ public sealed class HttpInteractionHandlerTester : IHandlerTester
     {
         var client = services.GetRequiredService<RestClient>();
 
-        var interaction = Interaction.CreateFromJson(
+        var interaction = Interaction.Create(
             new JsonApplicationCommandInteraction()
             {
                 Id = 123456,

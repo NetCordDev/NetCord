@@ -55,7 +55,7 @@ public class ComponentInteractionServiceTester : ServiceTester
             ApplicationId = 123456,
         };
 
-        return (MessageComponentInteraction)Interaction.CreateFromJson(jsonModel, null, (_, _, _, _, _) => Task.FromResult<InteractionCallbackResponse?>(null), _client.Rest);
+        return (MessageComponentInteraction)Interaction.Create(jsonModel, null, (_, _, _, _, _) => Task.FromResult<InteractionCallbackResponse?>(null), _client.Rest);
     }
 
     private async ValueTask ExecuteAsyncCore(string customIdBase, string? customId, string[] customIdArguments, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
