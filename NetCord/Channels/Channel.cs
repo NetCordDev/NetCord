@@ -34,6 +34,7 @@ public abstract partial class Channel(JsonChannel jsonModel, RestClient client) 
             ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, jsonChannel.GuildId.GetValueOrDefault(), client),
             ChannelType.ForumGuildChannel => new ForumGuildChannel(jsonChannel, jsonChannel.GuildId.GetValueOrDefault(), client),
             ChannelType.MediaForumGuildChannel => new MediaForumGuildChannel(jsonChannel, jsonChannel.GuildId.GetValueOrDefault(), client),
+            ChannelType.ApplicationGuildChannel => new ApplicationGuildChannel(jsonChannel, jsonChannel.GuildId.GetValueOrDefault(), client),
             _ => new UnknownChannel(jsonChannel, client),
         };
     }
