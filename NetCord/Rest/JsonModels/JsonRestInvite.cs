@@ -37,7 +37,7 @@ public class JsonRestInvite
     public JsonUser? TargetUser { get; set; }
 
     [JsonPropertyName("target_application")]
-    public JsonApplication? TargetApplication { get; set; }
+    public JsonPartialApplication? TargetApplication { get; set; }
 
     [JsonPropertyName("approximate_presence_count")]
     public int? ApproximatePresenceCount { get; set; }

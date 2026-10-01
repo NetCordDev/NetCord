@@ -27,7 +27,7 @@ public partial class RestInvite(JsonRestInvite jsonModel, RestClient client) : I
 
     public User? TargetUser { get; } = jsonModel.TargetUser is { } targetUser ? new(targetUser, client) : null;
 
-    public Application? TargetApplication { get; } = jsonModel.TargetApplication is { } targetApplication ? new(targetApplication, client) : null;
+    public PartialApplication? TargetApplication { get; } = jsonModel.TargetApplication is { } targetApplication ? new(targetApplication, client) : null;
 
     public int? ApproximatePresenceCount { get; } = jsonModel.ApproximatePresenceCount;
 
