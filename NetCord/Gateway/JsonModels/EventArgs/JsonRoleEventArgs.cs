@@ -7,8 +7,8 @@ namespace NetCord.Gateway.JsonModels.EventArgs;
 internal class JsonRoleEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("role")]
-    public JsonRole Role { get; set; }
+    public required JsonRole Role { get; set; }
 }
