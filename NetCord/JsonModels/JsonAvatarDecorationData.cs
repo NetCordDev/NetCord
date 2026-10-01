@@ -5,8 +5,8 @@ namespace NetCord.JsonModels;
 public class JsonAvatarDecorationData
 {
     [JsonPropertyName("asset")]
-    public string Hash { get; set; }
+    public required string Hash { get; set; }
 
     [JsonPropertyName("sku_id")]
-    public ulong SkuId { get; set; }
+    public required ulong SkuId { get; set; }
 }
