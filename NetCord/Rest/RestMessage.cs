@@ -65,7 +65,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 #pragma warning disable CS0618 // Type or member is obsolete
         var interaction = jsonModel.Interaction;
         if (interaction is not null)
-            Interaction = new(interaction, client);
+            Interaction = new(interaction, jsonModel.GuildId, client);
 #pragma warning restore CS0618 // Type or member is obsolete
 
         var startedThread = jsonModel.StartedThread;

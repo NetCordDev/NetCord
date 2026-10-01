@@ -5,11 +5,14 @@ namespace NetCord.JsonModels;
 public class JsonMessageInteraction : JsonEntity
 {
     [JsonPropertyName("type")]
-    public InteractionType Type { get; set; }
+    public required InteractionType Type { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser User { get; set; }
+    public required JsonUser User { get; set; }
+
+    [JsonPropertyName("member")]
+    public JsonGuildUser? GuildUser { get; set; }
 }
