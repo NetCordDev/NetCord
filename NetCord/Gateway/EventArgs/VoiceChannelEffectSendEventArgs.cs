@@ -14,7 +14,7 @@ public class VoiceChannelEffectSendEventArgs : IJsonModel<JsonVoiceChannelEffect
 
         var emoji = jsonModel.Emoji;
         if (emoji is not null)
-            Emoji = Emoji.CreateFromJson(emoji, jsonModel.GuildId, client);
+            Emoji = Emoji.Create(emoji, jsonModel.GuildId, client);
     }
 
     public ulong ChannelId => _jsonModel.ChannelId;

@@ -37,7 +37,7 @@ public class UserActivity : IJsonModel<JsonModels.JsonUserActivity>
 
         var emoji = jsonModel.Emoji;
         if (emoji is not null)
-            Emoji = Emoji.CreateFromJson(emoji, guildId, client);
+            Emoji = Emoji.Create(emoji, guildId, client);
 
         var party = jsonModel.Party;
         if (party is not null)

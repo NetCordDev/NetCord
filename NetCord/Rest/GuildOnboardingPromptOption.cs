@@ -17,7 +17,7 @@ public class GuildOnboardingPromptOption(JsonModels.JsonGuildOnboardingPromptOpt
     /// <summary>
     /// Emoji of the option.
     /// </summary>
-    public Emoji? Emoji { get; } = jsonModel.Emoji is { } emoji ? Emoji.CreateFromJson(emoji, guildId, client) : null;
+    public Emoji? Emoji { get; } = jsonModel.Emoji is { } emoji ? Emoji.Create(emoji, guildId, client) : null;
 
     /// <summary>
     /// Title of the option.
