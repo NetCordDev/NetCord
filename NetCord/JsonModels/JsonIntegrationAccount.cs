@@ -5,8 +5,8 @@ namespace NetCord.JsonModels;
 public class JsonIntegrationAccount
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public required string Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 }
