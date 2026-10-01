@@ -317,4 +317,8 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonCheckboxComponentData))]
 [JsonSerializable(typeof(JsonUnknownComponentData))]
 [JsonSerializable(typeof(JsonUnknownComponentInteractionData))]
+[JsonSerializable(typeof(JsonMessageApplicationCommandInteractionMetadata))]
+[JsonSerializable(typeof(JsonMessageMessageComponentInteractionMetadata))]
+[JsonSerializable(typeof(JsonMessageModalSubmitInteractionMetadata))]
+[JsonSerializable(typeof(JsonMessageUnknownInteractionMetadata))]
 internal partial class Serialization : JsonSerializerContext;
