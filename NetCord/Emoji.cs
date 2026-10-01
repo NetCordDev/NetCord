@@ -6,7 +6,7 @@ namespace NetCord;
 /// <summary>
 /// Represents a base Discord emoji.
 /// </summary>
-public abstract class Emoji(JsonEmoji jsonModel)
+public abstract class Emoji(JsonEmoji jsonModel) : ISpanFormattable
 {
     /// <summary>
     /// The emoji's name.
@@ -20,6 +20,10 @@ public abstract class Emoji(JsonEmoji jsonModel)
 
     public abstract override string ToString();
 
+    public abstract string ToString(string? format, IFormatProvider? formatProvider);
+
+    public abstract bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider);
+
     public static Emoji Create(JsonEmoji jsonModel, ulong guildId, RestClient client)
     {
         return jsonModel.Id.HasValue
@@ -28,15 +32,31 @@ public abstract class Emoji(JsonEmoji jsonModel)
     }
 }
 
-public class StandardEmoji(JsonEmoji jsonModel) : Emoji(jsonModel)
+public sealed class StandardEmoji(JsonEmoji jsonModel) : Emoji(jsonModel)
 {
     public override string ToString() => Name;
+
+    public override string ToString(string? format, IFormatProvider? formatProvider) => Name;
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        var name = Name;
+
+        if (name.TryCopyTo(destination))
+        {
+            charsWritten = name.Length;
+            return true;
+        }
+
+        charsWritten = 0;
+        return false;
+    }
 }
 
 /// <summary>
 /// Represents a custom (user-uploaded) emoji.
 /// </summary>
-public abstract class CustomEmoji(JsonEmoji jsonModel, RestClient client) : Emoji(jsonModel), ISpanFormattable
+public abstract class CustomEmoji(JsonEmoji jsonModel, RestClient client) : Emoji(jsonModel)
 {
     /// <summary>
     /// The emoji's unique ID.
@@ -71,11 +91,11 @@ public abstract class CustomEmoji(JsonEmoji jsonModel, RestClient client) : Emoj
     /// </summary>
     public ImageUrl GetImageUrl(ImageFormat format) => ImageUrl.CustomEmoji(Id, format);
 
-    public override string ToString() => Animated.GetValueOrDefault() ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
+    public sealed override string ToString() => Animated.GetValueOrDefault() ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+    public sealed override string ToString(string? format, IFormatProvider? formatProvider) => ToString();
 
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
+    public sealed override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
     {
         var name = Name;
         if (Animated.GetValueOrDefault())
@@ -114,7 +134,7 @@ public abstract class CustomEmoji(JsonEmoji jsonModel, RestClient client) : Emoj
 /// <summary>
 /// Represents a custom application emoji.
 /// </summary>
-public partial class ApplicationEmoji(JsonEmoji jsonModel, ulong applicationId, RestClient client) : CustomEmoji(jsonModel, client)
+public sealed partial class ApplicationEmoji(JsonEmoji jsonModel, ulong applicationId, RestClient client) : CustomEmoji(jsonModel, client)
 {
     /// <summary>
     /// The ID corresponding to the emoji's parent application.
@@ -125,7 +145,7 @@ public partial class ApplicationEmoji(JsonEmoji jsonModel, ulong applicationId, 
 /// <summary>
 /// Represents a custom guild emoji.
 /// </summary>
-public partial class GuildEmoji(JsonEmoji jsonModel, ulong guildId, RestClient client) : CustomEmoji(jsonModel, client)
+public sealed partial class GuildEmoji(JsonEmoji jsonModel, ulong guildId, RestClient client) : CustomEmoji(jsonModel, client)
 {
     /// <summary>
     /// A list of roles allowed to use this emoji.

@@ -9,7 +9,7 @@ public partial class RestClient
         => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/emojis", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmojiArray).ConfigureAwait(false)).Select(e => new GuildEmoji(e, guildId, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id))]
+    [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id), ClientName = "client")]
     public async Task<GuildEmoji> GetGuildEmojiAsync(ulong guildId, ulong emojiId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/emojis/{emojiId}", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmoji).ConfigureAwait(false), guildId, this);
 
@@ -21,7 +21,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id))]
+    [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id), ClientName = "client")]
     public async Task<GuildEmoji> ModifyGuildEmojiAsync(ulong guildId, ulong emojiId, Action<GuildEmojiOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GuildEmojiOptions guildEmojiOptions = new();
@@ -31,7 +31,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id))]
+    [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id), ClientName = "client")]
     public Task DeleteGuildEmojiAsync(ulong guildId, ulong emojiId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/emojis/{emojiId}", null, new(guildId), properties, cancellationToken: cancellationToken);
 
@@ -40,7 +40,7 @@ public partial class RestClient
         => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationEmojisResult).ConfigureAwait(false)).Items.Select(e => new ApplicationEmoji(e, applicationId, this)).ToArray();
 
     [GenerateAlias([typeof(Application)], nameof(Application.Id))]
-    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]
+    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id), ClientName = "client")]
     public async Task<ApplicationEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis/{emojiId}", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmoji).ConfigureAwait(false), applicationId, this);
 
@@ -52,7 +52,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(Application)], nameof(Application.Id))]
-    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]
+    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id), ClientName = "client")]
     public async Task<ApplicationEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, Action<ApplicationEmojiOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         ApplicationEmojiOptions applicationEmojiOptions = new();
@@ -62,7 +62,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(Application)], nameof(Application.Id))]
-    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]
+    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id), ClientName = "client")]
     public Task DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/emojis/{emojiId}", null, null, properties, cancellationToken: cancellationToken);
 }
