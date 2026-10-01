@@ -7,8 +7,8 @@ namespace NetCord.Gateway.JsonModels.EventArgs;
 public class JsonGuildEmojisUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("emojis")]
-    public JsonEmoji[] Emojis { get; set; }
+    public required JsonEmoji[] Emojis { get; set; }
 }
