@@ -8,13 +8,13 @@ public class JsonSticker : JsonEntity
     public ulong? PackId { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public required string Description { get; set; }
 
     [JsonPropertyName("tags")]
-    public string Tags { get; set; }
+    public required string Tags { get; set; }
 
     //[JsonPropertyName("type")]
     //public StickerType Type { get; set; }
@@ -26,11 +26,11 @@ public class JsonSticker : JsonEntity
     public bool? Available { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser? Creator { get; set; }
+    public JsonUser? User { get; set; }
 
     [JsonPropertyName("sort_value")]
-    public int SortValue { get; set; }
+    public int? SortValue { get; set; }
 }
