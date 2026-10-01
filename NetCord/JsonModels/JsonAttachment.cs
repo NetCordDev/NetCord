@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public class JsonAttachment : JsonEntity
 {
     [JsonPropertyName("filename")]
-    public string FileName { get; set; }
+    public required string FileName { get; set; }
 
     [JsonPropertyName("title")]
     public string? Title { get; set; }
@@ -17,13 +17,13 @@ public class JsonAttachment : JsonEntity
     public string? ContentType { get; set; }
 
     [JsonPropertyName("size")]
-    public long Size { get; set; }
+    public required long Size { get; set; }
 
     [JsonPropertyName("url")]
-    public string Url { get; set; }
+    public required string Url { get; set; }
 
     [JsonPropertyName("proxy_url")]
-    public string ProxyUrl { get; set; }
+    public required string ProxyUrl { get; set; }
 
     [JsonPropertyName("height")]
     public int? Height { get; set; }
@@ -38,7 +38,7 @@ public class JsonAttachment : JsonEntity
     public int? PlaceholderVersion { get; set; }
 
     [JsonPropertyName("ephemeral")]
-    public bool Ephemeral { get; set; }
+    public bool? Ephemeral { get; set; }
 
     [JsonPropertyName("duration_secs")]
     public double? DurationSeconds { get; set; }
@@ -47,7 +47,7 @@ public class JsonAttachment : JsonEntity
     public byte[]? Waveform { get; set; }
 
     [JsonPropertyName("flags")]
-    public AttachmentFlags Flags { get; set; }
+    public AttachmentFlags? Flags { get; set; }
 
     [JsonPropertyName("clip_participants")]
     public JsonUser[]? ClipParticipants { get; set; }

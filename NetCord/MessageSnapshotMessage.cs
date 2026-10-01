@@ -23,7 +23,7 @@ public class MessageSnapshotMessage(JsonMessageSnapshotMessage jsonModel, ulong?
     /// <summary>
     /// A list of <see cref="Attachment"/> objects indexed by their IDs, containing any files attached in the message.
     /// </summary>
-    public IReadOnlyList<Attachment> Attachments { get; } = [.. jsonModel.Attachments.Select(a => Attachment.CreateFromJson(a, client))];
+    public IReadOnlyList<Attachment> Attachments { get; } = [.. jsonModel.Attachments.Select(a => Attachment.Create(a, client))];
 
     /// <summary>
     /// When the message was edited (or null if never).

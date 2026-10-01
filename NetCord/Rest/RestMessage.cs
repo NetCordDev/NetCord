@@ -32,7 +32,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         }).ToArray();
 
         MentionedChannels = jsonModel.MentionedChannels.SelectOrEmpty(c => new GuildChannelMention(c)).ToArray();
-        Attachments = jsonModel.Attachments!.Select(a => Attachment.CreateFromJson(a, client)).ToArray();
+        Attachments = jsonModel.Attachments!.Select(a => Attachment.Create(a, client)).ToArray();
         Embeds = jsonModel.Embeds!.Select(e => new Embed(e)).ToArray();
         Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r)).ToArray();
 
