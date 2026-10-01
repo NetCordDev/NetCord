@@ -5,5 +5,5 @@ namespace NetCord.JsonModels;
 public class JsonMessageSnapshot
 {
     [JsonPropertyName("message")]
-    public JsonMessageSnapshotMessage Message { get; set; }
+    public required JsonMessageSnapshotMessage Message { get; set; }
 }
