@@ -25,7 +25,7 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
             {
                 var channelId = jsonModel.ChannelId;
                 if (guild.Channels.TryGetValue(channelId, out var guildChannel))
-                    channel = (TextChannel)guildChannel;
+                    channel = guildChannel as TextChannel;
                 else if (guild.ActiveThreads.TryGetValue(channelId, out var thread))
                     channel = thread;
                 else

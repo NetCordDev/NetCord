@@ -32,6 +32,7 @@ public abstract partial class TextChannel(JsonChannel jsonModel, RestClient clie
             ChannelType.PrivateGuildThread => new PrivateGuildThread(jsonChannel, client),
             ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, jsonChannel.GuildId.GetValueOrDefault(), client),
             ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, jsonChannel.GuildId.GetValueOrDefault(), client),
+            ChannelType.ApplicationGuildChannel => new ApplicationGuildChannel(jsonChannel, jsonChannel.GuildId.GetValueOrDefault(), client),
             _ => new UnknownTextChannel(jsonChannel, client),
         };
     }
