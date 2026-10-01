@@ -69,4 +69,9 @@ public enum ChannelType
     /// Channels that can only contain threads, similar to a <see cref="ForumGuildChannel"/>, but still in active development.
     /// </summary>
     MediaForumGuildChannel = 16,
+
+    /// <summary>
+    /// A channel that acts as a primary interface for an application.
+    /// </summary>
+    ApplicationGuildChannel = 21,
 }

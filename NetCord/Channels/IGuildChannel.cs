@@ -38,6 +38,7 @@ public partial interface IGuildChannel : INamedChannel
             ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, guildId, client),
             ChannelType.ForumGuildChannel => new ForumGuildChannel(jsonChannel, guildId, client),
             ChannelType.MediaForumGuildChannel => new MediaForumGuildChannel(jsonChannel, guildId, client),
+            ChannelType.ApplicationGuildChannel => new ApplicationGuildChannel(jsonChannel, guildId, client),
             _ => new UnknownGuildChannel(jsonChannel, guildId, client),
         };
     }
