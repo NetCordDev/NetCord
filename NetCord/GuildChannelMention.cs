@@ -8,20 +8,20 @@ public class GuildChannelMention(JsonModels.JsonGuildChannelMention jsonModel) :
     /// <summary>
     /// The guild channel's ID.
     /// </summary>
-    public override ulong Id => jsonModel.Id;
+    public override ulong Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// The containing guild's ID.
     /// </summary>
-    public ulong GuildId => jsonModel.GuildId;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
     /// <summary>
     /// The guild channel's type.
     /// </summary>
-    public ChannelType Type => jsonModel.Type;
+    public ChannelType Type { get; } = jsonModel.Type;
 
     /// <summary>
     /// The guild channel's name.
     /// </summary>
-    public string Name => jsonModel.Name;
+    public string Name { get; } = jsonModel.Name;
 }
