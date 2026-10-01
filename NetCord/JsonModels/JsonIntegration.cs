@@ -44,7 +44,7 @@ public class JsonIntegration : JsonEntity
     public bool? Revoked { get; set; }
 
     [JsonPropertyName("application")]
-    public JsonIntegrationApplication? Application { get; set; }
+    public JsonApplication? Application { get; set; }
 
     [JsonPropertyName("scopes")]
     public string[]? Scopes { get; set; }

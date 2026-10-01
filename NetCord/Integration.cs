@@ -32,7 +32,7 @@ public class Integration(JsonModels.JsonIntegration jsonModel, RestClient client
 
     public bool? Revoked { get; } = jsonModel.Revoked;
 
-    public IntegrationApplication? Application { get; } = jsonModel.Application is { } application ? new(application, client) : null;
+    public Application? Application { get; } = jsonModel.Application is { } application ? new(application, client) : null;
 
     public IReadOnlyList<string>? Scopes { get; } = jsonModel.Scopes;
 }
