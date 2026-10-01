@@ -1,8 +1,9 @@
+using NetCord.Gateway.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class UserActivity(JsonModels.JsonUserActivity jsonModel, ulong guildId, RestClient client)
+public class UserActivity(JsonUserActivity jsonModel, ulong guildId, RestClient client)
 {
     public string Name { get; } = jsonModel.Name;
 
@@ -53,21 +54,21 @@ public enum UserActivityType
     Competing = 5,
 }
 
-public class UserActivityTimestamps(JsonModels.JsonUserActivityTimestamps jsonModel)
+public class UserActivityTimestamps(JsonUserActivityTimestamps jsonModel)
 {
     public DateTimeOffset? StartTime { get; } = jsonModel.Start;
 
     public DateTimeOffset? EndTime { get; } = jsonModel.End;
 }
 
-public class UserActivityParty(JsonModels.JsonUserActivityParty jsonModel)
+public class UserActivityParty(JsonUserActivityParty jsonModel)
 {
     public string? Id { get; } = jsonModel.Id;
 
     public PartySize? Size { get; } = jsonModel.Size is { } size ? new(size) : null;
 }
 
-public class UserActivityAssets(JsonModels.JsonUserActivityAssets jsonModel)
+public class UserActivityAssets(JsonUserActivityAssets jsonModel)
 {
     public string? LargeImageId { get; } = jsonModel.LargeImageId;
 
@@ -78,7 +79,7 @@ public class UserActivityAssets(JsonModels.JsonUserActivityAssets jsonModel)
     public string? SmallText { get; } = jsonModel.SmallText;
 }
 
-public class UserActivitySecrets(JsonModels.JsonUserActivitySecrets jsonModel)
+public class UserActivitySecrets(JsonUserActivitySecrets jsonModel)
 {
     public string? Join { get; } = jsonModel.Join;
 
