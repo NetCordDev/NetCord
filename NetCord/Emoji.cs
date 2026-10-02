@@ -58,6 +58,8 @@ public sealed class StandardEmoji(JsonEmoji jsonModel) : Emoji(jsonModel)
 /// </summary>
 public abstract class CustomEmoji(JsonEmoji jsonModel, RestClient client) : Emoji(jsonModel)
 {
+    protected RestClient _client = client;
+
     /// <summary>
     /// The emoji's unique ID.
     /// </summary>
