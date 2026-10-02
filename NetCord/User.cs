@@ -1,3 +1,4 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -8,19 +9,8 @@ namespace NetCord;
 /// <remarks>
 /// Users in Discord are generally considered the base entity and can be members of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of 'bot' vs 'normal'. Bot users are automated users that are 'owned' by another user.
 /// </remarks>
-public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : ClientEntity(client)
+public partial class User(JsonUser jsonModel, RestClient client) : ClientEntity(client)
 {
-    // _jsonModel = jsonModel;
-    //
-    // if (jsonModel.AvatarDecorationData is { } avatarDecorationData)
-    //     AvatarDecorationData = new(avatarDecorationData);
-    //
-    // if (jsonModel.Collectibles is { } collectibles)
-    //     Collectibles = new(collectibles);
-    //
-    // if (jsonModel.PrimaryGuild is { } primaryGuild)
-    //     PrimaryGuild = new(primaryGuild);
-
     /// <summary>
     /// The user's ID.
     /// </summary>
