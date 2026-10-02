@@ -173,7 +173,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<GuildThreadListSyncEventArgs, ValueTask>? GuildThreadListSync;
 
     /// <summary>
-    /// Sent when the <see cref="Rest.GuildThreadUser"/> object for the bot is updated. This event is largely just a signal that you are a member of the thread.
+    /// Sent when the <see cref="GuildThreadUser"/> object for the bot is updated. This event is largely just a signal that you are a member of the thread.
     /// The inner payload is a <see cref="GuildThreadUserUpdateEventArgs"/> object with a set <see cref="GuildThreadUsersUpdateEventArgs.GuildId"/>.<br/>
     /// </summary>
     /// <remarks>
@@ -515,7 +515,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when a message is created.
-    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="Rest.RestMessage.Author"/> fields.<br/>
+    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="RestMessage.Author"/> fields.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>, <see cref="GatewayIntents.DirectMessages"/>*
@@ -526,7 +526,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     ///         <see cref="GatewayIntents.MessageContent"/>
     ///         </term>
     ///         <description>
-    ///         For receiving <see cref="Rest.RestMessage.Content"/>, <see cref="Rest.RestMessage.Embeds"/>, <see cref="Rest.RestMessage.Attachments"/> and <see cref="Rest.RestMessage.Embeds"/>.<br/>
+    ///         For receiving <see cref="RestMessage.Content"/>, <see cref="RestMessage.Embeds"/>, <see cref="RestMessage.Attachments"/> and <see cref="RestMessage.Embeds"/>.<br/>
     ///         This does not apply to:
     ///            <list type="bullet">
     ///               <item>
@@ -554,13 +554,13 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     ///      </item>
     /// </list>
     /// <br/><br/>
-    /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="Rest.RestMessage.Author"/>.
+    /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="RestMessage.Author"/>.
     /// </remarks>
     public partial event Func<Message, ValueTask>? MessageCreate;
 
     /// <summary>
     /// Sent when a message is updated.
-    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="Rest.RestMessage.Author"/> fields.<br/>
+    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="RestMessage.Author"/> fields.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>, <see cref="GatewayIntents.DirectMessages"/>*
@@ -571,7 +571,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     ///         <see cref="GatewayIntents.MessageContent"/>
     ///         </term>
     ///         <description>
-    ///         For receiving <see cref="Rest.RestMessage.Content"/>, <see cref="Rest.RestMessage.Embeds"/>, <see cref="Rest.RestMessage.Attachments"/> and <see cref="Rest.RestMessage.Embeds"/>.<br/>
+    ///         For receiving <see cref="RestMessage.Content"/>, <see cref="RestMessage.Embeds"/>, <see cref="RestMessage.Attachments"/> and <see cref="RestMessage.Embeds"/>.<br/>
     ///         This does not apply to:
     ///            <list type="bullet">
     ///               <item>
@@ -599,7 +599,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     ///      </item>
     /// </list>
     /// <br/><br/>
-    /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="Rest.RestMessage.Author"/>.
+    /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="RestMessage.Author"/>.
     /// </remarks>
     public partial event Func<Message, ValueTask>? MessageUpdate;
 
@@ -836,9 +836,9 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     private readonly string? _shardId;
 
     /// <summary>
-    /// The <see cref="Rest.RestClient"/> of the <see cref="GatewayClient"/>.
+    /// The <see cref="RestClient"/> of the <see cref="GatewayClient"/>.
     /// </summary>
-    public Rest.RestClient Rest { get; }
+    public RestClient Rest { get; }
 
     public ulong Id => Token.Id;
 
@@ -856,7 +856,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         _disposeRest = true;
     }
 
-    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration ??= new())
+    internal GatewayClient(IEntityToken token, RestClient rest, GatewayClientConfiguration configuration) : base(configuration ??= new())
     {
         Token = token;
 
@@ -1250,14 +1250,18 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "GUILD_CREATE":
                 {
-                    var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
-                    var id = jsonGuild.Id;
-                    if (jsonGuild.IsUnavailable)
-                        await InvokeEventAsync(_guildCreate, id, static id => new(id, null)).ConfigureAwait(false);
-                    else
+                    var jsonGuild = data.ToObject(Serialization.Default.IJsonGuild);
+
+                    switch (jsonGuild)
                     {
-                        Guild guild = new(jsonGuild, Id, Rest, Cache);
-                        await InvokeEventAsync(_guildCreate, this, (Id: id, Guild: guild), static data => new(data.Id, data.Guild), static (client, data) => client.Cache = client.Cache.CacheGuild(data.Guild)).ConfigureAwait(false);
+                        case JsonGuild availableGuild:
+                            Guild guild = new(availableGuild, Rest, Cache);
+                            await InvokeEventAsync(_guildCreate, this, guild, static guild => new(guild.Id, guild), static (client, guild) => client.Cache = client.Cache.CacheGuild(guild)).ConfigureAwait(false);
+                            break;
+
+                        default:
+                            await InvokeEventAsync(_guildCreate, jsonGuild, static guild => new(guild.Id, null)).ConfigureAwait(false);
+                            break;
                     }
                 }
                 break;
@@ -1265,12 +1269,12 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var guildId = GetGuildId(data);
                     if (Cache.Guilds.TryGetValue(guildId, out var oldGuild))
-                        await InvokeEventAsync(_guildUpdate, this, new(data.ToObject(Serialization.Default.JsonGuild), Id, oldGuild, Cache), static (client, guild) => client.Cache = client.Cache.CacheGuild(guild)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildUpdate, this, new(data.ToObject(Serialization.Default.JsonRestGuild), oldGuild, Cache), static (client, guild) => client.Cache = client.Cache.CacheGuild(guild)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_DELETE":
                 {
-                    var json = data.ToObject(Serialization.Default.JsonGuild);
+                    var json = data.ToObject(Serialization.Default.JsonUnavailableGuild);
                     await InvokeEventAsync(_guildDelete, this, json, static json => new(json), static (client, jsonGuild) => client.Cache = client.Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;
@@ -1401,7 +1405,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "INTERACTION_CREATE":
                 {
-                    await InvokeEventAsync(_interactionCreate, (Data: data, Client: this), static data => Interaction.CreateFromJson(data.Data.ToObject(Serialization.Default.JsonInteraction), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_interactionCreate, (Data: data, Client: this), static data => Interaction.Create(data.Data.ToObject(Serialization.Default.JsonInteraction), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
                 }
                 break;
             case "SUBSCRIPTION_CREATE":
@@ -1472,7 +1476,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "PRESENCE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonPresence);
-                    await InvokeEventAsync(_presenceUpdate, this, new(json, null, Rest), static (client, presence) => client.Cache = client.Cache.CachePresence(presence)).ConfigureAwait(false);
+                    await InvokeEventAsync(_presenceUpdate, this, new(json, json.GuildId.GetValueOrDefault(), Rest), static (client, presence) => client.Cache = client.Cache.CachePresence(presence)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_CREATE":

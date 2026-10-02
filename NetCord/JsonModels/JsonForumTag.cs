@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public class JsonForumTag : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("moderated")]
-    public bool Moderated { get; set; }
+    public required bool Moderated { get; set; }
 
     [JsonPropertyName("emoji_id")]
     public ulong? EmojiId { get; set; }

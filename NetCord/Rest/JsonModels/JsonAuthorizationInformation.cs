@@ -7,13 +7,13 @@ namespace NetCord.Rest.JsonModels;
 public class JsonAuthorizationInformation
 {
     [JsonPropertyName("application")]
-    public JsonApplication Application { get; set; }
+    public required JsonPartialApplication Application { get; set; }
 
     [JsonPropertyName("scopes")]
-    public string[] Scopes { get; set; }
+    public required string[] Scopes { get; set; }
 
     [JsonPropertyName("expires")]
-    public DateTimeOffset ExpiresAt { get; set; }
+    public required DateTimeOffset ExpiresAt { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser? User { get; set; }

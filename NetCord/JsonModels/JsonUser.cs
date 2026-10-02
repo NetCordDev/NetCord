@@ -5,11 +5,11 @@ namespace NetCord.JsonModels;
 public class JsonUser : JsonEntity
 {
     [JsonPropertyName("username")]
-    public string Username { get; set; }
+    public required string Username { get; set; }
 
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("discriminator")]
-    public ushort Discriminator { get; set; }
+    public required ushort Discriminator { get; set; }
 
     [JsonPropertyName("global_name")]
     public string? GlobalName { get; set; }
@@ -18,7 +18,7 @@ public class JsonUser : JsonEntity
     public string? AvatarHash { get; set; }
 
     [JsonPropertyName("bot")]
-    public bool IsBot { get; set; }
+    public bool? IsBot { get; set; }
 
     [JsonPropertyName("system")]
     public bool? IsSystemUser { get; set; }

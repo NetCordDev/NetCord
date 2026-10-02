@@ -59,11 +59,16 @@ public class TryFormat
     {
         Id = id,
         Name = "name",
+        Description = "description",
+        Version = 1,
+        ApplicationId = 123,
     }, null!)).ToArray();
 
     private static readonly IReadOnlyList<ApplicationCommandOption> _applicationCommandOptions = _ids.Select(id => new ApplicationCommandOption(new()
     {
         Name = "name",
+        Description = "description",
+        Type = ApplicationCommandOptionType.String,
     }, "parentName", id)).ToArray();
 
     private static readonly IReadOnlyList<Route> _routes =

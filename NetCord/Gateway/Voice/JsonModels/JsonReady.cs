@@ -5,14 +5,14 @@ namespace NetCord.Gateway.Voice.JsonModels;
 internal class JsonReady
 {
     [JsonPropertyName("ssrc")]
-    public uint Ssrc { get; set; }
+    public required uint Ssrc { get; set; }
 
     [JsonPropertyName("ip")]
-    public string Ip { get; set; }
+    public required string Ip { get; set; }
 
     [JsonPropertyName("port")]
-    public ushort Port { get; set; }
+    public required ushort Port { get; set; }
 
     [JsonPropertyName("modes")]
-    public string[] Modes { get; set; }
+    public required string[] Modes { get; set; }
 }

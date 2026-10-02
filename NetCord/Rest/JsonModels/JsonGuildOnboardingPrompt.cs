@@ -7,20 +7,20 @@ namespace NetCord.Rest.JsonModels;
 public class JsonGuildOnboardingPrompt : JsonEntity
 {
     [JsonPropertyName("type")]
-    public GuildOnboardingPromptType Type { get; set; }
+    public required GuildOnboardingPromptType Type { get; set; }
 
     [JsonPropertyName("options")]
-    public JsonGuildOnboardingPromptOption[] Options { get; set; }
+    public required JsonGuildOnboardingPromptOption[] Options { get; set; }
 
     [JsonPropertyName("title")]
-    public string Title { get; set; }
+    public required string Title { get; set; }
 
     [JsonPropertyName("single_select")]
-    public bool SingleSelect { get; set; }
+    public required bool SingleSelect { get; set; }
 
     [JsonPropertyName("required")]
-    public bool Required { get; set; }
+    public required bool Required { get; set; }
 
     [JsonPropertyName("in_onboarding")]
-    public bool InOnboarding { get; set; }
+    public required bool InOnboarding { get; set; }
 }

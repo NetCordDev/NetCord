@@ -7,8 +7,8 @@ namespace NetCord.Gateway.JsonModels.EventArgs;
 public class JsonGuildStickersUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("stickers")]
-    public JsonSticker[] Stickers { get; set; }
+    public required JsonSticker[] Stickers { get; set; }
 }

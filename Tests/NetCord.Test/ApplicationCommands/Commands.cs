@@ -171,7 +171,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             Components = [
                 new MediaGalleryProperties().AddItems(new MediaGalleryItemProperties(new("https://netcord.dev/images/SmallSquare.png")),
                                                       new MediaGalleryItemProperties(new("https://netcord.dev/images/intents_Privileged.webp"))),
-                new ComponentSeparatorProperties().WithSpacing(ComponentSeparatorSpacingSize.Large),
+                new ComponentSeparatorProperties().WithSpacing(SeparatorSpacingSize.Large),
                 new ComponentSectionProperties(new LinkButtonProperties("https://netcord.dev", "NetCord!")).AddComponents(new TextDisplayProperties("NetCord ➡️")),
             ],
             Flags = MessageFlags.IsComponentsV2,

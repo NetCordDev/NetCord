@@ -5,16 +5,16 @@ namespace NetCord.Rest.JsonModels;
 public class JsonApplicationCommandOption
 {
     [JsonPropertyName("type")]
-    public ApplicationCommandOptionType Type { get; set; }
+    public required ApplicationCommandOptionType Type { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public required string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }

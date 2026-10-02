@@ -8,11 +8,11 @@ public class JsonTeam : JsonEntity
     public string? IconHash { get; set; }
 
     [JsonPropertyName("members")]
-    public JsonTeamUser[] Users { get; set; }
+    public required JsonTeamUser[] Users { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("owner_user_id")]
-    public ulong OwnerId { get; set; }
+    public required ulong OwnerId { get; set; }
 }

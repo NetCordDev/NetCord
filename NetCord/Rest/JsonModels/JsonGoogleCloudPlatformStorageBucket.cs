@@ -8,8 +8,8 @@ public class JsonGoogleCloudPlatformStorageBucket
     public long? Id { get; set; }
 
     [JsonPropertyName("upload_url")]
-    public string UploadUrl { get; set; }
+    public required string UploadUrl { get; set; }
 
     [JsonPropertyName("upload_filename")]
-    public string UploadFileName { get; set; }
+    public required string UploadFileName { get; set; }
 }

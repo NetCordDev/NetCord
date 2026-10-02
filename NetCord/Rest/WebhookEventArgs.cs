@@ -6,18 +6,15 @@ namespace NetCord.Rest;
 
 public abstract class WebhookEventArgs(JsonWebhookEventArgs jsonModel) : IWebhookEventArgs
 {
-    JsonWebhookEventArgs IJsonModel<JsonWebhookEventArgs>.JsonModel => _jsonModel;
-    private protected readonly JsonWebhookEventArgs _jsonModel = jsonModel;
+    public int Version { get; } = jsonModel.Version;
 
-    public int Version => _jsonModel.Version;
+    public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 
-    public ulong ApplicationId => _jsonModel.ApplicationId;
+    public string Type { get; } = jsonModel.Event!.Type;
 
-    public string Type => _jsonModel.Event!.Type;
+    public DateTimeOffset Timestamp { get; } = jsonModel.Event.Timestamp;
 
-    public DateTimeOffset Timestamp => _jsonModel.Event!.Timestamp;
-
-    public static WebhookEventArgs CreateFromJson(JsonWebhookEventArgs jsonModel, RestClient client)
+    public static WebhookEventArgs Create(JsonWebhookEventArgs jsonModel, RestClient client)
     {
         return jsonModel.Event!.Type switch
         {
@@ -31,24 +28,26 @@ public abstract class WebhookEventArgs(JsonWebhookEventArgs jsonModel) : IWebhoo
 
 public class ApplicationAuthorizedWebhookEventArgs : WebhookEventArgs
 {
-    private readonly JsonApplicationAuthorizedWebhookEventData _eventData;
-
     public ApplicationAuthorizedWebhookEventArgs(JsonWebhookEventArgs jsonModel, RestClient client) : base(jsonModel)
     {
-        var eventData = _eventData = jsonModel.Event!.Data.ToObject(Serialization.Default.JsonApplicationAuthorizedWebhookEventData)!;
+        var eventData = jsonModel.Event!.Data.ToObject(Serialization.Default.JsonApplicationAuthorizedWebhookEventData)!;
+
+        IntegrationType = eventData.IntegrationType;
 
         User = new(eventData.User, client);
+
+        Scopes = eventData.Scopes;
 
         var guild = eventData.Guild;
         if (guild is not null)
             Guild = new(guild, client);
     }
 
-    public ApplicationIntegrationType? IntegrationType => _eventData.IntegrationType;
+    public ApplicationIntegrationType? IntegrationType { get; }
 
     public User User { get; }
 
-    public IReadOnlyList<string> Scopes => _eventData.Scopes;
+    public IReadOnlyList<string> Scopes { get; }
 
     public RestGuild? Guild { get; }
 }
@@ -72,5 +71,5 @@ public class EntitlementCreateWebhookEventArgs(JsonWebhookEventArgs jsonModel, R
 
 public class UnknownEventWebhookEventArgs(JsonWebhookEventArgs jsonModel) : WebhookEventArgs(jsonModel)
 {
-    public JsonElement Data => _jsonModel.Event!.Data;
+    public JsonElement Data { get; } = jsonModel.Event!.Data;
 }

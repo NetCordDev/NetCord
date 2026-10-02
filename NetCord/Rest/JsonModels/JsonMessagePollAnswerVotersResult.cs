@@ -7,5 +7,5 @@ namespace NetCord.Rest.JsonModels;
 internal class JsonMessagePollAnswerVotersResult
 {
     [JsonPropertyName("users")]
-    public JsonUser[] Users { get; set; }
+    public required JsonUser[] Users { get; set; }
 }

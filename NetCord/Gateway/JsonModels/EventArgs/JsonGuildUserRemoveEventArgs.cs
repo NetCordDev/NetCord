@@ -7,8 +7,8 @@ namespace NetCord.Gateway.JsonModels.EventArgs;
 public class JsonGuildUserRemoveEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser User { get; set; }
+    public required JsonUser User { get; set; }
 }

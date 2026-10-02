@@ -7,8 +7,8 @@ namespace NetCord.Rest.JsonModels;
 public class JsonMessagePin
 {
     [JsonPropertyName("pinned_at")]
-    public DateTimeOffset PinnedAt { get; set; }
+    public required DateTimeOffset PinnedAt { get; set; }
 
     [JsonPropertyName("message")]
-    public JsonMessage Message { get; set; }
+    public required JsonMessage Message { get; set; }
 }

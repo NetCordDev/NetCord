@@ -5,11 +5,11 @@ namespace NetCord.Gateway.JsonModels.EventArgs;
 public class JsonInviteDeleteEventArgs
 {
     [JsonPropertyName("channel_id")]
-    public ulong InviteChannelId { get; set; }
+    public required ulong InviteChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
 
     [JsonPropertyName("code")]
-    public string InviteCode { get; set; }
+    public required string InviteCode { get; set; }
 }

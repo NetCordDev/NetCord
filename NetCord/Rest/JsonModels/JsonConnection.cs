@@ -7,13 +7,13 @@ namespace NetCord.Rest.JsonModels;
 public class JsonConnection
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public required string Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public ConnectionType Type { get; set; }
+    public required ConnectionType Type { get; set; }
 
     [JsonPropertyName("revoked")]
     public bool? Revoked { get; set; }
@@ -22,17 +22,17 @@ public class JsonConnection
     public JsonIntegration[]? Integrations { get; set; }
 
     [JsonPropertyName("verified")]
-    public bool Verified { get; set; }
+    public required bool Verified { get; set; }
 
     [JsonPropertyName("friend_sync")]
-    public bool FriendSync { get; set; }
+    public required bool FriendSync { get; set; }
 
     [JsonPropertyName("show_activity")]
-    public bool ShowActivity { get; set; }
+    public required bool ShowActivity { get; set; }
 
     [JsonPropertyName("two_way_link")]
-    public bool TwoWayLink { get; set; }
+    public required bool TwoWayLink { get; set; }
 
     [JsonPropertyName("visibility")]
-    public ConnectionVisibility Visibility { get; set; }
+    public required ConnectionVisibility Visibility { get; set; }
 }

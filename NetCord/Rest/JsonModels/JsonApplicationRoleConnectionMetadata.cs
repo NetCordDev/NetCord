@@ -5,19 +5,19 @@ namespace NetCord.Rest.JsonModels;
 public class JsonApplicationRoleConnectionMetadata
 {
     [JsonPropertyName("type")]
-    public ApplicationRoleConnectionMetadataType Type { get; set; }
+    public required ApplicationRoleConnectionMetadataType Type { get; set; }
 
     [JsonPropertyName("key")]
-    public string Key { get; set; }
+    public required string Key { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public required string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }

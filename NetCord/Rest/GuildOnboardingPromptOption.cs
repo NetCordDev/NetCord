@@ -1,42 +1,31 @@
 namespace NetCord.Rest;
 
-public class GuildOnboardingPromptOption : Entity, IJsonModel<JsonModels.JsonGuildOnboardingPromptOption>
+public class GuildOnboardingPromptOption(JsonModels.JsonGuildOnboardingPromptOption jsonModel, ulong guildId, RestClient client) : Entity
 {
-    JsonModels.JsonGuildOnboardingPromptOption IJsonModel<JsonModels.JsonGuildOnboardingPromptOption>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildOnboardingPromptOption _jsonModel;
-
-    public GuildOnboardingPromptOption(JsonModels.JsonGuildOnboardingPromptOption jsonModel, ulong guildId, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        var emoji = jsonModel.Emoji;
-        if (emoji.Name is not null)
-            Emoji = Emoji.CreateFromJson(emoji, guildId, client);
-    }
-
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// Ids for channels an user is added to when the option is selected.
     /// </summary>
-    public IReadOnlyList<ulong> ChannelIds => _jsonModel.ChannelIds;
+    public IReadOnlyList<ulong> ChannelIds { get; } = jsonModel.ChannelIds;
 
     /// <summary>
     /// Ids for roles assigned to an user when the option is selected.
     /// </summary>
-    public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
+    public IReadOnlyList<ulong> RoleIds { get; } = jsonModel.RoleIds;
 
     /// <summary>
     /// Emoji of the option.
     /// </summary>
-    public Emoji? Emoji { get; }
+    public Emoji? Emoji { get; } = jsonModel.Emoji is { } emoji ? Emoji.Create(emoji, guildId, client) : null;
 
     /// <summary>
     /// Title of the option.
     /// </summary>
-    public string Title => _jsonModel.Title;
+    public string Title { get; } = jsonModel.Title;
 
     /// <summary>
     /// Description of the option.
     /// </summary>
-    public string? Description => _jsonModel.Description;
+    public string? Description { get; } = jsonModel.Description;
 }

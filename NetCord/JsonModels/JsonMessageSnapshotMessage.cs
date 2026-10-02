@@ -5,35 +5,32 @@ namespace NetCord.JsonModels;
 public class JsonMessageSnapshotMessage
 {
     [JsonPropertyName("type")]
-    public MessageType Type { get; set; }
+    public required MessageType Type { get; set; }
 
     [JsonPropertyName("content")]
-    public string Content { get; set; }
+    public required string Content { get; set; }
 
     [JsonPropertyName("embeds")]
-    public JsonEmbed[] Embeds { get; set; }
+    public required JsonEmbed[] Embeds { get; set; }
 
     [JsonPropertyName("attachments")]
-    public JsonAttachment[] Attachments { get; set; }
-
-    [JsonPropertyName("timestamp")]
-    public DateTimeOffset CreatedAt { get; set; }
+    public required JsonAttachment[] Attachments { get; set; }
 
     [JsonPropertyName("edited_timestamp")]
     public DateTimeOffset? EditedAt { get; set; }
 
     [JsonPropertyName("flags")]
-    public MessageFlags? Flags { get; set; }
+    public required MessageFlags? Flags { get; set; }
 
     [JsonPropertyName("mentions")]
-    public JsonUser[] MentionedUsers { get; set; }
+    public required JsonUser[] MentionedUsers { get; set; }
 
     [JsonPropertyName("mention_roles")]
-    public ulong[] MentionedRoleIds { get; set; }
-
-    [JsonPropertyName("components")]
-    public JsonComponent[]? Components { get; set; }
+    public required ulong[] MentionedRoleIds { get; set; }
 
     [JsonPropertyName("sticker_items")]
     public JsonMessageSticker[]? Stickers { get; set; }
+
+    [JsonPropertyName("components")]
+    public JsonComponent[]? Components { get; set; }
 }

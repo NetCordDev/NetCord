@@ -32,7 +32,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         }).ToArray();
 
         MentionedChannels = jsonModel.MentionedChannels.SelectOrEmpty(c => new GuildChannelMention(c)).ToArray();
-        Attachments = jsonModel.Attachments!.Select(a => Attachment.CreateFromJson(a, client)).ToArray();
+        Attachments = jsonModel.Attachments!.Select(a => Attachment.Create(a, client)).ToArray();
         Embeds = jsonModel.Embeds!.Select(e => new Embed(e)).ToArray();
         Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r)).ToArray();
 
@@ -65,14 +65,14 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 #pragma warning disable CS0618 // Type or member is obsolete
         var interaction = jsonModel.Interaction;
         if (interaction is not null)
-            Interaction = new(interaction, client);
+            Interaction = new(interaction, jsonModel.GuildId, client);
 #pragma warning restore CS0618 // Type or member is obsolete
 
         var startedThread = jsonModel.StartedThread;
         if (startedThread is not null)
             StartedThread = GuildThread.CreateFromJson(startedThread, client);
 
-        Components = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
+        Components = jsonModel.Components.SelectOrEmpty(IMessageChildComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
 
         var roleSubscriptionData = jsonModel.RoleSubscriptionData;
@@ -243,9 +243,9 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public GuildThread? StartedThread { get; }
 
     /// <summary>
-    /// A list of <see cref="IMessageComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
+    /// A list of <see cref="IMessageChildComponent"/> objects, contains components like <see cref="ButtonComponent"/>s, <see cref="ActionRowComponent"/>s, or other interactive components if any are present.
     /// </summary>
-    public IReadOnlyList<IMessageComponent> Components { get; }
+    public IReadOnlyList<IMessageChildComponent> Components { get; }
 
     /// <summary>
     /// A list of stickers sent within the message.

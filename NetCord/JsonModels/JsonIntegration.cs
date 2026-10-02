@@ -5,13 +5,13 @@ namespace NetCord.JsonModels;
 public class JsonIntegration : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public IntegrationType Type { get; set; }
+    public required IntegrationType Type { get; set; }
 
     [JsonPropertyName("enabled")]
-    public bool Enabled { get; set; }
+    public required bool Enabled { get; set; }
 
     [JsonPropertyName("syncing")]
     public bool? Syncing { get; set; }
@@ -32,7 +32,7 @@ public class JsonIntegration : JsonEntity
     public JsonUser? User { get; set; }
 
     [JsonPropertyName("account")]
-    public JsonIntegrationAccount Account { get; set; }
+    public required JsonIntegrationAccount Account { get; set; }
 
     [JsonPropertyName("synced_at")]
     public DateTimeOffset? SyncedAt { get; set; }
@@ -44,5 +44,8 @@ public class JsonIntegration : JsonEntity
     public bool? Revoked { get; set; }
 
     [JsonPropertyName("application")]
-    public JsonIntegrationApplication? Application { get; set; }
+    public JsonApplication? Application { get; set; }
+
+    [JsonPropertyName("scopes")]
+    public string[]? Scopes { get; set; }
 }

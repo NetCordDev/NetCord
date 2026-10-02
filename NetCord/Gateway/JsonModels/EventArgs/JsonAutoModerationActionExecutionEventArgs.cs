@@ -7,19 +7,19 @@ namespace NetCord.Gateway.JsonModels.EventArgs;
 public class JsonAutoModerationActionExecutionEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("action")]
-    public JsonAutoModerationAction Action { get; set; }
+    public required JsonAutoModerationAction Action { get; set; }
 
     [JsonPropertyName("rule_id")]
-    public ulong RuleId { get; set; }
+    public required ulong RuleId { get; set; }
 
     [JsonPropertyName("rule_trigger_type")]
-    public AutoModerationRuleTriggerType RuleTriggerType { get; set; }
+    public required AutoModerationRuleTriggerType RuleTriggerType { get; set; }
 
     [JsonPropertyName("user_id")]
-    public ulong UserId { get; set; }
+    public required ulong UserId { get; set; }
 
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
@@ -31,7 +31,7 @@ public class JsonAutoModerationActionExecutionEventArgs
     public ulong? AlertSystemMessageId { get; set; }
 
     [JsonPropertyName("content")]
-    public string Content { get; set; }
+    public string? Content { get; set; }
 
     [JsonPropertyName("matched_keyword")]
     public string? MatchedKeyword { get; set; }

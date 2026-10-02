@@ -12,7 +12,7 @@ namespace NetCord.Rest;
 [GenerateMethodsForProperties]
 public partial class ChannelMenuProperties(string customId) : EntityMenuProperties(customId)
 {
-    public override ComponentType ComponentType => ComponentType.ChannelMenu;
+    public override ComponentType ComponentType => ComponentType.ChannelSelect;
 
     /// <summary>
     /// Default values for auto-populated select menu components.

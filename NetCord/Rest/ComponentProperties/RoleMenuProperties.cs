@@ -8,7 +8,7 @@ namespace NetCord.Rest;
 [GenerateMethodsForProperties]
 public partial class RoleMenuProperties(string customId) : EntityMenuProperties(customId)
 {
-    public override ComponentType ComponentType => ComponentType.RoleMenu;
+    public override ComponentType ComponentType => ComponentType.RoleSelect;
 
     /// <summary>
     /// Default values for auto-populated select menu components.

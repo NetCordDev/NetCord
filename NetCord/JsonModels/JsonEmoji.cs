@@ -23,7 +23,7 @@ public class JsonEmoji
     public bool? Managed { get; set; }
 
     [JsonPropertyName("animated")]
-    public bool Animated { get; set; }
+    public bool? Animated { get; set; }
 
     [JsonPropertyName("available")]
     public bool? Available { get; set; }

@@ -11,8 +11,8 @@ public class MenuInteractions : BaseComponentInteractionModule<StringMenuInterac
         var user = Context.User;
         if (user is GuildUser guildUser)
         {
-            var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => Snowflake.Parse(s));
-            await guildUser.ModifyAsync(x => x.RoleIds = selectedValues);
+            var values = Context.Interaction.Data.Values.Select(s => Snowflake.Parse(s));
+            await guildUser.ModifyAsync(x => x.RoleIds = values);
             await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = "Roles updated" }));
         }
         else
@@ -26,7 +26,7 @@ public class MenuInteractions : BaseComponentInteractionModule<StringMenuInterac
         InteractionMessageProperties interactionMessage = new()
         {
             Flags = MessageFlags.Ephemeral,
-            Content = "You selected: " + string.Join(", ", Context.SelectedValues),
+            Content = "You selected: " + string.Join(", ", Context.Values),
         };
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message(interactionMessage));
     }

@@ -8,7 +8,7 @@ namespace NetCord.Rest;
 [GenerateMethodsForProperties]
 public partial class UserMenuProperties(string customId) : EntityMenuProperties(customId)
 {
-    public override ComponentType ComponentType => ComponentType.UserMenu;
+    public override ComponentType ComponentType => ComponentType.UserSelect;
 
     /// <summary>
     /// Default values for auto-populated select menu components.

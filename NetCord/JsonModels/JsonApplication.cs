@@ -1,26 +1,34 @@
 using System.Text.Json.Serialization;
 
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplication : JsonEntity
+public class JsonPartialApplication : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
-
-    [JsonPropertyName("rpc_origins")]
-    public string[] RpcOrigins { get; set; }
+    public required string Description { get; set; }
 
     [JsonPropertyName("bot_public")]
-    public bool? BotPublic { get; set; }
+    public required bool BotPublic { get; set; }
 
     [JsonPropertyName("bot_require_code_grant")]
-    public bool? BotRequireCodeGrant { get; set; }
+    public required bool BotRequireCodeGrant { get; set; }
+
+    [JsonPropertyName("verify_key")]
+    public required string VerifyKey { get; set; }
+}
+
+public class JsonApplication : JsonPartialApplication
+{
+    [JsonPropertyName("rpc_origins")]
+    public required string[] RpcOrigins { get; set; }
 
     [JsonPropertyName("bot")]
     public JsonUser? Bot { get; set; }
@@ -34,9 +42,6 @@ public class JsonApplication : JsonEntity
     [JsonPropertyName("owner")]
     public JsonUser? Owner { get; set; }
 
-    [JsonPropertyName("verify_key")]
-    public string VerifyKey { get; set; }
-
     [JsonPropertyName("team")]
     public JsonTeam? Team { get; set; }
 
@@ -44,7 +49,7 @@ public class JsonApplication : JsonEntity
     public ulong? GuildId { get; set; }
 
     [JsonPropertyName("guild")]
-    public JsonGuild? Guild { get; set; }
+    public JsonPartialGuild? Guild { get; set; }
 
     [JsonPropertyName("primary_sku_id")]
     public ulong? PrimarySkuId { get; set; }
@@ -77,7 +82,7 @@ public class JsonApplication : JsonEntity
     public string? EventWebhooksUrl { get; set; }
 
     [JsonPropertyName("event_webhooks_status")]
-    public ApplicationEventWebhooksStatus EventWebhooksStatus { get; set; }
+    public required ApplicationEventWebhooksStatus EventWebhooksStatus { get; set; }
 
     [JsonPropertyName("event_webhooks_types")]
     public string[]? EventWebhooksTypes { get; set; }
@@ -89,7 +94,7 @@ public class JsonApplication : JsonEntity
     public JsonApplicationInstallParams? InstallParams { get; set; }
 
     [JsonPropertyName("integration_types_config")]
-    public IReadOnlyDictionary<ApplicationIntegrationType, JsonApplicationIntegrationTypeConfiguration> IntegrationTypesConfiguration { get; set; }
+    public required IReadOnlyDictionary<ApplicationIntegrationType, JsonApplicationIntegrationTypeConfiguration> IntegrationTypesConfiguration { get; set; }
 
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }

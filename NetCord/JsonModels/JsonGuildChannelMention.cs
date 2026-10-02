@@ -5,11 +5,11 @@ namespace NetCord.JsonModels;
 public class JsonGuildChannelMention : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("type")]
-    public ChannelType Type { get; set; }
+    public required ChannelType Type { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 }

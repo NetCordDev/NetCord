@@ -58,8 +58,8 @@ builder.Services
         options.ResultHandler = new CustomApplicationCommandResultHandler();
     })
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
-    .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
-    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
+    .AddComponentInteractions<StringSelectInteraction, StringMenuInteractionContext>()
+    .AddComponentInteractions<ModalSubmitInteraction, ModalInteractionContext>()
     .AddCommands()
     .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger, IServiceProvider p) => logger.LogInformation("Content: {}", message.Content), ServiceLifetime.Scoped)
     .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
@@ -214,10 +214,10 @@ host.AddSlashCommand("file-upload", "File Upload!", () =>
 
 host.AddComponentInteraction<ModalInteractionContext>("file upload", async (HttpClient client, ModalInteractionContext context) =>
 {
-    var attachments = context.Components.OfType<Label>()
+    var attachments = context.Components.OfType<LabelComponentData>()
                                         .Select(l => l.Component)
-                                        .OfType<FileUpload>()
-                                        .SelectMany(u => u.Attachments)
+                                        .OfType<FileUploadComponentData>()
+                                        .SelectMany(u => u.Values)
                                         .ToArray();
 
     return new InteractionMessageProperties()

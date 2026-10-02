@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public class JsonStringMenuSelectOption
+public class JsonStringSelectOption
 {
     [JsonPropertyName("label")]
     public string Label { get; set; }

@@ -5,5 +5,5 @@ namespace NetCord.Rest.JsonModels;
 internal class JsonGateway
 {
     [JsonPropertyName("url")]
-    public string Url { get; set; }
+    public required string Url { get; set; }
 }

@@ -7,16 +7,16 @@ namespace NetCord.Rest.JsonModels;
 public class JsonInteractionCallbackResponse
 {
     [JsonPropertyName("interaction")]
-    public JsonInteractionCallbackResponseInteraction Interaction { get; set; }
+    public required JsonInteractionCallbackResponseInteraction Interaction { get; set; }
 
     [JsonPropertyName("resource")]
-    public JsonInteractionCallbackResponseResource Resource { get; set; }
+    public JsonInteractionCallbackResponseResource? Resource { get; set; }
 }
 
 public class JsonInteractionCallbackResponseInteraction : JsonEntity
 {
     [JsonPropertyName("type")]
-    public InteractionType Type { get; set; }
+    public required InteractionType Type { get; set; }
 
     [JsonPropertyName("activity_instance_id")]
     public string? ActivityInstanceId { get; set; }
@@ -34,7 +34,7 @@ public class JsonInteractionCallbackResponseInteraction : JsonEntity
 public class JsonInteractionCallbackResponseResource
 {
     [JsonPropertyName("type")]
-    public InteractionCallbackType Type { get; set; }
+    public required InteractionCallbackType Type { get; set; }
 
     [JsonPropertyName("activity_instance")]
     public JsonActivityInstance? ActivityInstance { get; set; }
@@ -46,5 +46,5 @@ public class JsonInteractionCallbackResponseResource
 public class JsonActivityInstance
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public required string Id { get; set; }
 }

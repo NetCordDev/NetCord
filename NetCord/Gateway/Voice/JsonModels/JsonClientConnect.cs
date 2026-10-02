@@ -5,5 +5,5 @@ namespace NetCord.Gateway.Voice.JsonModels;
 internal class JsonClientConnect
 {
     [JsonPropertyName("user_ids")]
-    public ulong[] UserIds { get; set; }
+    public required ulong[] UserIds { get; set; }
 }
