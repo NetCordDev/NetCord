@@ -1476,7 +1476,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "PRESENCE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonPresence);
-                    await InvokeEventAsync(_presenceUpdate, this, new(json, null, Rest), static (client, presence) => client.Cache = client.Cache.CachePresence(presence)).ConfigureAwait(false);
+                    await InvokeEventAsync(_presenceUpdate, this, new(json, json.GuildId.GetValueOrDefault(), Rest), static (client, presence) => client.Cache = client.Cache.CachePresence(presence)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_CREATE":
