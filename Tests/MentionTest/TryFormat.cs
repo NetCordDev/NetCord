@@ -100,6 +100,23 @@ public class TryFormat
     }
 
     [TestMethod]
+    public void ApplicationCommandMentionSegments()
+    {
+        TestTryFormat(TryFormat, _slashCommandMentions, m => m.ToString());
+
+        static bool TryFormat(Span<char> destination, out int charsWritten, SlashCommandMention value)
+        {
+            if (value.SubCommandGroupName is { } subCommandGroupName)
+                return Mention.TryFormatApplicationCommand(destination, out charsWritten, value.Id, value.Name, subCommandGroupName, value.SubCommandName!);
+
+            if (value.SubCommandName is { } subCommandName)
+                return Mention.TryFormatApplicationCommand(destination, out charsWritten, value.Id, value.Name, subCommandName);
+
+            return Mention.TryFormatApplicationCommand(destination, out charsWritten, value.Id, value.Name);
+        }
+    }
+
+    [TestMethod]
     public void Timestamp()
     {
         string? format = null;
