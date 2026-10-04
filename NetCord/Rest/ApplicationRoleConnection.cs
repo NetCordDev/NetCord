@@ -1,6 +1,8 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class ApplicationRoleConnection(JsonModels.JsonApplicationRoleConnection jsonModel)
+public class ApplicationRoleConnection(JsonApplicationRoleConnection jsonModel)
 {
     public string? PlatformName { get; } = jsonModel.PlatformName;
 
