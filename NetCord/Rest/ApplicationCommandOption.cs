@@ -1,10 +1,7 @@
 namespace NetCord.Rest;
 
-public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCommandOption>, ISpanFormattable
+public class ApplicationCommandOption : ISpanFormattable
 {
-    JsonModels.JsonApplicationCommandOption IJsonModel<JsonModels.JsonApplicationCommandOption>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommandOption _jsonModel;
-
     /// <summary>
     /// Type of the option.
     /// </summary>
