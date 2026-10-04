@@ -2,11 +2,9 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public class GuildBulkBan(JsonGuildBulkBan jsonModel) : IJsonModel<JsonGuildBulkBan>
+public class GuildBulkBan(JsonGuildBulkBan jsonModel)
 {
-    JsonGuildBulkBan IJsonModel<JsonGuildBulkBan>.JsonModel => jsonModel;
+    public IReadOnlyList<ulong> BannedUsers { get; } = jsonModel.BannedUsers;
 
-    public IReadOnlyList<ulong> BannedUsers => jsonModel.BannedUsers;
-
-    public IReadOnlyList<ulong> FailedUsers => jsonModel.FailedUsers;
+    public IReadOnlyList<ulong> FailedUsers { get; } = jsonModel.FailedUsers;
 }
