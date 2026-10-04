@@ -6,7 +6,7 @@ namespace NetCord.Gateway;
 /// <summary>
 /// Represents a complete <see cref="Message"/> object, with all required fields present.
 /// </summary>
-public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : RestMessage(jsonModel, client)
+public class Message(JsonMessage jsonModel, Guild? guild, TextGuildChannel? channel, RestClient client) : RestMessage(jsonModel, client)
 {
     public static Message CreateFromJson(JsonMessage jsonModel, IGatewayClientCache cache, RestClient client)
     {
@@ -14,10 +14,10 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
         return new(jsonModel, guild, channel, client);
     }
 
-    private static (Guild?, TextChannel?) GetCacheData(JsonMessage jsonModel, IGatewayClientCache cache)
+    private static (Guild?, TextGuildChannel?) GetCacheData(JsonMessage jsonModel, IGatewayClientCache cache)
     {
         Guild? guild;
-        TextChannel? channel;
+        TextGuildChannel? channel;
         var guildId = jsonModel.GuildId;
         if (guildId.HasValue)
         {
@@ -25,7 +25,7 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
             {
                 var channelId = jsonModel.ChannelId;
                 if (guild.Channels.TryGetValue(channelId, out var guildChannel))
-                    channel = guildChannel as TextChannel;
+                    channel = guildChannel as TextGuildChannel;
                 else if (guild.ActiveThreads.TryGetValue(channelId, out var thread))
                     channel = thread;
                 else
@@ -43,12 +43,32 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
         return (guild, channel);
     }
 
-    /// <inheritdoc/>
-    public ulong? GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The ID of the guild the message was sent in.
+    /// </summary>
+    /// <remarks>
+    /// <see langword="null"/> when the message is ephemeral or sent outside of a guild.
+    /// </remarks>
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// The type of channel the message was sent in.
+    /// </summary>
+    public ChannelType? ChannelType { get; } = jsonModel.ChannelType;
+
+    /// <summary>
+    /// The guild the message was sent in.
+    /// </summary>
+    /// <remarks>
+    /// <see langword="null"/> when the message is ephemeral or sent outside of a guild, or if the guild is not cached.
+    /// </remarks>
     public Guild? Guild { get; } = guild;
 
-    /// <inheritdoc/>
-    public TextChannel? Channel { get; } = channel;
+    /// <summary>
+    /// The channel the message was sent in.
+    /// </summary>
+    /// <remarks>
+    /// <see langword="null"/> when the message is ephemeral or sent outside of a guild, or if the channel is not cached.
+    /// </remarks>
+    public TextGuildChannel? Channel { get; } = channel;
 }

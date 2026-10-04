@@ -1,17 +1,20 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonMessage : JsonEntity
+[JsonGuard]
+public partial class JsonMessage : JsonEntity
 {
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }
 
     [JsonPropertyName("author")]
-    public JsonUser? Author { get; set; }
+    public JsonUser Author { get; set; }
 
     [JsonPropertyName("content")]
-    public string? Content { get; set; }
+    public string Content { get; set; }
 
     //[JsonPropertyName("timestamp")]
     //public DateTimeOffset CreatedAt { get; set; }
@@ -20,25 +23,25 @@ public class JsonMessage : JsonEntity
     public DateTimeOffset? EditedAt { get; set; }
 
     [JsonPropertyName("tts")]
-    public bool? IsTts { get; set; }
+    public bool IsTts { get; set; }
 
     [JsonPropertyName("mention_everyone")]
-    public bool? MentionEveryone { get; set; }
+    public bool MentionsEveryone { get; set; }
 
     [JsonPropertyName("mentions")]
-    public JsonUser[]? MentionedUsers { get; set; }
+    public JsonUser[] MentionedUsers { get; set; }
 
     [JsonPropertyName("mention_roles")]
-    public ulong[]? MentionedRoleIds { get; set; }
+    public ulong[] MentionedRoleIds { get; set; }
 
     [JsonPropertyName("mention_channels")]
     public JsonGuildChannelMention[]? MentionedChannels { get; set; }
 
     [JsonPropertyName("attachments")]
-    public JsonAttachment[]? Attachments { get; set; }
+    public JsonAttachment[] Attachments { get; set; }
 
     [JsonPropertyName("embeds")]
-    public JsonEmbed[]? Embeds { get; set; }
+    public JsonEmbed[] Embeds { get; set; }
 
     [JsonPropertyName("reactions")]
     public JsonMessageReaction[]? Reactions { get; set; }
@@ -48,19 +51,19 @@ public class JsonMessage : JsonEntity
     public string? Nonce { get; set; }
 
     [JsonPropertyName("pinned")]
-    public bool? IsPinned { get; set; }
+    public bool IsPinned { get; set; }
 
     [JsonPropertyName("webhook_id")]
     public ulong? WebhookId { get; set; }
 
     [JsonPropertyName("type")]
-    public MessageType? Type { get; set; }
+    public MessageType Type { get; set; }
 
     [JsonPropertyName("activity")]
     public JsonMessageActivity? Activity { get; set; }
 
     [JsonPropertyName("application")]
-    public JsonApplication? Application { get; set; }
+    public JsonPartialApplication? Application { get; set; }
 
     [JsonPropertyName("application_id")]
     public ulong? ApplicationId { get; set; }
@@ -99,14 +102,8 @@ public class JsonMessage : JsonEntity
     [JsonPropertyName("role_subscription_data")]
     public JsonRoleSubscriptionData? RoleSubscriptionData { get; set; }
 
-    [JsonPropertyName("guild_id")]
-    public ulong? GuildId { get; set; }
-
-    [JsonPropertyName("member")]
-    public JsonGuildUser? GuildUser { get; set; }
-
     [JsonPropertyName("resolved")]
-    public JsonInteractionResolvedData? ResolvedData { get; set; }
+    public JsonInteractionResolvedData? Resolved { get; set; }
 
     [JsonPropertyName("poll")]
     public JsonMessagePoll? Poll { get; set; }
@@ -116,4 +113,13 @@ public class JsonMessage : JsonEntity
 
     [JsonPropertyName("shared_client_theme")]
     public JsonSharedClientTheme? SharedClientTheme { get; set; }
+
+    [JsonPropertyName("guild_id")]
+    public ulong? GuildId { get; set; }
+
+    [JsonPropertyName("member")]
+    public JsonGuildUser? GuildUser { get; set; }
+
+    [JsonPropertyName("channel_type")]
+    public ChannelType? ChannelType { get; set; }
 }
