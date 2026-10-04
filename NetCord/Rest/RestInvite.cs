@@ -33,7 +33,7 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
 
     public InviteFlags? Flags => _jsonModel.Flags;
 
-    public IReadOnlyList<Role>? Roles { get; }
+    public IReadOnlyList<PartialRole>? Roles { get; }
 
     // Metadata
     public int? Uses => _jsonModel.Uses;
@@ -61,7 +61,7 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
             var guildId = Guild.Id;
 
             if (jsonModel.Roles is { } roles)
-                Roles = roles.Select(role => new Role(role, guildId, client)).ToArray();
+                Roles = roles.Select(role => new PartialRole(role, guildId, client)).ToArray();
         }
 
         if (jsonModel.Channel is { } channel)
