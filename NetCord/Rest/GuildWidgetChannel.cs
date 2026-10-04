@@ -1,12 +1,12 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildWidgetChannel(JsonModels.JsonGuildWidgetChannel jsonModel) : Entity, IJsonModel<JsonModels.JsonGuildWidgetChannel>
+public class GuildWidgetChannel(JsonGuildWidgetChannel jsonModel) : Entity
 {
-    JsonModels.JsonGuildWidgetChannel IJsonModel<JsonModels.JsonGuildWidgetChannel>.JsonModel => jsonModel;
+    public override ulong Id { get; } = jsonModel.Id;
 
-    public override ulong Id => jsonModel.Id;
+    public string Name { get; } = jsonModel.Name;
 
-    public string Name => jsonModel.Name;
-
-    public int Position => jsonModel.Position;
+    public int Position { get; } = jsonModel.Position;
 }
