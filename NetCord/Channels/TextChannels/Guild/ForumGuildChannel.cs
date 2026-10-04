@@ -6,31 +6,31 @@ namespace NetCord;
 /// <summary>
 /// Represents a forum channel within a guild.
 /// </summary>
-public partial class ForumGuildChannel : Channel, IGuildChannel
+public partial class ForumGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : Channel(jsonModel, client), IGuildChannel
 {
-    public ForumGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
-    {
-        GuildId = guildId;
-        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
-        AvailableTags = jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t)).ToArray();
+    // GuildId = guildId;
+    // PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+    // AvailableTags = jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t)).ToArray();
+    //
+    // var defaultReactionEmoji = jsonModel.DefaultReactionEmoji;
+    // if (defaultReactionEmoji is not null)
+    //     DefaultReactionEmoji = new(defaultReactionEmoji);
 
-        var defaultReactionEmoji = jsonModel.DefaultReactionEmoji;
-        if (defaultReactionEmoji is not null)
-            DefaultReactionEmoji = new(defaultReactionEmoji);
-    }
+    public ulong GuildId { get; } = guildId;
 
-    public ulong GuildId { get; }
-    public int? Position => _jsonModel.Position;
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
-    public string Name => _jsonModel.Name!;
+    public int? Position { get; } = jsonModel.Position;
+
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+
+    public string Name { get; } = jsonModel.Name!;
 
     /// <summary>
     /// The channel topic, between 0 and 4096 characters. Can be <see langword="null"/>.
     /// </summary>
-    public string? Topic => _jsonModel.Topic;
+    public string? Topic { get; } = jsonModel.Topic;
 
     /// <inheritdoc cref="TextGuildChannel.Nsfw"/>
-    public bool Nsfw => _jsonModel.Nsfw.GetValueOrDefault();
+    public bool Nsfw { get; } = jsonModel.Nsfw.GetValueOrDefault();
 
     /// <summary>
     /// The ID of the last thread created in this channel. Can be <see langword="null"/>.
@@ -38,7 +38,7 @@ public partial class ForumGuildChannel : Channel, IGuildChannel
     /// <remarks>
     /// May not point to an existing or valid thread.
     /// </remarks>
-    public ulong? LastThreadId => _jsonModel.LastMessageId;
+    public ulong? LastThreadId { get; } = jsonModel.LastMessageId;
 
     /// <summary>
     /// The number of seconds a user has to wait before creating another thread, between 0 and 21600 (6 hours).
@@ -46,28 +46,28 @@ public partial class ForumGuildChannel : Channel, IGuildChannel
     /// <remarks>
     /// Bots, and users with the <see cref="Permissions.BypassSlowmode"/> permission are unaffected.
     /// </remarks>
-    public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
+    public int Slowmode { get; } = jsonModel.Slowmode.GetValueOrDefault();
 
     /// <inheritdoc cref="TextGuildChannel.ParentId"/>
-    public ulong? ParentId => _jsonModel.ParentId;
+    public ulong? ParentId { get; } = jsonModel.ParentId;
 
     /// <summary>
     /// When the last pinned message was pinned. Can be <see langword="null"/>.
     /// </summary>
-    public DateTimeOffset? LastPin => _jsonModel.LastPin;
+    public DateTimeOffset? LastPin { get; } = jsonModel.LastPin;
 
     /// <summary>
     /// The set of tags available for use in the channel.
     /// </summary>
-    public IReadOnlyList<ForumTag> AvailableTags { get; }
+    public IReadOnlyList<ForumTag> AvailableTags { get; } = [.. jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t))];
 
     /// <summary>
     /// The emoji to display by default as the add reaction button.
     /// </summary>
-    public ForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; }
+    public ForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; } = jsonModel.DefaultReactionEmoji is { } defaultReactionEmoji ? new(defaultReactionEmoji) : null;
 
     /// <inheritdoc cref="TextGuildChannel.DefaultThreadSlowmode"/>.
-    public int DefaultThreadSlowmode => _jsonModel.DefaultThreadSlowmode.GetValueOrDefault();
+    public int DefaultThreadSlowmode { get; } = jsonModel.DefaultThreadSlowmode.GetValueOrDefault();
 
     /// <summary>
     /// The sort order to use for threads within the channel.
@@ -75,10 +75,10 @@ public partial class ForumGuildChannel : Channel, IGuildChannel
     /// <remarks>
     /// If set to <see langword="null"/>, indicates no preferred sort order has been set.
     /// </remarks>
-    public SortOrderType? DefaultSortOrder => _jsonModel.DefaultSortOrder;
+    public SortOrderType? DefaultSortOrder { get; } = jsonModel.DefaultSortOrder;
 
     /// <summary>
     /// The default layout to use for threads within the channel.
     /// </summary>
-    public ForumLayoutType DefaultForumLayout => _jsonModel.DefaultForumLayout.GetValueOrDefault();
+    public ForumLayoutType DefaultForumLayout { get; } = jsonModel.DefaultForumLayout.GetValueOrDefault();
 }

@@ -13,5 +13,5 @@ public partial class ApplicationGuildChannel(JsonModels.JsonChannel jsonModel, u
     /// <remarks>
     /// <see langword="null"/> when the bound application has been removed from the guild.
     /// </remarks>
-    public ulong? ApplicationId => _jsonModel.ApplicationId;
+    public ulong? ApplicationId { get; } = jsonModel.ApplicationId;
 }
