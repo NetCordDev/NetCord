@@ -1,15 +1,21 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class StageInstance(JsonModels.JsonStageInstance jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonStageInstance>
+public partial class StageInstance(JsonStageInstance jsonModel, RestClient client) : ClientEntity(client)
 {
-    JsonModels.JsonStageInstance IJsonModel<JsonModels.JsonStageInstance>.JsonModel => jsonModel;
+    public override ulong Id { get; } = jsonModel.ChannelId;
 
-    public override ulong Id => jsonModel.Id;
-    public ulong GuildId => jsonModel.GuildId;
-    public ulong ChannelId => jsonModel.ChannelId;
-    public string Topic => jsonModel.Topic;
-    public StageInstancePrivacyLevel PrivacyLevel => jsonModel.PrivacyLevel;
-    public bool DiscoverableDisabled => jsonModel.DiscoverableDisabled;
+    public ulong GuildId { get; } = jsonModel.GuildId;
+
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
+
+    public string Topic { get; } = jsonModel.Topic;
+
+    public StageInstancePrivacyLevel PrivacyLevel { get; } = jsonModel.PrivacyLevel;
+
+    public bool DiscoverableDisabled { get; } = jsonModel.DiscoverableDisabled;
+
+    public ulong? GuildScheduledEventId { get; } = jsonModel.GuildScheduledEventId;
 }
