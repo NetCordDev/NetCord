@@ -7,15 +7,15 @@ public class JsonAuditLogEntryInfo
     [JsonPropertyName("application_id")]
     public ulong? ApplicationId { get; set; }
 
-    [JsonPropertyName("channel_id")]
-    public ulong? ChannelId { get; set; }
-
     [JsonPropertyName("auto_moderation_rule_name")]
     public string? AutoModerationRuleName { get; set; }
 
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("auto_moderation_rule_trigger_type")]
     public int? AutoModerationRuleTriggerType { get; set; } //AutoModerationRuleTriggerType
+
+    [JsonPropertyName("channel_id")]
+    public ulong? ChannelId { get; set; }
 
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("count")]
@@ -44,4 +44,7 @@ public class JsonAuditLogEntryInfo
 
     [JsonPropertyName("integration_type")]
     public IntegrationType? IntegrationType { get; set; }
+
+    [JsonPropertyName("status")]
+    public string? Status { get; set; }
 }

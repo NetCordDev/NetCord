@@ -45,7 +45,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <summary>
     /// Type of action that occurred.
     /// </summary>
-    public AuditLogEvent ActionType => _jsonModel.ActionType.GetValueOrDefault();
+    public AuditLogEvent ActionType => _jsonModel.ActionType;
 
     /// <summary>
     /// Additional info for certain event types.
