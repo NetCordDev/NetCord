@@ -13,34 +13,34 @@ public class JsonVoiceState
     public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("user_id")]
-    public ulong UserId { get; set; }
+    public required ulong UserId { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? User { get; set; }
 
     [JsonPropertyName("session_id")]
-    public string SessionId { get; set; }
+    public required string SessionId { get; set; }
 
     [JsonPropertyName("deaf")]
-    public bool IsDeafened { get; set; }
+    public required bool Deaf { get; set; }
 
     [JsonPropertyName("mute")]
-    public bool IsMuted { get; set; }
+    public required bool Mute { get; set; }
 
     [JsonPropertyName("self_deaf")]
-    public bool IsSelfDeafened { get; set; }
+    public required bool SelfDeaf { get; set; }
 
     [JsonPropertyName("self_mute")]
-    public bool IsSelfMuted { get; set; }
+    public required bool SelfMute { get; set; }
 
     [JsonPropertyName("self_stream")]
-    public bool? SelfStreamExists { get; set; }
+    public bool? SelfStream { get; set; }
 
     [JsonPropertyName("self_video")]
-    public bool SelfVideoExists { get; set; }
+    public required bool SelfVideo { get; set; }
 
     [JsonPropertyName("suppress")]
-    public bool Suppressed { get; set; }
+    public required bool Suppress { get; set; }
 
     [JsonPropertyName("request_to_speak_timestamp")]
     public DateTimeOffset? RequestToSpeakTimestamp { get; set; }
