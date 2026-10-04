@@ -1,21 +1,20 @@
 using System.Text.Json;
 
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicationCommandOptionChoice>
+public class ApplicationCommandOptionChoice
 {
-    JsonModels.JsonApplicationCommandOptionChoice IJsonModel<JsonModels.JsonApplicationCommandOptionChoice>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommandOptionChoice _jsonModel;
-
     /// <summary>
     /// Name of the choice (1-100 characters).
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name { get; }
 
     /// <summary>
     /// Localizations of <see cref="Name"/> (1-100 characters each).
     /// </summary>
-    public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; }
 
     /// <summary>
     /// String value for the choice.
@@ -32,14 +31,15 @@ public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicat
     /// </summary>
     public ApplicationCommandOptionChoiceValueType ValueType { get; }
 
-    public ApplicationCommandOptionChoice(JsonModels.JsonApplicationCommandOptionChoice jsonModel)
+    public ApplicationCommandOptionChoice(JsonApplicationCommandOptionChoice jsonModel)
     {
-        _jsonModel = jsonModel;
+        Name = jsonModel.Name;
+        NameLocalizations = jsonModel.NameLocalizations;
 
         var value = jsonModel.Value;
         if (value.ValueKind is JsonValueKind.String)
         {
-            ValueString = value.GetString()!;
+            ValueString = value.GetString();
             ValueType = ApplicationCommandOptionChoiceValueType.String;
         }
         else
