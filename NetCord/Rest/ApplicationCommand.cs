@@ -9,7 +9,7 @@ public partial class ApplicationCommand(JsonApplicationCommand jsonModel, RestCl
     /// <summary>
     /// Type of the command.
     /// </summary>
-    public ApplicationCommandType Type { get; } = jsonModel.Type;
+    public ApplicationCommandType Type { get; } = jsonModel.Type.GetValueOrDefault(ApplicationCommandType.ChatInput);
 
     /// <summary>
     /// ID of the parent application.
@@ -62,7 +62,7 @@ public partial class ApplicationCommand(JsonApplicationCommand jsonModel, RestCl
     /// <summary>
     /// Indicates whether the command is age-restricted.
     /// </summary>
-    public bool Nsfw { get; } = jsonModel.Nsfw;
+    public bool Nsfw { get; } = jsonModel.Nsfw.GetValueOrDefault();
 
     /// <summary>
     /// Installation context(s) where the command is available, only for globally-scoped commands.
@@ -78,6 +78,11 @@ public partial class ApplicationCommand(JsonApplicationCommand jsonModel, RestCl
     /// Autoincrementing version identifier updated during substantial record changes.
     /// </summary>
     public ulong Version { get; } = jsonModel.Version;
+
+    /// <summary>
+    /// Determines whether the interaction is handled by the application's interactions handler or by Discord.
+    /// </summary>
+    public EntryPointCommandHandlerType? Handler { get; } = jsonModel.Handler;
 
     public override string ToString() => $"</{Name}:{Id}>";
 

@@ -15,7 +15,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
     {
         Description = attribute.Description;
 
-        Handler = EntryPointCommandHandler.ApplicationHandler;
+        Handler = EntryPointCommandHandlerType.ApplicationHandler;
 
         MethodHelper.EnsureNoParameters(method);
 
@@ -36,13 +36,13 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
         if (handler is null)
         {
-            Handler = EntryPointCommandHandler.DiscordLaunchActivity;
+            Handler = EntryPointCommandHandlerType.DiscordLaunchActivity;
             Preconditions = [];
             _invokeAsync = EmptyInvokeAsync;
         }
         else
         {
-            Handler = EntryPointCommandHandler.ApplicationHandler;
+            Handler = EntryPointCommandHandlerType.ApplicationHandler;
 
             var method = handler.Method;
 
@@ -65,7 +65,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
     {
         Description = attribute.Description;
 
-        Handler = EntryPointCommandHandler.DiscordLaunchActivity;
+        Handler = EntryPointCommandHandlerType.DiscordLaunchActivity;
 
         Preconditions = [];
 
@@ -76,7 +76,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
     public override ApplicationCommandType Type => ApplicationCommandType.EntryPoint;
     public string Description { get; }
-    public EntryPointCommandHandler Handler { get; }
+    public EntryPointCommandHandlerType Handler { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;

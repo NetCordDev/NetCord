@@ -10,7 +10,7 @@ namespace NetCord.Rest.JsonModels;
 public partial class JsonApplicationCommand : JsonEntity
 {
     [JsonPropertyName("type")]
-    public ApplicationCommandType Type { get; set; } = ApplicationCommandType.ChatInput;
+    public ApplicationCommandType? Type { get; set; }
 
     [JsonPropertyName("application_id")]
     public ulong ApplicationId { get; set; }
@@ -22,13 +22,13 @@ public partial class JsonApplicationCommand : JsonEntity
     public string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
-    public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
+    public Dictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
     public string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
-    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }
+    public Dictionary<string, string>? DescriptionLocalizations { get; set; }
 
     [JsonPropertyName("options")]
     public JsonApplicationCommandOption[]? Options { get; set; }
@@ -37,7 +37,7 @@ public partial class JsonApplicationCommand : JsonEntity
     public Permissions? DefaultGuildPermissions { get; set; }
 
     [JsonPropertyName("nsfw")]
-    public bool Nsfw { get; set; }
+    public bool? Nsfw { get; set; }
 
     [JsonPropertyName("integration_types")]
     public ApplicationIntegrationType[]? IntegrationTypes { get; set; }
@@ -47,4 +47,7 @@ public partial class JsonApplicationCommand : JsonEntity
 
     [JsonPropertyName("version")]
     public ulong Version { get; set; }
+
+    [JsonPropertyName("handler")]
+    public EntryPointCommandHandlerType? Handler { get; set; }
 }

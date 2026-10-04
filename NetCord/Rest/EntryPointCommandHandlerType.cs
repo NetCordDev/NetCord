@@ -1,6 +1,6 @@
 namespace NetCord.Rest;
 
-public enum EntryPointCommandHandler
+public enum EntryPointCommandHandlerType
 {
     /// <summary>
     /// The application handles the interaction using an interaction token.
