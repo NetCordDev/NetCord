@@ -1,12 +1,12 @@
+using NetCord.JsonModels;
+
 namespace NetCord;
 
 /// <summary>
 /// Represents a permission override for a command in a guild.
 /// </summary>
-public class ApplicationCommandGuildPermission(JsonModels.JsonApplicationCommandGuildPermission jsonModel) : Entity, IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>
+public class ApplicationCommandGuildPermission(JsonApplicationCommandGuildPermission jsonModel) : Entity
 {
-    JsonModels.JsonApplicationCommandGuildPermission IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>.JsonModel => jsonModel;
-
     /// <summary>
     /// The ID of the override's relevant role, user, or channel, depending on the override's <see cref="Type"/>. May also be:
     /// <list type="bullet">
@@ -28,15 +28,15 @@ public class ApplicationCommandGuildPermission(JsonModels.JsonApplicationCommand
     ///     </item>
     /// </list>
     /// </summary>
-    public override ulong Id => jsonModel.Id;
+    public override ulong Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// Indicates the scope of the permission override.
     /// </summary>
-    public ApplicationCommandGuildPermissionType Type => jsonModel.Type;
+    public ApplicationCommandGuildPermissionType Type { get; } = jsonModel.Type;
 
     /// <summary>
     /// Indicates whether the override is intended to enable or disable a command.
     /// </summary>
-    public bool Permission => jsonModel.Permission;
+    public bool Permission { get; } = jsonModel.Permission;
 }
