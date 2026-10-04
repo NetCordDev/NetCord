@@ -1,16 +1,16 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class MessagePollVoteEventArgs(JsonModels.EventArgs.JsonMessagePollVoteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessagePollVoteEventArgs>
+public class MessagePollVoteEventArgs(JsonMessagePollVoteEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonMessagePollVoteEventArgs IJsonModel<JsonModels.EventArgs.JsonMessagePollVoteEventArgs>.JsonModel => jsonModel;
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public ulong UserId => jsonModel.UserId;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-    public ulong ChannelId => jsonModel.ChannelId;
+    public ulong MessageId { get; } = jsonModel.MessageId;
 
-    public ulong MessageId => jsonModel.MessageId;
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    public ulong? GuildId => jsonModel.GuildId;
-
-    public int AnswerId => jsonModel.AnswerId;
+    public int AnswerId { get; } = jsonModel.AnswerId;
 }
