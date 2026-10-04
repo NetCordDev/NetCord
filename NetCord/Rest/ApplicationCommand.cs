@@ -1,71 +1,83 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonApplicationCommand>
+public partial class ApplicationCommand(JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(client)
 {
-    JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonApplicationCommand _jsonModel = jsonModel;
-
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// Type of the command.
     /// </summary>
-    public ApplicationCommandType Type => _jsonModel.Type;
+    public ApplicationCommandType Type { get; } = jsonModel.Type;
 
     /// <summary>
     /// ID of the parent application.
     /// </summary>
-    public ulong ApplicationId => _jsonModel.ApplicationId;
+    public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 
     /// <summary>
     /// Name of the command (1-32 characters).
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name { get; } = jsonModel.Name;
 
     /// <summary>
     /// Localizations of <see cref="Name"/> (1-32 characters each).
     /// </summary>
-    public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; } = jsonModel.NameLocalizations;
 
     /// <summary>
     /// Description of the command (1-100 characters).
     /// </summary>
-    public string Description => _jsonModel.Description;
+    public string Description { get; } = jsonModel.Description;
 
     /// <summary>
     /// Localizations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
-    public IReadOnlyDictionary<string, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; } = jsonModel.DescriptionLocalizations;
 
     /// <summary>
     /// Default required permissions to use the command.
     /// </summary>
-    public Permissions? DefaultGuildPermissions => _jsonModel.DefaultGuildPermissions;
+    public Permissions? DefaultGuildPermissions { get; } = jsonModel.DefaultGuildPermissions;
 
     /// <summary>
     /// Parameters for the command (max 25).
     /// </summary>
-    public IReadOnlyList<ApplicationCommandOption> Options { get; } = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o, jsonModel.Name, jsonModel.Id)).ToArray();
+    public IReadOnlyList<ApplicationCommandOption>? Options { get; } = CreateOptions(jsonModel);
+
+    private static IReadOnlyList<ApplicationCommandOption>? CreateOptions(JsonApplicationCommand jsonModel)
+    {
+        if (jsonModel.Options is { } options)
+        {
+            var name = jsonModel.Name;
+            var id = jsonModel.Id;
+
+            return [.. options.Select(o => new ApplicationCommandOption(o, name, id))];
+        }
+
+        return null;
+    }
 
     /// <summary>
     /// Indicates whether the command is age-restricted.
     /// </summary>
-    public bool Nsfw => _jsonModel.Nsfw;
+    public bool Nsfw { get; } = jsonModel.Nsfw;
 
     /// <summary>
     /// Installation context(s) where the command is available, only for globally-scoped commands.
     /// </summary>
-    public IReadOnlyList<ApplicationIntegrationType>? IntegrationTypes => _jsonModel.IntegrationTypes;
+    public IReadOnlyList<ApplicationIntegrationType>? IntegrationTypes { get; } = jsonModel.IntegrationTypes;
 
     /// <summary>
     /// Interaction context(s) where the command can be used, only for globally-scoped commands.
     /// </summary>
-    public IReadOnlyList<InteractionContextType>? Contexts => _jsonModel.Contexts;
+    public IReadOnlyList<InteractionContextType>? Contexts { get; } = jsonModel.Contexts;
 
     /// <summary>
     /// Autoincrementing version identifier updated during substantial record changes.
     /// </summary>
-    public ulong Version => _jsonModel.Version;
+    public ulong Version { get; } = jsonModel.Version;
 
     public override string ToString() => $"</{Name}:{Id}>";
 
