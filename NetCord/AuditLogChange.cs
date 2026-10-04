@@ -19,8 +19,8 @@ public class AuditLogChange
         Key = key;
     }
 
-    private readonly JsonElement? _newValue;
-    private readonly JsonElement? _oldValue;
+    protected readonly JsonElement? _newValue;
+    protected readonly JsonElement? _oldValue;
 
     /// <summary>
     /// Name of the changed entity, with a few exceptions.
@@ -57,6 +57,10 @@ public class AuditLogChange
 
 public class AuditLogChange<TValue> : AuditLogChange
 {
+    public AuditLogChange(JsonAuditLogChange jsonModel, JsonTypeInfo<TValue> jsonTypeInfo) : this(jsonModel.NewValue, jsonModel.OldValue, jsonModel.Key, jsonTypeInfo)
+    {
+    }
+
     internal AuditLogChange(JsonElement? newValue, JsonElement? oldValue, string key, JsonTypeInfo<TValue> jsonTypeInfo) : base(newValue, oldValue, key)
     {
         if (newValue.HasValue)
@@ -68,7 +72,13 @@ public class AuditLogChange<TValue> : AuditLogChange
 
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
-    public AuditLogChange(JsonElement? newValue, JsonElement? oldValue, string key) : base(newValue, oldValue, key)
+    public AuditLogChange(JsonAuditLogChange jsonModel) : this(jsonModel.NewValue, jsonModel.OldValue, jsonModel.Key)
+    {
+    }
+
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    internal AuditLogChange(JsonElement? newValue, JsonElement? oldValue, string key) : base(newValue, oldValue, key)
     {
         if (newValue.HasValue)
             NewValue = newValue.GetValueOrDefault().ToObject<TValue>();
