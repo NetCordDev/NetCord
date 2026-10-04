@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public class JsonApplicationCommandInteractionDataOption
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public ApplicationCommandOptionType Type { get; set; }
+    public required ApplicationCommandOptionType Type { get; set; }
 
     [JsonConverter(typeof(JsonConverters.AnyValueToStringConverter))]
     [JsonPropertyName("value")]
@@ -18,5 +18,5 @@ public class JsonApplicationCommandInteractionDataOption
     public JsonApplicationCommandInteractionDataOption[]? Options { get; set; }
 
     [JsonPropertyName("focused")]
-    public bool Focused { get; set; }
+    public bool? Focused { get; set; }
 }
