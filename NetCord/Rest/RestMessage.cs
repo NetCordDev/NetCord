@@ -5,13 +5,8 @@ namespace NetCord.Rest;
 /// <summary>
 /// Represents a message sent in a channel within Discord.
 /// </summary>
-public partial class RestMessage(JsonMessage jsonModel, RestClient client) : ClientEntity(client)
+public partial class RestMessage(JsonMessage jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    /// <summary>
-    /// The ID of the message.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The ID of the channel the message was sent in.
     /// </summary>

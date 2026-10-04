@@ -5,13 +5,8 @@ namespace NetCord.Rest;
 /// <summary>
 /// Represents a webhook, a low-effort way to post messages to channels in Discord. They do not require a bot user or authentication to use.
 /// </summary>
-public partial class Webhook(JsonWebhook jsonModel, RestClient client) : ClientEntity(client)
+public partial class Webhook(JsonWebhook jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    /// <summary>
-    /// The ID of the webhook.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The type of the webhook.
     /// </summary>

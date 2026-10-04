@@ -3,13 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class PartialApplication(JsonPartialApplication jsonModel, RestClient client) : ClientEntity(client)
+public partial class PartialApplication(JsonPartialApplication jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    /// <summary>
-    /// The application's ID.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The application's name.
     /// </summary>

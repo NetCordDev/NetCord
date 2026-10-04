@@ -6,13 +6,8 @@ namespace NetCord;
 /// <summary>
 /// Represents a user that has joined a thread.
 /// </summary>
-public class ThreadUser(JsonThreadUser jsonModel, RestClient client) : ClientEntity(client), ISpanFormattable
+public class ThreadUser(JsonThreadUser jsonModel, RestClient client) : ClientEntity(jsonModel.UserId, client), ISpanFormattable
 {
-    /// <summary>
-    /// The thread user's ID.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.UserId;
-
     /// <summary>
     /// The ID corresponding to the joined thread.
     /// </summary>

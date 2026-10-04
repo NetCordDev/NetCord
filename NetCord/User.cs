@@ -9,16 +9,8 @@ namespace NetCord;
 /// <remarks>
 /// Users in Discord are generally considered the base entity and can be members of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of 'bot' vs 'normal'. Bot users are automated users that are 'owned' by another user.
 /// </remarks>
-public partial class User(JsonUser jsonModel, RestClient client) : ClientEntity(client)
+public partial class User(JsonUser jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    /// <summary>
-    /// The user's ID.
-    /// </summary>
-    /// <remarks>
-    /// Requires the <c>identify</c> OAuth2 scope.
-    /// </remarks>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The user's username, not unique across the platform. Restrictions:
     /// </summary>

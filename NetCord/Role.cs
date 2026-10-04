@@ -6,13 +6,8 @@ namespace NetCord;
 /// <summary>
 /// Represents a role in a guild.
 /// </summary>
-public partial class Role(JsonRole jsonModel, ulong guildId, RestClient client) : ClientEntity(client)
+public partial class Role(JsonRole jsonModel, ulong guildId, RestClient client) : ClientEntity(jsonModel, client)
 {
-    /// <summary>
-    /// The <see cref="Role"/>'s ID.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The name of the <see cref="Role"/>.
     /// </summary>

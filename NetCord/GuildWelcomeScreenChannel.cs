@@ -2,10 +2,8 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class GuildWelcomeScreenChannel(JsonGuildWelcomeScreenChannel jsonModel) : Entity
+public class GuildWelcomeScreenChannel(JsonGuildWelcomeScreenChannel jsonModel) : Entity(jsonModel.ChannelId)
 {
-    public override ulong Id { get; } = jsonModel.ChannelId;
-
     public string Description { get; } = jsonModel.Description;
 
     public ulong? EmojiId { get; } = jsonModel.EmojiId;

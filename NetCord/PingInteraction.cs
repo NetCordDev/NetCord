@@ -2,10 +2,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class PingInteraction(JsonModels.JsonInteraction jsonModel, InteractionResponseDelegate sendResponseAsync, RestClient client) : Entity, IInteraction
+public class PingInteraction(JsonModels.JsonInteraction jsonModel, InteractionResponseDelegate sendResponseAsync, RestClient client) : Entity(jsonModel), IInteraction
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 
     public User User { get; } = jsonModel.GuildId is { } guildId ? new GuildInteractionUser(jsonModel.GuildUser!, guildId, client) : new User(jsonModel.User!, client);

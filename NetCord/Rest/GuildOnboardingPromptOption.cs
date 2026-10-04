@@ -1,9 +1,7 @@
 namespace NetCord.Rest;
 
-public class GuildOnboardingPromptOption(JsonModels.JsonGuildOnboardingPromptOption jsonModel, ulong guildId, RestClient client) : Entity
+public class GuildOnboardingPromptOption(JsonModels.JsonGuildOnboardingPromptOption jsonModel, ulong guildId, RestClient client) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// Ids for channels an user is added to when the option is selected.
     /// </summary>

@@ -3,10 +3,8 @@ namespace NetCord.Rest;
 /// <summary>
 /// Represents a premium offering that can be made to application users/guilds.
 /// </summary>
-public partial class Sku(JsonModels.JsonSku jsonModel, RestClient client) : ClientEntity(client)
+public partial class Sku(JsonModels.JsonSku jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The SKU's purchase type.
     /// </summary>

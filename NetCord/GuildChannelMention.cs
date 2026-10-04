@@ -3,13 +3,8 @@ namespace NetCord;
 /// <summary>
 /// Represents a mentioned channel (such as <c>&lt;#1060153373401288816&gt;</c>).
 /// </summary>
-public class GuildChannelMention(JsonModels.JsonGuildChannelMention jsonModel) : Entity
+public class GuildChannelMention(JsonModels.JsonGuildChannelMention jsonModel) : Entity(jsonModel)
 {
-    /// <summary>
-    /// The guild channel's ID.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The containing guild's ID.
     /// </summary>

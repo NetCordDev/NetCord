@@ -5,13 +5,8 @@ namespace NetCord;
 /// <summary>
 /// Represents a sticker within Discord.
 /// </summary>
-public abstract class Sticker(JsonModels.JsonSticker jsonModel) : Entity
+public abstract class Sticker(JsonModels.JsonSticker jsonModel) : Entity(jsonModel)
 {
-    /// <summary>
-    /// The sticker's unique ID.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The sticker's name.
     /// </summary>

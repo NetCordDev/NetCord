@@ -2,13 +2,8 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public partial class PartialGuild(JsonPartialGuild jsonModel, RestClient client) : ClientEntity(client)
+public partial class PartialGuild(JsonPartialGuild jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    /// <summary>
-    /// The guild's ID.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The name of the <see cref="RestGuild"/>. Must be between 2 and 100 characters. Leading and trailing whitespace are trimmed.
     /// </summary>

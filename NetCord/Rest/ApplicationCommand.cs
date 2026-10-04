@@ -2,10 +2,8 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public partial class ApplicationCommand(JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(client), ISpanFormattable
+public partial class ApplicationCommand(JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(jsonModel, client), ISpanFormattable
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// Type of the command.
     /// </summary>

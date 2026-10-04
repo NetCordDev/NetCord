@@ -2,10 +2,8 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public class GuildOnboardingPrompt(JsonGuildOnboardingPrompt jsonModel, ulong guildId, RestClient client) : Entity
+public class GuildOnboardingPrompt(JsonGuildOnboardingPrompt jsonModel, ulong guildId, RestClient client) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// Type of prompt.
     /// </summary>

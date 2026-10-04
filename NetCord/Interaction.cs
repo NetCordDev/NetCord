@@ -4,10 +4,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract partial class Interaction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : ClientEntity(client), IInteraction
+public abstract partial class Interaction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : ClientEntity(jsonModel, client), IInteraction
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 
     public ulong? GuildId { get; } = jsonModel.GuildId;

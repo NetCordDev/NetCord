@@ -9,10 +9,8 @@ public class InteractionCallbackResponse(JsonInteractionCallbackResponse jsonMod
     public InteractionCallbackResponseResource? Resource { get; } = jsonModel.Resource is { } resource ? new(resource, client) : null;
 }
 
-public class InteractionCallbackResponseInteraction(JsonInteractionCallbackResponseInteraction jsonModel) : Entity
+public class InteractionCallbackResponseInteraction(JsonInteractionCallbackResponseInteraction jsonModel) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public InteractionType Type { get; } = jsonModel.Type;
 
     public string? ActivityInstanceId { get; } = jsonModel.ActivityInstanceId;

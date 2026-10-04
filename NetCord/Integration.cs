@@ -2,10 +2,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class Integration(JsonModels.JsonIntegration jsonModel, RestClient client) : Entity
+public class Integration(JsonModels.JsonIntegration jsonModel, RestClient client) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public string Name { get; } = jsonModel.Name;
 
     public IntegrationType Type { get; } = jsonModel.Type;

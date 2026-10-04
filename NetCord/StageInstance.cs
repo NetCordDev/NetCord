@@ -3,10 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class StageInstance(JsonStageInstance jsonModel, RestClient client) : ClientEntity(client)
+public partial class StageInstance(JsonStageInstance jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    public override ulong Id { get; } = jsonModel.ChannelId;
-
     public ulong GuildId { get; } = jsonModel.GuildId;
 
     public ulong ChannelId { get; } = jsonModel.ChannelId;

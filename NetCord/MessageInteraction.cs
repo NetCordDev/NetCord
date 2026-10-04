@@ -3,10 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class MessageInteraction(JsonMessageInteraction jsonModel, ulong? guildId, RestClient client) : Entity
+public class MessageInteraction(JsonMessageInteraction jsonModel, ulong? guildId, RestClient client) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public InteractionType Type { get; } = jsonModel.Type;
 
     public string Name { get; } = jsonModel.Name;

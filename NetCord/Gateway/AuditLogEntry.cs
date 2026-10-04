@@ -2,10 +2,8 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway;
 
-public class AuditLogEntry(JsonAuditLogEntry jsonModel, ulong guildId) : Entity
+public class AuditLogEntry(JsonAuditLogEntry jsonModel, ulong guildId) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// ID of the affected entity.
     /// </summary>

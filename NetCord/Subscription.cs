@@ -2,13 +2,8 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class Subscription(JsonSubscription jsonModel) : Entity
+public class Subscription(JsonSubscription jsonModel) : Entity(jsonModel)
 {
-    /// <summary>
-    /// The ID of the subscription.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The ID of the user who is subscribed.
     /// </summary>

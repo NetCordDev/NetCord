@@ -5,13 +5,8 @@ namespace NetCord;
 /// <summary>
 /// Represents a group of developers / Discord users who share access to an application's configuration.
 /// </summary>
-public class Team(JsonModels.JsonTeam jsonModel, RestClient client) : Entity
+public class Team(JsonModels.JsonTeam jsonModel, RestClient client) : Entity(jsonModel)
 {
-    /// <summary>
-    /// The team's unique ID.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The team's icon image hash.
     /// </summary>

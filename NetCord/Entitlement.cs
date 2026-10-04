@@ -3,10 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class Entitlement(JsonEntitlement jsonModel, RestClient client) : ClientEntity(client)
+public partial class Entitlement(JsonEntitlement jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// ID of the SKU.
     /// </summary>

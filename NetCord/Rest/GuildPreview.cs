@@ -2,10 +2,8 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public class GuildPreview(JsonGuildPreview jsonModel, RestClient client) : ClientEntity(client)
+public class GuildPreview(JsonGuildPreview jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public string Name { get; } = jsonModel.Name;
 
     public string? IconHash { get; } = jsonModel.IconHash;

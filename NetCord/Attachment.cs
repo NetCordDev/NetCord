@@ -9,10 +9,8 @@ namespace NetCord;
 /// <summary>
 /// Represents a message attachment, and its contained data.
 /// </summary>
-public class Attachment(JsonAttachment jsonModel) : Entity
+public class Attachment(JsonAttachment jsonModel) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// Name of the attachment (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).
     /// </summary>

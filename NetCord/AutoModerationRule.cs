@@ -3,10 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class AutoModerationRule(JsonAutoModerationRule jsonModel, RestClient client) : ClientEntity(client)
+public partial class AutoModerationRule(JsonAutoModerationRule jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public ulong GuildId { get; } = jsonModel.GuildId;
 
     public string Name { get; } = jsonModel.Name;

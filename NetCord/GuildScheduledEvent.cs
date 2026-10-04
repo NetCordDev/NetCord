@@ -2,10 +2,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : ClientEntity(client)
+public partial class GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public ulong GuildId { get; } = jsonModel.GuildId;
 
     public ulong? ChannelId { get; } = jsonModel.ChannelId;

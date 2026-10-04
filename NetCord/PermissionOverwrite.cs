@@ -3,13 +3,8 @@ namespace NetCord;
 /// <summary>
 /// Represents the set of permission overwrites for a given user/role ID.
 /// </summary>
-public class PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonModel) : Entity
+public class PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonModel) : Entity(jsonModel)
 {
-    /// <summary>
-    /// The ID of the user/role affected by this overwrite.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// Specifies whether the overwrite applies to a user, or a role.
     /// </summary>

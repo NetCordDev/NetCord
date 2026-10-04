@@ -3,10 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract partial class Channel(JsonChannel jsonModel, RestClient client) : ClientEntity(client), IInteractionChannel
+public abstract partial class Channel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IInteractionChannel
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public ChannelFlags Flags { get; } = jsonModel.Flags.GetValueOrDefault();
 
     Permissions IInteractionChannel.Permissions { get; } = jsonModel.Permissions.GetValueOrDefault();

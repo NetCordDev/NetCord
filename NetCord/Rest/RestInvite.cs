@@ -2,10 +2,8 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public class RestInviteChannel(JsonRestInviteChannel jsonModel) : Entity
+public class RestInviteChannel(JsonRestInviteChannel jsonModel) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public string Name { get; } = jsonModel.Name;
 
     public ChannelType Type { get; } = jsonModel.Type;

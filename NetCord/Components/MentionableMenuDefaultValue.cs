@@ -2,9 +2,7 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class MentionableMenuDefaultValue(JsonEntitySelectDefaultValue jsonModel) : Entity
+public class MentionableMenuDefaultValue(JsonEntitySelectDefaultValue jsonModel) : Entity(jsonModel)
 {
-    public override ulong Id { get; } = jsonModel.Id;
-
     public MentionableMenuDefaultValueType Type { get; } = (MentionableMenuDefaultValueType)jsonModel.Type;
 }

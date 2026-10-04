@@ -22,11 +22,8 @@ public class Presence(JsonPresence jsonModel, ulong guildId, RestClient client)
 /// <remarks>
 /// Users in Discord are generally considered the base entity and can be members of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of 'bot' vs 'normal'. Bot users are automated users that are 'owned' by another user.
 /// </remarks>
-public partial class PresenceUser(JsonPresenceUser jsonModel, RestClient client) : ClientEntity(client)
+public partial class PresenceUser(JsonPresenceUser jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    /// <inheritdoc cref="User.Id" />
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <inheritdoc cref="User.Username" />
     public string? Username { get; } = jsonModel.Username;
 

@@ -66,7 +66,6 @@ public partial class RestGuild(JsonRestGuild jsonModel, RestClient client, IDict
 
         return result;
     }
-    public override ulong Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the <see cref="RestGuild"/>'s icon.

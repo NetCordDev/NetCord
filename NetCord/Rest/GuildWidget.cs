@@ -1,25 +1,16 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildWidget : Entity
+public class GuildWidget(JsonGuildWidget jsonModel, RestClient client) : Entity(jsonModel)
 {
-    private readonly JsonModels.JsonGuildWidget _jsonModel;
+    public string Name { get; } = jsonModel.Name;
 
-    public override ulong Id => _jsonModel.Id;
+    public string? InstantInvite { get; } = jsonModel.InstantInvite;
 
-    public string Name => _jsonModel.Name;
+    public IReadOnlyDictionary<ulong, GuildWidgetChannel> Channels { get; } = jsonModel.Channels.ToDictionary(c => c.Id, c => new GuildWidgetChannel(c));
 
-    public string? InstantInvite => _jsonModel.InstantInvite;
+    public IReadOnlyDictionary<ulong, User> Users { get; } = jsonModel.Users.ToDictionary(u => u.Id, u => new User(u, client));
 
-    public IReadOnlyDictionary<ulong, GuildWidgetChannel> Channels { get; }
-
-    public IReadOnlyDictionary<ulong, User> Users { get; }
-
-    public int PresenceCount => _jsonModel.PresenceCount;
-
-    public GuildWidget(JsonModels.JsonGuildWidget jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        Channels = _jsonModel.Channels.ToDictionary(c => c.Id, c => new GuildWidgetChannel(c));
-        Users = _jsonModel.Users.ToDictionary(u => u.Id, u => new User(u, client));
-    }
+    public int PresenceCount { get; } = jsonModel.PresenceCount;
 }

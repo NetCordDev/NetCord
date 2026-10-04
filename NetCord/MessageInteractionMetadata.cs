@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class MessageInteractionMetadata(JsonMessageInteractionMetadata jsonModel, RestClient client) : Entity
+public class MessageInteractionMetadata(JsonMessageInteractionMetadata jsonModel, RestClient client) : Entity(jsonModel)
 {
     public static MessageInteractionMetadata Create(JsonMessageInteractionMetadata jsonModel, RestClient client)
     {
@@ -15,8 +15,6 @@ public class MessageInteractionMetadata(JsonMessageInteractionMetadata jsonModel
             _ => new MessageUnknownInteractionMetadata(jsonModel, client),
         };
     }
-
-    public override ulong Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// Type of interaction.

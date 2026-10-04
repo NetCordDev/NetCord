@@ -3,14 +3,9 @@ namespace NetCord.Services;
 /// <summary>
 /// Represents a user ID with an optional user object.
 /// </summary>
-/// <param name="id"><inheritdoc cref="Id" path="/summary" /></param>
-public class UserId(ulong id) : Entity, ISpanFormattable
+/// <param name="id">The ID of the user.</param>
+public class UserId(ulong id) : Entity(id), ISpanFormattable
 {
-    /// <summary>
-    /// The ID of the user.
-    /// </summary>
-    public override ulong Id { get; } = id;
-
     /// <summary>
     /// The user object, if available.
     /// </summary>
@@ -19,7 +14,7 @@ public class UserId(ulong id) : Entity, ISpanFormattable
     /// <summary>
     /// <inheritdoc cref="UserId" path="/summary" />
     /// </summary>
-    /// <param name="id"><inheritdoc cref="Id" path="/summary" /></param>
+    /// <param name="id">The ID of the user.</param>
     /// <param name="user"><inheritdoc cref="User" path="/summary" /></param>
     public UserId(ulong id, User? user) : this(id)
     {

@@ -5,13 +5,8 @@ namespace NetCord;
 /// <summary>
 /// Represents a tag that can be applied to a <see cref="ForumGuildThread"/>.
 /// </summary>
-public class ForumTag(JsonForumTag jsonModel) : Entity
+public class ForumTag(JsonForumTag jsonModel) : Entity(jsonModel)
 {
-    /// <summary>
-    /// The ID of the tag.
-    /// </summary>
-    public override ulong Id { get; } = jsonModel.Id;
-
     /// <summary>
     /// The name of the tag, between 0 and 20 characters.
     /// </summary>
