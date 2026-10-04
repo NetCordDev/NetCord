@@ -30,7 +30,7 @@ public class ApplicationCommandOption(JsonModels.JsonApplicationCommandOption js
     /// <summary>
     /// If the parameter is required or optional.
     /// </summary>
-    public bool Required { get; } = jsonModel.Required;
+    public bool Required { get; } = jsonModel.Required.GetValueOrDefault();
 
     /// <summary>
     /// Choices for the user to pick from (max 25).
@@ -70,7 +70,7 @@ public class ApplicationCommandOption(JsonModels.JsonApplicationCommandOption js
     /// <summary>
     /// If autocomplete interactions are enabled for the option.
     /// </summary>
-    public bool Autocomplete { get; } = jsonModel.Autocomplete;
+    public bool Autocomplete { get; } = jsonModel.Autocomplete.GetValueOrDefault();
 
     /// <summary>
     /// File types to filter for; can be <c>image</c>, <c>video</c>, <c>audio</c>, or any dot-prefixed extension such as <c>.pdf</c> (max 10).
