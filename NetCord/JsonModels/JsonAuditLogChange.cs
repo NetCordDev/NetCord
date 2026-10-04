@@ -1,9 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonAuditLogChange
+[JsonGuard]
+public partial class JsonAuditLogChange
 {
     [JsonPropertyName("new_value")]
     public JsonElement? NewValue { get; set; }
@@ -12,5 +15,5 @@ public class JsonAuditLogChange
     public JsonElement? OldValue { get; set; }
 
     [JsonPropertyName("key")]
-    public required string Key { get; set; }
+    public string Key { get; set; }
 }

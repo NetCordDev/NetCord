@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
 public class JsonEmbed
@@ -47,10 +49,11 @@ public class JsonEmbed
     public EmbedFlags? Flags { get; set; }
 }
 
-public class JsonEmbedFooter
+[JsonGuard]
+public partial class JsonEmbedFooter
 {
     [JsonPropertyName("text")]
-    public required string Text { get; set; }
+    public string Text { get; set; }
 
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; set; }
@@ -59,10 +62,11 @@ public class JsonEmbedFooter
     public string? ProxyIconUrl { get; set; }
 }
 
-public class JsonEmbedImage
+[JsonGuard]
+public partial class JsonEmbedImage
 {
     [JsonPropertyName("url")]
-    public required string Url { get; set; }
+    public string Url { get; set; }
 
     [JsonPropertyName("proxy_url")]
     public string? ProxyUrl { get; set; }
@@ -128,10 +132,11 @@ public class JsonEmbedProvider
     public string? Url { get; set; }
 }
 
-public class JsonEmbedAuthor
+[JsonGuard]
+public partial class JsonEmbedAuthor
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("url")]
     public string? Url { get; set; }
@@ -143,13 +148,14 @@ public class JsonEmbedAuthor
     public string? ProxyIconUrl { get; set; }
 }
 
-public class JsonEmbedField
+[JsonGuard]
+public partial class JsonEmbedField
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("value")]
-    public required string Value { get; set; }
+    public string Value { get; set; }
 
     [JsonPropertyName("inline")]
     public bool? Inline { get; set; }

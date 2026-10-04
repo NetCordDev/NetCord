@@ -1,23 +1,26 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonApplicationRoleConnectionMetadata
+[JsonGuard]
+public partial class JsonApplicationRoleConnectionMetadata
 {
     [JsonPropertyName("type")]
-    public required ApplicationRoleConnectionMetadataType Type { get; set; }
+    public ApplicationRoleConnectionMetadataType Type { get; set; }
 
     [JsonPropertyName("key")]
-    public required string Key { get; set; }
+    public string Key { get; set; }
 
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }

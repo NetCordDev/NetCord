@@ -1,11 +1,14 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonVoiceServerUpdateEventArgs
+[JsonGuard]
+public partial class JsonVoiceServerUpdateEventArgs
 {
     [JsonPropertyName("token")]
-    public required string Token { get; set; }
+    public string Token { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }

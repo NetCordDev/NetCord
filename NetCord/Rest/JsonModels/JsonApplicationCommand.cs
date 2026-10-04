@@ -2,27 +2,30 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonApplicationCommand : JsonEntity
+[JsonGuard]
+public partial class JsonApplicationCommand : JsonEntity
 {
     [JsonPropertyName("type")]
     public ApplicationCommandType Type { get; set; } = ApplicationCommandType.ChatInput;
 
     [JsonPropertyName("application_id")]
-    public required ulong ApplicationId { get; set; }
+    public ulong ApplicationId { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
 
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }
@@ -43,5 +46,5 @@ public class JsonApplicationCommand : JsonEntity
     public InteractionContextType[]? Contexts { get; set; }
 
     [JsonPropertyName("version")]
-    public required ulong Version { get; set; }
+    public ulong Version { get; set; }
 }

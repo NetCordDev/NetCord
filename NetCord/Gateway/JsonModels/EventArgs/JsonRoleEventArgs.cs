@@ -2,13 +2,16 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-internal class JsonRoleEventArgs
+[JsonGuard]
+internal partial class JsonRoleEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("role")]
-    public required JsonRole Role { get; set; }
+    public JsonRole Role { get; set; }
 }

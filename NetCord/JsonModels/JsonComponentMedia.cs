@@ -1,11 +1,14 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonComponentMedia
+[JsonGuard]
+public partial class JsonComponentMedia
 {
     [JsonPropertyName("url")]
-    public required string Url { get; set; }
+    public string Url { get; set; }
 
     [JsonPropertyName("proxy_url")]
     public string? ProxyUrl { get; set; }

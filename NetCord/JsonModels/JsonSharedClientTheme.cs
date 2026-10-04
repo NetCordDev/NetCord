@@ -1,11 +1,14 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonSharedClientTheme
+[JsonGuard]
+public partial class JsonSharedClientTheme
 {
     [JsonPropertyName("colors")]
-    public required Color[] Colors { get; set; }
+    public Color[] Colors { get; set; }
 
     [JsonPropertyName("gradient_angle")]
     public int GradientAngle { get; set; }

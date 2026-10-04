@@ -1,18 +1,21 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplicationCommandGuildPermissions
+[JsonGuard]
+public partial class JsonApplicationCommandGuildPermissions
 {
     [JsonPropertyName("id")]
-    public required ulong CommandId { get; set; }
+    public ulong CommandId { get; set; }
 
     [JsonPropertyName("application_id")]
-    public required ulong ApplicationId { get; set; }
+    public ulong ApplicationId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("permissions")]
-    public required JsonApplicationCommandGuildPermission[] Permissions { get; set; }
+    public JsonApplicationCommandGuildPermission[] Permissions { get; set; }
 }

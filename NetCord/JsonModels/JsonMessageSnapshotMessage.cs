@@ -1,32 +1,35 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonMessageSnapshotMessage
+[JsonGuard]
+public partial class JsonMessageSnapshotMessage
 {
     [JsonPropertyName("type")]
-    public required MessageType Type { get; set; }
+    public MessageType Type { get; set; }
 
     [JsonPropertyName("content")]
-    public required string Content { get; set; }
+    public string Content { get; set; }
 
     [JsonPropertyName("embeds")]
-    public required JsonEmbed[] Embeds { get; set; }
+    public JsonEmbed[] Embeds { get; set; }
 
     [JsonPropertyName("attachments")]
-    public required JsonAttachment[] Attachments { get; set; }
+    public JsonAttachment[] Attachments { get; set; }
 
     [JsonPropertyName("edited_timestamp")]
     public DateTimeOffset? EditedAt { get; set; }
 
     [JsonPropertyName("flags")]
-    public required MessageFlags? Flags { get; set; }
+    public MessageFlags? Flags { get; set; }
 
     [JsonPropertyName("mentions")]
-    public required JsonUser[] MentionedUsers { get; set; }
+    public JsonUser[] MentionedUsers { get; set; }
 
     [JsonPropertyName("mention_roles")]
-    public required ulong[] MentionedRoleIds { get; set; }
+    public ulong[] MentionedRoleIds { get; set; }
 
     [JsonPropertyName("sticker_items")]
     public JsonMessageSticker[]? Stickers { get; set; }

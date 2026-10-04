@@ -1,11 +1,14 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonAttachment : JsonEntity
+[JsonGuard]
+public partial class JsonAttachment : JsonEntity
 {
     [JsonPropertyName("filename")]
-    public required string FileName { get; set; }
+    public string FileName { get; set; }
 
     [JsonPropertyName("title")]
     public string? Title { get; set; }
@@ -17,13 +20,13 @@ public class JsonAttachment : JsonEntity
     public string? ContentType { get; set; }
 
     [JsonPropertyName("size")]
-    public required long Size { get; set; }
+    public long Size { get; set; }
 
     [JsonPropertyName("url")]
-    public required string Url { get; set; }
+    public string Url { get; set; }
 
     [JsonPropertyName("proxy_url")]
-    public required string ProxyUrl { get; set; }
+    public string ProxyUrl { get; set; }
 
     [JsonPropertyName("height")]
     public int? Height { get; set; }

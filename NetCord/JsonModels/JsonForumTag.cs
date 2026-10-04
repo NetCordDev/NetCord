@@ -1,14 +1,17 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonForumTag : JsonEntity
+[JsonGuard]
+public partial class JsonForumTag : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("moderated")]
-    public required bool Moderated { get; set; }
+    public bool Moderated { get; set; }
 
     [JsonPropertyName("emoji_id")]
     public ulong? EmojiId { get; set; }

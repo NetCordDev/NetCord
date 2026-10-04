@@ -1,18 +1,21 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonNameplate
+[JsonGuard]
+public partial class JsonNameplate
 {
     [JsonPropertyName("sku_id")]
-    public required ulong SkuId { get; set; }
+    public ulong SkuId { get; set; }
 
     [JsonPropertyName("asset")]
-    public required string Asset { get; set; }
+    public string Asset { get; set; }
 
     [JsonPropertyName("label")]
-    public required string Label { get; set; }
+    public string Label { get; set; }
 
     [JsonPropertyName("palette")]
-    public required string Palette { get; set; }
+    public string Palette { get; set; }
 }

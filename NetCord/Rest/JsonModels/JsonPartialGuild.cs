@@ -2,12 +2,15 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonPartialGuild : JsonEntity
+[JsonGuard]
+public partial class JsonPartialGuild : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }

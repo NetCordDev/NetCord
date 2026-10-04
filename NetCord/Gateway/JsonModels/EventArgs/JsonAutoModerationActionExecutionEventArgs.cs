@@ -2,24 +2,27 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonAutoModerationActionExecutionEventArgs
+[JsonGuard]
+public partial class JsonAutoModerationActionExecutionEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("action")]
-    public required JsonAutoModerationAction Action { get; set; }
+    public JsonAutoModerationAction Action { get; set; }
 
     [JsonPropertyName("rule_id")]
-    public required ulong RuleId { get; set; }
+    public ulong RuleId { get; set; }
 
     [JsonPropertyName("rule_trigger_type")]
-    public required AutoModerationRuleTriggerType RuleTriggerType { get; set; }
+    public AutoModerationRuleTriggerType RuleTriggerType { get; set; }
 
     [JsonPropertyName("user_id")]
-    public required ulong UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }

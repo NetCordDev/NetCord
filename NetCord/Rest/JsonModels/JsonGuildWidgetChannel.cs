@@ -2,25 +2,29 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildWidgetChannel : JsonEntity
+[JsonGuard]
+public partial class JsonGuildWidgetChannel : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("position")]
-    public required int Position { get; set; }
+    public int Position { get; set; }
 }
 
-public class JsonGuildWidgetUser : JsonEntity
+[JsonGuard]
+public partial class JsonGuildWidgetUser : JsonEntity
 {
     [JsonPropertyName("username")]
-    public required string Username { get; set; }
+    public string Username { get; set; }
 
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("discriminator")]
-    public required ushort Discriminator { get; set; }
+    public ushort Discriminator { get; set; }
 
     [JsonPropertyName("avatar")]
     public string? AvatarHash { get; set; }

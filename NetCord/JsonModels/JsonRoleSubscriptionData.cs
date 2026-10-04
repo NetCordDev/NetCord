@@ -1,18 +1,21 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonRoleSubscriptionData
+[JsonGuard]
+public partial class JsonRoleSubscriptionData
 {
     [JsonPropertyName("role_subscription_listing_id")]
-    public required ulong RoleSubscriptionListingId { get; set; }
+    public ulong RoleSubscriptionListingId { get; set; }
 
     [JsonPropertyName("tier_name")]
-    public required string TierName { get; set; }
+    public string TierName { get; set; }
 
     [JsonPropertyName("total_months_subscribed")]
-    public required int TotalMonthsSubscribed { get; set; }
+    public int TotalMonthsSubscribed { get; set; }
 
     [JsonPropertyName("is_renewal")]
-    public required bool IsRenewal { get; set; }
+    public bool IsRenewal { get; set; }
 }

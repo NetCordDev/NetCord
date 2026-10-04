@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonMessageSticker : JsonEntity
+[JsonGuard]
+public partial class JsonMessageSticker : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("format_type")]
-    public required StickerFormat Format { get; set; }
+    public StickerFormat Format { get; set; }
 }

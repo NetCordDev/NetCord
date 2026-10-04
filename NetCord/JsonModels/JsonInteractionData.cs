@@ -5,18 +5,21 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonConverters;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplicationCommandInteractionData
+[JsonGuard]
+public partial class JsonApplicationCommandInteractionData
 {
     [JsonPropertyName("id")]
-    public required ulong Id { get; set; }
+    public ulong Id { get; set; }
 
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public required ApplicationCommandType Type { get; set; }
+    public ApplicationCommandType Type { get; set; }
 
     [JsonPropertyName("resolved")]
     public JsonInteractionResolvedData? Resolved { get; set; }
@@ -33,8 +36,10 @@ public class JsonApplicationCommandInteractionData
 
 public abstract class JsonComponentInteractionData
 {
+#pragma warning disable CS8618
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
+#pragma warning restore CS8618
 
     [JsonPropertyName("resolved")]
     public JsonInteractionResolvedData? Resolved { get; set; }
@@ -44,10 +49,10 @@ public abstract class JsonComponentInteractionData
 public abstract class JsonMessageComponentInteractionData : JsonComponentInteractionData
 {
     [JsonPropertyName("component_type")]
-    public required ComponentType Type { get; set; }
+    public ComponentType Type { get; set; }
 
     [JsonPropertyName("id")]
-    public required int Id { get; set; }
+    public int Id { get; set; }
 
     public class Converter : JsonConverter<JsonMessageComponentInteractionData>
     {
@@ -78,20 +83,21 @@ public abstract class JsonMessageComponentInteractionData : JsonComponentInterac
     }
 }
 
-public class JsonModalSubmitInteractionData : JsonComponentInteractionData
+[JsonGuard]
+public partial class JsonModalSubmitInteractionData : JsonComponentInteractionData
 {
     [JsonPropertyName("components")]
-    public required JsonComponentData[] Components { get; set; }
+    public JsonComponentData[] Components { get; set; }
 }
 
 [JsonConverter(typeof(Converter))]
 public abstract class JsonComponentData
 {
     [JsonPropertyName("type")]
-    public required virtual ComponentType Type { get; set; }
+    public virtual ComponentType Type { get; set; }
 
     [JsonPropertyName("id")]
-    public required int Id { get; set; }
+    public int Id { get; set; }
 
     public class Converter : JsonConverter<JsonComponentData>
     {
@@ -128,113 +134,137 @@ public abstract class JsonComponentData
     }
 }
 
-public class JsonButtonComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonButtonComponentData : JsonComponentData
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 }
 
-public class JsonStringSelectComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonStringSelectComponentData : JsonComponentData
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("values")]
-    public required string[] Values { get; set; }
+    public string[] Values { get; set; }
 }
 
-public class JsonTextInputComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonTextInputComponentData : JsonComponentData
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("value")]
-    public required string Value { get; set; }
+    public string Value { get; set; }
 }
 
 public abstract class JsonEntitySelectComponentData : JsonComponentData
 {
+#pragma warning disable CS8618
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
+#pragma warning restore CS8618
 
+#pragma warning disable CS8618
     [JsonPropertyName("values")]
-    public required ulong[] Values { get; set; }
+    public ulong[] Values { get; set; }
+#pragma warning restore CS8618
 }
 
-public class JsonUserSelectComponentData : JsonEntitySelectComponentData;
+[JsonGuard]
+public partial class JsonUserSelectComponentData : JsonEntitySelectComponentData;
 
-public class JsonRoleSelectComponentData : JsonEntitySelectComponentData;
+[JsonGuard]
+public partial class JsonRoleSelectComponentData : JsonEntitySelectComponentData;
 
-public class JsonMentionableSelectComponentData : JsonEntitySelectComponentData;
+[JsonGuard]
+public partial class JsonMentionableSelectComponentData : JsonEntitySelectComponentData;
 
-public class JsonChannelSelectComponentData : JsonEntitySelectComponentData;
+[JsonGuard]
+public partial class JsonChannelSelectComponentData : JsonEntitySelectComponentData;
 
 public class JsonTextDisplayComponentData : JsonComponentData;
 
-public class JsonLabelComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonLabelComponentData : JsonComponentData
 {
     [JsonPropertyName("component")]
-    public required JsonComponentData Component { get; set; }
+    public JsonComponentData Component { get; set; }
 }
 
-public class JsonFileUploadComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonFileUploadComponentData : JsonComponentData
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("values")]
-    public required ulong[] Values { get; set; }
+    public ulong[] Values { get; set; }
 }
 
-public class JsonRadioGroupComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonRadioGroupComponentData : JsonComponentData
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("value")]
-    public required string? Value { get; set; }
+    public string? Value { get; set; }
 }
 
-public class JsonCheckboxGroupComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonCheckboxGroupComponentData : JsonComponentData
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("values")]
-    public required string[] Values { get; set; }
+    public string[] Values { get; set; }
 }
 
-public class JsonCheckboxComponentData : JsonComponentData
+[JsonGuard]
+public partial class JsonCheckboxComponentData : JsonComponentData
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("value")]
-    public required bool Value { get; set; }
+    public bool Value { get; set; }
 }
 
 public class JsonUnknownComponentData : JsonComponentData;
 
-public class JsonButtonInteractionData : JsonMessageComponentInteractionData;
+[JsonGuard]
+public partial class JsonButtonInteractionData : JsonMessageComponentInteractionData;
 
-public class JsonStringSelectInteractionData : JsonMessageComponentInteractionData
+[JsonGuard]
+public partial class JsonStringSelectInteractionData : JsonMessageComponentInteractionData
 {
     [JsonPropertyName("values")]
-    public required string[] Values { get; set; }
+    public string[] Values { get; set; }
 }
 
-public class JsonEntitySelectInteractionData : JsonMessageComponentInteractionData
+[JsonGuard]
+public partial class JsonEntitySelectInteractionData : JsonMessageComponentInteractionData
 {
     [JsonPropertyName("values")]
-    public required ulong[] Values { get; set; }
+    public ulong[] Values { get; set; }
 }
 
-public class JsonUserSelectInteractionData : JsonEntitySelectInteractionData;
+[JsonGuard]
+public partial class JsonUserSelectInteractionData : JsonEntitySelectInteractionData;
 
-public class JsonRoleSelectInteractionData : JsonEntitySelectInteractionData;
+[JsonGuard]
+public partial class JsonRoleSelectInteractionData : JsonEntitySelectInteractionData;
 
-public class JsonMentionableSelectInteractionData : JsonEntitySelectInteractionData;
+[JsonGuard]
+public partial class JsonMentionableSelectInteractionData : JsonEntitySelectInteractionData;
 
-public class JsonChannelSelectInteractionData : JsonEntitySelectInteractionData;
+[JsonGuard]
+public partial class JsonChannelSelectInteractionData : JsonEntitySelectInteractionData;
 
-public class JsonUnknownComponentInteractionData : JsonMessageComponentInteractionData;
+[JsonGuard]
+public partial class JsonUnknownComponentInteractionData : JsonMessageComponentInteractionData;

@@ -2,33 +2,37 @@ using System.Text.Json.Serialization;
 
 using NetCord.Rest.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonPartialApplication : JsonEntity
+[JsonGuard]
+public partial class JsonPartialApplication : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }
 
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; }
 
     [JsonPropertyName("bot_public")]
-    public required bool BotPublic { get; set; }
+    public bool BotPublic { get; set; }
 
     [JsonPropertyName("bot_require_code_grant")]
-    public required bool BotRequireCodeGrant { get; set; }
+    public bool BotRequireCodeGrant { get; set; }
 
     [JsonPropertyName("verify_key")]
-    public required string VerifyKey { get; set; }
+    public string VerifyKey { get; set; }
 }
 
-public class JsonApplication : JsonPartialApplication
+[JsonGuard]
+public partial class JsonApplication : JsonPartialApplication
 {
     [JsonPropertyName("rpc_origins")]
-    public required string[] RpcOrigins { get; set; }
+    public string[] RpcOrigins { get; set; }
 
     [JsonPropertyName("bot")]
     public JsonUser? Bot { get; set; }
@@ -82,7 +86,7 @@ public class JsonApplication : JsonPartialApplication
     public string? EventWebhooksUrl { get; set; }
 
     [JsonPropertyName("event_webhooks_status")]
-    public required ApplicationEventWebhooksStatus EventWebhooksStatus { get; set; }
+    public ApplicationEventWebhooksStatus EventWebhooksStatus { get; set; }
 
     [JsonPropertyName("event_webhooks_types")]
     public string[]? EventWebhooksTypes { get; set; }
@@ -94,7 +98,7 @@ public class JsonApplication : JsonPartialApplication
     public JsonApplicationInstallParams? InstallParams { get; set; }
 
     [JsonPropertyName("integration_types_config")]
-    public required IReadOnlyDictionary<ApplicationIntegrationType, JsonApplicationIntegrationTypeConfiguration> IntegrationTypesConfiguration { get; set; }
+    public IReadOnlyDictionary<ApplicationIntegrationType, JsonApplicationIntegrationTypeConfiguration> IntegrationTypesConfiguration { get; set; }
 
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }

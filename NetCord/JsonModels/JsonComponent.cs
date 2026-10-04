@@ -5,16 +5,18 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonConverters;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
 [JsonConverter(typeof(JsonComponentConverter))]
-public class JsonComponent
+public abstract class JsonComponent
 {
     [JsonPropertyName("type")]
-    public required ComponentType Type { get; set; }
+    public ComponentType Type { get; set; }
 
     [JsonPropertyName("id")]
-    public required int Id { get; set; }
+    public int Id { get; set; }
 
     public class JsonComponentConverter : JsonConverter<JsonComponent>
     {
@@ -67,16 +69,17 @@ public class JsonComponent
     }
 }
 
-public class JsonActionRowComponent : JsonComponent
+[JsonGuard]
+public partial class JsonActionRowComponent : JsonComponent
 {
     [JsonPropertyName("components")]
-    public required JsonComponent[] Components { get; set; }
+    public JsonComponent[] Components { get; set; }
 }
 
-public class JsonButtonComponent : JsonComponent
+public partial class JsonButtonComponent : JsonComponent
 {
     [JsonPropertyName("style")]
-    public required ButtonStyle Style { get; set; }
+    public ButtonStyle Style { get; set; }
 
     [JsonPropertyName("label")]
     public string? Label { get; set; }
@@ -97,10 +100,11 @@ public class JsonButtonComponent : JsonComponent
     public bool? Disabled { get; set; }
 }
 
-public class JsonSelectComponent : JsonComponent
+[JsonGuard]
+public partial class JsonSelectComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; set; }
@@ -118,19 +122,21 @@ public class JsonSelectComponent : JsonComponent
     public bool? Disabled { get; set; }
 }
 
-public class JsonStringSelectComponent : JsonSelectComponent
+[JsonGuard]
+public partial class JsonStringSelectComponent : JsonSelectComponent
 {
     [JsonPropertyName("options")]
-    public required JsonStringSelectOption[] Options { get; set; }
+    public JsonStringSelectOption[] Options { get; set; }
 }
 
-public class JsonTextInputComponent : JsonComponent
+[JsonGuard]
+public partial class JsonTextInputComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("style")]
-    public required TextInputStyle Style { get; set; }
+    public TextInputStyle Style { get; set; }
 
     [JsonPropertyName("min_length")]
     public int? MinLength { get; set; }
@@ -154,43 +160,50 @@ public abstract class JsonEntitySelectComponent : JsonSelectComponent
     public JsonEntitySelectDefaultValue[]? DefaultValues { get; set; }
 }
 
-public class JsonUserSelectComponent : JsonEntitySelectComponent
+[JsonGuard]
+public partial class JsonUserSelectComponent : JsonEntitySelectComponent
 {
 }
 
-public class JsonRoleSelectComponent : JsonEntitySelectComponent
+[JsonGuard]
+public partial class JsonRoleSelectComponent : JsonEntitySelectComponent
 {
 }
 
-public class JsonMentionableSelectComponent : JsonEntitySelectComponent
+[JsonGuard]
+public partial class JsonMentionableSelectComponent : JsonEntitySelectComponent
 {
 }
 
-public class JsonChannelSelectComponent : JsonEntitySelectComponent
+[JsonGuard]
+public partial class JsonChannelSelectComponent : JsonEntitySelectComponent
 {
     [JsonPropertyName("channel_types")]
     public ChannelType[]? ChannelTypes { get; set; }
 }
 
-public class JsonComponentSectionComponent : JsonComponent
+[JsonGuard]
+public partial class JsonComponentSectionComponent : JsonComponent
 {
     [JsonPropertyName("components")]
-    public required JsonComponent[] Components { get; set; }
+    public JsonComponent[] Components { get; set; }
 
     [JsonPropertyName("accessory")]
-    public required JsonComponent Accessory { get; set; }
+    public JsonComponent Accessory { get; set; }
 }
 
-public class JsonTextDisplayComponent : JsonComponent
+[JsonGuard]
+public partial class JsonTextDisplayComponent : JsonComponent
 {
     [JsonPropertyName("content")]
-    public required string Content { get; set; }
+    public string Content { get; set; }
 }
 
-public class JsonThumbnailComponent : JsonComponent
+[JsonGuard]
+public partial class JsonThumbnailComponent : JsonComponent
 {
     [JsonPropertyName("media")]
-    public required JsonComponentMedia Media { get; set; }
+    public JsonComponentMedia Media { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -199,16 +212,18 @@ public class JsonThumbnailComponent : JsonComponent
     public bool? Spoiler { get; set; }
 }
 
-public class JsonMediaGalleryComponent : JsonComponent
+[JsonGuard]
+public partial class JsonMediaGalleryComponent : JsonComponent
 {
     [JsonPropertyName("items")]
-    public required JsonMediaGalleryItem[] Items { get; set; }
+    public JsonMediaGalleryItem[] Items { get; set; }
 }
 
-public class JsonMediaGalleryItem
+[JsonGuard]
+public partial class JsonMediaGalleryItem
 {
     [JsonPropertyName("media")]
-    public required JsonComponentMedia Media { get; set; }
+    public JsonComponentMedia Media { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -217,10 +232,11 @@ public class JsonMediaGalleryItem
     public bool? Spoiler { get; set; }
 }
 
-public class JsonFileComponent : JsonComponent
+[JsonGuard]
+public partial class JsonFileComponent : JsonComponent
 {
     [JsonPropertyName("file")]
-    public required JsonComponentMedia File { get; set; }
+    public JsonComponentMedia File { get; set; }
 
     [JsonPropertyName("spoiler")]
     public bool? Spoiler { get; set; }
@@ -232,7 +248,7 @@ public class JsonFileComponent : JsonComponent
     public int? Size { get; set; }
 }
 
-public class JsonSeparatorComponent : JsonComponent
+public partial class JsonSeparatorComponent : JsonComponent
 {
     [JsonPropertyName("divider")]
     public bool? Divider { get; set; }
@@ -241,10 +257,11 @@ public class JsonSeparatorComponent : JsonComponent
     public SeparatorSpacingSize? Spacing { get; set; }
 }
 
-public class JsonContainerComponent : JsonComponent
+[JsonGuard]
+public partial class JsonContainerComponent : JsonComponent
 {
     [JsonPropertyName("components")]
-    public required JsonComponent[] Components { get; set; }
+    public JsonComponent[] Components { get; set; }
 
     [JsonPropertyName("accent_color")]
     public Color? AccentColor { get; set; }
@@ -253,22 +270,24 @@ public class JsonContainerComponent : JsonComponent
     public bool? Spoiler { get; set; }
 }
 
-public class JsonLabelComponent : JsonComponent
+[JsonGuard]
+public partial class JsonLabelComponent : JsonComponent
 {
     [JsonPropertyName("label")]
-    public required string Label { get; set; }
+    public string Label { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
     [JsonPropertyName("component")]
-    public required JsonComponent Component { get; set; }
+    public JsonComponent Component { get; set; }
 }
 
-public class JsonFileUploadComponent : JsonComponent
+[JsonGuard]
+public partial class JsonFileUploadComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("min_values")]
     public int? MinValues { get; set; }
@@ -283,25 +302,27 @@ public class JsonFileUploadComponent : JsonComponent
     public string[]? FileTypes { get; set; }
 }
 
-public class JsonRadioGroupComponent : JsonComponent
+[JsonGuard]
+public partial class JsonRadioGroupComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("options")]
-    public required JsonRadioGroupOption[] Options { get; set; }
+    public JsonRadioGroupOption[] Options { get; set; }
 
     [JsonPropertyName("required")]
     public bool? Required { get; set; }
 }
 
-public class JsonRadioGroupOption
+[JsonGuard]
+public partial class JsonRadioGroupOption
 {
     [JsonPropertyName("value")]
-    public required string Value { get; set; }
+    public string Value { get; set; }
 
     [JsonPropertyName("label")]
-    public required string Label { get; set; }
+    public string Label { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -310,13 +331,14 @@ public class JsonRadioGroupOption
     public bool? Default { get; set; }
 }
 
-public class JsonCheckboxGroupComponent : JsonComponent
+[JsonGuard]
+public partial class JsonCheckboxGroupComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("options")]
-    public required JsonCheckboxGroupOption[] Options { get; set; }
+    public JsonCheckboxGroupOption[] Options { get; set; }
 
     [JsonPropertyName("min_values")]
     public int? MinValues { get; set; }
@@ -328,13 +350,14 @@ public class JsonCheckboxGroupComponent : JsonComponent
     public bool? Required { get; set; }
 }
 
-public class JsonCheckboxGroupOption
+[JsonGuard]
+public partial class JsonCheckboxGroupOption
 {
     [JsonPropertyName("value")]
-    public required string Value { get; set; }
+    public string Value { get; set; }
 
     [JsonPropertyName("label")]
-    public required string Label { get; set; }
+    public string Label { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -343,10 +366,11 @@ public class JsonCheckboxGroupOption
     public bool? Default { get; set; }
 }
 
-public class JsonCheckboxComponent : JsonComponent
+[JsonGuard]
+public partial class JsonCheckboxComponent : JsonComponent
 {
     [JsonPropertyName("custom_id")]
-    public required string CustomId { get; set; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("default")]
     public bool? Default { get; set; }

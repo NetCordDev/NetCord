@@ -5,5 +5,5 @@ namespace NetCord.JsonModels;
 public class JsonEntity
 {
     [JsonPropertyName("id")]
-    public required ulong Id { get; set; }
+    public ulong Id { get; set; }
 }

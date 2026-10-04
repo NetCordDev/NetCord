@@ -2,13 +2,16 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonGuildStickersUpdateEventArgs
+[JsonGuard]
+public partial class JsonGuildStickersUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("stickers")]
-    public required JsonSticker[] Stickers { get; set; }
+    public JsonSticker[] Stickers { get; set; }
 }

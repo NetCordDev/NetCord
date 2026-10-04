@@ -2,24 +2,28 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonRestInviteChannel : JsonEntity
+[JsonGuard]
+public partial class JsonRestInviteChannel : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public required ChannelType Type { get; set; }
+    public ChannelType Type { get; set; }
 }
 
-public class JsonRestInvite
+[JsonGuard]
+public partial class JsonRestInvite
 {
     [JsonPropertyName("type")]
-    public required InviteType Type { get; set; }
+    public InviteType Type { get; set; }
 
     [JsonPropertyName("code")]
-    public required string Code { get; set; }
+    public string Code { get; set; }
 
     [JsonPropertyName("guild")]
     public JsonPartialGuild? Guild { get; set; }

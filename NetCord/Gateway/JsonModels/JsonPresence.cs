@@ -2,12 +2,15 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonPresence
+[JsonGuard]
+public partial class JsonPresence
 {
     [JsonPropertyName("user")]
-    public required JsonPresenceUser User { get; set; }
+    public JsonPresenceUser User { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }

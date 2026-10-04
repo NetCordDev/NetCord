@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-internal class JsonChannelPins
+[JsonGuard]
+internal partial class JsonChannelPins
 {
     [JsonPropertyName("items")]
-    public required JsonMessagePin[] Items { get; set; }
+    public JsonMessagePin[] Items { get; set; }
 
     [JsonPropertyName("has_more")]
-    public required bool HasMore { get; set; }
+    public bool HasMore { get; set; }
 }

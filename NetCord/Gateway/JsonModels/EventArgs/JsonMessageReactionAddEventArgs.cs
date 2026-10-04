@@ -2,18 +2,21 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonMessageReactionAddEventArgs
+[JsonGuard]
+public partial class JsonMessageReactionAddEventArgs
 {
     [JsonPropertyName("user_id")]
-    public required ulong UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public required ulong ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("message_id")]
-    public required ulong MessageId { get; set; }
+    public ulong MessageId { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
@@ -22,17 +25,17 @@ public class JsonMessageReactionAddEventArgs
     public JsonGuildUser? GuildUser { get; set; }
 
     [JsonPropertyName("emoji")]
-    public required JsonEmoji Emoji { get; set; }
+    public JsonEmoji Emoji { get; set; }
 
     [JsonPropertyName("message_author_id")]
     public ulong? MessageAuthorId { get; set; }
 
     [JsonPropertyName("burst")]
-    public required bool Burst { get; set; }
+    public bool Burst { get; set; }
 
     [JsonPropertyName("burst_colors")]
     public Color[]? BurstColors { get; set; }
 
     [JsonPropertyName("type")]
-    public required ReactionType Type { get; set; }
+    public ReactionType Type { get; set; }
 }

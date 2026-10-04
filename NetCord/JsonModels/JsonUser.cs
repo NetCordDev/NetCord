@@ -1,15 +1,18 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonUser : JsonEntity
+[JsonGuard]
+public partial class JsonUser : JsonEntity
 {
     [JsonPropertyName("username")]
-    public required string Username { get; set; }
+    public string Username { get; set; }
 
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("discriminator")]
-    public required ushort Discriminator { get; set; }
+    public ushort Discriminator { get; set; }
 
     [JsonPropertyName("global_name")]
     public string? GlobalName { get; set; }

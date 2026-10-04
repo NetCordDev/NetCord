@@ -3,12 +3,16 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonConverters;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
 [JsonConverter(typeof(Converter))]
-public class JsonInteraction : JsonEntity
+[JsonGuard]
+public partial class JsonInteraction : JsonEntity
 {
-    public class Converter : JsonConverter<JsonInteraction>
+    [JsonGuard]
+    public partial class Converter : JsonConverter<JsonInteraction>
     {
         public override JsonInteraction? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -34,10 +38,10 @@ public class JsonInteraction : JsonEntity
     }
 
     [JsonPropertyName("application_id")]
-    public required ulong ApplicationId { get; set; }
+    public ulong ApplicationId { get; set; }
 
     [JsonPropertyName("type")]
-    public required InteractionType Type { get; set; }
+    public InteractionType Type { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
@@ -55,16 +59,16 @@ public class JsonInteraction : JsonEntity
     public JsonUser? User { get; set; }
 
     [JsonPropertyName("token")]
-    public required string Token { get; set; }
+    public string Token { get; set; }
 
     [JsonPropertyName("version")]
-    public required int Version { get; set; }
+    public int Version { get; set; }
 
     [JsonPropertyName("message")]
     public JsonMessage? Message { get; set; }
 
     [JsonPropertyName("app_permissions")]
-    public required Permissions AppPermissions { get; set; }
+    public Permissions AppPermissions { get; set; }
 
     [JsonPropertyName("locale")]
     public string? Locale { get; set; }
@@ -73,45 +77,51 @@ public class JsonInteraction : JsonEntity
     public string? GuildLocale { get; set; }
 
     [JsonPropertyName("entitlements")]
-    public required JsonEntitlement[] Entitlements { get; set; }
+    public JsonEntitlement[] Entitlements { get; set; }
 
     [JsonPropertyName("authorizing_integration_owners")]
-    public required IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners { get; set; }
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners { get; set; }
 
     [JsonPropertyName("context")]
     public InteractionContextType? Context { get; set; }
 
     [JsonPropertyName("attachment_size_limit")]
-    public required long AttachmentSizeLimit { get; set; }
+    public long AttachmentSizeLimit { get; set; }
 }
 
-public class JsonPingInteraction : JsonInteraction;
+[JsonGuard]
+public partial class JsonPingInteraction : JsonInteraction;
 
-public class JsonApplicationCommandInteraction : JsonInteraction
+[JsonGuard]
+public partial class JsonApplicationCommandInteraction : JsonInteraction
 {
     [JsonPropertyName("data")]
-    public required JsonApplicationCommandInteractionData Data { get; set; }
+    public JsonApplicationCommandInteractionData Data { get; set; }
 }
 
-public class JsonMessageComponentInteraction : JsonInteraction
+[JsonGuard]
+public partial class JsonMessageComponentInteraction : JsonInteraction
 {
     [JsonPropertyName("data")]
-    public required JsonMessageComponentInteractionData Data { get; set; }
+    public JsonMessageComponentInteractionData Data { get; set; }
 }
 
-public class JsonAutocompleteInteraction : JsonInteraction
+[JsonGuard]
+public partial class JsonAutocompleteInteraction : JsonInteraction
 {
     [JsonPropertyName("data")]
-    public required JsonApplicationCommandInteractionData Data { get; set; }
+    public JsonApplicationCommandInteractionData Data { get; set; }
 }
 
-public class JsonModalSubmitInteraction : JsonInteraction
+[JsonGuard]
+public partial class JsonModalSubmitInteraction : JsonInteraction
 {
     [JsonPropertyName("data")]
-    public required JsonModalSubmitInteractionData Data { get; set; }
+    public JsonModalSubmitInteractionData Data { get; set; }
 }
 
-public class JsonUnknownInteraction : JsonInteraction
+[JsonGuard]
+public partial class JsonUnknownInteraction : JsonInteraction
 {
     [JsonPropertyName("data")]
     public JsonElement Data { get; set; }

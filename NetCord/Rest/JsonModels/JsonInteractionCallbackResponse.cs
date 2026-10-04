@@ -2,21 +2,24 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonInteractionCallbackResponse
+[JsonGuard]
+public partial class JsonInteractionCallbackResponse
 {
     [JsonPropertyName("interaction")]
-    public required JsonInteractionCallbackResponseInteraction Interaction { get; set; }
+    public JsonInteractionCallbackResponseInteraction Interaction { get; set; }
 
     [JsonPropertyName("resource")]
     public JsonInteractionCallbackResponseResource? Resource { get; set; }
 }
 
-public class JsonInteractionCallbackResponseInteraction : JsonEntity
+public partial class JsonInteractionCallbackResponseInteraction : JsonEntity
 {
     [JsonPropertyName("type")]
-    public required InteractionType Type { get; set; }
+    public InteractionType Type { get; set; }
 
     [JsonPropertyName("activity_instance_id")]
     public string? ActivityInstanceId { get; set; }
@@ -31,10 +34,10 @@ public class JsonInteractionCallbackResponseInteraction : JsonEntity
     public bool? ResponseMessageEphemeral { get; set; }
 }
 
-public class JsonInteractionCallbackResponseResource
+public partial class JsonInteractionCallbackResponseResource
 {
     [JsonPropertyName("type")]
-    public required InteractionCallbackType Type { get; set; }
+    public InteractionCallbackType Type { get; set; }
 
     [JsonPropertyName("activity_instance")]
     public JsonActivityInstance? ActivityInstance { get; set; }
@@ -43,8 +46,9 @@ public class JsonInteractionCallbackResponseResource
     public JsonMessage? Message { get; set; }
 }
 
-public class JsonActivityInstance
+[JsonGuard]
+public partial class JsonActivityInstance
 {
     [JsonPropertyName("id")]
-    public required string Id { get; set; }
+    public string Id { get; set; }
 }

@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonApplicationRoleConnection
+[JsonGuard]
+public partial class JsonApplicationRoleConnection
 {
     [JsonPropertyName("platform_name")]
     public string? PlatformName { get; set; }
@@ -11,5 +14,5 @@ public class JsonApplicationRoleConnection
     public string? PlatformUsername { get; set; }
 
     [JsonPropertyName("metadata")]
-    public required IReadOnlyDictionary<string, string> Metadata { get; set; }
+    public IReadOnlyDictionary<string, string> Metadata { get; set; }
 }

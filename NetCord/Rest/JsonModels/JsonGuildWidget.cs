@@ -2,22 +2,25 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildWidget : JsonEntity
+[JsonGuard]
+public partial class JsonGuildWidget : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("instant_invite")]
     public string? InstantInvite { get; set; }
 
     [JsonPropertyName("channels")]
-    public required JsonGuildWidgetChannel[] Channels { get; set; }
+    public JsonGuildWidgetChannel[] Channels { get; set; }
 
     [JsonPropertyName("members")]
-    public required JsonUser[] Users { get; set; }
+    public JsonUser[] Users { get; set; }
 
     [JsonPropertyName("presence_count")]
-    public required int PresenceCount { get; set; }
+    public int PresenceCount { get; set; }
 }

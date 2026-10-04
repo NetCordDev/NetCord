@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonInteractionGuildReference : JsonEntity
+[JsonGuard]
+public partial class JsonInteractionGuildReference : JsonEntity
 {
     [JsonPropertyName("features")]
-    public required string[] Features { get; set; }
+    public string[] Features { get; set; }
 
     [JsonPropertyName("locale")]
-    public required string Locale { get; set; }
+    public string Locale { get; set; }
 }

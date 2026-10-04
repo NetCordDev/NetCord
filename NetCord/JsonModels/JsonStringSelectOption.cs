@@ -1,14 +1,17 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonStringSelectOption
+[JsonGuard]
+public partial class JsonStringSelectOption
 {
     [JsonPropertyName("label")]
-    public required string Label { get; set; }
+    public string Label { get; set; }
 
     [JsonPropertyName("value")]
-    public required string Value { get; set; }
+    public string Value { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }

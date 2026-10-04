@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonGuildWelcomeScreen
+[JsonGuard]
+public partial class JsonGuildWelcomeScreen
 {
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
     [JsonPropertyName("welcome_channels")]
-    public required JsonGuildWelcomeScreenChannel[] WelcomeChannels { get; set; }
+    public JsonGuildWelcomeScreenChannel[] WelcomeChannels { get; set; }
 }

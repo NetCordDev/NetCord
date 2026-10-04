@@ -5,19 +5,25 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonConverters;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
 [JsonConverter(typeof(Converter))]
 public abstract class JsonMessageInteractionMetadata : JsonEntity
 {
     [JsonPropertyName("type")]
-    public required InteractionType Type { get; set; }
+    public InteractionType Type { get; set; }
 
+#pragma warning disable CS8618
     [JsonPropertyName("user")]
-    public required JsonUser User { get; set; }
+    public JsonUser User { get; set; }
+#pragma warning restore CS8618
 
+#pragma warning disable CS8618
     [JsonPropertyName("authorizing_integration_owners")]
-    public required IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners { get; set; }
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners { get; set; }
+#pragma warning restore CS8618
 
     [JsonPropertyName("original_response_message_id")]
     public ulong? OriginalResponseMessageId { get; set; }
@@ -54,7 +60,8 @@ public abstract class JsonMessageInteractionMetadata : JsonEntity
     }
 }
 
-public class JsonMessageApplicationCommandInteractionMetadata : JsonMessageInteractionMetadata
+[JsonGuard]
+public partial class JsonMessageApplicationCommandInteractionMetadata : JsonMessageInteractionMetadata
 {
     [JsonPropertyName("target_user")]
     public JsonUser? TargetUser { get; set; }
@@ -63,16 +70,19 @@ public class JsonMessageApplicationCommandInteractionMetadata : JsonMessageInter
     public ulong? TargetMessageId { get; set; }
 }
 
-public class JsonMessageMessageComponentInteractionMetadata : JsonMessageInteractionMetadata
+[JsonGuard]
+public partial class JsonMessageMessageComponentInteractionMetadata : JsonMessageInteractionMetadata
 {
     [JsonPropertyName("interacted_message_id")]
     public ulong InteractedMessageId { get; set; }
 }
 
-public class JsonMessageModalSubmitInteractionMetadata : JsonMessageInteractionMetadata
+[JsonGuard]
+public partial class JsonMessageModalSubmitInteractionMetadata : JsonMessageInteractionMetadata
 {
     [JsonPropertyName("triggering_interaction_metadata")]
-    public required JsonMessageInteractionMetadata TriggeringInteractionMetadata { get; set; }
+    public JsonMessageInteractionMetadata TriggeringInteractionMetadata { get; set; }
 }
 
-public class JsonMessageUnknownInteractionMetadata : JsonMessageInteractionMetadata;
+[JsonGuard]
+public partial class JsonMessageUnknownInteractionMetadata : JsonMessageInteractionMetadata;

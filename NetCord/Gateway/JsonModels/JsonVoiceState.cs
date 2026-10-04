@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonVoiceState
+[JsonGuard]
+public partial class JsonVoiceState
 {
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
@@ -13,34 +16,34 @@ public class JsonVoiceState
     public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("user_id")]
-    public required ulong UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? User { get; set; }
 
     [JsonPropertyName("session_id")]
-    public required string SessionId { get; set; }
+    public string SessionId { get; set; }
 
     [JsonPropertyName("deaf")]
-    public required bool Deaf { get; set; }
+    public bool Deaf { get; set; }
 
     [JsonPropertyName("mute")]
-    public required bool Mute { get; set; }
+    public bool Mute { get; set; }
 
     [JsonPropertyName("self_deaf")]
-    public required bool SelfDeaf { get; set; }
+    public bool SelfDeaf { get; set; }
 
     [JsonPropertyName("self_mute")]
-    public required bool SelfMute { get; set; }
+    public bool SelfMute { get; set; }
 
     [JsonPropertyName("self_stream")]
     public bool? SelfStream { get; set; }
 
     [JsonPropertyName("self_video")]
-    public required bool SelfVideo { get; set; }
+    public bool SelfVideo { get; set; }
 
     [JsonPropertyName("suppress")]
-    public required bool Suppress { get; set; }
+    public bool Suppress { get; set; }
 
     [JsonPropertyName("request_to_speak_timestamp")]
     public DateTimeOffset? RequestToSpeakTimestamp { get; set; }

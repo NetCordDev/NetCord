@@ -1,9 +1,12 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-internal class JsonCreateGoogleCloudPlatformStorageBucketResult
+[JsonGuard]
+internal partial class JsonCreateGoogleCloudPlatformStorageBucketResult
 {
     [JsonPropertyName("attachments")]
-    public required JsonGoogleCloudPlatformStorageBucket[] Buckets { get; set; }
+    public JsonGoogleCloudPlatformStorageBucket[] Buckets { get; set; }
 }

@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
 public class JsonReadyApplication : JsonEntity
@@ -10,26 +12,27 @@ public class JsonReadyApplication : JsonEntity
     public ApplicationFlags? Flags { get; set; }
 }
 
-public class JsonReadyEventArgs
+[JsonGuard]
+public partial class JsonReadyEventArgs
 {
     [JsonPropertyName("v")]
-    public required ApiVersion Version { get; set; }
+    public ApiVersion Version { get; set; }
 
     [JsonPropertyName("user")]
-    public required JsonUser User { get; set; }
+    public JsonUser User { get; set; }
 
     [JsonPropertyName("guilds")]
-    public required JsonEntity[] Guilds { get; set; }
+    public JsonEntity[] Guilds { get; set; }
 
     [JsonPropertyName("session_id")]
-    public required string SessionId { get; set; }
+    public string SessionId { get; set; }
 
     [JsonPropertyName("resume_gateway_url")]
-    public required string ResumeGatewayUrl { get; set; }
+    public string ResumeGatewayUrl { get; set; }
 
     [JsonPropertyName("shard")]
     public Shard? Shard { get; set; }
 
     [JsonPropertyName("application")]
-    public required JsonReadyApplication Application { get; set; }
+    public JsonReadyApplication Application { get; set; }
 }

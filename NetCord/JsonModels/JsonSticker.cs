@@ -1,20 +1,23 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonSticker : JsonEntity
+[JsonGuard]
+public partial class JsonSticker : JsonEntity
 {
     [JsonPropertyName("pack_id")]
     public ulong? PackId { get; set; }
 
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; }
 
     [JsonPropertyName("tags")]
-    public required string Tags { get; set; }
+    public string Tags { get; set; }
 
     //[JsonPropertyName("type")]
     //public StickerType Type { get; set; }

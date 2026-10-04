@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonAvatarDecorationData
+[JsonGuard]
+public partial class JsonAvatarDecorationData
 {
     [JsonPropertyName("asset")]
-    public required string Hash { get; set; }
+    public string Hash { get; set; }
 
     [JsonPropertyName("sku_id")]
-    public required ulong SkuId { get; set; }
+    public ulong SkuId { get; set; }
 }

@@ -1,15 +1,18 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonGuildChannelMention : JsonEntity
+[JsonGuard]
+public partial class JsonGuildChannelMention : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("type")]
-    public required ChannelType Type { get; set; }
+    public ChannelType Type { get; set; }
 
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 }

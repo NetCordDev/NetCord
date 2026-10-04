@@ -2,21 +2,24 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonGuildUserChunkEventArgs
+[JsonGuard]
+public partial class JsonGuildUserChunkEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("members")]
-    public required JsonGuildUser[] Users { get; set; }
+    public JsonGuildUser[] Users { get; set; }
 
     [JsonPropertyName("chunk_index")]
-    public required int ChunkIndex { get; set; }
+    public int ChunkIndex { get; set; }
 
     [JsonPropertyName("chunk_count")]
-    public required int ChunkCount { get; set; }
+    public int ChunkCount { get; set; }
 
     [JsonPropertyName("not_found")]
     public ulong[]? NotFound { get; set; }

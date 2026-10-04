@@ -1,9 +1,12 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-internal class JsonGuildUsersSearchResult
+[JsonGuard]
+internal partial class JsonGuildUsersSearchResult
 {
     [JsonPropertyName("members")]
-    public required JsonGuildUserInfo[] Users { get; set; }
+    public JsonGuildUserInfo[] Users { get; set; }
 }

@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplicationInstallParams
+[JsonGuard]
+public partial class JsonApplicationInstallParams
 {
     [JsonPropertyName("scopes")]
-    public required string[] Scopes { get; set; }
+    public string[] Scopes { get; set; }
 
     [JsonPropertyName("permissions")]
-    public required Permissions Permissions { get; set; }
+    public Permissions Permissions { get; set; }
 }

@@ -1,21 +1,24 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildOnboarding
+[JsonGuard]
+public partial class JsonGuildOnboarding
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("prompts")]
-    public required JsonGuildOnboardingPrompt[] Prompts { get; set; }
+    public JsonGuildOnboardingPrompt[] Prompts { get; set; }
 
     [JsonPropertyName("default_channel_ids")]
-    public required ulong[] DefaultChannelIds { get; set; }
+    public ulong[] DefaultChannelIds { get; set; }
 
     [JsonPropertyName("enabled")]
-    public required bool Enabled { get; set; }
+    public bool Enabled { get; set; }
 
     [JsonPropertyName("mode")]
-    public required GuildOnboardingMode Mode { get; set; }
+    public GuildOnboardingMode Mode { get; set; }
 }

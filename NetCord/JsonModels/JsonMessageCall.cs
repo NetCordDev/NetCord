@@ -1,11 +1,14 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonMessageCall
+[JsonGuard]
+public partial class JsonMessageCall
 {
     [JsonPropertyName("participants")]
-    public required ulong[] Participants { get; set; }
+    public ulong[] Participants { get; set; }
 
     [JsonPropertyName("ended_timestamp")]
     public DateTimeOffset? EndedAt { get; set; }

@@ -1,17 +1,20 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonIntegration : JsonEntity
+[JsonGuard]
+public partial class JsonIntegration : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public required IntegrationType Type { get; set; }
+    public IntegrationType Type { get; set; }
 
     [JsonPropertyName("enabled")]
-    public required bool Enabled { get; set; }
+    public bool Enabled { get; set; }
 
     [JsonPropertyName("syncing")]
     public bool? Syncing { get; set; }
@@ -32,7 +35,7 @@ public class JsonIntegration : JsonEntity
     public JsonUser? User { get; set; }
 
     [JsonPropertyName("account")]
-    public required JsonIntegrationAccount Account { get; set; }
+    public JsonIntegrationAccount Account { get; set; }
 
     [JsonPropertyName("synced_at")]
     public DateTimeOffset? SyncedAt { get; set; }

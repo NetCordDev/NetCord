@@ -1,14 +1,17 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonMessageDeleteBulkEventArgs
+[JsonGuard]
+public partial class JsonMessageDeleteBulkEventArgs
 {
     [JsonPropertyName("ids")]
-    public required ulong[] MessageIds { get; set; }
+    public ulong[] MessageIds { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public required ulong ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }

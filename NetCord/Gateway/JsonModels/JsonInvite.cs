@@ -2,21 +2,24 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonInvite
+[JsonGuard]
+public partial class JsonInvite
 {
     [JsonPropertyName("type")]
-    public required InviteType Type { get; set; }
+    public InviteType Type { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public required ulong ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("code")]
-    public required string Code { get; set; }
+    public string Code { get; set; }
 
     [JsonPropertyName("created_at")]
-    public required DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
@@ -25,10 +28,10 @@ public class JsonInvite
     public JsonUser? Inviter { get; set; }
 
     [JsonPropertyName("max_age")]
-    public required int MaxAge { get; set; }
+    public int MaxAge { get; set; }
 
     [JsonPropertyName("max_uses")]
-    public required int MaxUses { get; set; }
+    public int MaxUses { get; set; }
 
     [JsonPropertyName("target_type")]
     public InviteTargetType? TargetType { get; set; }
@@ -40,10 +43,10 @@ public class JsonInvite
     public JsonPartialApplication? TargetApplication { get; set; }
 
     [JsonPropertyName("temporary")]
-    public required bool Temporary { get; set; }
+    public bool Temporary { get; set; }
 
     [JsonPropertyName("uses")]
-    public required int Uses { get; set; }
+    public int Uses { get; set; }
 
     [JsonPropertyName("expires_at")]
     public DateTimeOffset? ExpiresAt { get; set; }

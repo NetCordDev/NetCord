@@ -1,18 +1,21 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonTeamUser
+[JsonGuard]
+public partial class JsonTeamUser
 {
     [JsonPropertyName("membership_state")]
-    public required MembershipState MembershipState { get; set; }
+    public MembershipState MembershipState { get; set; }
 
     [JsonPropertyName("team_id")]
-    public required ulong TeamId { get; set; }
+    public ulong TeamId { get; set; }
 
     [JsonPropertyName("user")]
-    public required JsonUser User { get; set; }
+    public JsonUser User { get; set; }
 
     [JsonPropertyName("role")]
-    public required TeamRole Role { get; set; }
+    public TeamRole Role { get; set; }
 }

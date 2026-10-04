@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonGuildUser
+[JsonGuard]
+public partial class JsonGuildUser
 {
     [JsonPropertyName("user")]
     public JsonUser? User { get; set; }
@@ -17,7 +20,7 @@ public class JsonGuildUser
     public string? GuildBannerHash { get; set; }
 
     [JsonPropertyName("roles")]
-    public required ulong[] RoleIds { get; set; }
+    public ulong[] RoleIds { get; set; }
 
     [JsonPropertyName("joined_at")]
     public DateTimeOffset? JoinedAt { get; set; }
@@ -26,13 +29,13 @@ public class JsonGuildUser
     public DateTimeOffset? GuildBoostStart { get; set; }
 
     [JsonPropertyName("deaf")]
-    public required bool Deafened { get; set; }
+    public bool Deafened { get; set; }
 
     [JsonPropertyName("mute")]
-    public required bool Muted { get; set; }
+    public bool Muted { get; set; }
 
     [JsonPropertyName("flags")]
-    public required GuildUserFlags GuildFlags { get; set; }
+    public GuildUserFlags GuildFlags { get; set; }
 
     [JsonPropertyName("pending")]
     public bool? IsPending { get; set; }

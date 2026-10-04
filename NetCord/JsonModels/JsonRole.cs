@@ -1,17 +1,20 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonRole : JsonEntity
+[JsonGuard]
+public partial class JsonRole : JsonEntity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("colors")]
-    public required JsonRoleColors Colors { get; set; }
+    public JsonRoleColors Colors { get; set; }
 
     [JsonPropertyName("hoist")]
-    public required bool Hoist { get; set; }
+    public bool Hoist { get; set; }
 
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }
@@ -20,28 +23,28 @@ public class JsonRole : JsonEntity
     public string? UnicodeEmoji { get; set; }
 
     [JsonPropertyName("position")]
-    public required int Position { get; set; }
+    public int Position { get; set; }
 
     [JsonPropertyName("permissions")]
-    public required Permissions Permissions { get; set; }
+    public Permissions Permissions { get; set; }
 
     [JsonPropertyName("managed")]
-    public required bool Managed { get; set; }
+    public bool Managed { get; set; }
 
     [JsonPropertyName("mentionable")]
-    public required bool Mentionable { get; set; }
+    public bool Mentionable { get; set; }
 
     [JsonPropertyName("tags")]
     public JsonRoleTags? Tags { get; set; }
 
     [JsonPropertyName("flags")]
-    public required RoleFlags Flags { get; set; }
+    public RoleFlags Flags { get; set; }
 }
 
 public class JsonRoleColors
 {
     [JsonPropertyName("primary_color")]
-    public required Color PrimaryColor { get; set; }
+    public Color PrimaryColor { get; set; }
 
     [JsonPropertyName("secondary_color")]
     public Color? SecondaryColor { get; set; }

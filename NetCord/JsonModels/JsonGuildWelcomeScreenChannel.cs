@@ -1,14 +1,17 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonGuildWelcomeScreenChannel
+[JsonGuard]
+public partial class JsonGuildWelcomeScreenChannel
 {
     [JsonPropertyName("channel_id")]
-    public required ulong ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; }
 
     [JsonPropertyName("emoji_id")]
     public ulong? EmojiId { get; set; }

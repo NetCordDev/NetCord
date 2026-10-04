@@ -1,20 +1,23 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonApplicationCommandOption
+[JsonGuard]
+public partial class JsonApplicationCommandOption
 {
     [JsonPropertyName("type")]
-    public required ApplicationCommandOptionType Type { get; set; }
+    public ApplicationCommandOptionType Type { get; set; }
 
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }

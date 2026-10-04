@@ -2,19 +2,22 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonGuildThreadListSyncEventArgs
+[JsonGuard]
+public partial class JsonGuildThreadListSyncEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("channel_ids")]
     public ulong[]? ChannelIds { get; set; }
 
     [JsonPropertyName("threads")]
-    public required JsonChannel[] Threads { get; set; }
+    public JsonChannel[] Threads { get; set; }
 
     [JsonPropertyName("members")]
-    public required JsonThreadUser[] Users { get; set; }
+    public JsonThreadUser[] Users { get; set; }
 }

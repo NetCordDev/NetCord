@@ -2,13 +2,16 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonGuildEmojisUpdateEventArgs
+[JsonGuard]
+public partial class JsonGuildEmojisUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public required ulong GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("emojis")]
-    public required JsonEmoji[] Emojis { get; set; }
+    public JsonEmoji[] Emojis { get; set; }
 }

@@ -2,12 +2,15 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildTemplateSerializedSourceGuild
+[JsonGuard]
+public partial class JsonGuildTemplateSerializedSourceGuild
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -22,16 +25,16 @@ public class JsonGuildTemplateSerializedSourceGuild
     public ContentFilter? ExplicitContentFilterLevel { get; set; }
 
     [JsonPropertyName("preferred_locale")]
-    public required string PreferredLocale { get; set; }
+    public string PreferredLocale { get; set; }
 
     [JsonPropertyName("afk_timeout")]
     public int? AfkTimeout { get; set; }
 
     [JsonPropertyName("roles")]
-    public required JsonRole[] Roles { get; set; }
+    public JsonRole[] Roles { get; set; }
 
     [JsonPropertyName("channels")]
-    public required JsonChannel[] Channels { get; set; }
+    public JsonChannel[] Channels { get; set; }
 
     [JsonPropertyName("afk_channel_id")]
     public ulong? AfkChannelId { get; set; }

@@ -2,13 +2,16 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonMessagePin
+[JsonGuard]
+public partial class JsonMessagePin
 {
     [JsonPropertyName("pinned_at")]
-    public required DateTimeOffset PinnedAt { get; set; }
+    public DateTimeOffset PinnedAt { get; set; }
 
     [JsonPropertyName("message")]
-    public required JsonMessage Message { get; set; }
+    public JsonMessage Message { get; set; }
 }

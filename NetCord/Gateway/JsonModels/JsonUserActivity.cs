@@ -2,22 +2,25 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonUserActivity
+[JsonGuard]
+public partial class JsonUserActivity
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public required UserActivityType Type { get; set; }
+    public UserActivityType Type { get; set; }
 
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 
     [JsonConverter(typeof(JsonConverters.MillisecondsUnixDateTimeOffsetConverter))]
     [JsonPropertyName("created_at")]
-    public required DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("timestamps")]
     public JsonUserActivityTimestamps? Timestamps { get; set; }

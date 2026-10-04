@@ -1,14 +1,17 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplicationCommandInteractionDataOption
+[JsonGuard]
+public partial class JsonApplicationCommandInteractionDataOption
 {
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public required ApplicationCommandOptionType Type { get; set; }
+    public ApplicationCommandOptionType Type { get; set; }
 
     [JsonConverter(typeof(JsonConverters.AnyValueToStringConverter))]
     [JsonPropertyName("value")]

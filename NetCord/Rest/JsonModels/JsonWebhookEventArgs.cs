@@ -5,13 +5,13 @@ namespace NetCord.Rest.JsonModels;
 public class JsonWebhookEventArgs
 {
     [JsonPropertyName("version")]
-    public required int Version { get; set; }
+    public int Version { get; set; }
 
     [JsonPropertyName("application_id")]
-    public required ulong ApplicationId { get; set; }
+    public ulong ApplicationId { get; set; }
 
     [JsonPropertyName("type")]
-    public required WebhookEventType Type { get; set; }
+    public WebhookEventType Type { get; set; }
 
     [JsonPropertyName("event")]
     public JsonWebhookEventBody? Event { get; set; }
