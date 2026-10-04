@@ -12,5 +12,5 @@ public class JsonAuditLogChange
     public JsonElement? OldValue { get; set; }
 
     [JsonPropertyName("key")]
-    public string Key { get; set; }
+    public required string Key { get; set; }
 }
