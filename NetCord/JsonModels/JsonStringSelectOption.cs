@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public class JsonStringSelectOption
 {
     [JsonPropertyName("label")]
-    public string Label { get; set; }
+    public required string Label { get; set; }
 
     [JsonPropertyName("value")]
-    public string Value { get; set; }
+    public required string Value { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -17,5 +17,5 @@ public class JsonStringSelectOption
     public JsonEmoji? Emoji { get; set; }
 
     [JsonPropertyName("default")]
-    public bool Default { get; set; }
+    public bool? Default { get; set; }
 }
