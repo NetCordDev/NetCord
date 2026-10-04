@@ -197,8 +197,8 @@ internal static class Program
     {
         if (entry.ActionType is AuditLogEvent.ChannelUpdate)
         {
-            if (entry.TryGetChange<JsonChannel, string>(c => c.Name, out var change))
-                await _client.Rest.SendMessageAsync(entry.TargetId!.Value, $"old: {change.OldValue} new: {change.NewValue}");
+            if (entry.Changes.TryGetValue("name", out var change))
+                await _client.Rest.SendMessageAsync(entry.TargetId!.Value, $"old: {change.OldValue.GetValueOrDefault().GetString()} new: {change.NewValue.GetValueOrDefault().GetString()}");
             else
                 await _client.Rest.SendMessageAsync(entry.TargetId!.Value, "Name hasn't changed");
         }
@@ -206,8 +206,8 @@ internal static class Program
         {
             var channel = _client.Cache.Guilds[entry.GuildId].Channels.Values.OfType<TextChannel>().First();
 
-            if (entry.TryGetChange<JsonGuildUser, DateTimeOffset?>(u => u.TimeOutUntil, out var change))
-                await channel.SendMessageAsync($"old: {change.OldValue} new: {change.NewValue}");
+            if (entry.Changes.TryGetValue("communication_disabled_until", out var change))
+                await channel.SendMessageAsync($"old: {(change.OldValue is { } oldValue ? oldValue.GetDateTimeOffset().ToString() : "none")} new: {(change.NewValue is { } newValue ? newValue.GetDateTimeOffset().ToString() : "none")}");
             else
                 await channel.SendMessageAsync("Time out hasn't changed");
         }
