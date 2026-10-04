@@ -1,12 +1,11 @@
 using System.Text.Json.Serialization;
 
+using NetCord.JsonModels;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonGuildIntegrationDeleteEventArgs
+public class JsonGuildIntegrationDeleteEventArgs : JsonEntity
 {
-    [JsonPropertyName("id")]
-    public ulong IntegrationId { get; set; }
-
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
 
