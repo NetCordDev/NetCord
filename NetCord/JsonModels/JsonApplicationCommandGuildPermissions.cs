@@ -5,14 +5,14 @@ namespace NetCord.JsonModels;
 public class JsonApplicationCommandGuildPermissions
 {
     [JsonPropertyName("id")]
-    public ulong CommandId { get; set; }
+    public required ulong CommandId { get; set; }
 
     [JsonPropertyName("application_id")]
-    public ulong ApplicationId { get; set; }
+    public required ulong ApplicationId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public required ulong GuildId { get; set; }
 
     [JsonPropertyName("permissions")]
-    public JsonApplicationCommandGuildPermission[] Permissions { get; set; }
+    public required JsonApplicationCommandGuildPermission[] Permissions { get; set; }
 }
