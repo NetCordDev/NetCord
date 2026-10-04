@@ -8,5 +8,5 @@ public class JsonGuildWelcomeScreen
     public string? Description { get; set; }
 
     [JsonPropertyName("welcome_channels")]
-    public JsonWelcomeScreenChannel[] WelcomeChannels { get; set; }
+    public required JsonGuildWelcomeScreenChannel[] WelcomeChannels { get; set; }
 }

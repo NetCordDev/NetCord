@@ -1,14 +1,14 @@
+using NetCord.JsonModels;
+
 namespace NetCord;
 
-public class GuildWelcomeScreenChannel(JsonModels.JsonWelcomeScreenChannel jsonModel) : Entity, IJsonModel<JsonModels.JsonWelcomeScreenChannel>
+public class GuildWelcomeScreenChannel(JsonGuildWelcomeScreenChannel jsonModel) : Entity
 {
-    JsonModels.JsonWelcomeScreenChannel IJsonModel<JsonModels.JsonWelcomeScreenChannel>.JsonModel => jsonModel;
+    public override ulong Id { get; } = jsonModel.ChannelId;
 
-    public override ulong Id => jsonModel.ChannelId;
+    public string Description { get; } = jsonModel.Description;
 
-    public string Description => jsonModel.Description;
+    public ulong? EmojiId { get; } = jsonModel.EmojiId;
 
-    public ulong? EmojiId => jsonModel.EmojiId;
-
-    public string? EmojiName => jsonModel.EmojiName;
+    public string? EmojiName { get; } = jsonModel.EmojiName;
 }
