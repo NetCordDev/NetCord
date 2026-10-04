@@ -6,29 +6,27 @@ namespace NetCord;
 /// <summary>
 /// Represents a user that has joined a thread.
 /// </summary>
-public class ThreadUser(JsonThreadUser jsonModel, RestClient client) : ClientEntity(client), ISpanFormattable, IJsonModel<JsonThreadUser>
+public class ThreadUser(JsonThreadUser jsonModel, RestClient client) : ClientEntity(client), ISpanFormattable
 {
-    JsonThreadUser IJsonModel<JsonThreadUser>.JsonModel => jsonModel;
-
     /// <summary>
     /// The thread user's ID.
     /// </summary>
-    public override ulong Id => jsonModel.UserId;
+    public override ulong Id { get; } = jsonModel.UserId;
 
     /// <summary>
     /// The ID corresponding to the joined thread.
     /// </summary>
-    public ulong ThreadId => jsonModel.ThreadId;
+    public ulong ThreadId { get; } = jsonModel.ThreadId;
 
     /// <summary>
     /// The timestamp at which the user last joined the thread.
     /// </summary>
-    public DateTimeOffset JoinTimestamp => jsonModel.JoinTimestamp;
+    public DateTimeOffset JoinTimestamp { get; } = jsonModel.JoinTimestamp;
 
     /// <summary>
     /// The user's thread settings, currently only used for notifications.
     /// </summary>
-    public ThreadUserFlags Flags => jsonModel.Flags;
+    public ThreadUserFlags Flags { get; } = jsonModel.Flags;
 
     public override string ToString() => $"<@{Id}>";
 
