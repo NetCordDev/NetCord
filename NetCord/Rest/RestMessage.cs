@@ -210,7 +210,7 @@ public partial class RestMessage(JsonMessage jsonModel, RestClient client) : Cli
     public RoleSubscriptionData? RoleSubscriptionData { get; } = jsonModel.RoleSubscriptionData is { } roleSubscriptionData ? new(roleSubscriptionData) : null;
 
     /// <summary>
-    /// Contains information about the <see cref="User"/>, <see cref="GuildUser"/>, <see cref="IGuildChannel"/>, and <see cref="Role"/> objects in the message's auto-populated selection menus.
+    /// Contains information about the <see cref="User"/>, <see cref="GuildUser"/>, <see cref="IGuildChannel"/>, and <see cref="Role"/> objects in the message's auto-populated select.
     /// </summary>
     public InteractionResolvedData? Resolved { get; } = jsonModel.Resolved is { } resolved ? new(resolved, jsonModel.GuildId, client) : null;
 

@@ -3,10 +3,10 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 
-public class MentionableMenuInteractions : ComponentInteractionModule<MentionableMenuInteractionContext>
+public class ChannelSelectInteractions : ComponentInteractionModule<ChannelSelectInteractionContext>
 {
-    [ComponentInteraction("mentionables")]
-    public Task MentionablesAsync()
+    [ComponentInteraction("channels")]
+    public Task ChannelsAsync()
     {
         return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedValues)}"));
     }

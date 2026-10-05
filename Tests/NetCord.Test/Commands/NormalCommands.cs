@@ -41,11 +41,11 @@ public class NormalCommands : CommandModule<CommandContext>
     {
         if (Context.User is GuildUser user)
         {
-            var menu = CreateRolesMenu(Context.Guild!.Roles.Values, user.RoleIds);
+            var select = CreateRolesSelect(Context.Guild!.Roles.Values, user.RoleIds);
             MessageProperties message = new()
             {
                 Content = "Select roles",
-                Components = [menu],
+                Components = [select],
             };
             await SendAsync(message);
         }
@@ -53,21 +53,21 @@ public class NormalCommands : CommandModule<CommandContext>
             await ReplyAsync("Required context: Guild");
     }
 
-    public static MenuProperties CreateRolesMenu(IEnumerable<Role> guildRoles, IEnumerable<ulong> defaultValues)
+    public static SelectProperties CreateRolesSelect(IEnumerable<Role> guildRoles, IEnumerable<ulong> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
-        List<StringMenuSelectOptionProperties> options = [];
+        List<StringSelectOptionProperties> options = [];
         foreach (var role in roles)
             options.Add(new(role.Name, role.Id.ToString()!) { Default = defaultValues.Contains(role.Id) });
 
-        StringMenuProperties menu = new("roles", options)
+        StringSelectProperties select = new("roles", options)
         {
             Placeholder = "Select roles",
             MaxValues = options.Count,
             MinValues = 0,
         };
 
-        return menu;
+        return select;
     }
 
     [Command("ping")]

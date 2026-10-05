@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-public abstract class MenuPropertiesDefaultValuesConverter(JsonEncodedText typeValue) : JsonConverter<IEnumerable<ulong>>
+public abstract class SelectPropertiesDefaultValuesConverter(JsonEncodedText typeValue) : JsonConverter<IEnumerable<ulong>>
 {
     private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
     private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");

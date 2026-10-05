@@ -3,7 +3,7 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 
-public class MenuInteractions : BaseComponentInteractionModule<StringMenuInteractionContext>
+public class StringSelectInteractions : BaseComponentInteractionModule<StringSelectInteractionContext>
 {
     [ComponentInteraction("roles")]
     public async Task Roles()
@@ -19,8 +19,8 @@ public class MenuInteractions : BaseComponentInteractionModule<StringMenuInterac
             await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = "You are not in guild" }));
     }
 
-    [ComponentInteraction("menu")]
-    public Task Menu(string s)
+    [ComponentInteraction("select")]
+    public Task Select(string s)
     {
         _ = s;
         InteractionMessageProperties interactionMessage = new()

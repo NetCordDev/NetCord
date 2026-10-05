@@ -163,12 +163,12 @@ public class RoleSelectComponent(JsonRoleSelectComponent jsonModel, int parentId
     public IReadOnlyList<ulong>? DefaultValues { get; } = jsonModel.DefaultValues?.Select(v => v.Id).ToArray();
 }
 
-public class MentionableMenuComponent(JsonMentionableSelectComponent jsonModel, int parentId) : EntitySelectComponent(jsonModel, parentId)
+public class MentionableSelectComponent(JsonMentionableSelectComponent jsonModel, int parentId) : EntitySelectComponent(jsonModel, parentId)
 {
-    public IReadOnlyList<MentionableMenuDefaultValue>? DefaultValues { get; } = jsonModel.DefaultValues?.Select(d => new MentionableMenuDefaultValue(d)).ToArray();
+    public IReadOnlyList<MentionableSelectDefaultValue>? DefaultValues { get; } = jsonModel.DefaultValues?.Select(d => new MentionableSelectDefaultValue(d)).ToArray();
 }
 
-public class ChannelMenuComponent(JsonChannelSelectComponent jsonModel, int parentId) : EntitySelectComponent(jsonModel, parentId)
+public class ChannelSelectComponent(JsonChannelSelectComponent jsonModel, int parentId) : EntitySelectComponent(jsonModel, parentId)
 {
     public IReadOnlyList<ulong>? DefaultValues { get; } = jsonModel.DefaultValues?.Select(v => v.Id).ToArray();
 
@@ -317,8 +317,8 @@ public interface IContainerChildComponent : IComponent
             ComponentType.StringSelect => new StringSelectComponent((JsonStringSelectComponent)firstComponent, jsonModel.Id),
             ComponentType.UserSelect => new UserSelectComponent((JsonUserSelectComponent)firstComponent, jsonModel.Id),
             ComponentType.RoleSelect => new RoleSelectComponent((JsonRoleSelectComponent)firstComponent, jsonModel.Id),
-            ComponentType.MentionableSelect => new MentionableMenuComponent((JsonMentionableSelectComponent)firstComponent, jsonModel.Id),
-            ComponentType.ChannelSelect => new ChannelMenuComponent((JsonChannelSelectComponent)firstComponent, jsonModel.Id),
+            ComponentType.MentionableSelect => new MentionableSelectComponent((JsonMentionableSelectComponent)firstComponent, jsonModel.Id),
+            ComponentType.ChannelSelect => new ChannelSelectComponent((JsonChannelSelectComponent)firstComponent, jsonModel.Id),
             _ => new UnknownContainerChildComponent(jsonModel),
         };
     }
@@ -352,8 +352,8 @@ public interface ILabelChildComponent : IComponent
             ComponentType.StringSelect => new StringSelectComponent((JsonStringSelectComponent)jsonModel, labelId),
             ComponentType.UserSelect => new UserSelectComponent((JsonUserSelectComponent)jsonModel, labelId),
             ComponentType.RoleSelect => new RoleSelectComponent((JsonRoleSelectComponent)jsonModel, labelId),
-            ComponentType.MentionableSelect => new MentionableMenuComponent((JsonMentionableSelectComponent)jsonModel, labelId),
-            ComponentType.ChannelSelect => new ChannelMenuComponent((JsonChannelSelectComponent)jsonModel, labelId),
+            ComponentType.MentionableSelect => new MentionableSelectComponent((JsonMentionableSelectComponent)jsonModel, labelId),
+            ComponentType.ChannelSelect => new ChannelSelectComponent((JsonChannelSelectComponent)jsonModel, labelId),
             ComponentType.FileUpload => new FileUploadComponent((JsonFileUploadComponent)jsonModel),
             ComponentType.RadioGroup => new RadioGroupComponent((JsonRadioGroupComponent)jsonModel),
             ComponentType.CheckboxGroup => new CheckboxGroupComponent((JsonCheckboxGroupComponent)jsonModel),
@@ -470,8 +470,8 @@ public interface IMessageChildComponent : IComponent
             ComponentType.StringSelect => new StringSelectComponent((JsonStringSelectComponent)firstComponent, jsonModel.Id),
             ComponentType.UserSelect => new UserSelectComponent((JsonUserSelectComponent)firstComponent, jsonModel.Id),
             ComponentType.RoleSelect => new RoleSelectComponent((JsonRoleSelectComponent)firstComponent, jsonModel.Id),
-            ComponentType.MentionableSelect => new MentionableMenuComponent((JsonMentionableSelectComponent)firstComponent, jsonModel.Id),
-            ComponentType.ChannelSelect => new ChannelMenuComponent((JsonChannelSelectComponent)firstComponent, jsonModel.Id),
+            ComponentType.MentionableSelect => new MentionableSelectComponent((JsonMentionableSelectComponent)firstComponent, jsonModel.Id),
+            ComponentType.ChannelSelect => new ChannelSelectComponent((JsonChannelSelectComponent)firstComponent, jsonModel.Id),
             _ => new UnknownMessageChildComponent(jsonModel),
         };
     }

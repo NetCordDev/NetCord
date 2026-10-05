@@ -6,12 +6,12 @@ using NetCord.JsonConverters;
 namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
-public partial class UserMenuProperties(string customId) : EntityMenuProperties(customId)
+public partial class RoleSelectProperties(string customId) : EntitySelectProperties(customId)
 {
-    public override ComponentType ComponentType => ComponentType.UserSelect;
+    public override ComponentType ComponentType => ComponentType.RoleSelect;
 
     /// <summary>
-    /// Default values for auto-populated select menu components.
+    /// Default values for auto-populated select components.
     /// </summary>
     [JsonConverter(typeof(DefaultValuesConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -20,17 +20,17 @@ public partial class UserMenuProperties(string customId) : EntityMenuProperties(
 
     private protected override void WriteToMessage(Utf8JsonWriter writer)
     {
-        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.UserMenuProperties);
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.RoleSelectProperties);
     }
 
     private protected override void WriteToLabel(Utf8JsonWriter writer)
     {
-        JsonSerializer.Serialize(writer, this, Serialization.Default.UserMenuProperties);
+        JsonSerializer.Serialize(writer, this, Serialization.Default.RoleSelectProperties);
     }
 
-    public class DefaultValuesConverter : MenuPropertiesDefaultValuesConverter
+    public class DefaultValuesConverter : SelectPropertiesDefaultValuesConverter
     {
-        private static readonly JsonEncodedText _typeValue = JsonEncodedText.Encode("user");
+        private static readonly JsonEncodedText _typeValue = JsonEncodedText.Encode("role");
 
         public DefaultValuesConverter() : base(_typeValue)
         {

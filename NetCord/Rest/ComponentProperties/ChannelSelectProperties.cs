@@ -8,14 +8,14 @@ namespace NetCord.Rest;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="customId">ID for the menu (max 100 characters).</param>
+/// <param name="customId">ID for the select (max 100 characters).</param>
 [GenerateMethodsForProperties]
-public partial class ChannelMenuProperties(string customId) : EntityMenuProperties(customId)
+public partial class ChannelSelectProperties(string customId) : EntitySelectProperties(customId)
 {
     public override ComponentType ComponentType => ComponentType.ChannelSelect;
 
     /// <summary>
-    /// Default values for auto-populated select menu components.
+    /// Default values for auto-populated select components.
     /// </summary>
     [JsonConverter(typeof(DefaultValuesConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -23,7 +23,7 @@ public partial class ChannelMenuProperties(string customId) : EntityMenuProperti
     public IEnumerable<ulong>? DefaultValues { get; set; }
 
     /// <summary>
-    /// List of channel types to include in the menu.
+    /// List of channel types to include in the select.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_types")]
@@ -31,15 +31,15 @@ public partial class ChannelMenuProperties(string customId) : EntityMenuProperti
 
     private protected override void WriteToMessage(Utf8JsonWriter writer)
     {
-        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.ChannelMenuProperties);
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.ChannelSelectProperties);
     }
 
     private protected override void WriteToLabel(Utf8JsonWriter writer)
     {
-        JsonSerializer.Serialize(writer, this, Serialization.Default.ChannelMenuProperties);
+        JsonSerializer.Serialize(writer, this, Serialization.Default.ChannelSelectProperties);
     }
 
-    public class DefaultValuesConverter : MenuPropertiesDefaultValuesConverter
+    public class DefaultValuesConverter : SelectPropertiesDefaultValuesConverter
     {
         private static readonly JsonEncodedText _typeValue = JsonEncodedText.Encode("channel");
 

@@ -3,7 +3,7 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 
-public class UserMenuInteractions : ComponentInteractionModule<UserMenuInteractionContext>
+public class UserSelectInteractions : ComponentInteractionModule<UserSelectInteractionContext>
 {
     [ComponentInteraction("users")]
     public Task UsersAsync()

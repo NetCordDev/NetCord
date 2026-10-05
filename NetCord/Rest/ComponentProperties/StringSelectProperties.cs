@@ -6,36 +6,36 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
-public partial class StringMenuProperties(string customId, IEnumerable<StringMenuSelectOptionProperties> options) : MenuProperties(customId), IStringMenuProperties, IEnumerable<StringMenuSelectOptionProperties>
+public partial class StringSelectProperties(string customId, IEnumerable<StringSelectOptionProperties> options) : SelectProperties(customId), IStringSelectProperties, IEnumerable<StringSelectOptionProperties>
 {
-    public StringMenuProperties(string customId) : this(customId, [])
+    public StringSelectProperties(string customId) : this(customId, [])
     {
     }
 
     public override ComponentType ComponentType => ComponentType.StringSelect;
 
-    public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; } = options;
+    public IEnumerable<StringSelectOptionProperties> Options { get; set; } = options;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Add(StringMenuSelectOptionProperties option) => AddOptions(option);
+    public void Add(StringSelectOptionProperties option) => AddOptions(option);
 
     private protected override void WriteToMessage(Utf8JsonWriter writer)
     {
-        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.IStringMenuProperties);
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.IStringSelectProperties);
     }
 
     private protected override void WriteToLabel(Utf8JsonWriter writer)
     {
-        JsonSerializer.Serialize(writer, this, Serialization.Default.IStringMenuProperties);
+        JsonSerializer.Serialize(writer, this, Serialization.Default.IStringSelectProperties);
     }
 
-    IEnumerator<StringMenuSelectOptionProperties> IEnumerable<StringMenuSelectOptionProperties>.GetEnumerator() => Options.GetEnumerator();
+    IEnumerator<StringSelectOptionProperties> IEnumerable<StringSelectOptionProperties>.GetEnumerator() => Options.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Options).GetEnumerator();
 }
 
-// Required not to serialize 'StringMenuProperties' as 'IEnumerable<out T>'
+// Required not to serialize 'StringSelectProperties' as 'IEnumerable<out T>'
 // https://github.com/dotnet/runtime/issues/63791
-internal interface IStringMenuProperties : IInteractiveComponentProperties
+internal interface IStringSelectProperties : IInteractiveComponentProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("placeholder")]
@@ -54,7 +54,7 @@ internal interface IStringMenuProperties : IInteractiveComponentProperties
     public bool Disabled { get; set; }
 
     [JsonPropertyName("options")]
-    public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; }
+    public IEnumerable<StringSelectOptionProperties> Options { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("required")]

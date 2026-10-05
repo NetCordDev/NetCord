@@ -8,7 +8,7 @@ namespace NetCord.Rest;
 /// </summary>
 /// <param name="customId"><inheritdoc cref="CustomId" path="/summary" /></param>
 [GenerateMethodsForProperties]
-public abstract partial class MenuProperties(string customId) : IInteractiveComponentProperties, IMessageComponentProperties, IComponentContainerComponentProperties, ILabelComponentProperties
+public abstract partial class SelectProperties(string customId) : IInteractiveComponentProperties, IMessageComponentProperties, IComponentContainerComponentProperties, ILabelComponentProperties
 {
     [JsonPropertyName("type")]
     public abstract ComponentType ComponentType { get; }
@@ -42,14 +42,14 @@ public abstract partial class MenuProperties(string customId) : IInteractiveComp
     public int? MaxValues { get; set; }
 
     /// <summary>
-    /// Whether the menu is disabled.
+    /// Whether the select is disabled.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
     /// <summary>
-    /// Whether the menu is required to answer in a modal. Defaults to <see langword="true"/>.
+    /// Whether the select is required to answer in a modal. Defaults to <see langword="true"/>.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("required")]

@@ -444,26 +444,26 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     public Task RateLimitTest2Async()
         => RateLimitTestAsync();
 
-    [SlashCommand("entity-menus", "Entity Menus")]
-    public Task EntityMenusAsync([SlashCommandParameter(Name = "min_values", MinValue = 0)] int minValues = 1, [SlashCommandParameter(Name = "max_values", MinValue = 2)] int maxValues = 2)
+    [SlashCommand("entity-selects", "Entity Selects")]
+    public Task EntitySelectsAsync([SlashCommandParameter(Name = "min_values", MinValue = 0)] int minValues = 1, [SlashCommandParameter(Name = "max_values", MinValue = 2)] int maxValues = 2)
     {
         return RespondAsync(InteractionCallback.Message(new()
         {
             Components =
             [
-                new UserMenuProperties("users")
+                new UserSelectProperties("users")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
                     DefaultValues = [855528385677885470],
                 },
-                new RoleMenuProperties("roles")
+                new RoleSelectProperties("roles")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
                     DefaultValues = [862347766324002827],
                 },
-                new MentionableMenuProperties("mentionables")
+                new MentionableSelectProperties("mentionables")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
@@ -473,7 +473,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
                         new(913370324689633341, MentionableValueType.Role),
                     ],
                 },
-                new ChannelMenuProperties("channels")
+                new ChannelSelectProperties("channels")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,

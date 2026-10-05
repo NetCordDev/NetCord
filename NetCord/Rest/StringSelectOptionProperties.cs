@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
-public partial class StringMenuSelectOptionProperties(string label, string value)
+public partial class StringSelectOptionProperties(string label, string value)
 {
     [JsonPropertyName("label")]
     public string Label { get; set; } = label;
