@@ -188,7 +188,7 @@ You can enhance your attachments by adding titles and descriptions. Use the `Att
 
 ## Adding Components
 
-Components are interactive elements that can be attached to a message. These include buttons, select menus, and more. A message can contain up to 5 components, including action rows and select menus.
+Components are interactive elements that can be attached to a message. These include buttons, selects, and more. A message can contain up to 5 components, including action rows and selects.
 
 # [Classic Syntax](#tab/classic-syntax)
 
@@ -217,91 +217,91 @@ Action rows contain buttons, and each can have up to 5 buttons. Available button
 
 ***
 
-### Select Menus
+### Selects
 
-Select menus are dropdown menus containing up to 25 options. They support various types, such as strings, channels, and users.
+Selects are dropdown menus containing up to 25 options. They support various types, such as strings, channels, and users.
 
-#### String Menus
+#### String Selects
 
-String menus allow you to include any string options. Each option in the menu can be customized with additional properties, such as setting a default selection, adding an emoji, or providing a description for better context.
+String selects allow you to include any string options. Each option in the select can be customized with additional properties, such as setting a default selection, adding an emoji, or providing a description for better context.
 
 # [Classic Syntax](#tab/classic-syntax)
 
-[!code-cs[Creating string menus](SendingMessages/Program.cs#L180-L198)]
+[!code-cs[Creating string selects](SendingMessages/Program.cs#L180-L198)]
 
 # [Fluent Syntax](#tab/fluent-syntax)
 
-[!code-cs[Creating string menus](SendingMessages/Program.cs#L200-L211)]
+[!code-cs[Creating string selects](SendingMessages/Program.cs#L200-L211)]
 
 ***
 
-#### Channel Menus
+#### Channel Selects
 
-Channel menus include channels as options, and support filtering by channel type and the ability to specify default channels.
+Channel selects include channels as options, and support filtering by channel type and the ability to specify default channels.
 
 # [Classic Syntax](#tab/classic-syntax)
 
-[!code-cs[Creating channel menus](SendingMessages/Program.cs#L213-L217)]
+[!code-cs[Creating channel selects](SendingMessages/Program.cs#L213-L217)]
 
 # [Fluent Syntax](#tab/fluent-syntax)
 
-[!code-cs[Creating channel menus](SendingMessages/Program.cs#L219-L221)]
+[!code-cs[Creating channel selects](SendingMessages/Program.cs#L219-L221)]
 
 ***
 
-#### Mentionable Menus
+#### Mentionable Selects
 
-Mentionable menus include users and roles as options, and support specifying default users and roles.
+Mentionable selects include users and roles as options, and support specifying default users and roles.
 
 # [Classic Syntax](#tab/classic-syntax)
 
-[!code-cs[Creating mentionable menus](SendingMessages/Program.cs#L223-L229)]
+[!code-cs[Creating mentionable selects](SendingMessages/Program.cs#L223-L229)]
 
 # [Fluent Syntax](#tab/fluent-syntax)
 
-[!code-cs[Creating mentionable menus](SendingMessages/Program.cs#L231-L233)]
+[!code-cs[Creating mentionable selects](SendingMessages/Program.cs#L231-L233)]
 
 ***
 
-#### Role Menus
+#### Role Selects
 
-Role menus contain roles as options, and support specifying default roles.
+Role selects contain roles as options, and support specifying default roles.
 
 # [Classic Syntax](#tab/classic-syntax)
 
-[!code-cs[Creating role menus](SendingMessages/Program.cs#L235-L238)]
+[!code-cs[Creating role selects](SendingMessages/Program.cs#L235-L238)]
 
 # [Fluent Syntax](#tab/fluent-syntax)
 
-[!code-cs[Creating role menus](SendingMessages/Program.cs#L240-L241)]
+[!code-cs[Creating role selects](SendingMessages/Program.cs#L240-L241)]
 
 ***
 
-#### User Menus
+#### User Selects
 
-User menus allow selecting users as options, and support specifying default users.
+User selects allow selecting users as options, and support specifying default users.
 
 # [Classic Syntax](#tab/classic-syntax)
 
-[!code-cs[Creating user menus](SendingMessages/Program.cs#L243-L246)]
+[!code-cs[Creating user selects](SendingMessages/Program.cs#L243-L246)]
 
 # [Fluent Syntax](#tab/fluent-syntax)
 
-[!code-cs[Creating user menus](SendingMessages/Program.cs#L248-L249)]
+[!code-cs[Creating user selects](SendingMessages/Program.cs#L248-L249)]
 
 ***
 
 #### Specifying Additional Properties
 
-Additionally, all select menus allow you to specify a placeholder, set a minimum and maximum number of selectable options, and disable the select menu if necessary.
+Additionally, all selects allow you to specify a placeholder, set a minimum and maximum number of selectable options, and disable the select if necessary.
 
 # [Classic Syntax](#tab/classic-syntax)
 
-[!code-cs[Configuring select menus](SendingMessages/Program.cs#L264-L267)]
+[!code-cs[Configuring selects](SendingMessages/Program.cs#L264-L267)]
 
 # [Fluent Syntax](#tab/fluent-syntax)
 
-[!code-cs[Configuring select menus](SendingMessages/Program.cs#L269-L273)]
+[!code-cs[Configuring selects](SendingMessages/Program.cs#L269-L273)]
 
 ***
 
