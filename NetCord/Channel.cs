@@ -676,7 +676,7 @@ public sealed partial class ObfuscatedForumGuildChannel(JsonChannel jsonModel, R
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public partial interface IMaybeObfuscatedMediaGuildChannel : IMaybeObfuscatedGuildChannel;
+public partial interface IMaybeObfuscatedMediaGuildChannel : IMaybeObfuscatedThreadOnlyGuildChannel;
 
 public sealed partial class MediaGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedMediaGuildChannel, IThreadOnlyGuildChannel
 {
