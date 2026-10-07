@@ -41,7 +41,7 @@ public enum ChannelType
     AnnouncementGuildThread = 10,
 
     /// <summary>
-    /// A temporary sub-channel within a <see cref="TextGuildChannel"/>, <see cref="ForumGuildChannel"/>, or <see cref="MediaForumGuildChannel"/>.
+    /// A temporary sub-channel within a <see cref="TextGuildChannel"/>, <see cref="ForumGuildChannel"/>, or <see cref="MediaGuildChannel"/>.
     /// </summary>
     PublicGuildThread = 11,
 
@@ -66,9 +66,9 @@ public enum ChannelType
     ForumGuildChannel = 15,
 
     /// <summary>
-    /// Channels that can only contain threads, similar to a <see cref="ForumGuildChannel"/>, but still in active development.
+    /// Channels that can only contain threads, similar to a <see cref="ForumGuildChannel"/>.
     /// </summary>
-    MediaForumGuildChannel = 16,
+    MediaGuildChannel = 16,
 
     /// <summary>
     /// A channel that acts as a primary interface for an application.

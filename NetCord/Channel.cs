@@ -57,23 +57,22 @@ public partial interface IMaybeObfuscatedGuildChannel : IGuildBasedChannel
     public ulong? ParentId { get; }
 }
 
-public partial interface ICategorizableGuildChannel : IMaybeObfuscatedGuildChannel
-{
-    public string Name { get; }
-
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
-}
-
-public partial interface IObfuscatedGuildChannel : IMaybeObfuscatedGuildChannel;
-
 public partial interface IGuildChannel : IMaybeObfuscatedGuildChannel
 {
     public string Name { get; }
 
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+
+    public Permissions? Permissions { get; }
+
+    public Permissions? AppPermissions { get; }
 }
 
-public sealed partial class TextGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildChannel
+public partial interface IObfuscatedGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public interface IMaybeObfuscatedTextGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public sealed partial class TextGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedTextGuildChannel, IGuildChannel
 {
     public ChannelType Type => ChannelType.TextGuildChannel;
 
@@ -81,22 +80,30 @@ public sealed partial class TextGuildChannel(JsonChannel jsonModel, RestClient c
 
     public int Position { get; } = jsonModel.Position.GetValueOrDefault();
 
-    public ulong? ParentId => jsonModel.ParentId;
+    public ulong? ParentId { get; } = jsonModel.ParentId;
 
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
-    public string Name => jsonModel.Name!;
+    public string Name { get; } = jsonModel.Name!;
 
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p)) : [];
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
+
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
+
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
+
+    public bool Nsfw { get; } = jsonModel.Nsfw.GetValueOrDefault();
 
     public override string ToString() => $"<#{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedTextGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
+public sealed partial class ObfuscatedTextGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedTextGuildChannel, IObfuscatedGuildChannel
 {
-    public ChannelType Type { get; } = ChannelType.TextGuildChannel;
+    public ChannelType Type => ChannelType.TextGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
 
@@ -111,18 +118,24 @@ public sealed partial class ObfuscatedTextGuildChannel(JsonChannel jsonModel, Re
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public partial interface IVoiceGuildChannel : IGuildChannel
+public partial interface IMaybeObfuscatedVoiceBasedGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public partial interface IVoiceBasedGuildChannel : IMaybeObfuscatedVoiceBasedGuildChannel, IGuildChannel
 {
     public int Bitrate { get; }
 
     public int UserLimit { get; }
 
     public string? RtcRegion { get; }
+
+    public VideoQualityMode VideoQualityMode { get; }
 }
 
-public partial interface IObfuscatedVoiceGuildChannel : IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel;
+public partial interface IObfuscatedVoiceBasedGuildChannel : IMaybeObfuscatedVoiceBasedGuildChannel, IObfuscatedGuildChannel;
 
-public sealed partial class VoiceGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IVoiceGuildChannel
+public partial interface IMaybeObfuscatedVoiceGuildChannel : IMaybeObfuscatedVoiceBasedGuildChannel;
+
+public sealed partial class VoiceGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedVoiceGuildChannel, IVoiceBasedGuildChannel
 {
     public ChannelType Type => ChannelType.VoiceGuildChannel;
 
@@ -130,13 +143,19 @@ public sealed partial class VoiceGuildChannel(JsonChannel jsonModel, RestClient 
 
     public int Position { get; } = jsonModel.Position.GetValueOrDefault();
 
-    public ulong? ParentId => jsonModel.ParentId;
+    public ulong? ParentId { get; } = jsonModel.ParentId;
 
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
-    public string Name => jsonModel.Name!;
+    public string Name { get; } = jsonModel.Name!;
 
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p)) : [];
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
+
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
+
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
 
     public int Bitrate { get; } = jsonModel.Bitrate.GetValueOrDefault();
 
@@ -144,14 +163,18 @@ public sealed partial class VoiceGuildChannel(JsonChannel jsonModel, RestClient 
 
     public string? RtcRegion { get; } = jsonModel.RtcRegion;
 
+    public VideoQualityMode VideoQualityMode { get; } = jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
+
+    public bool Nsfw { get; } = jsonModel.Nsfw.GetValueOrDefault();
+
     public override string ToString() => $"<#{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedVoiceGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IObfuscatedVoiceGuildChannel
+public sealed partial class ObfuscatedVoiceGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedVoiceGuildChannel, IObfuscatedVoiceBasedGuildChannel
 {
-    public ChannelType Type { get; } = ChannelType.VoiceGuildChannel;
+    public ChannelType Type => ChannelType.VoiceGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
 
@@ -166,7 +189,9 @@ public sealed partial class ObfuscatedVoiceGuildChannel(JsonChannel jsonModel, R
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class CategoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildChannel
+public partial interface IMaybeObfuscatedCategoryGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public sealed partial class CategoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedCategoryGuildChannel, IGuildChannel
 {
     public ChannelType Type => ChannelType.CategoryGuildChannel;
 
@@ -176,26 +201,32 @@ public sealed partial class CategoryGuildChannel(JsonChannel jsonModel, RestClie
 
     ulong? IMaybeObfuscatedGuildChannel.ParentId => null;
 
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
-    public string Name => jsonModel.Name!;
+    public string Name { get; } = jsonModel.Name!;
 
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p)) : [];
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
+
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
+
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
 
     public override string ToString() => $"<#{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedCategoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
+public sealed partial class ObfuscatedCategoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedCategoryGuildChannel, IObfuscatedGuildChannel
 {
-    public ChannelType Type { get; } = ChannelType.CategoryGuildChannel;
+    public ChannelType Type => ChannelType.CategoryGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
 
     public int Position { get; } = jsonModel.Position.GetValueOrDefault();
 
-    public ulong? ParentId => null;
+    ulong? IMaybeObfuscatedGuildChannel.ParentId => null;
 
     public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
@@ -204,30 +235,11 @@ public sealed partial class ObfuscatedCategoryGuildChannel(JsonChannel jsonModel
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class AnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildChannel
+public partial interface IMaybeObfuscatedAnnouncementGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public sealed partial class AnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedAnnouncementGuildChannel, IGuildChannel
 {
     public ChannelType Type => ChannelType.AnnouncementGuildChannel;
-
-    public ChannelFlags? Flags { get; } = jsonModel.Flags;
-
-    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
-
-    public ulong? ParentId => jsonModel.ParentId;
-
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
-
-    public string Name => jsonModel.Name!;
-
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p)) : [];
-
-    public override string ToString() => $"<#{Id}>";
-
-    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
-}
-
-public sealed partial class ObfuscatedAnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
-{
-    public ChannelType Type { get; } = ChannelType.AnnouncementGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
 
@@ -237,41 +249,26 @@ public sealed partial class ObfuscatedAnnouncementGuildChannel(JsonChannel jsonM
 
     public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
-    public override string ToString() => $"<#{Id}>";
+    public string Name { get; } = jsonModel.Name!;
 
-    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
-}
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
 
-public sealed partial class StageGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IVoiceGuildChannel
-{
-    public ChannelType Type => ChannelType.StageGuildChannel;
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
 
-    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
 
-    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
-
-    public ulong? ParentId => jsonModel.ParentId;
-
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
-
-    public string Name => jsonModel.Name!;
-
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p)) : [];
-
-    public int Bitrate { get; } = jsonModel.Bitrate.GetValueOrDefault();
-
-    public int UserLimit { get; } = jsonModel.UserLimit.GetValueOrDefault();
-
-    public string? RtcRegion { get; } = jsonModel.RtcRegion;
+    public bool Nsfw { get; } = jsonModel.Nsfw.GetValueOrDefault();
 
     public override string ToString() => $"<#{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedStageGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IObfuscatedVoiceGuildChannel
+public sealed partial class ObfuscatedAnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedAnnouncementGuildChannel, IObfuscatedGuildChannel
 {
-    public ChannelType Type { get; } = ChannelType.StageGuildChannel;
+    public ChannelType Type => ChannelType.AnnouncementGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
 
@@ -305,19 +302,33 @@ public partial interface IGuildThread : IGuildBasedChannel
     public int TotalMessageSent { get; }
 }
 
-public class GuildThreadMetadata(JsonGuildThreadMetadata jsonModel)
+public sealed partial class AnnouncementGuildThread(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildThread
 {
-    public bool Archived { get; } = jsonModel.Archived;
+    public ChannelType Type => ChannelType.AnnouncementGuildThread;
 
-    public ThreadArchiveDuration AutoArchiveDuration { get; } = jsonModel.AutoArchiveDuration;
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
 
-    public DateTimeOffset ArchiveTimestamp { get; } = jsonModel.ArchiveTimestamp;
+    public string Name { get; } = jsonModel.Name!;
 
-    public bool Locked { get; } = jsonModel.Locked;
+    public ulong ParentId { get; } = jsonModel.ParentId.GetValueOrDefault();
 
-    public bool? Invitable { get; } = jsonModel.Invitable;
+    public ulong OwnerId { get; } = jsonModel.OwnerId.GetValueOrDefault();
 
-    public DateTimeOffset? CreateTimestamp { get; } = jsonModel.CreateTimestamp;
+    public int MessageCount { get; } = jsonModel.MessageCount.GetValueOrDefault();
+
+    public int UserCount { get; } = jsonModel.UserCount.GetValueOrDefault();
+
+    public GuildThreadMetadata Metadata { get; } = new GuildThreadMetadata(jsonModel.Metadata!);
+
+    public ThreadCurrentUser? CurrentUser { get; } = jsonModel.CurrentUser is { } currentUser ? new ThreadCurrentUser(currentUser) : null;
+
+    public int TotalMessageSent { get; } = jsonModel.TotalMessageSent.GetValueOrDefault();
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
 public sealed partial class PublicGuildThread(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildThread
@@ -336,13 +347,13 @@ public sealed partial class PublicGuildThread(JsonChannel jsonModel, RestClient 
 
     public int UserCount { get; } = jsonModel.UserCount.GetValueOrDefault();
 
-    public GuildThreadMetadata Metadata { get; } = new GuildThreadMetadata(jsonModel.Metadata!);
+    public GuildThreadMetadata Metadata { get; } = new(jsonModel.Metadata!);
 
-    public ThreadCurrentUser? CurrentUser { get; } = jsonModel.CurrentUser is not null ? new ThreadCurrentUser(jsonModel.CurrentUser) : null;
+    public ThreadCurrentUser? CurrentUser { get; } = jsonModel.CurrentUser is { } currentUser ? new ThreadCurrentUser(currentUser) : null;
 
     public int TotalMessageSent { get; } = jsonModel.TotalMessageSent.GetValueOrDefault();
 
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
     public IReadOnlyList<ulong>? AppliedTags { get; } = jsonModel.AppliedTags;
 
@@ -369,40 +380,207 @@ public sealed partial class PrivateGuildThread(JsonChannel jsonModel, RestClient
 
     public GuildThreadMetadata Metadata { get; } = new GuildThreadMetadata(jsonModel.Metadata!);
 
-    public ThreadCurrentUser? CurrentUser { get; } = jsonModel.CurrentUser is not null ? new ThreadCurrentUser(jsonModel.CurrentUser) : null;
+    public ThreadCurrentUser? CurrentUser { get; } = jsonModel.CurrentUser is { } currentUser ? new ThreadCurrentUser(currentUser) : null;
 
     public int TotalMessageSent { get; } = jsonModel.TotalMessageSent.GetValueOrDefault();
 
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
     public override string ToString() => $"<#{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class AnnouncementGuildThread(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildThread
+public partial interface IMaybeObfuscatedStageGuildChannel : IMaybeObfuscatedVoiceBasedGuildChannel;
+
+public sealed partial class StageGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedStageGuildChannel, IVoiceBasedGuildChannel
 {
-    public ChannelType Type => ChannelType.AnnouncementGuildThread;
+    public ChannelType Type => ChannelType.StageGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
 
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
     public string Name { get; } = jsonModel.Name!;
 
-    public ulong ParentId { get; } = jsonModel.ParentId.GetValueOrDefault();
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
 
-    public ulong OwnerId { get; } = jsonModel.OwnerId.GetValueOrDefault();
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
 
-    public int MessageCount { get; } = jsonModel.MessageCount.GetValueOrDefault();
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
 
-    public int UserCount { get; } = jsonModel.UserCount.GetValueOrDefault();
+    public int Bitrate { get; } = jsonModel.Bitrate.GetValueOrDefault();
 
-    public GuildThreadMetadata Metadata { get; } = new GuildThreadMetadata(jsonModel.Metadata!);
+    public int UserLimit { get; } = jsonModel.UserLimit.GetValueOrDefault();
 
-    public ThreadCurrentUser? CurrentUser { get; } = jsonModel.CurrentUser is not null ? new ThreadCurrentUser(jsonModel.CurrentUser) : null;
+    public string? RtcRegion { get; } = jsonModel.RtcRegion;
 
-    public int TotalMessageSent { get; } = jsonModel.TotalMessageSent.GetValueOrDefault();
+    public VideoQualityMode VideoQualityMode { get; } = jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
 
-    public ulong GuildId => jsonModel.GuildId.GetValueOrDefault();
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
+
+public sealed partial class ObfuscatedStageGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedStageGuildChannel, IObfuscatedVoiceBasedGuildChannel
+{
+    public ChannelType Type => ChannelType.StageGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
+
+public partial interface IMaybeObfuscatedDirectoryGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public sealed partial class DirectoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedDirectoryGuildChannel, IGuildChannel
+{
+    public ChannelType Type => ChannelType.DirectoryGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public string Name { get; } = jsonModel.Name!;
+
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
+
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
+
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
+
+public sealed partial class ObfuscatedDirectoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedDirectoryGuildChannel, IObfuscatedGuildChannel
+{
+    public ChannelType Type => ChannelType.DirectoryGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
+
+public partial interface IMaybeObfuscatedForumGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public sealed partial class ForumGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedForumGuildChannel, IGuildChannel
+{
+    public ChannelType Type => ChannelType.ForumGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public string Name { get; } = jsonModel.Name!;
+
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
+
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
+
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
+
+    public bool Nsfw { get; } = jsonModel.Nsfw.GetValueOrDefault();
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
+
+public sealed partial class ObfuscatedForumGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedForumGuildChannel, IObfuscatedGuildChannel
+{
+    public ChannelType Type => ChannelType.ForumGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
+
+public partial interface IMaybeObfuscatedMediaGuildChannel : IMaybeObfuscatedGuildChannel;
+
+public sealed partial class MediaGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedMediaGuildChannel, IGuildChannel
+{
+    public ChannelType Type => ChannelType.MediaGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public string Name { get; } = jsonModel.Name!;
+
+    public Permissions? Permissions { get; } = jsonModel.Permissions;
+
+    public Permissions? AppPermissions { get; } = jsonModel.AppPermissions;
+
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites is { } permissionOverwrites
+        ? permissionOverwrites.ToDictionary(p => p.Id, p => new PermissionOverwrite(p))
+        : [];
+
+    public bool Nsfw { get; } = jsonModel.Nsfw.GetValueOrDefault();
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
+
+public sealed partial class ObfuscatedMediaGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedMediaGuildChannel, IObfuscatedGuildChannel
+{
+    public ChannelType Type => ChannelType.MediaGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
 
     public override string ToString() => $"<#{Id}>";
 

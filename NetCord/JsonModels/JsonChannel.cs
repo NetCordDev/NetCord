@@ -82,6 +82,9 @@ public class JsonChannel : JsonEntity
     [JsonPropertyName("permissions")]
     public Permissions? Permissions { get; set; }
 
+    [JsonPropertyName("app_permissions")]
+    public Permissions? AppPermissions { get; set; }
+
     [JsonPropertyName("flags")]
     public ChannelFlags? Flags { get; set; }
 
