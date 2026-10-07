@@ -15,12 +15,8 @@ public partial interface IPrivateChannel : IChannel
     public IReadOnlyDictionary<ulong, User> Recipients { get; }
 }
 
-public sealed partial class DMChannel(JsonChannel jsonModel, RestClient client) : IPrivateChannel
+public sealed partial class DMChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IPrivateChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.DMChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -29,17 +25,11 @@ public sealed partial class DMChannel(JsonChannel jsonModel, RestClient client) 
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class GroupDMChannel(JsonChannel jsonModel, RestClient client) : IPrivateChannel
+public sealed partial class GroupDMChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IPrivateChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.GroupDMChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -52,9 +42,7 @@ public sealed partial class GroupDMChannel(JsonChannel jsonModel, RestClient cli
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
 public partial interface IGuildBasedChannel : IChannel
@@ -85,12 +73,8 @@ public partial interface IGuildChannel : IMaybeObfuscatedGuildChannel
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
 }
 
-public sealed partial class TextGuildChannel(JsonChannel jsonModel, RestClient client) : IGuildChannel
+public sealed partial class TextGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.TextGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -107,17 +91,11 @@ public sealed partial class TextGuildChannel(JsonChannel jsonModel, RestClient c
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedTextGuildChannel(JsonChannel jsonModel, RestClient client) : IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
+public sealed partial class ObfuscatedTextGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type { get; } = ChannelType.TextGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -130,17 +108,22 @@ public sealed partial class ObfuscatedTextGuildChannel(JsonChannel jsonModel, Re
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class VoiceGuildChannel(JsonChannel jsonModel, RestClient client) : IGuildChannel
+public partial interface IVoiceGuildChannel : IGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
+    public int Bitrate { get; }
 
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
+    public int UserLimit { get; }
 
+    public string? RtcRegion { get; }
+}
+
+public partial interface IObfuscatedVoiceGuildChannel : IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel;
+
+public sealed partial class VoiceGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IVoiceGuildChannel
+{
     public ChannelType Type => ChannelType.VoiceGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -163,17 +146,11 @@ public sealed partial class VoiceGuildChannel(JsonChannel jsonModel, RestClient 
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedVoiceGuildChannel(JsonChannel jsonModel, RestClient client) : IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
+public sealed partial class ObfuscatedVoiceGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IObfuscatedVoiceGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type { get; } = ChannelType.VoiceGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -186,17 +163,11 @@ public sealed partial class ObfuscatedVoiceGuildChannel(JsonChannel jsonModel, R
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class CategoryGuildChannel(JsonChannel jsonModel, RestClient client) : IGuildChannel
+public sealed partial class CategoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.CategoryGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -213,17 +184,11 @@ public sealed partial class CategoryGuildChannel(JsonChannel jsonModel, RestClie
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedCategoryGuildChannel(JsonChannel jsonModel, RestClient client) : IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
+public sealed partial class ObfuscatedCategoryGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type { get; } = ChannelType.CategoryGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -236,17 +201,11 @@ public sealed partial class ObfuscatedCategoryGuildChannel(JsonChannel jsonModel
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class AnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : IGuildChannel
+public sealed partial class AnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.AnnouncementGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -263,17 +222,11 @@ public sealed partial class AnnouncementGuildChannel(JsonChannel jsonModel, Rest
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class ObfuscatedAnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
+public sealed partial class ObfuscatedAnnouncementGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IMaybeObfuscatedGuildChannel, IObfuscatedGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type { get; } = ChannelType.AnnouncementGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -286,17 +239,11 @@ public sealed partial class ObfuscatedAnnouncementGuildChannel(JsonChannel jsonM
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class StageGuildChannel(JsonChannel jsonModel, RestClient client) : IGuildChannel
+public sealed partial class StageGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IVoiceGuildChannel
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.StageGuildChannel;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -319,9 +266,24 @@ public sealed partial class StageGuildChannel(JsonChannel jsonModel, RestClient 
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+}
 
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+public sealed partial class ObfuscatedStageGuildChannel(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IObfuscatedVoiceGuildChannel
+{
+    public ChannelType Type { get; } = ChannelType.StageGuildChannel;
+
+    public ChannelFlags? Flags { get; } = jsonModel.Flags;
+
+    public int Position { get; } = jsonModel.Position.GetValueOrDefault();
+
+    public ulong? ParentId { get; } = jsonModel.ParentId;
+
+    public ulong GuildId { get; } = jsonModel.GuildId.GetValueOrDefault();
+
+    public override string ToString() => $"<#{Id}>";
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
 public partial interface IGuildThread : IGuildBasedChannel
@@ -358,12 +320,8 @@ public class GuildThreadMetadata(JsonGuildThreadMetadata jsonModel)
     public DateTimeOffset? CreateTimestamp { get; } = jsonModel.CreateTimestamp;
 }
 
-public sealed partial class PublicGuildThread(JsonChannel jsonModel, RestClient client) : IGuildThread
+public sealed partial class PublicGuildThread(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildThread
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.PublicGuildThread;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -390,17 +348,11 @@ public sealed partial class PublicGuildThread(JsonChannel jsonModel, RestClient 
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class PrivateGuildThread(JsonChannel jsonModel, RestClient client) : IGuildThread
+public sealed partial class PrivateGuildThread(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildThread
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.PrivateGuildThread;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -425,17 +377,11 @@ public sealed partial class PrivateGuildThread(JsonChannel jsonModel, RestClient
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
 
-public sealed partial class AnnouncementGuildThread(JsonChannel jsonModel, RestClient client) : IGuildThread
+public sealed partial class AnnouncementGuildThread(JsonChannel jsonModel, RestClient client) : ClientEntity(jsonModel, client), IGuildThread
 {
-    public ulong Id { get; } = jsonModel.Id;
-
-    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
-
     public ChannelType Type => ChannelType.AnnouncementGuildThread;
 
     public ChannelFlags? Flags { get; } = jsonModel.Flags;
@@ -460,7 +406,5 @@ public sealed partial class AnnouncementGuildThread(JsonChannel jsonModel, RestC
 
     public override string ToString() => $"<#{Id}>";
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => Mention.TryFormatChannel(destination, out charsWritten, Id);
 }
