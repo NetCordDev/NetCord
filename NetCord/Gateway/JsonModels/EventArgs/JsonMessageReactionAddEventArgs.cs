@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonMessageReactionAddEventArgs
+[JsonGuard]
+public partial class JsonMessageReactionAddEventArgs
 {
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }
@@ -19,7 +22,7 @@ public class JsonMessageReactionAddEventArgs
     public ulong? GuildId { get; set; }
 
     [JsonPropertyName("member")]
-    public JsonGuildUser? User { get; set; }
+    public JsonGuildUser? GuildUser { get; set; }
 
     [JsonPropertyName("emoji")]
     public JsonEmoji Emoji { get; set; }

@@ -177,7 +177,7 @@ async static Task PropertiesAsync()
             new LinkButtonProperties("https://netcord.dev", "Learn More"),
             new PremiumButtonProperties(1271914991536312372));
 
-    component = new StringMenuProperties("animal")
+    component = new StringSelectProperties("animal")
     {
         new("Dog", "dog")
         {
@@ -197,30 +197,30 @@ async static Task PropertiesAsync()
         },
     };
 
-    component = new StringMenuProperties("animal")
+    component = new StringSelectProperties("animal")
         .AddOptions(
-            new StringMenuSelectOptionProperties("Dog", "dog")
+            new StringSelectOptionProperties("Dog", "dog")
                 .WithDefault()
                 .WithEmoji(EmojiProperties.Standard("🐶"))
                 .WithDescription("A loyal companion"),
-            new StringMenuSelectOptionProperties("Cat", "cat")
+            new StringSelectOptionProperties("Cat", "cat")
                 .WithEmoji(EmojiProperties.Standard("🐱"))
                 .WithDescription("A curious feline"),
-            new StringMenuSelectOptionProperties("Bird", "bird")
+            new StringSelectOptionProperties("Bird", "bird")
                 .WithEmoji(EmojiProperties.Standard("🐦"))
                 .WithDescription("A chirpy flyer"));
 
-    component = new ChannelMenuProperties("channel")
+    component = new ChannelSelectProperties("channel")
     {
         DefaultValues = [1124777547687788626],
         ChannelTypes = [ChannelType.ForumGuildChannel, ChannelType.PublicGuildThread],
     };
 
-    component = new ChannelMenuProperties("channel")
+    component = new ChannelSelectProperties("channel")
         .AddDefaultValues(1124777547687788626)
         .AddChannelTypes(ChannelType.ForumGuildChannel, ChannelType.PublicGuildThread);
 
-    component = new MentionableMenuProperties("mentionable")
+    component = new MentionableSelectProperties("mentionable")
     {
         DefaultValues =
         [
@@ -228,24 +228,24 @@ async static Task PropertiesAsync()
         ],
     };
 
-    component = new MentionableMenuProperties("mentionable")
+    component = new MentionableSelectProperties("mentionable")
         .AddDefaultValues(
             new MentionableValueProperties(803324257194082314, MentionableValueType.User));
 
-    component = new RoleMenuProperties("role")
+    component = new RoleSelectProperties("role")
     {
         DefaultValues = [803169206115237908],
     };
 
-    component = new RoleMenuProperties("role")
+    component = new RoleSelectProperties("role")
         .AddDefaultValues(803169206115237908);
 
-    component = new UserMenuProperties("user")
+    component = new UserSelectProperties("user")
     {
         DefaultValues = [233590074724319233],
     };
 
-    component = new UserMenuProperties("user")
+    component = new UserSelectProperties("user")
         .AddDefaultValues(233590074724319233);
 
     message.Components = [component];
@@ -257,9 +257,9 @@ async static Task PropertiesAsync()
     message.WithFlags(MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications);
 }
 
-static void Menu()
+static void Select()
 {
-    MenuProperties component = null!;
+    SelectProperties component = null!;
 
     component.Placeholder = "Select 2-5 animals";
     component.MinValues = 2;

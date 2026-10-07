@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonRoleSubscriptionData
+[JsonGuard]
+public partial class JsonRoleSubscriptionData
 {
     [JsonPropertyName("role_subscription_listing_id")]
     public ulong RoleSubscriptionListingId { get; set; }

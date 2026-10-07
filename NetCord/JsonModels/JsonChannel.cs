@@ -35,10 +35,10 @@ public class JsonChannel : JsonEntity
     public int? UserLimit { get; set; }
 
     [JsonPropertyName("rate_limit_per_user")]
-    public int? Slowmode { get; set; }
+    public int? SlowmodeSeconds { get; set; }
 
     [JsonPropertyName("recipients")]
-    public JsonUser[]? Users { get; set; }
+    public JsonUser[]? Recipients { get; set; }
 
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }
@@ -56,7 +56,7 @@ public class JsonChannel : JsonEntity
     public ulong? ParentId { get; set; }
 
     [JsonPropertyName("last_pin_timestamp")]
-    public DateTimeOffset? LastPin { get; set; }
+    public DateTimeOffset? LastPinAt { get; set; }
 
     [JsonPropertyName("rtc_region")]
     public string? RtcRegion { get; set; }
@@ -82,6 +82,9 @@ public class JsonChannel : JsonEntity
     [JsonPropertyName("permissions")]
     public Permissions? Permissions { get; set; }
 
+    [JsonPropertyName("app_permissions")]
+    public Permissions? AppPermissions { get; set; }
+
     [JsonPropertyName("flags")]
     public ChannelFlags? Flags { get; set; }
 
@@ -98,7 +101,7 @@ public class JsonChannel : JsonEntity
     public JsonForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; set; }
 
     [JsonPropertyName("default_thread_rate_limit_per_user")]
-    public int? DefaultThreadSlowmode { get; set; }
+    public int? DefaultThreadSlowmodeSeconds { get; set; }
 
     [JsonPropertyName("default_sort_order")]
     public SortOrderType? DefaultSortOrder { get; set; }

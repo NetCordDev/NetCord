@@ -2,21 +2,19 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public class InviteTargetUsersJobStatus(JsonInviteTargetUsersJobStatus jsonModel) : IJsonModel<JsonInviteTargetUsersJobStatus>
+public class InviteTargetUsersJobStatus(JsonInviteTargetUsersJobStatus jsonModel)
 {
-    JsonInviteTargetUsersJobStatus IJsonModel<JsonInviteTargetUsersJobStatus>.JsonModel => jsonModel;
+    public InviteTargetUsersJobStatusCode Status { get; } = jsonModel.Status;
 
-    public InviteTargetUsersJobStatusCode Status => jsonModel.Status;
+    public int TotalUsers { get; } = jsonModel.TotalUsers;
 
-    public int TotalUsers => jsonModel.TotalUsers;
+    public int ProcessedUsers { get; } = jsonModel.ProcessedUsers;
 
-    public int ProcessedUsers => jsonModel.ProcessedUsers;
+    public DateTimeOffset CreatedAt { get; } = jsonModel.CreatedAt;
 
-    public DateTimeOffset CreatedAt => jsonModel.CreatedAt;
+    public DateTimeOffset? CompletedAt { get; } = jsonModel.CompletedAt;
 
-    public DateTimeOffset? CompletedAt => jsonModel.CompletedAt;
-
-    public string? ErrorMessage => jsonModel.ErrorMessage;
+    public string? ErrorMessage { get; } = jsonModel.ErrorMessage;
 }
 
 public enum InviteTargetUsersJobStatusCode

@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonAttachment : JsonEntity
+[JsonGuard]
+public partial class JsonAttachment : JsonEntity
 {
     [JsonPropertyName("filename")]
     public string FileName { get; set; }
@@ -38,7 +41,7 @@ public class JsonAttachment : JsonEntity
     public int? PlaceholderVersion { get; set; }
 
     [JsonPropertyName("ephemeral")]
-    public bool Ephemeral { get; set; }
+    public bool? Ephemeral { get; set; }
 
     [JsonPropertyName("duration_secs")]
     public double? DurationSeconds { get; set; }
@@ -47,7 +50,7 @@ public class JsonAttachment : JsonEntity
     public byte[]? Waveform { get; set; }
 
     [JsonPropertyName("flags")]
-    public AttachmentFlags Flags { get; set; }
+    public AttachmentFlags? Flags { get; set; }
 
     [JsonPropertyName("clip_participants")]
     public JsonUser[]? ClipParticipants { get; set; }

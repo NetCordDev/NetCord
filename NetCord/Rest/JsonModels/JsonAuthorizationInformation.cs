@@ -2,12 +2,15 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonAuthorizationInformation
+[JsonGuard]
+public partial class JsonAuthorizationInformation
 {
     [JsonPropertyName("application")]
-    public JsonApplication Application { get; set; }
+    public JsonPartialApplication Application { get; set; }
 
     [JsonPropertyName("scopes")]
     public string[] Scopes { get; set; }

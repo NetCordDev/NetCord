@@ -17,7 +17,7 @@ public partial class CurrentApplicationOptions
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }
 
-    /// <inheritdoc cref="Application.Description"/>
+    /// <inheritdoc cref="PartialApplication.Description"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description")]
     public string? Description { get; set; }

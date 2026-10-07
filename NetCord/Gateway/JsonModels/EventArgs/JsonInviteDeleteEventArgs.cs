@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonInviteDeleteEventArgs
+[JsonGuard]
+public partial class JsonInviteDeleteEventArgs
 {
     [JsonPropertyName("channel_id")]
     public ulong InviteChannelId { get; set; }

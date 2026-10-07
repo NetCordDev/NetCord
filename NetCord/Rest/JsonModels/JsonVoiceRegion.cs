@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonVoiceRegion
+[JsonGuard]
+public partial class JsonVoiceRegion
 {
     [JsonPropertyName("id")]
     public string Id { get; set; }

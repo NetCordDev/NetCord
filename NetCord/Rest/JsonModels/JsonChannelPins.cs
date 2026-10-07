@@ -1,10 +1,11 @@
 using System.Text.Json.Serialization;
 
-using NetCord.JsonModels;
+using JsonGuard;
 
 namespace NetCord.Rest.JsonModels;
 
-internal class JsonChannelPins
+[JsonGuard]
+internal partial class JsonChannelPins
 {
     [JsonPropertyName("items")]
     public JsonMessagePin[] Items { get; set; }

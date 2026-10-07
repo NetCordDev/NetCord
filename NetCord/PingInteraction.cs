@@ -2,43 +2,24 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class PingInteraction : Entity, IInteraction
+public class PingInteraction(JsonModels.JsonInteraction jsonModel, InteractionResponseDelegate sendResponseAsync, RestClient client) : Entity(jsonModel), IInteraction
 {
-    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonInteraction _jsonModel;
+    public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 
-    private readonly InteractionResponseDelegate _sendResponseAsync;
+    public User User { get; } = jsonModel.GuildId is { } guildId ? new GuildInteractionUser(jsonModel.GuildUser!, guildId, client) : new User(jsonModel.User!, client);
 
-    public PingInteraction(JsonModels.JsonInteraction jsonModel, InteractionResponseDelegate sendResponseAsync, RestClient client)
+    public string Token { get; } = jsonModel.Token;
+
+    public int Version { get; } = jsonModel.Version;
+
+    public Permissions AppPermissions { get; } = jsonModel.AppPermissions;
+
+    public IReadOnlyList<Entitlement> Entitlements { get; } = [.. jsonModel.Entitlements.Select(e => new Entitlement(e, client))];
+
+    public long AttachmentSizeLimit { get; } = jsonModel.AttachmentSizeLimit;
+
+    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        _jsonModel = jsonModel;
-
-        var guildId = jsonModel.GuildId;
-        if (guildId.HasValue)
-            User = new GuildInteractionUser(jsonModel.GuildUser!, guildId.GetValueOrDefault(), client);
-        else
-            User = new(jsonModel.User!, client);
-
-        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e, client)).ToArray();
-
-        _sendResponseAsync = sendResponseAsync;
+        return sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
     }
-
-    public override ulong Id => _jsonModel.Id;
-
-    public ulong ApplicationId => _jsonModel.ApplicationId;
-
-    public User User { get; }
-
-    public string Token => _jsonModel.Token;
-
-    public int Version => _jsonModel.Version;
-
-    public Permissions AppPermissions => _jsonModel.AppPermissions;
-
-    public IReadOnlyList<Entitlement> Entitlements { get; }
-
-    public long AttachmentSizeLimit => _jsonModel.AttachmentSizeLimit;
-
-    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
 }

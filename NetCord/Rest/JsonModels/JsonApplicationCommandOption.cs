@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonApplicationCommandOption
+[JsonGuard]
+public partial class JsonApplicationCommandOption
 {
     [JsonPropertyName("type")]
     public ApplicationCommandOptionType Type { get; set; }
@@ -20,7 +23,7 @@ public class JsonApplicationCommandOption
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }
 
     [JsonPropertyName("required")]
-    public bool Required { get; set; }
+    public bool? Required { get; set; }
 
     [JsonPropertyName("choices")]
     public JsonApplicationCommandOptionChoice[]? Choices { get; set; }
@@ -44,7 +47,7 @@ public class JsonApplicationCommandOption
     public int? MaxLength { get; set; }
 
     [JsonPropertyName("autocomplete")]
-    public bool Autocomplete { get; set; }
+    public bool? Autocomplete { get; set; }
 
     [JsonPropertyName("file_types")]
     public string[]? FileTypes { get; set; }

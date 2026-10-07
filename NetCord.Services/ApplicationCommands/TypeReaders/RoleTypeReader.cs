@@ -6,6 +6,6 @@ public class RoleTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public override ValueTask<SlashCommandTypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new(SlashCommandTypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Roles![Snowflake.Parse(value)]));
+        return new(SlashCommandTypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.Resolved!.Roles![Snowflake.Parse(value)]));
     }
 }

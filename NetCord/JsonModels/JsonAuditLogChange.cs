@@ -1,9 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonAuditLogChange
+[JsonGuard]
+public partial class JsonAuditLogChange
 {
     [JsonPropertyName("new_value")]
     public JsonElement? NewValue { get; set; }

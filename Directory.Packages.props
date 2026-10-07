@@ -1,12 +1,11 @@
 <Project>
-
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+    <PackageVersion Include="JsonGuard" Version="0.0.0-alpha.1" />
     <PackageVersion Include="libsodium" Version="1.0.22" />
     <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0" />
@@ -24,5 +23,4 @@
     <PackageVersion Include="MSTest.TestFramework" Version="4.4.1" />
     <PackageVersion Include="PolySharp" Version="1.16.0" />
   </ItemGroup>
-
 </Project>

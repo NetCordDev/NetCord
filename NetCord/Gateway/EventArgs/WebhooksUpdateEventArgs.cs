@@ -1,10 +1,10 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class WebhooksUpdateEventArgs(JsonModels.EventArgs.JsonWebhooksUpdateEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonWebhooksUpdateEventArgs>
+public class WebhooksUpdateEventArgs(JsonWebhooksUpdateEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonWebhooksUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonWebhooksUpdateEventArgs>.JsonModel => jsonModel;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
-    public ulong GuildId => jsonModel.GuildId;
-
-    public ulong ChannelId => jsonModel.ChannelId;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 }

@@ -18,14 +18,37 @@ public class GuildUserComparison
             jsonRoles[i] = new()
             {
                 Id = id,
+                Name = "Role",
                 Position = position,
+                Flags = default,
+                Mentionable = false,
+                Managed = false,
+                Permissions = default,
+                Hoist = false,
+                Colors = new()
+                {
+                    PrimaryColor = default,
+                },
             };
         }
 
         return new(new()
         {
+            Id = 123,
             OwnerId = ownerId,
             Roles = jsonRoles,
+            Name = "Guild",
+            PremiumProgressBarEnabled = false,
+            Stickers = [],
+            NsfwLevel = NsfwLevel.Default,
+            PreferredLocale = "en-US",
+            PremiumTier = 1,
+            SystemChannelFlags = default,
+            MfaLevel = MfaLevel.None,
+            Emojis = [],
+            ContentFilter = ContentFilter.Disabled,
+            DefaultMessageNotificationLevel = DefaultMessageNotificationLevel.AllMessages,
+            AfkTimeout = 60,
         }, null!);
     }
 
@@ -36,7 +59,12 @@ public class GuildUserComparison
             User = new()
             {
                 Id = id,
+                Discriminator = 0,
+                Username = "User",
             },
+            GuildFlags = default,
+            Muted = false,
+            Deafened = false,
             RoleIds = roleIds,
         }, null!);
     }

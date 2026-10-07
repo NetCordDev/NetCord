@@ -1,12 +1,10 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class GuildIntegrationDeleteEventArgs(JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs>
+public class GuildIntegrationDeleteEventArgs(JsonGuildIntegrationDeleteEventArgs jsonModel) : Entity(jsonModel)
 {
-    JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs>.JsonModel => jsonModel;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
-    public ulong IntegrationId => jsonModel.IntegrationId;
-
-    public ulong GuildId => jsonModel.GuildId;
-
-    public ulong? ApplicationId => jsonModel.ApplicationId;
+    public ulong? ApplicationId { get; } = jsonModel.ApplicationId;
 }

@@ -2,32 +2,36 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildUserChunkEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildUserChunkEventArgs>
+public class GuildUserChunkEventArgs(JsonModels.EventArgs.JsonGuildUserChunkEventArgs jsonModel, RestClient client)
 {
-    JsonModels.EventArgs.JsonGuildUserChunkEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildUserChunkEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildUserChunkEventArgs _jsonModel;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
-    public GuildUserChunkEventArgs(JsonModels.EventArgs.JsonGuildUserChunkEventArgs jsonModel, RestClient client)
+    public IReadOnlyList<GuildUser> Users { get; } = CreateUsers(jsonModel, client);
+
+    private static IReadOnlyList<GuildUser> CreateUsers(JsonModels.EventArgs.JsonGuildUserChunkEventArgs jsonModel, RestClient client)
     {
-        _jsonModel = jsonModel;
-        Users = jsonModel.Users.Select(u => new GuildUser(u, jsonModel.GuildId, client)).ToArray();
+        var guildId = jsonModel.GuildId;
 
-        var presences = jsonModel.Presences;
-        if (presences is not null)
-            Presences = presences.Select(p => new Presence(p, jsonModel.GuildId, client)).ToArray();
+        return [.. jsonModel.Users.Select(u => new GuildUser(u, guildId, client))];
     }
 
-    public ulong GuildId => _jsonModel.GuildId;
+    public int ChunkIndex { get; } = jsonModel.ChunkIndex;
 
-    public IReadOnlyList<GuildUser> Users { get; }
+    public int ChunkCount { get; } = jsonModel.ChunkCount;
 
-    public int ChunkIndex => _jsonModel.ChunkIndex;
+    public IReadOnlyList<ulong>? NotFound { get; } = jsonModel.NotFound;
 
-    public int ChunkCount => _jsonModel.ChunkCount;
+    public IReadOnlyList<Presence>? Presences { get; } = CreatePresences(jsonModel, client);
 
-    public IReadOnlyList<ulong>? NotFound => _jsonModel.NotFound;
+    private static IReadOnlyList<Presence>? CreatePresences(JsonModels.EventArgs.JsonGuildUserChunkEventArgs jsonModel, RestClient client)
+    {
+        if (jsonModel.Presences is not { } presences)
+            return null;
 
-    public IReadOnlyList<Presence>? Presences { get; }
+        var guildId = jsonModel.GuildId;
 
-    public string? Nonce => _jsonModel.Nonce;
+        return [.. presences.Select(p => new Presence(p, guildId, client))];
+    }
+
+    public string? Nonce { get; } = jsonModel.Nonce;
 }

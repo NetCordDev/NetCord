@@ -1,84 +1,56 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
+public class RestInviteChannel(JsonRestInviteChannel jsonModel) : Entity(jsonModel)
 {
-    JsonModels.JsonRestInvite IJsonModel<JsonModels.JsonRestInvite>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonRestInvite _jsonModel;
+    public string Name { get; } = jsonModel.Name;
 
-    private readonly RestClient _client;
+    public ChannelType Type { get; } = jsonModel.Type;
+}
 
-    public InviteType Type => _jsonModel.Type;
+public partial class RestInvite(JsonRestInvite jsonModel, RestClient client) : IInvite
+{
+    public InviteType Type { get; } = jsonModel.Type;
 
-    public string Code => _jsonModel.Code;
+    public string Code { get; } = jsonModel.Code;
 
-    public RestGuild? Guild { get; }
+    public PartialGuild? Guild { get; } = jsonModel.Guild is { } guild ? new(guild, client) : null;
 
-    public Channel? Channel { get; }
+    public RestInviteChannel? Channel { get; } = jsonModel.Channel is { } channel ? new(channel) : null;
 
-    public User? Inviter { get; }
+    public User? Inviter { get; } = jsonModel.Inviter is { } inviter ? new(inviter, client) : null;
 
-    public InviteTargetType? TargetType => _jsonModel.TargetType;
+    public InviteTargetType? TargetType { get; } = jsonModel.TargetType;
 
-    public User? TargetUser { get; }
+    public User? TargetUser { get; } = jsonModel.TargetUser is { } targetUser ? new(targetUser, client) : null;
 
-    public Application? TargetApplication { get; }
+    public PartialApplication? TargetApplication { get; } = jsonModel.TargetApplication is { } targetApplication ? new(targetApplication, client) : null;
 
-    public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
+    public int? ApproximatePresenceCount { get; } = jsonModel.ApproximatePresenceCount;
 
-    public int? ApproximateUserCount => _jsonModel.ApproximateUserCount;
+    public int? ApproximateUserCount { get; } = jsonModel.ApproximateUserCount;
 
-    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
+    public DateTimeOffset? ExpiresAt { get; } = jsonModel.ExpiresAt;
 
-    public GuildScheduledEvent? GuildScheduledEvent { get; }
+    public GuildScheduledEvent? GuildScheduledEvent { get; } = jsonModel.GuildScheduledEvent is { } guildScheduledEvent ? new(guildScheduledEvent, client) : null;
 
-    public InviteFlags? Flags => _jsonModel.Flags;
+    public InviteFlags? Flags { get; } = jsonModel.Flags;
 
-    public IReadOnlyList<Role>? Roles { get; }
+    public IReadOnlyList<Role>? Roles { get; } = jsonModel.Roles is { } roles && jsonModel.Guild is { } guild ? roles.Select(role => new Role(role, guild.Id, client)).ToArray() : null;
 
     // Metadata
-    public int? Uses => _jsonModel.Uses;
+    public int? Uses { get; } = jsonModel.Uses;
 
-    public int? MaxUses => _jsonModel.MaxUses;
+    public int? MaxUses { get; } = jsonModel.MaxUses;
 
-    public int? MaxAge => _jsonModel.MaxAge;
+    public int? MaxAge { get; } = jsonModel.MaxAge;
 
-    public bool? Temporary => _jsonModel.Temporary;
+    public bool? Temporary { get; } = jsonModel.Temporary;
 
-    public DateTimeOffset? CreatedAt => _jsonModel.CreatedAt;
+    public DateTimeOffset? CreatedAt { get; } = jsonModel.CreatedAt;
 
     ulong? IInvite.GuildId => Guild?.Id;
 
     ulong? IInvite.ChannelId => Channel?.Id;
-
-    public RestInvite(JsonModels.JsonRestInvite jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        if (jsonModel.Guild is { } guild)
-        {
-            Guild = new(guild, client);
-
-            var guildId = Guild.Id;
-
-            if (jsonModel.Roles is { } roles)
-                Roles = roles.Select(role => new Role(role, guildId, client)).ToArray();
-        }
-
-        if (jsonModel.Channel is { } channel)
-            Channel = Channel.CreateFromJson(channel, client);
-
-        if (jsonModel.Inviter is { } inviter)
-            Inviter = new(inviter, client);
-
-        if (jsonModel.TargetUser is { } targetUser)
-            TargetUser = new(targetUser, client);
-
-        if (jsonModel.TargetApplication is { } targetApplication)
-            TargetApplication = new(targetApplication, client);
-
-        if (jsonModel.GuildScheduledEvent is { } guildScheduledEvent)
-            GuildScheduledEvent = new(guildScheduledEvent, client);
-
-        _client = client;
-    }
 }

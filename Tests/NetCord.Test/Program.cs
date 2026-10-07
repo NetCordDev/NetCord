@@ -38,11 +38,11 @@ internal static class Program
 
     private static readonly CommandService<CommandContext> _commandService = new();
     private static readonly ComponentInteractionService<ButtonInteractionContext> _buttonInteractionService = new();
-    private static readonly ComponentInteractionService<StringMenuInteractionContext> _stringMenuInteractionService = new();
-    private static readonly ComponentInteractionService<UserMenuInteractionContext> _userMenuInteractionService = new();
-    private static readonly ComponentInteractionService<RoleMenuInteractionContext> _roleMenuInteractionService = new();
-    private static readonly ComponentInteractionService<MentionableMenuInteractionContext> _mentionableMenuInteractionService = new();
-    private static readonly ComponentInteractionService<ChannelMenuInteractionContext> _channelMenuInteractionService = new();
+    private static readonly ComponentInteractionService<StringSelectInteractionContext> _stringSelectInteractionService = new();
+    private static readonly ComponentInteractionService<UserSelectInteractionContext> _userSelectInteractionService = new();
+    private static readonly ComponentInteractionService<RoleSelectInteractionContext> _roleSelectInteractionService = new();
+    private static readonly ComponentInteractionService<MentionableSelectInteractionContext> _mentionableSelectInteractionService = new();
+    private static readonly ComponentInteractionService<ChannelSelectInteractionContext> _channelSelectInteractionService = new();
     private static readonly ComponentInteractionService<ModalInteractionContext> _modalInteractionService = new();
     private static readonly ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> _slashCommandService;
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
@@ -105,11 +105,11 @@ internal static class Program
 
         _buttonInteractionService.AddModules(assembly);
         _buttonInteractionService.AddComponentInteraction(new("wziummm", (ButtonInteractionContext context) => "wzium"));
-        _stringMenuInteractionService.AddModules(assembly);
-        _userMenuInteractionService.AddModules(assembly);
-        _roleMenuInteractionService.AddModules(assembly);
-        _mentionableMenuInteractionService.AddModules(assembly);
-        _channelMenuInteractionService.AddModules(assembly);
+        _stringSelectInteractionService.AddModules(assembly);
+        _userSelectInteractionService.AddModules(assembly);
+        _roleSelectInteractionService.AddModules(assembly);
+        _mentionableSelectInteractionService.AddModules(assembly);
+        _channelSelectInteractionService.AddModules(assembly);
         _modalInteractionService.AddModules(assembly);
         _slashCommandService.AddSlashCommand(new("ping", "Ping!", (SlashCommandContext context, string s) => s));
         _slashCommandService.AddSlashCommand(new("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")] string keyedWzium, string wzium, SlashCommandContext context) => $"{keyedWzium} {wzium}"));
@@ -197,8 +197,8 @@ internal static class Program
     {
         if (entry.ActionType is AuditLogEvent.ChannelUpdate)
         {
-            if (entry.TryGetChange<JsonChannel, string>(c => c.Name, out var change))
-                await _client.Rest.SendMessageAsync(entry.TargetId!.Value, $"old: {change.OldValue} new: {change.NewValue}");
+            if (entry.Changes.TryGetValue("name", out var change))
+                await _client.Rest.SendMessageAsync(entry.TargetId!.Value, $"old: {change.OldValue.GetValueOrDefault().GetString()} new: {change.NewValue.GetValueOrDefault().GetString()}");
             else
                 await _client.Rest.SendMessageAsync(entry.TargetId!.Value, "Name hasn't changed");
         }
@@ -206,8 +206,8 @@ internal static class Program
         {
             var channel = _client.Cache.Guilds[entry.GuildId].Channels.Values.OfType<TextChannel>().First();
 
-            if (entry.TryGetChange<JsonGuildUser, DateTimeOffset?>(u => u.TimeOutUntil, out var change))
-                await channel.SendMessageAsync($"old: {change.OldValue} new: {change.NewValue}");
+            if (entry.Changes.TryGetValue("communication_disabled_until", out var change))
+                await channel.SendMessageAsync($"old: {(change.OldValue is { } oldValue ? oldValue.GetDateTimeOffset().ToString() : "none")} new: {(change.NewValue is { } newValue ? newValue.GetDateTimeOffset().ToString() : "none")}");
             else
                 await channel.SendMessageAsync("Time out hasn't changed");
         }
@@ -221,14 +221,14 @@ internal static class Program
             MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client), _serviceProvider),
             UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client), _serviceProvider),
             EntryPointCommandInteraction entryPointCommandInteraction => _entryPointCommandService.ExecuteAsync(new(entryPointCommandInteraction, _client), _serviceProvider),
-            StringMenuInteraction stringMenuInteraction => _stringMenuInteractionService.ExecuteAsync(new(stringMenuInteraction, _client), _serviceProvider),
-            UserMenuInteraction userMenuInteraction => _userMenuInteractionService.ExecuteAsync(new(userMenuInteraction, _client), _serviceProvider),
-            RoleMenuInteraction roleMenuInteraction => _roleMenuInteractionService.ExecuteAsync(new(roleMenuInteraction, _client), _serviceProvider),
-            MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client), _serviceProvider),
-            ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client), _serviceProvider),
+            StringSelectInteraction stringSelectInteraction => _stringSelectInteractionService.ExecuteAsync(new(stringSelectInteraction, _client), _serviceProvider),
+            UserSelectInteraction userSelectInteraction => _userSelectInteractionService.ExecuteAsync(new(userSelectInteraction, _client), _serviceProvider),
+            RoleSelectInteraction roleSelectInteraction => _roleSelectInteractionService.ExecuteAsync(new(roleSelectInteraction, _client), _serviceProvider),
+            MentionableSelectInteraction mentionableSelectInteraction => _mentionableSelectInteractionService.ExecuteAsync(new(mentionableSelectInteraction, _client), _serviceProvider),
+            ChannelSelectInteraction channelSelectInteraction => _channelSelectInteractionService.ExecuteAsync(new(channelSelectInteraction, _client), _serviceProvider),
             ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client), _serviceProvider),
             AutocompleteInteraction autocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(autocompleteInteraction, _client), _serviceProvider),
-            ModalInteraction modalInteraction => _modalInteractionService.ExecuteAsync(new(modalInteraction, _client), _serviceProvider),
+            ModalSubmitInteraction modalInteraction => _modalInteractionService.ExecuteAsync(new(modalInteraction, _client), _serviceProvider),
             _ => throw new("Invalid interaction."),
         });
         if (result is IFailResult failResult)

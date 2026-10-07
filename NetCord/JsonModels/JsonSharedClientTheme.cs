@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonSharedClientTheme
+[JsonGuard]
+public partial class JsonSharedClientTheme
 {
     [JsonPropertyName("colors")]
     public Color[] Colors { get; set; }

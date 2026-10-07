@@ -1,10 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 
+using NetCord.JsonModels;
+
 namespace NetCord;
 
-public abstract class Entity : IEntity, ISpanFormattable, IEquatable<Entity>
+public abstract class Entity(ulong id) : IEntity, ISpanFormattable, IEquatable<Entity>
 {
-    public abstract ulong Id { get; }
+    public Entity(JsonEntity jsonModel) : this(jsonModel.Id)
+    {
+    }
+
+    public ulong Id { get; } = id;
 
     public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
 

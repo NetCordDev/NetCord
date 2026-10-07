@@ -1,10 +1,12 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GoogleCloudPlatformStorageBucket(JsonModels.JsonGoogleCloudPlatformStorageBucket jsonModel) : IJsonModel<JsonModels.JsonGoogleCloudPlatformStorageBucket>
+public class GoogleCloudPlatformStorageBucket(JsonGoogleCloudPlatformStorageBucket jsonModel)
 {
-    JsonModels.JsonGoogleCloudPlatformStorageBucket IJsonModel<JsonModels.JsonGoogleCloudPlatformStorageBucket>.JsonModel => jsonModel;
+    public long? Id { get; } = jsonModel.Id;
 
-    public long? Id => jsonModel.Id;
-    public string UploadUrl => jsonModel.UploadUrl;
-    public string UploadFileName => jsonModel.UploadFileName;
+    public string UploadUrl { get; } = jsonModel.UploadUrl;
+
+    public string UploadFileName { get; } = jsonModel.UploadFileName;
 }

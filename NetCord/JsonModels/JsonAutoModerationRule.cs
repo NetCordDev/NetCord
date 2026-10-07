@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonAutoModerationRule : JsonEntity
+[JsonGuard]
+public partial class JsonAutoModerationRule : JsonEntity
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }

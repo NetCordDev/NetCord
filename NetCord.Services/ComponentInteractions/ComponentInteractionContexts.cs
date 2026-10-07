@@ -179,24 +179,24 @@ public class HttpButtonInteractionContext(ButtonInteraction interaction, RestCli
 }
 
 /// <summary>
-/// Base context for handling string menu interactions.
+/// Base context for handling string select interactions.
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="Interaction" path="/summary"/></param>
-public class BaseStringMenuInteractionContext(StringMenuInteraction interaction) : IComponentInteractionContext
+public class BaseStringSelectInteractionContext(StringSelectInteraction interaction) : IComponentInteractionContext
 {
     /// <inheritdoc cref="IComponentInteractionContext.Interaction" />
-    public StringMenuInteraction Interaction => interaction;
+    public StringSelectInteraction Interaction => interaction;
 
     ComponentInteraction IComponentInteractionContext.Interaction => interaction;
 }
 
 /// <summary>
-/// Context for handling string menu interactions.
+/// Context for handling string select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseStringMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseStringSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client)
-    : BaseStringMenuInteractionContext(interaction),
+public class StringSelectInteractionContext(StringSelectInteraction interaction, GatewayClient client)
+    : BaseStringSelectInteractionContext(interaction),
       IGatewayClientContext,
       IRestMessageContext,
       IUserContext,
@@ -215,20 +215,20 @@ public class StringMenuInteractionContext(StringMenuInteraction interaction, Gat
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected string values from the menu.
+    /// The selected string values from the select.
     /// </summary>
-    public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<string> Values => Interaction.Data.Values;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 /// <summary>
-/// Context for handling HTTP-based string menu interactions.
+/// Context for handling HTTP-based string select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseStringMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseStringSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class HttpStringMenuInteractionContext(StringMenuInteraction interaction, RestClient client)
-    : BaseStringMenuInteractionContext(interaction),
+public class HttpStringSelectInteractionContext(StringSelectInteraction interaction, RestClient client)
+    : BaseStringSelectInteractionContext(interaction),
       IRestClientContext,
       IRestMessageContext,
       IUserContext,
@@ -244,30 +244,30 @@ public class HttpStringMenuInteractionContext(StringMenuInteraction interaction,
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected string values from the menu.
+    /// The selected string values from the select.
     /// </summary>
-    public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<string> Values => Interaction.Data.Values;
 }
 
 /// <summary>
-/// Base context for handling entity menu interactions.
+/// Base context for handling entity select interactions.
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="Interaction" path="/summary"/></param>
-public class BaseEntityMenuInteractionContext(EntityMenuInteraction interaction) : IComponentInteractionContext
+public class BaseEntitySelectInteractionContext(EntitySelectInteraction interaction) : IComponentInteractionContext
 {
     /// <inheritdoc cref="IComponentInteractionContext.Interaction" />
-    public EntityMenuInteraction Interaction => interaction;
+    public EntitySelectInteraction Interaction => interaction;
 
     ComponentInteraction IComponentInteractionContext.Interaction => interaction;
 }
 
 /// <summary>
-/// Context for handling entity menu interactions.
+/// Context for handling entity select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseEntityMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseEntitySelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client)
-    : BaseEntityMenuInteractionContext(interaction),
+public class EntitySelectInteractionContext(EntitySelectInteraction interaction, GatewayClient client)
+    : BaseEntitySelectInteractionContext(interaction),
       IGatewayClientContext,
       IRestMessageContext,
       IUserContext,
@@ -286,20 +286,20 @@ public class EntityMenuInteractionContext(EntityMenuInteraction interaction, Gat
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected entity IDs from the menu.
+    /// The selected entity IDs from the select.
     /// </summary>
-    public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<ulong> SelectedValues => Interaction.Data.Values;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 /// <summary>
-/// Context for handling HTTP-based entity menu interactions.
+/// Context for handling HTTP-based entity select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseEntityMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseEntitySelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class HttpEntityMenuInteractionContext(EntityMenuInteraction interaction, RestClient client)
-    : BaseEntityMenuInteractionContext(interaction),
+public class HttpEntitySelectInteractionContext(EntitySelectInteraction interaction, RestClient client)
+    : BaseEntitySelectInteractionContext(interaction),
       IRestClientContext,
       IRestMessageContext,
       IUserContext,
@@ -315,30 +315,30 @@ public class HttpEntityMenuInteractionContext(EntityMenuInteraction interaction,
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected entity IDs from the menu.
+    /// The selected entity IDs from the select.
     /// </summary>
-    public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<ulong> SelectedValues => Interaction.Data.Values;
 }
 
 /// <summary>
-/// Base context for handling user menu interactions.
+/// Base context for handling user select interactions.
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="Interaction" path="/summary"/></param>
-public class BaseUserMenuInteractionContext(UserMenuInteraction interaction) : IComponentInteractionContext
+public class BaseUserSelectInteractionContext(UserSelectInteraction interaction) : IComponentInteractionContext
 {
     /// <inheritdoc cref="IComponentInteractionContext.Interaction" />
-    public UserMenuInteraction Interaction => interaction;
+    public UserSelectInteraction Interaction => interaction;
 
     ComponentInteraction IComponentInteractionContext.Interaction => interaction;
 }
 
 /// <summary>
-/// Context for handling user menu interactions.
+/// Context for handling user select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseUserMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseUserSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class UserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client)
-    : BaseUserMenuInteractionContext(interaction),
+public class UserSelectInteractionContext(UserSelectInteraction interaction, GatewayClient client)
+    : BaseUserSelectInteractionContext(interaction),
       IGatewayClientContext,
       IRestMessageContext,
       IUserContext,
@@ -357,20 +357,20 @@ public class UserMenuInteractionContext(UserMenuInteraction interaction, Gateway
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected users from the menu.
+    /// The selected users from the select.
     /// </summary>
-    public IReadOnlyList<User> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<User> SelectedValues => Interaction.Data.Values;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 /// <summary>
-/// Context for handling HTTP-based user menu interactions.
+/// Context for handling HTTP-based user select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseUserMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseUserSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class HttpUserMenuInteractionContext(UserMenuInteraction interaction, RestClient client)
-    : BaseUserMenuInteractionContext(interaction),
+public class HttpUserSelectInteractionContext(UserSelectInteraction interaction, RestClient client)
+    : BaseUserSelectInteractionContext(interaction),
       IRestClientContext,
       IRestMessageContext,
       IUserContext,
@@ -386,30 +386,30 @@ public class HttpUserMenuInteractionContext(UserMenuInteraction interaction, Res
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected users from the menu.
+    /// The selected users from the select.
     /// </summary>
-    public IReadOnlyList<User> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<User> SelectedValues => Interaction.Data.Values;
 }
 
 /// <summary>
-/// Base context for handling role menu interactions.
+/// Base context for handling role select interactions.
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="Interaction" path="/summary"/></param>
-public class BaseRoleMenuInteractionContext(RoleMenuInteraction interaction) : IComponentInteractionContext
+public class BaseRoleSelectInteractionContext(RoleSelectInteraction interaction) : IComponentInteractionContext
 {
     /// <inheritdoc cref="IComponentInteractionContext.Interaction" />
-    public RoleMenuInteraction Interaction => interaction;
+    public RoleSelectInteraction Interaction => interaction;
 
     ComponentInteraction IComponentInteractionContext.Interaction => interaction;
 }
 
 /// <summary>
-/// Context for handling role menu interactions.
+/// Context for handling role select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseRoleMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseRoleSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client)
-    : BaseRoleMenuInteractionContext(interaction),
+public class RoleSelectInteractionContext(RoleSelectInteraction interaction, GatewayClient client)
+    : BaseRoleSelectInteractionContext(interaction),
       IGatewayClientContext,
       IRestMessageContext,
       IUserContext,
@@ -428,20 +428,20 @@ public class RoleMenuInteractionContext(RoleMenuInteraction interaction, Gateway
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected roles from the menu.
+    /// The selected roles from the select.
     /// </summary>
-    public IReadOnlyList<Role> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<Role> SelectedValues => Interaction.Data.Values;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 /// <summary>
-/// Context for handling HTTP-based role menu interactions.
+/// Context for handling HTTP-based role select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseRoleMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseRoleSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class HttpRoleMenuInteractionContext(RoleMenuInteraction interaction, RestClient client)
-    : BaseRoleMenuInteractionContext(interaction),
+public class HttpRoleSelectInteractionContext(RoleSelectInteraction interaction, RestClient client)
+    : BaseRoleSelectInteractionContext(interaction),
       IRestClientContext,
       IRestMessageContext,
       IUserContext,
@@ -457,30 +457,30 @@ public class HttpRoleMenuInteractionContext(RoleMenuInteraction interaction, Res
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected roles from the menu.
+    /// The selected roles from the select.
     /// </summary>
-    public IReadOnlyList<Role> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<Role> SelectedValues => Interaction.Data.Values;
 }
 
 /// <summary>
-/// Base context for handling mentionable menu interactions.
+/// Base context for handling mentionable select interactions.
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="Interaction" path="/summary"/></param>
-public class BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction) : IComponentInteractionContext
+public class BaseMentionableSelectInteractionContext(MentionableSelectInteraction interaction) : IComponentInteractionContext
 {
     /// <inheritdoc cref="IComponentInteractionContext.Interaction" />
-    public MentionableMenuInteraction Interaction => interaction;
+    public MentionableSelectInteraction Interaction => interaction;
 
     ComponentInteraction IComponentInteractionContext.Interaction => interaction;
 }
 
 /// <summary>
-/// Context for handling mentionable menu interactions.
+/// Context for handling mentionable select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseMentionableMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseMentionableSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class MentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client)
-    : BaseMentionableMenuInteractionContext(interaction),
+public class MentionableSelectInteractionContext(MentionableSelectInteraction interaction, GatewayClient client)
+    : BaseMentionableSelectInteractionContext(interaction),
       IGatewayClientContext,
       IRestMessageContext,
       IUserContext,
@@ -499,20 +499,20 @@ public class MentionableMenuInteractionContext(MentionableMenuInteraction intera
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected mentionables (users or roles) from the menu.
+    /// The selected mentionables (users or roles) from the select.
     /// </summary>
-    public IReadOnlyList<Mentionable> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<Mentionable> SelectedValues => Interaction.Data.Values;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 /// <summary>
-/// Context for handling HTTP-based mentionable menu interactions.
+/// Context for handling HTTP-based mentionable select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseMentionableMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseMentionableSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class HttpMentionableMenuInteractionContext(MentionableMenuInteraction interaction, RestClient client)
-    : BaseMentionableMenuInteractionContext(interaction),
+public class HttpMentionableSelectInteractionContext(MentionableSelectInteraction interaction, RestClient client)
+    : BaseMentionableSelectInteractionContext(interaction),
       IRestClientContext,
       IRestMessageContext,
       IUserContext,
@@ -528,30 +528,30 @@ public class HttpMentionableMenuInteractionContext(MentionableMenuInteraction in
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected mentionables (users or roles) from the menu.
+    /// The selected mentionables (users or roles) from the select.
     /// </summary>
-    public IReadOnlyList<Mentionable> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<Mentionable> SelectedValues => Interaction.Data.Values;
 }
 
 /// <summary>
-/// Base context for handling channel menu interactions.
+/// Base context for handling channel select interactions.
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="Interaction" path="/summary"/></param>
-public class BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction) : IComponentInteractionContext
+public class BaseChannelSelectInteractionContext(ChannelSelectInteraction interaction) : IComponentInteractionContext
 {
     /// <inheritdoc cref="IComponentInteractionContext.Interaction" />
-    public ChannelMenuInteraction Interaction => interaction;
+    public ChannelSelectInteraction Interaction => interaction;
 
     ComponentInteraction IComponentInteractionContext.Interaction => interaction;
 }
 
 /// <summary>
-/// Context for handling channel menu interactions.
+/// Context for handling channel select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseChannelMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseChannelSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client)
-    : BaseChannelMenuInteractionContext(interaction),
+public class ChannelSelectInteractionContext(ChannelSelectInteraction interaction, GatewayClient client)
+    : BaseChannelSelectInteractionContext(interaction),
       IGatewayClientContext,
       IRestMessageContext,
       IUserContext,
@@ -570,20 +570,20 @@ public class ChannelMenuInteractionContext(ChannelMenuInteraction interaction, G
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected channels from the menu.
+    /// The selected channels from the select.
     /// </summary>
-    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.Values;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 /// <summary>
-/// Context for handling HTTP-based channel menu interactions.
+/// Context for handling HTTP-based channel select interactions.
 /// </summary>
-/// <param name="interaction"><inheritdoc cref="BaseChannelMenuInteractionContext.Interaction" path="/summary"/></param>
+/// <param name="interaction"><inheritdoc cref="BaseChannelSelectInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class HttpChannelMenuInteractionContext(ChannelMenuInteraction interaction, RestClient client)
-    : BaseChannelMenuInteractionContext(interaction),
+public class HttpChannelSelectInteractionContext(ChannelSelectInteraction interaction, RestClient client)
+    : BaseChannelSelectInteractionContext(interaction),
       IRestClientContext,
       IRestMessageContext,
       IUserContext,
@@ -599,19 +599,19 @@ public class HttpChannelMenuInteractionContext(ChannelMenuInteraction interactio
     public TextChannel Channel => Interaction.Channel;
 
     /// <summary>
-    /// The selected channels from the menu.
+    /// The selected channels from the select.
     /// </summary>
-    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.Values;
 }
 
 /// <summary>
 /// Base context for handling modal interactions.
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="Interaction" path="/summary"/></param>
-public class BaseModalInteractionContext(ModalInteraction interaction) : IComponentInteractionContext
+public class BaseModalInteractionContext(ModalSubmitInteraction interaction) : IComponentInteractionContext
 {
     /// <inheritdoc cref="IComponentInteractionContext.Interaction" />
-    public ModalInteraction Interaction => interaction;
+    public ModalSubmitInteraction Interaction => interaction;
 
     ComponentInteraction IComponentInteractionContext.Interaction => interaction;
 }
@@ -621,7 +621,7 @@ public class BaseModalInteractionContext(ModalInteraction interaction) : ICompon
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="BaseModalInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class ModalInteractionContext(ModalInteraction interaction, GatewayClient client)
+public class ModalInteractionContext(ModalSubmitInteraction interaction, GatewayClient client)
     : BaseModalInteractionContext(interaction),
       IGatewayClientContext,
       IUserContext,
@@ -640,7 +640,7 @@ public class ModalInteractionContext(ModalInteraction interaction, GatewayClient
     /// <summary>
     /// The components submitted with the modal.
     /// </summary>
-    public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
+    public IReadOnlyList<IModalChildComponentData> Components => Interaction.Data.Components;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -650,7 +650,7 @@ public class ModalInteractionContext(ModalInteraction interaction, GatewayClient
 /// </summary>
 /// <param name="interaction"><inheritdoc cref="BaseModalInteractionContext.Interaction" path="/summary"/></param>
 /// <param name="client"><inheritdoc cref="Client" path="/summary"/></param>
-public class HttpModalInteractionContext(ModalInteraction interaction, RestClient client)
+public class HttpModalInteractionContext(ModalSubmitInteraction interaction, RestClient client)
     : BaseModalInteractionContext(interaction),
       IRestClientContext,
       IUserContext,
@@ -666,5 +666,5 @@ public class HttpModalInteractionContext(ModalInteraction interaction, RestClien
     /// <summary>
     /// The components submitted with the modal.
     /// </summary>
-    public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
+    public IReadOnlyList<IModalChildComponentData> Components => Interaction.Data.Components;
 }

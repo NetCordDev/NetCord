@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonSubscription : JsonEntity
+[JsonGuard]
+public partial class JsonSubscription : JsonEntity
 {
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }

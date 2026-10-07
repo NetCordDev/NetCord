@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonVoiceServerUpdateEventArgs
+[JsonGuard]
+public partial class JsonVoiceServerUpdateEventArgs
 {
     [JsonPropertyName("token")]
     public string Token { get; set; }

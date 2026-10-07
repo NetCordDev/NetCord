@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplicationInstallParams
+[JsonGuard]
+public partial class JsonApplicationInstallParams
 {
     [JsonPropertyName("scopes")]
     public string[] Scopes { get; set; }

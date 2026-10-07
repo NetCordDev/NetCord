@@ -1,28 +1,29 @@
+using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs>
+public class GuildThreadUsersUpdateEventArgs(JsonGuildThreadUsersUpdateEventArgs jsonModel, RestClient client)
 {
-    JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs _jsonModel;
+    public ulong ThreadId { get; } = jsonModel.ThreadId;
 
-    public GuildThreadUsersUpdateEventArgs(JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs jsonModel, RestClient client)
+    public ulong GuildId { get; } = jsonModel.GuildId;
+
+    public int UserCount { get; } = jsonModel.UserCount;
+
+    public IReadOnlyList<AddedThreadUser>? AddedUsers { get; } = CreateAddedUsers(jsonModel, client);
+
+    private static AddedThreadUser[]? CreateAddedUsers(JsonGuildThreadUsersUpdateEventArgs jsonModel, RestClient client)
     {
-        _jsonModel = jsonModel;
+        if (jsonModel.AddedUsers is { } addedUsers)
+        {
+            var guildId = jsonModel.GuildId;
 
-        var addedUsers = jsonModel.AddedUsers;
-        if (addedUsers is not null)
-            AddedUsers = addedUsers.Select(u => new AddedThreadUser(u, GuildId, client)).ToArray();
+            return [.. addedUsers.Select(u => new AddedThreadUser(u, jsonModel.GuildId, client))];
+        }
+
+        return null;
     }
 
-    public ulong ThreadId => _jsonModel.ThreadId;
-
-    public ulong GuildId => _jsonModel.GuildId;
-
-    public int UserCount => _jsonModel.UserCount;
-
-    public IReadOnlyList<AddedThreadUser>? AddedUsers { get; }
-
-    public IReadOnlyList<ulong>? RemovedUserIds => _jsonModel.RemovedUserIds;
+    public IReadOnlyList<ulong>? RemovedUserIds { get; } = jsonModel.RemovedUserIds;
 }

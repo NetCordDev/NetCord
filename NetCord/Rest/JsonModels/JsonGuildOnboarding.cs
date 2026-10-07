@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildOnboarding
+[JsonGuard]
+public partial class JsonGuildOnboarding
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }

@@ -2,9 +2,22 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonRestInvite
+[JsonGuard]
+public partial class JsonRestInviteChannel : JsonEntity
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("type")]
+    public ChannelType Type { get; set; }
+}
+
+[JsonGuard]
+public partial class JsonRestInvite
 {
     [JsonPropertyName("type")]
     public InviteType Type { get; set; }
@@ -13,10 +26,10 @@ public class JsonRestInvite
     public string Code { get; set; }
 
     [JsonPropertyName("guild")]
-    public JsonGuild? Guild { get; set; }
+    public JsonPartialGuild? Guild { get; set; }
 
     [JsonPropertyName("channel")]
-    public JsonChannel? Channel { get; set; }
+    public JsonRestInviteChannel? Channel { get; set; }
 
     [JsonPropertyName("inviter")]
     public JsonUser? Inviter { get; set; }
@@ -28,7 +41,7 @@ public class JsonRestInvite
     public JsonUser? TargetUser { get; set; }
 
     [JsonPropertyName("target_application")]
-    public JsonApplication? TargetApplication { get; set; }
+    public JsonPartialApplication? TargetApplication { get; set; }
 
     [JsonPropertyName("approximate_presence_count")]
     public int? ApproximatePresenceCount { get; set; }

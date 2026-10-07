@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildTemplate
+[JsonGuard]
+public partial class JsonGuildTemplate
 {
     [JsonPropertyName("code")]
     public string Code { get; set; }
@@ -13,7 +16,7 @@ public class JsonGuildTemplate
     public string Name { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [JsonPropertyName("usage_count")]
     public int UsageCount { get; set; }
@@ -34,7 +37,7 @@ public class JsonGuildTemplate
     public ulong SourceGuildId { get; set; }
 
     [JsonPropertyName("serialized_source_guild")]
-    public JsonGuild Preview { get; set; }
+    public JsonGuildTemplateSerializedSourceGuild SerializedSourceGuild { get; set; }
 
     [JsonPropertyName("is_dirty")]
     public bool? IsDirty { get; set; }

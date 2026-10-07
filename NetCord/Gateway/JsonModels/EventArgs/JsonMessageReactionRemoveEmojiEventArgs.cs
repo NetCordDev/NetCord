@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonMessageReactionRemoveEmojiEventArgs
+[JsonGuard]
+public partial class JsonMessageReactionRemoveEmojiEventArgs
 {
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }

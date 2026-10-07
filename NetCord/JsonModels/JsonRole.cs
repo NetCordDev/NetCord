@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonRole : JsonEntity
+[JsonGuard]
+public partial class JsonRole : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }

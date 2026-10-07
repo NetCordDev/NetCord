@@ -3,35 +3,23 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class VoiceChannelEffectSendEventArgs : IJsonModel<JsonVoiceChannelEffectSendEventArgs>
+public class VoiceChannelEffectSendEventArgs(JsonVoiceChannelEffectSendEventArgs jsonModel, RestClient client)
 {
-    JsonVoiceChannelEffectSendEventArgs IJsonModel<JsonVoiceChannelEffectSendEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonVoiceChannelEffectSendEventArgs _jsonModel;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-    public VoiceChannelEffectSendEventArgs(JsonVoiceChannelEffectSendEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
-        var emoji = jsonModel.Emoji;
-        if (emoji is not null)
-            Emoji = Emoji.CreateFromJson(emoji, jsonModel.GuildId, client);
-    }
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    public Emoji? Emoji { get; } = jsonModel.Emoji is { } emoji ? Emoji.Create(emoji, jsonModel.GuildId, client) : null;
 
-    public ulong GuildId => _jsonModel.GuildId;
+    public VoiceChannelEffectSendAnimationType? AnimationType { get; } = jsonModel.AnimationType;
 
-    public ulong UserId => _jsonModel.UserId;
+    public ulong? AnimationId { get; } = jsonModel.AnimationId;
 
-    public Emoji? Emoji { get; }
+    public ulong? SoundId { get; } = jsonModel.SoundId;
 
-    public VoiceChannelEffectSendAnimationType? AnimationType => _jsonModel.AnimationType;
-
-    public ulong? AnimationId => _jsonModel.AnimationId;
-
-    public ulong? SoundId => _jsonModel.SoundId;
-
-    public double? SoundVolume => _jsonModel.SoundVolume;
+    public double? SoundVolume { get; } = jsonModel.SoundVolume;
 }
 
 public enum VoiceChannelEffectSendAnimationType : byte

@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-internal class JsonApplicationEmojisResult
+[JsonGuard]
+internal partial class JsonApplicationEmojisResult
 {
     [JsonPropertyName("items")]
     public JsonEmoji[] Items { get; set; }

@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonMessageInteraction : JsonEntity
+[JsonGuard]
+public partial class JsonMessageInteraction : JsonEntity
 {
     [JsonPropertyName("type")]
     public InteractionType Type { get; set; }
@@ -12,4 +15,7 @@ public class JsonMessageInteraction : JsonEntity
 
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }
+
+    [JsonPropertyName("member")]
+    public JsonGuildUser? GuildUser { get; set; }
 }

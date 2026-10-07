@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGatewayBot
+[JsonGuard]
+public partial class JsonGatewayBot
 {
     [JsonPropertyName("url")]
     public string Url { get; set; }

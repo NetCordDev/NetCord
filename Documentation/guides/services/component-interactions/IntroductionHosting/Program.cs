@@ -11,23 +11,23 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddDiscordGateway()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
-    .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
-    .AddComponentInteractions<UserMenuInteraction, UserMenuInteractionContext>()
-    .AddComponentInteractions<RoleMenuInteraction, RoleMenuInteractionContext>()
-    .AddComponentInteractions<MentionableMenuInteraction, MentionableMenuInteractionContext>()
-    .AddComponentInteractions<ChannelMenuInteraction, ChannelMenuInteractionContext>()
-    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>();
+    .AddComponentInteractions<StringSelectInteraction, StringSelectInteractionContext>()
+    .AddComponentInteractions<UserSelectInteraction, UserSelectInteractionContext>()
+    .AddComponentInteractions<RoleSelectInteraction, RoleSelectInteractionContext>()
+    .AddComponentInteractions<MentionableSelectInteraction, MentionableSelectInteractionContext>()
+    .AddComponentInteractions<ChannelSelectInteraction, ChannelSelectInteractionContext>()
+    .AddComponentInteractions<ModalSubmitInteraction, ModalInteractionContext>();
 
 var host = builder.Build();
 
 // Add component interactions using minimal APIs
 host.AddComponentInteraction<ButtonInteractionContext>("ping", () => "Pong!");
-host.AddComponentInteraction<StringMenuInteractionContext>("string", (StringMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
-host.AddComponentInteraction<UserMenuInteractionContext>("user", (UserMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
-host.AddComponentInteraction<RoleMenuInteractionContext>("role", (RoleMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
-host.AddComponentInteraction<MentionableMenuInteractionContext>("mentionable", (MentionableMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
-host.AddComponentInteraction<ChannelMenuInteractionContext>("channel", (ChannelMenuInteractionContext context) => string.Join("\n", context.SelectedValues));
-host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => ((TextInput)context.Components[0]).Value);
+host.AddComponentInteraction<StringSelectInteractionContext>("string", (StringSelectInteractionContext context) => string.Join("\n", context.Values));
+host.AddComponentInteraction<UserSelectInteractionContext>("user", (UserSelectInteractionContext context) => string.Join("\n", context.SelectedValues));
+host.AddComponentInteraction<RoleSelectInteractionContext>("role", (RoleSelectInteractionContext context) => string.Join("\n", context.SelectedValues));
+host.AddComponentInteraction<MentionableSelectInteractionContext>("mentionable", (MentionableSelectInteractionContext context) => string.Join("\n", context.SelectedValues));
+host.AddComponentInteraction<ChannelSelectInteractionContext>("channel", (ChannelSelectInteractionContext context) => string.Join("\n", context.SelectedValues));
+host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => ((TextInputComponent)context.Components[0]).Value);
 
 // Add component interactions from modules
 host.AddModules(typeof(Program).Assembly);

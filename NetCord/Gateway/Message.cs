@@ -43,12 +43,32 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
         return (guild, channel);
     }
 
-    /// <inheritdoc/>
-    public ulong? GuildId => _jsonModel.GuildId;
+    /// <summary>
+    /// The ID of the guild the message was sent in.
+    /// </summary>
+    /// <remarks>
+    /// <see langword="null"/> when the message is ephemeral or sent outside of a guild.
+    /// </remarks>
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// The type of channel the message was sent in.
+    /// </summary>
+    public ChannelType? ChannelType { get; } = jsonModel.ChannelType;
+
+    /// <summary>
+    /// The guild the message was sent in.
+    /// </summary>
+    /// <remarks>
+    /// <see langword="null"/> when the message is ephemeral or sent outside of a guild, or if the guild is not cached.
+    /// </remarks>
     public Guild? Guild { get; } = guild;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// The channel the message was sent in.
+    /// </summary>
+    /// <remarks>
+    /// <see langword="null"/> when the message is ephemeral or sent outside of a guild, or if the channel is not cached.
+    /// </remarks>
     public TextChannel? Channel { get; } = channel;
 }

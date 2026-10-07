@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonMessageReaction
+[JsonGuard]
+public partial class JsonMessageReaction
 {
     [JsonPropertyName("count")]
     public int Count { get; set; }

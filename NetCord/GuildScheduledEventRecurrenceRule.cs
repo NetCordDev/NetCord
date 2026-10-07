@@ -2,36 +2,25 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class GuildScheduledEventRecurrenceRule : IJsonModel<JsonGuildScheduledEventRecurrenceRule>
+public class GuildScheduledEventRecurrenceRule(JsonGuildScheduledEventRecurrenceRule jsonModel)
 {
-    JsonGuildScheduledEventRecurrenceRule IJsonModel<JsonGuildScheduledEventRecurrenceRule>.JsonModel => _jsonModel;
-    private readonly JsonGuildScheduledEventRecurrenceRule _jsonModel;
+    public DateTimeOffset? StartAt { get; } = jsonModel.StartAt;
 
-    public GuildScheduledEventRecurrenceRule(JsonGuildScheduledEventRecurrenceRule jsonModel)
-    {
-        _jsonModel = jsonModel;
+    public DateTimeOffset? EndAt { get; } = jsonModel.EndAt;
 
-        if (jsonModel.ByNWeekday is { } byNWeekday)
-            ByNWeekday = byNWeekday.Select(b => new GuildScheduledEventRecurrenceRuleNWeekday(b)).ToArray();
-    }
+    public GuildScheduledEventRecurrenceRuleFrequency Frequency { get; } = jsonModel.Frequency;
 
-    public DateTimeOffset? StartAt => _jsonModel.StartAt;
+    public int Interval { get; } = jsonModel.Interval;
 
-    public DateTimeOffset? EndAt => _jsonModel.EndAt;
+    public IReadOnlyList<GuildScheduledEventRecurrenceRuleWeekday>? ByWeekday { get; } = jsonModel.ByWeekday;
 
-    public GuildScheduledEventRecurrenceRuleFrequency Frequency => _jsonModel.Frequency;
+    public IReadOnlyList<GuildScheduledEventRecurrenceRuleNWeekday>? ByNWeekday { get; } = jsonModel.ByNWeekday?.Select(b => new GuildScheduledEventRecurrenceRuleNWeekday(b)).ToArray();
 
-    public int Interval => _jsonModel.Interval;
+    public IReadOnlyList<GuildScheduledEventRecurrenceRuleMonth>? ByMonth { get; } = jsonModel.ByMonth;
 
-    public IReadOnlyList<GuildScheduledEventRecurrenceRuleWeekday>? ByWeekday => _jsonModel.ByWeekday;
+    public IReadOnlyList<int>? ByMonthDay { get; } = jsonModel.ByMonthDay;
 
-    public IReadOnlyList<GuildScheduledEventRecurrenceRuleNWeekday>? ByNWeekday { get; }
+    public IReadOnlyList<int>? ByYearDay { get; } = jsonModel.ByYearDay;
 
-    public IReadOnlyList<GuildScheduledEventRecurrenceRuleMonth>? ByMonth => _jsonModel.ByMonth;
-
-    public IReadOnlyList<int>? ByMonthDay => _jsonModel.ByMonthDay;
-
-    public IReadOnlyList<int>? ByYearDay => _jsonModel.ByYearDay;
-
-    public int? Count => _jsonModel.Count;
+    public int? Count { get; } = jsonModel.Count;
 }

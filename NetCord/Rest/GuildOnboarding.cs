@@ -1,39 +1,31 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildOnboarding : IJsonModel<JsonModels.JsonGuildOnboarding>
+public class GuildOnboarding(JsonGuildOnboarding jsonModel, RestClient client)
 {
-    JsonModels.JsonGuildOnboarding IJsonModel<JsonModels.JsonGuildOnboarding>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildOnboarding _jsonModel;
-
-    public GuildOnboarding(JsonModels.JsonGuildOnboarding jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        var guildId = jsonModel.GuildId;
-        Prompts = jsonModel.Prompts.Select(p => new GuildOnboardingPrompt(p, guildId, client)).ToArray();
-    }
-
     /// <summary>
     /// ID of the guild this onboarding is part of.
     /// </summary>
-    public ulong GuildId => _jsonModel.GuildId;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
     /// <summary>
     /// Prompts shown during onboarding and in customize community.
     /// </summary>
-    public IReadOnlyList<GuildOnboardingPrompt> Prompts { get; }
+    public IReadOnlyList<GuildOnboardingPrompt> Prompts { get; } = [.. jsonModel.Prompts.Select(p => new GuildOnboardingPrompt(p, jsonModel.GuildId, client))];
 
     /// <summary>
     /// Channel Ids that users get opted into automatically.
     /// </summary>
-    public IReadOnlyList<ulong> DefaultChannelIds => _jsonModel.DefaultChannelIds;
+    public IReadOnlyList<ulong> DefaultChannelIds { get; } = jsonModel.DefaultChannelIds;
 
     /// <summary>
     /// Whether onboarding is enabled in the guild.
     /// </summary>
-    public bool Enabled => _jsonModel.Enabled;
+    public bool Enabled { get; } = jsonModel.Enabled;
 
     /// <summary>
     /// Current mode of onboarding.
     /// </summary>
-    public GuildOnboardingMode Mode => _jsonModel.Mode;
+    public GuildOnboardingMode Mode { get; } = jsonModel.Mode;
 }

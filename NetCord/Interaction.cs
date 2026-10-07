@@ -1,115 +1,99 @@
 using NetCord.Gateway;
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract partial class Interaction : ClientEntity, IInteraction
+public abstract partial class Interaction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : ClientEntity(jsonModel, client), IInteraction
 {
-    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonInteraction _jsonModel;
+    public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 
-    private readonly InteractionResponseDelegate _sendResponseAsync;
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
+    public InteractionGuildReference? GuildReference { get; } = jsonModel.GuildReference is { } guildReference ? new(guildReference) : null;
 
-        var guildId = jsonModel.GuildId;
-        if (guildId.HasValue)
-            User = new GuildInteractionUser(jsonModel.GuildUser!, guildId.GetValueOrDefault(), client);
-        else
-            User = new(jsonModel.User!, client);
+    public Guild? Guild { get; } = guild;
 
-        var guildReference = jsonModel.GuildReference;
-        if (guildReference is not null)
-            GuildReference = new(guildReference);
+    public TextChannel Channel { get; } = TextChannel.CreateFromJson(jsonModel.Channel!, client);
 
-        Guild = guild;
-        Channel = TextChannel.CreateFromJson(jsonModel.Channel!, client);
-        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e, client)).ToArray();
+    public User User { get; } = jsonModel.GuildId is { } guildId ? new GuildInteractionUser(jsonModel.GuildUser!, guildId, client) : new User(jsonModel.User!, client);
 
-        _sendResponseAsync = sendResponseAsync;
-    }
+    public string Token { get; } = jsonModel.Token;
 
-    public override ulong Id => _jsonModel.Id;
+    public int Version { get; } = jsonModel.Version;
 
-    public ulong ApplicationId => _jsonModel.ApplicationId;
+    public Permissions AppPermissions { get; } = jsonModel.AppPermissions;
 
-    public ulong? GuildId => _jsonModel.GuildId;
+    public string Locale { get; } = jsonModel.Locale!;
 
-    public InteractionGuildReference? GuildReference { get; }
+    public string? GuildLocale { get; } = jsonModel.GuildLocale;
 
-    public Guild? Guild { get; }
+    public IReadOnlyList<Entitlement> Entitlements { get; } = [.. jsonModel.Entitlements.Select(e => new Entitlement(e, client))];
 
-    public TextChannel Channel { get; }
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners { get; } = jsonModel.AuthorizingIntegrationOwners;
 
-    public User User { get; }
+    public InteractionContextType Context { get; } = jsonModel.Context.GetValueOrDefault();
 
-    public string Token => _jsonModel.Token;
-
-    public int Version => _jsonModel.Version;
-
-    public Permissions AppPermissions => _jsonModel.AppPermissions;
-
-    public string UserLocale => _jsonModel.UserLocale!;
-
-    public string? GuildLocale => _jsonModel.GuildLocale;
-
-    public IReadOnlyList<Entitlement> Entitlements { get; }
-
-    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _jsonModel.AuthorizingIntegrationOwners!;
-
-    public InteractionContextType Context => _jsonModel.Context.GetValueOrDefault();
-
-    public long AttachmentSizeLimit => _jsonModel.AttachmentSizeLimit;
+    public long AttachmentSizeLimit { get; } = jsonModel.AttachmentSizeLimit;
 
     public abstract InteractionData Data { get; }
 
-    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client)
+    public static Interaction Create(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client)
     {
-        return jsonModel.Type switch
+        return jsonModel switch
         {
-            InteractionType.ApplicationCommand => jsonModel.Data!.Type.GetValueOrDefault() switch
+            JsonApplicationCommandInteraction applicationCommandInteraction => applicationCommandInteraction.Data.Type switch
             {
-                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                ApplicationCommandType.EntryPoint => new EntryPointCommandInteraction(jsonModel, guild, sendResponseAsync, client),
-                _ => throw new InvalidOperationException(),
+                ApplicationCommandType.ChatInput => new SlashCommandInteraction(applicationCommandInteraction, guild, sendResponseAsync, client),
+                ApplicationCommandType.User => new UserCommandInteraction(applicationCommandInteraction, guild, sendResponseAsync, client),
+                ApplicationCommandType.Message => new MessageCommandInteraction(applicationCommandInteraction, guild, sendResponseAsync, client),
+                ApplicationCommandType.EntryPoint => new EntryPointCommandInteraction(applicationCommandInteraction, guild, sendResponseAsync, client),
+                _ => new UnknownApplicationCommandInteraction(applicationCommandInteraction, guild, sendResponseAsync, client),
             },
-            InteractionType.MessageComponent => jsonModel.Data!.ComponentType.GetValueOrDefault() switch
+            JsonMessageComponentInteraction messageComponentInteraction => messageComponentInteraction.Data.Type switch
             {
-                ComponentType.Button => new ButtonInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.UserMenu => new UserMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.RoleMenu => new RoleMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.MentionableMenu => new MentionableMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                ComponentType.ChannelMenu => new ChannelMenuInteraction(jsonModel, guild, sendResponseAsync, client),
-                _ => throw new InvalidOperationException(),
+                ComponentType.Button => new ButtonInteraction(messageComponentInteraction, guild, sendResponseAsync, client),
+                ComponentType.StringSelect => new StringSelectInteraction(messageComponentInteraction, guild, sendResponseAsync, client),
+                ComponentType.UserSelect => new UserSelectInteraction(messageComponentInteraction, guild, sendResponseAsync, client),
+                ComponentType.RoleSelect => new RoleSelectInteraction(messageComponentInteraction, guild, sendResponseAsync, client),
+                ComponentType.MentionableSelect => new MentionableSelectInteraction(messageComponentInteraction, guild, sendResponseAsync, client),
+                ComponentType.ChannelSelect => new ChannelSelectInteraction(messageComponentInteraction, guild, sendResponseAsync, client),
+                _ => new UnknownMessageComponentInteraction(messageComponentInteraction, guild, sendResponseAsync, client),
             },
-            InteractionType.Autocomplete => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
-            InteractionType.Modal => new ModalInteraction(jsonModel, guild, sendResponseAsync, client),
-            _ => throw new InvalidOperationException(),
+            JsonAutocompleteInteraction autocompleteInteraction => new AutocompleteInteraction(autocompleteInteraction, guild, sendResponseAsync, client),
+            JsonModalSubmitInteraction modalInteraction => new ModalSubmitInteraction(modalInteraction, guild, sendResponseAsync, client),
+            _ => new UnknownInteraction(jsonModel, guild, sendResponseAsync, client),
         };
     }
 
-    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, IGatewayClientCache cache, RestClient client)
+    public static Interaction Create(JsonInteraction jsonModel, IGatewayClientCache cache, RestClient client)
     {
-        var guildId = jsonModel.GuildId;
-        var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
-        return CreateFromJson(jsonModel, guild, (interaction, callback, withResponse, properties, cancellationToken) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, callback, withResponse, properties, cancellationToken), client);
+        var guild = jsonModel.GuildId is { } guildId
+            ? cache.Guilds.GetValueOrDefault(guildId)
+            : null;
+
+        return Create(jsonModel,
+                      guild,
+                      (interaction, callback, withResponse, properties, cancellationToken) =>
+                      {
+                          return client.SendInteractionResponseAsync(interaction.Id, interaction.Token, callback, withResponse, properties, cancellationToken);
+                      },
+                      client);
     }
 
-    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
+    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        return sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
+    }
 }
 
-public abstract class InteractionData : IJsonModel<JsonModels.JsonInteractionData>
+public abstract class InteractionData;
+
+public sealed class UnknownInteraction(JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client) : Interaction(jsonModel, guild, sendResponseAsync, client)
 {
-    JsonModels.JsonInteractionData IJsonModel<JsonModels.JsonInteractionData>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonInteractionData _jsonModel;
+    private static readonly UnknownInteractionData s_data = new();
 
-    private protected InteractionData(JsonModels.JsonInteractionData jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public override UnknownInteractionData Data => s_data;
 }
+
+public sealed class UnknownInteractionData : InteractionData;

@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonTeamUser
+[JsonGuard]
+public partial class JsonTeamUser
 {
     [JsonPropertyName("membership_state")]
     public MembershipState MembershipState { get; set; }

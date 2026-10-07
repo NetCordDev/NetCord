@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildOnboardingPrompt : JsonEntity
+[JsonGuard]
+public partial class JsonGuildOnboardingPrompt : JsonEntity
 {
     [JsonPropertyName("type")]
     public GuildOnboardingPromptType Type { get; set; }
