@@ -28,7 +28,7 @@ public enum ChannelType
     /// <summary>
     /// An organizational category that contains up to 50 channels.
     /// </summary>
-    CategoryChannel = 4,
+    CategoryGuildChannel = 4,
 
     /// <summary>
     /// A channel that users can follow and crosspost into their own guild (formerly news channels).

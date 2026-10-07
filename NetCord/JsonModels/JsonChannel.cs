@@ -38,7 +38,7 @@ public class JsonChannel : JsonEntity
     public int? Slowmode { get; set; }
 
     [JsonPropertyName("recipients")]
-    public JsonUser[]? Users { get; set; }
+    public JsonUser[]? Recipients { get; set; }
 
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }
