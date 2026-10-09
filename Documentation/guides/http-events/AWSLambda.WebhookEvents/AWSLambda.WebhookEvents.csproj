@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <AWSProjectType>Lambda</AWSProjectType>
+
+    <!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- Generate ready to run images during publishing to improvement cold starts. -->
+    <!-- <PublishReadyToRun>true</PublishReadyToRun> -->
+
+    <PublishAot>true</PublishAot>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" />
+    <PackageReference Include="libsodium" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Hosting\NetCord.Hosting.AspNetCore\NetCord.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\..\Hosting\NetCord.Hosting.Services\NetCord.Hosting.Services.csproj" />
+    <ProjectReference Include="..\..\..\..\NetCord\NetCord.csproj" />
+  </ItemGroup>
+</Project>
