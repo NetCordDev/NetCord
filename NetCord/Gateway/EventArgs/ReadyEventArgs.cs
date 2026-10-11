@@ -1,32 +1,23 @@
+using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>
+public class ReadyEventArgs(JsonReadyEventArgs jsonModel, RestClient client)
 {
-    JsonModels.EventArgs.JsonReadyEventArgs IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonReadyEventArgs _jsonModel;
+    public ApiVersion Version { get; } = jsonModel.Version;
 
-    public ApiVersion Version => _jsonModel.Version;
+    public CurrentUser User { get; } = new(jsonModel.User, client);
 
-    public CurrentUser User { get; }
+    public IReadOnlyList<ulong> GuildIds { get; } = [.. jsonModel.Guilds.Select(g => g.Id)];
 
-    public IReadOnlyList<ulong> GuildIds { get; }
+    public string SessionId { get; } = jsonModel.SessionId;
 
-    public string SessionId => _jsonModel.SessionId;
+    public string ResumeGatewayUrl { get; } = jsonModel.ResumeGatewayUrl;
 
-    public string ResumeGatewayUrl => _jsonModel.ResumeGatewayUrl;
+    public Shard? Shard { get; } = jsonModel.Shard;
 
-    public Shard? Shard => _jsonModel.Shard;
+    public ulong ApplicationId { get; } = jsonModel.Application.Id;
 
-    public ulong ApplicationId => _jsonModel.Application.Id;
-
-    public ApplicationFlags ApplicationFlags => _jsonModel.Application.Flags.GetValueOrDefault();
-
-    public ReadyEventArgs(JsonModels.EventArgs.JsonReadyEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        User = new(jsonModel.User, client);
-        GuildIds = _jsonModel.Guilds.Select(g => g.Id).ToArray();
-    }
+    public ApplicationFlags? ApplicationFlags { get; } = jsonModel.Application.Flags;
 }

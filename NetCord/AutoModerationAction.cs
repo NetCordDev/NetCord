@@ -2,21 +2,9 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class AutoModerationAction : IJsonModel<JsonAutoModerationAction>
+public class AutoModerationAction(JsonAutoModerationAction jsonModel)
 {
-    JsonAutoModerationAction IJsonModel<JsonAutoModerationAction>.JsonModel => _jsonModel;
-    private readonly JsonAutoModerationAction _jsonModel;
+    public AutoModerationActionType Type { get; } = jsonModel.Type;
 
-    public AutoModerationAction(JsonAutoModerationAction jsonModel)
-    {
-        _jsonModel = jsonModel;
-
-        var metadata = jsonModel.Metadata;
-        if (metadata is not null)
-            Metadata = new(metadata);
-    }
-
-    public AutoModerationActionType Type => _jsonModel.Type;
-
-    public AutoModerationActionMetadata? Metadata { get; }
+    public AutoModerationActionMetadata? Metadata { get; } = jsonModel.Metadata is { } metadata ? new(metadata) : null;
 }

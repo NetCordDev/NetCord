@@ -1,9 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonApplicationCommandOptionChoice
+[JsonGuard]
+public partial class JsonApplicationCommandOptionChoice
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }

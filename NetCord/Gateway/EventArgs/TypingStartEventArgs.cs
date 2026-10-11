@@ -2,27 +2,15 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class TypingStartEventArgs : IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>
+public class TypingStartEventArgs(JsonModels.EventArgs.JsonTypingStartEventArgs jsonModel, RestClient client)
 {
-    JsonModels.EventArgs.JsonTypingStartEventArgs IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonTypingStartEventArgs _jsonModel;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-    public TypingStartEventArgs(JsonModels.EventArgs.JsonTypingStartEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-        var user = jsonModel.User;
-        if (user is not null)
-            User = new(user, _jsonModel.GuildId.GetValueOrDefault(), client);
-    }
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    public DateTimeOffset Timestamp { get; } = jsonModel.Timestamp;
 
-    public ulong? GuildId => _jsonModel.GuildId;
-
-    public ulong UserId => _jsonModel.UserId;
-
-    public DateTimeOffset Timestamp => _jsonModel.Timestamp;
-
-    public GuildUser? User { get; }
+    public GuildUser? GuildUser { get; } = jsonModel.GuildUser is { } user ? new(user, jsonModel.GuildId.GetValueOrDefault(), client) : null;
 }

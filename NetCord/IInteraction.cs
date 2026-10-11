@@ -4,7 +4,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels.JsonInteraction>
+public interface IInteraction : IEntity, ISpanFormattable
 {
     public ulong ApplicationId { get; }
 
@@ -25,7 +25,7 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
         if (jsonModel.Type is InteractionType.Ping)
             return new PingInteraction(jsonModel, sendResponseAsync, client);
 
-        return Interaction.CreateFromJson(jsonModel, null, sendResponseAsync, client);
+        return Interaction.Create(jsonModel, null, sendResponseAsync, client);
     }
 
     public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default);

@@ -4,19 +4,17 @@ using NetCord.Gateway.JsonModels.EventArgs;
 
 namespace NetCord.Gateway;
 
-public class RateLimitedEventArgs(JsonRateLimitedEventArgs jsonModel) : IJsonModel<JsonRateLimitedEventArgs>
+public class RateLimitedEventArgs(JsonRateLimitedEventArgs jsonModel)
 {
-    JsonRateLimitedEventArgs IJsonModel<JsonRateLimitedEventArgs>.JsonModel => jsonModel;
-
     /// <summary>
     /// Gateway opcode of the event that was rate limited.
     /// </summary>
-    public GatewayOpcode Opcode => jsonModel.Opcode;
+    public GatewayOpcode Opcode { get; } = jsonModel.Opcode;
 
     /// <summary>
     /// The number of seconds to wait before submitting another request.
     /// </summary>
-    public double RetryAfter => jsonModel.RetryAfter;
+    public double RetryAfter { get; } = jsonModel.RetryAfter;
 
     /// <summary>
     /// Metadata for the event that was rate limited.
@@ -35,12 +33,12 @@ public class RequestGuildUsersRateLimitMetadata(JsonRequestGuildUsersRateLimitMe
     /// <summary>
     /// The ID of the guild to get users for.
     /// </summary>
-    public ulong GuildId => jsonModel.GuildId;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
     /// <summary>
     /// The nonce to identify the response.
     /// </summary>
-    public string? Nonce => jsonModel.Nonce;
+    public string? Nonce { get; } = jsonModel.Nonce;
 }
 
 public interface IUnknownRateLimitMetadata
@@ -53,5 +51,5 @@ public interface IUnknownRateLimitMetadata
 
 internal class UnknownRateLimitMetadata(JsonElement data) : RateLimitMetadata, IUnknownRateLimitMetadata
 {
-    public JsonElement Data => data;
+    public JsonElement Data { get; } = data;
 }

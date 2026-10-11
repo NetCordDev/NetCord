@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildVanityInvite
+[JsonGuard]
+public partial class JsonGuildVanityInvite
 {
     [JsonPropertyName("code")]
     public string Code { get; set; }

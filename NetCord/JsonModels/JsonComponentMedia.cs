@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonComponentMedia
+[JsonGuard]
+public partial class JsonComponentMedia
 {
     [JsonPropertyName("url")]
     public string Url { get; set; }
@@ -16,11 +19,17 @@ public class JsonComponentMedia
     [JsonPropertyName("width")]
     public int? Width { get; set; }
 
+    [JsonPropertyName("placeholder")]
+    public string? Placeholder { get; set; }
+
+    [JsonPropertyName("placeholder_version")]
+    public int? PlaceholderVersion { get; set; }
+
     [JsonPropertyName("content_type")]
     public string? ContentType { get; set; }
 
-    [JsonPropertyName("loading_state")]
-    public ComponentMediaLoadingState? LoadingState { get; set; }
+    [JsonPropertyName("flags")]
+    public ComponentMediaFlags? Flags { get; set; }
 
     [JsonPropertyName("attachment_id")]
     public ulong? AttachmentId { get; set; }

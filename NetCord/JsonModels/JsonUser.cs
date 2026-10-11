@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonUser : JsonEntity
+[JsonGuard]
+public partial class JsonUser : JsonEntity
 {
     [JsonPropertyName("username")]
     public string Username { get; set; }
@@ -18,7 +21,7 @@ public class JsonUser : JsonEntity
     public string? AvatarHash { get; set; }
 
     [JsonPropertyName("bot")]
-    public bool IsBot { get; set; }
+    public bool? IsBot { get; set; }
 
     [JsonPropertyName("system")]
     public bool? IsSystemUser { get; set; }

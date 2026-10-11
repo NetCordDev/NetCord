@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonMessageReactionRemoveEventArgs
+[JsonGuard]
+public partial class JsonMessageReactionRemoveEventArgs
 {
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }

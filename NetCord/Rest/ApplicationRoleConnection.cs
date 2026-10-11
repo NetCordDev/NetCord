@@ -1,10 +1,10 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class ApplicationRoleConnection(JsonModels.JsonApplicationRoleConnection jsonModel) : IJsonModel<JsonModels.JsonApplicationRoleConnection>
+public class ApplicationRoleConnection(JsonApplicationRoleConnection jsonModel)
 {
-    JsonModels.JsonApplicationRoleConnection IJsonModel<JsonModels.JsonApplicationRoleConnection>.JsonModel => jsonModel;
+    public string? PlatformName { get; } = jsonModel.PlatformName;
 
-    public string? PlatformName => jsonModel.PlatformName;
-    public string? PlatformUsername => jsonModel.PlatformUsername;
-    public IReadOnlyDictionary<string, string> Metadata => jsonModel.Metadata;
+    public IReadOnlyDictionary<string, string> Metadata { get; } = jsonModel.Metadata;
 }

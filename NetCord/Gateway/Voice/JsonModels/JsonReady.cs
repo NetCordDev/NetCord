@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.Voice.JsonModels;
 
-internal class JsonReady
+[JsonGuard]
+internal partial class JsonReady
 {
     [JsonPropertyName("ssrc")]
     public uint Ssrc { get; set; }

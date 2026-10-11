@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGoogleCloudPlatformStorageBucket
+[JsonGuard]
+public partial class JsonGoogleCloudPlatformStorageBucket
 {
     [JsonPropertyName("id")]
     public long? Id { get; set; }

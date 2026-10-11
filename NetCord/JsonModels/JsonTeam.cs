@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonTeam : JsonEntity
+[JsonGuard]
+public partial class JsonTeam : JsonEntity
 {
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }

@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-internal class JsonRestGuildThreadResult
+[JsonGuard]
+internal partial class JsonRestGuildThreadResult
 {
     [JsonPropertyName("threads")]
     public JsonChannel[] Threads { get; set; }

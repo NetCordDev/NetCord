@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonAutoModerationActionExecutionEventArgs
+[JsonGuard]
+public partial class JsonAutoModerationActionExecutionEventArgs
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -31,7 +34,7 @@ public class JsonAutoModerationActionExecutionEventArgs
     public ulong? AlertSystemMessageId { get; set; }
 
     [JsonPropertyName("content")]
-    public string Content { get; set; }
+    public string? Content { get; set; }
 
     [JsonPropertyName("matched_keyword")]
     public string? MatchedKeyword { get; set; }

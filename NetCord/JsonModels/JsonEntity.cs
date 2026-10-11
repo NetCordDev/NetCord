@@ -5,5 +5,5 @@ namespace NetCord.JsonModels;
 public class JsonEntity
 {
     [JsonPropertyName("id")]
-    public virtual ulong Id { get; set; }
+    public ulong Id { get; set; }
 }

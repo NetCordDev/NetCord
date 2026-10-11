@@ -14,7 +14,7 @@ public class JsonAuditLogEntry : JsonEntity
     public ulong? UserId { get; set; }
 
     [JsonPropertyName("action_type")]
-    public AuditLogEvent? ActionType { get; set; } // https://github.com/discord/discord-api-docs/issues/5055
+    public AuditLogEvent ActionType { get; set; }
 
     [JsonPropertyName("options")]
     public JsonAuditLogEntryInfo? Options { get; set; }

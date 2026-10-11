@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonNameplate
+[JsonGuard]
+public partial class JsonNameplate
 {
     [JsonPropertyName("sku_id")]
     public ulong SkuId { get; set; }

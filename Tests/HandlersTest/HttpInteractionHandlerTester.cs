@@ -5,6 +5,7 @@ using NetCord;
 using NetCord.Hosting;
 using NetCord.Hosting.AspNetCore;
 using NetCord.Hosting.Rest;
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace HandlersTest;
@@ -27,21 +28,23 @@ public sealed class HttpInteractionHandlerTester : IHandlerTester
     {
         var client = services.GetRequiredService<RestClient>();
 
-        var interaction = Interaction.CreateFromJson(
-            new()
+        var interaction = Interaction.Create(
+            new JsonApplicationCommandInteraction()
             {
+                Id = 123456,
                 Type = InteractionType.ApplicationCommand,
                 Data = new()
                 {
+                    Id = 123456,
                     Type = ApplicationCommandType.ChatInput,
                     Name = "test",
-                    Id = 123,
                     Options = [],
                 },
                 User = new()
                 {
                     Id = 1234,
                     Username = "test",
+                    Discriminator = 0,
                 },
                 Channel = new()
                 {
@@ -49,6 +52,12 @@ public sealed class HttpInteractionHandlerTester : IHandlerTester
                     Type = ChannelType.DMChannel,
                 },
                 Entitlements = [],
+                AttachmentSizeLimit = 10,
+                AuthorizingIntegrationOwners = new Dictionary<ApplicationIntegrationType, ulong>(),
+                AppPermissions = default,
+                Version = 1,
+                Token = "token",
+                ApplicationId = 123456,
             },
             null,
             (_, _, _, _, _) => Task.FromResult((InteractionCallbackResponse?)null),

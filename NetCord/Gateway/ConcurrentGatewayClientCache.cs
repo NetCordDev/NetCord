@@ -2,8 +2,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-using NetCord.Gateway.JsonModels;
-using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
@@ -19,16 +17,9 @@ internal sealed class EmptyConcurrentGatewayClientCacheProvider : ConcurrentGate
     public override ConcurrentGatewayClientCache Create(ulong clientId, RestClient client) => new();
 }
 
-internal sealed class JsonConcurrentGatewayClientCacheProvider(JsonGatewayClientCache jsonModel) : ConcurrentGatewayClientCacheProvider
-{
-    public override ConcurrentGatewayClientCache Create(ulong clientId, RestClient client) => new(jsonModel, clientId, client);
-}
-
 public abstract class ConcurrentGatewayClientCacheProvider : IGatewayClientCacheProvider
 {
     public static ConcurrentGatewayClientCacheProvider Empty => EmptyConcurrentGatewayClientCacheProvider.Instance;
-
-    public static ConcurrentGatewayClientCacheProvider FromJson(JsonGatewayClientCache jsonModel) => new JsonConcurrentGatewayClientCacheProvider(jsonModel);
 
     private protected ConcurrentGatewayClientCacheProvider()
     {
@@ -46,14 +37,6 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
         _guilds = [];
     }
 
-    internal ConcurrentGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
-    {
-        if (jsonModel.User is { } userModel)
-            _user = new(userModel, client);
-
-        _guilds = CreateConcurrentDictionary(jsonModel.Guilds, g => g.Id, g => new Guild(g, clientId, client, this));
-    }
-
     public CurrentUser? User => _user;
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
 
@@ -61,19 +44,6 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     private CurrentUser? _user;
 #pragma warning restore IDE0032 // Use auto property
     private readonly ConcurrentDictionary<ulong, Guild> _guilds;
-
-    public JsonGatewayClientCache ToJsonModel()
-    {
-        JsonGatewayClientCache jsonModel = new();
-
-        var user = _user;
-        if (user is not null)
-            jsonModel.User = ((IJsonModel<JsonUser>)user).JsonModel;
-
-        jsonModel.Guilds = [.. _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel)];
-
-        return jsonModel;
-    }
 
     public IGatewayClientCache CacheGuild(Guild guild)
     {

@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonIntegration : JsonEntity
+[JsonGuard]
+public partial class JsonIntegration : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -44,5 +47,8 @@ public class JsonIntegration : JsonEntity
     public bool? Revoked { get; set; }
 
     [JsonPropertyName("application")]
-    public JsonIntegrationApplication? Application { get; set; }
+    public JsonApplication? Application { get; set; }
+
+    [JsonPropertyName("scopes")]
+    public string[]? Scopes { get; set; }
 }

@@ -20,5 +20,5 @@ public class JsonTypingStartEventArgs
     public DateTimeOffset Timestamp { get; set; }
 
     [JsonPropertyName("member")]
-    public JsonGuildUser? User { get; set; }
+    public JsonGuildUser? GuildUser { get; set; }
 }

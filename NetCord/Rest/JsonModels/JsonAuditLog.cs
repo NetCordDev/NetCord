@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonAuditLog
+[JsonGuard]
+public partial class JsonAuditLog
 {
     [JsonPropertyName("application_commands")]
     public JsonApplicationCommand[] ApplicationCommands { get; set; }

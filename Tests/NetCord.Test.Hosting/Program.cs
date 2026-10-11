@@ -58,8 +58,8 @@ builder.Services
         options.ResultHandler = new CustomApplicationCommandResultHandler();
     })
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
-    .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
-    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
+    .AddComponentInteractions<StringSelectInteraction, StringSelectInteractionContext>()
+    .AddComponentInteractions<ModalSubmitInteraction, ModalInteractionContext>()
     .AddCommands()
     .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger, IServiceProvider p) => logger.LogInformation("Content: {}", message.Content), ServiceLifetime.Scoped)
     .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
@@ -94,8 +94,8 @@ host.AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!"
 host.AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((provider, context) => throw new("Exception!")));
 host.AddCommand(["ping"], () => "Pong!");
 host.AddCommand(["exception"], (Action)(() => throw new("Exception!")));
-host.AddSlashCommand("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])));
-host.AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD");
+host.AddSlashCommand("select", "Create a select!", () => new InteractionMessageProperties().AddComponents(new StringSelectProperties("select", [new StringSelectOptionProperties("xd", "xd"), new StringSelectOptionProperties("ad", "ad")])));
+host.AddComponentInteraction<StringSelectInteractionContext>("select", () => "XD");
 host.AddApplicationCommandModule<ApplicationCommandModule>();
 host.AddApplicationCommandModule<DITestModule>();
 
@@ -192,15 +192,15 @@ host.AddSlashCommand("modal", "Modal", () =>
 {
     return new ModalProperties("modal", "Modal")
     {
-        new LabelProperties("Mentionable", new MentionableMenuProperties("mentionable")),
+        new LabelProperties("Mentionable", new MentionableSelectProperties("mentionable")),
         new TextDisplayProperties("""
             ```cs
             Console.WriteLine("Wzium");
             ```
             """),
-        new LabelProperties("User", new UserMenuProperties("user")),
-        new LabelProperties("Channel", new ChannelMenuProperties("channel")),
-        new LabelProperties("Role", new RoleMenuProperties("role")),
+        new LabelProperties("User", new UserSelectProperties("user")),
+        new LabelProperties("Channel", new ChannelSelectProperties("channel")),
+        new LabelProperties("Role", new RoleSelectProperties("role")),
     };
 });
 
@@ -214,10 +214,10 @@ host.AddSlashCommand("file-upload", "File Upload!", () =>
 
 host.AddComponentInteraction<ModalInteractionContext>("file upload", async (HttpClient client, ModalInteractionContext context) =>
 {
-    var attachments = context.Components.OfType<Label>()
+    var attachments = context.Components.OfType<LabelComponentData>()
                                         .Select(l => l.Component)
-                                        .OfType<FileUpload>()
-                                        .SelectMany(u => u.Attachments)
+                                        .OfType<FileUploadComponentData>()
+                                        .SelectMany(u => u.Values)
                                         .ToArray();
 
     return new InteractionMessageProperties()

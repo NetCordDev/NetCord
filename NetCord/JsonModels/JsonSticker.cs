@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonSticker : JsonEntity
+[JsonGuard]
+public partial class JsonSticker : JsonEntity
 {
     [JsonPropertyName("pack_id")]
     public ulong? PackId { get; set; }
@@ -26,11 +29,11 @@ public class JsonSticker : JsonEntity
     public bool? Available { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser? Creator { get; set; }
+    public JsonUser? User { get; set; }
 
     [JsonPropertyName("sort_value")]
-    public int SortValue { get; set; }
+    public int? SortValue { get; set; }
 }

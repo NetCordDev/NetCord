@@ -2,24 +2,22 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class ApplicationCommandGuildPermissions(JsonApplicationCommandGuildPermissions jsonModel) : IJsonModel<JsonApplicationCommandGuildPermissions>
+public class ApplicationCommandGuildPermissions(JsonApplicationCommandGuildPermissions jsonModel)
 {
-    JsonApplicationCommandGuildPermissions IJsonModel<JsonApplicationCommandGuildPermissions>.JsonModel => jsonModel;
-
     /// <summary>
     /// ID of the command.
     /// </summary>
-    public ulong CommandId => jsonModel.CommandId;
+    public ulong CommandId { get; } = jsonModel.CommandId;
 
     /// <summary>
     /// ID of the application the command belongs to.
     /// </summary>
-    public ulong ApplicationId => jsonModel.ApplicationId;
+    public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 
     /// <summary>
     /// ID of the guild.
     /// </summary>
-    public ulong GuildId => jsonModel.GuildId;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
     /// <summary>
     /// Permissions for the command in the guild (max 100).

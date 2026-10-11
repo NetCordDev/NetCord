@@ -1,24 +1,24 @@
+using NetCord.JsonModels;
+
 namespace NetCord;
 
 /// <summary>
 /// Contains information about a <see cref="MessageReaction"/>'s emoji.
 /// </summary>
-public class MessageReactionEmoji(JsonModels.JsonEmoji jsonModel) : IJsonModel<JsonModels.JsonEmoji>
+public class MessageReactionEmoji(JsonEmoji jsonModel)
 {
-    JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => jsonModel;
-
     /// <summary>
     /// <inheritdoc cref="CustomEmoji.Id"/> Always <see langword="null"/> for standard emoji.
     /// </summary>
-    public ulong? Id => jsonModel.Id;
+    public ulong? Id { get; } = jsonModel.Id;
 
     /// <summary>
     /// The emoji's name.
     /// </summary>
-    public string? Name => jsonModel.Name;
+    public string? Name { get; } = jsonModel.Name;
 
     /// <summary>
     /// Whether the emoji is animated.
     /// </summary>
-    public bool Animated => jsonModel.Animated;
+    public bool? Animated { get; } = jsonModel.Animated;
 }

@@ -1,10 +1,12 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class ChannelPinsUpdateEventArgs(JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs>
+public class ChannelPinsUpdateEventArgs(JsonChannelPinsUpdateEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs>.JsonModel => jsonModel;
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    public ulong? GuildId => jsonModel.GuildId;
-    public ulong ChannelId => jsonModel.ChannelId;
-    public DateTimeOffset? LastPinTimestamp => jsonModel.LastPinTimestamp;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
+
+    public DateTimeOffset? LastPinTimestamp { get; } = jsonModel.LastPinTimestamp;
 }

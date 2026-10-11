@@ -1,10 +1,8 @@
 namespace NetCord.Rest;
 
-public class GuildVanityInvite(JsonModels.JsonGuildVanityInvite jsonModel) : IJsonModel<JsonModels.JsonGuildVanityInvite>
+public class GuildVanityInvite(JsonModels.JsonGuildVanityInvite jsonModel)
 {
-    JsonModels.JsonGuildVanityInvite IJsonModel<JsonModels.JsonGuildVanityInvite>.JsonModel => jsonModel;
+    public string Code { get; } = jsonModel.Code;
 
-    public string Code => jsonModel.Code;
-
-    public int Uses => jsonModel.Uses;
+    public int Uses { get; } = jsonModel.Uses;
 }

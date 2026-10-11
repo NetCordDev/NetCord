@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonApplicationRoleConnectionMetadata
+[JsonGuard]
+public partial class JsonApplicationRoleConnectionMetadata
 {
     [JsonPropertyName("type")]
     public ApplicationRoleConnectionMetadataType Type { get; set; }

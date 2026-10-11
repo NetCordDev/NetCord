@@ -2,11 +2,11 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class AutoModerationActionMetadata(JsonAutoModerationActionMetadata jsonModel) : IJsonModel<JsonAutoModerationActionMetadata>
+public class AutoModerationActionMetadata(JsonAutoModerationActionMetadata jsonModel)
 {
-    JsonAutoModerationActionMetadata IJsonModel<JsonAutoModerationActionMetadata>.JsonModel => throw new NotImplementedException();
+    public ulong? ChannelId { get; } = jsonModel.ChannelId;
 
-    public ulong? ChannelId => jsonModel.ChannelId;
-    public int? DurationSeconds => jsonModel.DurationSeconds;
-    public string? CustomMessage => jsonModel.CustomMessage;
+    public int? DurationSeconds { get; } = jsonModel.DurationSeconds;
+
+    public string? CustomMessage { get; } = jsonModel.CustomMessage;
 }

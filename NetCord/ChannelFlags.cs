@@ -75,4 +75,14 @@ public enum ChannelFlags
     /// Hides the embedded media download options. Available only for media channels.
     /// </summary>
     HideMediaDownloadOptions = 1 << 15,
+
+    /// <summary>
+    /// This channel's metadata has been obfuscated because the current user cannot view it. Only ever set on channels received over the Gateway; the HTTP API never sets this flag. See Obfuscated Channels.
+    /// </summary>
+    ChannelObfuscated = 1 << 17,
+
+    /// <summary>
+    /// This channel is a Spoiler Channel i.e. users must opt in to view its contents. Can be set on all textual guild channels and voice channels (not <see cref="ChannelType.StageGuildChannel"/>). Can only be set if channel's nsfw is false.
+    /// </summary>
+    IsSpoilerChannel = 1 << 21,
 }

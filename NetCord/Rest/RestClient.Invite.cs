@@ -7,7 +7,7 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    [GenerateAlias([typeof(RestInvite)], nameof(RestInvite.Code), TypeNameOverride = nameof(Invite))]
+    [GenerateAlias([typeof(RestInvite)], nameof(RestInvite.Code), TypeNameOverride = nameof(Invite), ClientName = "client")]
     public async Task<RestInvite> GetInviteAsync(string inviteCode, bool withCounts = false, bool withExpiration = false, ulong? guildScheduledEventId = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         if (guildScheduledEventId.HasValue)
@@ -16,11 +16,11 @@ public partial class RestClient
             return new(await (await SendRequestAsync(HttpMethod.Get, $"/invites/{inviteCode}", $"?with_counts={withCounts}&with_expiration={withExpiration}", null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInvite).ConfigureAwait(false), this);
     }
 
-    [GenerateAlias([typeof(RestInvite)], nameof(RestInvite.Code), TypeNameOverride = nameof(Invite))]
+    [GenerateAlias([typeof(RestInvite)], nameof(RestInvite.Code), TypeNameOverride = nameof(Invite), ClientName = "client")]
     public async Task<RestInvite> DeleteInviteAsync(string inviteCode, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Delete, $"/invites/{inviteCode}", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInvite).ConfigureAwait(false), this);
 
-    [GenerateAlias([typeof(RestInvite)], nameof(RestInvite.Code), TypeNameOverride = nameof(Invite))]
+    [GenerateAlias([typeof(RestInvite)], nameof(RestInvite.Code), TypeNameOverride = nameof(Invite), ClientName = "client")]
     public async IAsyncEnumerable<ulong> GetInviteTargetUsersAsync(string inviteCode, RestRequestProperties? properties = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var stream = await SendRequestAsync(HttpMethod.Get, $"/invites/{inviteCode}/target-users", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false);

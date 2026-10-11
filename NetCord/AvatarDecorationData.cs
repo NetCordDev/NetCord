@@ -2,11 +2,9 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class AvatarDecorationData(JsonAvatarDecorationData jsonModel) : IJsonModel<JsonAvatarDecorationData>
+public class AvatarDecorationData(JsonAvatarDecorationData jsonModel)
 {
-    JsonAvatarDecorationData IJsonModel<JsonAvatarDecorationData>.JsonModel => jsonModel;
+    public string Hash { get; } = jsonModel.Hash;
 
-    public string Hash => jsonModel.Hash;
-
-    public ulong SkuId => jsonModel.SkuId;
+    public ulong SkuId { get; } = jsonModel.SkuId;
 }

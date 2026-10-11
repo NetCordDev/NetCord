@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplicationCommandGuildPermissions
+[JsonGuard]
+public partial class JsonApplicationCommandGuildPermissions
 {
     [JsonPropertyName("id")]
     public ulong CommandId { get; set; }

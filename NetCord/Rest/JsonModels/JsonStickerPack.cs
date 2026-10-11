@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonStickerPack : JsonEntity
+[JsonGuard]
+public partial class JsonStickerPack : JsonEntity
 {
     [JsonPropertyName("stickers")]
     public JsonSticker[] Stickers { get; set; }

@@ -1,8 +1,13 @@
 using System.Text.Json.Serialization;
 
+using NetCord.Rest.JsonModels;
+
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplication : JsonEntity
+[JsonGuard]
+public partial class JsonPartialApplication : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -13,14 +18,21 @@ public class JsonApplication : JsonEntity
     [JsonPropertyName("description")]
     public string Description { get; set; }
 
-    [JsonPropertyName("rpc_origins")]
-    public string[] RpcOrigins { get; set; }
-
     [JsonPropertyName("bot_public")]
-    public bool? BotPublic { get; set; }
+    public bool BotPublic { get; set; }
 
     [JsonPropertyName("bot_require_code_grant")]
-    public bool? BotRequireCodeGrant { get; set; }
+    public bool BotRequireCodeGrant { get; set; }
+
+    [JsonPropertyName("verify_key")]
+    public string VerifyKey { get; set; }
+}
+
+[JsonGuard]
+public partial class JsonApplication : JsonPartialApplication
+{
+    [JsonPropertyName("rpc_origins")]
+    public string[] RpcOrigins { get; set; }
 
     [JsonPropertyName("bot")]
     public JsonUser? Bot { get; set; }
@@ -34,9 +46,6 @@ public class JsonApplication : JsonEntity
     [JsonPropertyName("owner")]
     public JsonUser? Owner { get; set; }
 
-    [JsonPropertyName("verify_key")]
-    public string VerifyKey { get; set; }
-
     [JsonPropertyName("team")]
     public JsonTeam? Team { get; set; }
 
@@ -44,7 +53,7 @@ public class JsonApplication : JsonEntity
     public ulong? GuildId { get; set; }
 
     [JsonPropertyName("guild")]
-    public JsonGuild? Guild { get; set; }
+    public JsonPartialGuild? Guild { get; set; }
 
     [JsonPropertyName("primary_sku_id")]
     public ulong? PrimarySkuId { get; set; }

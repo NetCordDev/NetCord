@@ -1,8 +1,8 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class GuildIntegrationsUpdateEventArgs(JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs>
+public class GuildIntegrationsUpdateEventArgs(JsonGuildIntegrationsUpdateEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs>.JsonModel => jsonModel;
-
-    public ulong GuildId => jsonModel.GuildId;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 }

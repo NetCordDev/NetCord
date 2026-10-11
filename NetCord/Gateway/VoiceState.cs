@@ -2,45 +2,31 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class VoiceState : IJsonModel<JsonModels.JsonVoiceState>
+public class VoiceState(JsonModels.JsonVoiceState jsonModel, ulong guildId, RestClient client)
 {
-    JsonModels.JsonVoiceState IJsonModel<JsonModels.JsonVoiceState>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonVoiceState _jsonModel;
+    public ulong GuildId { get; } = guildId;
 
-    public VoiceState(JsonModels.JsonVoiceState jsonModel, ulong guildId, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    public ulong? ChannelId { get; } = jsonModel.ChannelId;
 
-        GuildId = guildId;
+    public ulong UserId { get; } = jsonModel.UserId;
 
-        var user = jsonModel.User;
-        if (user is not null)
-            User = new(user, _jsonModel.GuildId.GetValueOrDefault(), client);
-    }
+    public GuildUser? User { get; } = jsonModel.User is { } user ? new(user, jsonModel.GuildId.GetValueOrDefault(), client) : null;
 
-    public ulong GuildId { get; }
+    public string SessionId { get; } = jsonModel.SessionId;
 
-    public ulong? ChannelId => _jsonModel.ChannelId;
+    public bool Deaf { get; } = jsonModel.Deaf;
 
-    public ulong UserId => _jsonModel.UserId;
+    public bool Mute { get; } = jsonModel.Mute;
 
-    public GuildUser? User { get; }
+    public bool SelfDeaf { get; } = jsonModel.SelfDeaf;
 
-    public string SessionId => _jsonModel.SessionId;
+    public bool SelfMute { get; } = jsonModel.SelfMute;
 
-    public bool IsDeafened => _jsonModel.IsDeafened;
+    public bool? SelfStream { get; } = jsonModel.SelfStream;
 
-    public bool IsMuted => _jsonModel.IsMuted;
+    public bool SelfVideo { get; } = jsonModel.SelfVideo;
 
-    public bool IsSelfDeafened => _jsonModel.IsSelfDeafened;
+    public bool Suppress { get; } = jsonModel.Suppress;
 
-    public bool IsSelfMuted => _jsonModel.IsSelfMuted;
-
-    public bool? SelfStreamExists => _jsonModel.SelfStreamExists;
-
-    public bool SelfVideoExists => _jsonModel.SelfVideoExists;
-
-    public bool Suppressed => _jsonModel.Suppressed;
-
-    public DateTimeOffset? RequestToSpeakTimestamp => _jsonModel.RequestToSpeakTimestamp;
+    public DateTimeOffset? RequestToSpeakTimestamp { get; } = jsonModel.RequestToSpeakTimestamp;
 }

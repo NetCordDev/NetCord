@@ -1,40 +1,27 @@
+using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class MessageReactionAddEventArgs : IJsonModel<JsonModels.EventArgs.JsonMessageReactionAddEventArgs>
+public class MessageReactionAddEventArgs(JsonMessageReactionAddEventArgs jsonModel, RestClient client)
 {
-    JsonModels.EventArgs.JsonMessageReactionAddEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageReactionAddEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonMessageReactionAddEventArgs _jsonModel;
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public MessageReactionAddEventArgs(JsonModels.EventArgs.JsonMessageReactionAddEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-        var user = jsonModel.User;
-        if (user is not null)
-            User = new(user, jsonModel.GuildId.GetValueOrDefault(), client);
+    public ulong MessageId { get; } = jsonModel.MessageId;
 
-        Emoji = new(jsonModel.Emoji);
-    }
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    public ulong UserId => _jsonModel.UserId;
+    public GuildUser? GuildUser { get; } = jsonModel.GuildUser is { } user ? new(user, jsonModel.GuildId.GetValueOrDefault(), client) : null;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    public MessageReactionEmoji Emoji { get; } = new(jsonModel.Emoji);
 
-    public ulong MessageId => _jsonModel.MessageId;
+    public ulong? MessageAuthorId { get; } = jsonModel.MessageAuthorId;
 
-    public ulong? GuildId => _jsonModel.GuildId;
+    public bool Burst { get; } = jsonModel.Burst;
 
-    public GuildUser? User { get; }
+    public IReadOnlyList<Color>? BurstColors { get; } = jsonModel.BurstColors;
 
-    public MessageReactionEmoji Emoji { get; }
-
-    public ulong? MessageAuthorId => _jsonModel.MessageAuthorId;
-
-    public bool Burst => _jsonModel.Burst;
-
-    public IReadOnlyList<Color>? BurstColors => _jsonModel.BurstColors;
-
-    public ReactionType Type => _jsonModel.Type;
+    public ReactionType Type { get; } = jsonModel.Type;
 }

@@ -1,35 +1,28 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class AutoModerationActionExecutionEventArgs : IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>
+public class AutoModerationActionExecutionEventArgs(JsonAutoModerationActionExecutionEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs _jsonModel;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
-    public AutoModerationActionExecutionEventArgs(JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs jsonModel)
-    {
-        _jsonModel = jsonModel;
-        Action = new(_jsonModel.Action);
-    }
+    public AutoModerationAction Action { get; } = new(jsonModel.Action);
 
-    public ulong GuildId => _jsonModel.GuildId;
+    public ulong RuleId { get; } = jsonModel.RuleId;
 
-    public AutoModerationAction Action { get; }
+    public AutoModerationRuleTriggerType RuleTriggerType { get; } = jsonModel.RuleTriggerType;
 
-    public ulong RuleId => _jsonModel.RuleId;
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public AutoModerationRuleTriggerType RuleTriggerType => _jsonModel.RuleTriggerType;
+    public ulong? ChannelId { get; } = jsonModel.ChannelId;
 
-    public ulong UserId => _jsonModel.UserId;
+    public ulong? MessageId { get; } = jsonModel.MessageId;
 
-    public ulong? ChannelId => _jsonModel.ChannelId;
+    public ulong? AlertSystemMessageId { get; } = jsonModel.AlertSystemMessageId;
 
-    public ulong? MessageId => _jsonModel.MessageId;
+    public string? Content { get; } = jsonModel.Content;
 
-    public ulong? AlertSystemMessageId => _jsonModel.AlertSystemMessageId;
+    public string? MatchedKeyword { get; } = jsonModel.MatchedKeyword;
 
-    public string Content => _jsonModel.Content;
-
-    public string? MatchedKeyword => _jsonModel.MatchedKeyword;
-
-    public string? MatchedContent => _jsonModel.MatchedContent;
+    public string? MatchedContent { get; } = jsonModel.MatchedContent;
 }

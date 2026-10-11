@@ -6,7 +6,7 @@ public class CategoryGuildChannelTypeReader<TContext> : ChannelTypeReader<TConte
     {
         get
         {
-            yield return ChannelType.CategoryChannel;
+            yield return ChannelType.CategoryGuildChannel;
         }
     }
 }

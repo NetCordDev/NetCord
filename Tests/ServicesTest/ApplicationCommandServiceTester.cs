@@ -15,11 +15,13 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
 
     private ApplicationCommandInteraction CreateInteraction(string name, string?[] argumentValues, IReadOnlyList<string> argumentNames, ApplicationCommandType type)
     {
-        JsonInteraction jsonModel = new()
+        JsonApplicationCommandInteraction jsonModel = new()
         {
+            Id = 123456,
             Type = InteractionType.ApplicationCommand,
             Data = new()
             {
+                Id = 123456,
                 Type = type,
                 Name = name,
                 Options =
@@ -34,12 +36,26 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
                     )
                 ],
             },
-            User = new(),
-            Channel = new(),
+            User = new()
+            {
+                Id = 123,
+                Discriminator = 0,
+                Username = "User",
+            },
+            Channel = new()
+            {
+                Id = 1234,
+            },
             Entitlements = [],
+            AttachmentSizeLimit = 10,
+            AuthorizingIntegrationOwners = new Dictionary<ApplicationIntegrationType, ulong>(),
+            AppPermissions = default,
+            Version = 1,
+            Token = "token",
+            ApplicationId = 123456,
         };
 
-        return (ApplicationCommandInteraction)Interaction.CreateFromJson(jsonModel, null, (_, _, _, _, _) => Task.FromResult<InteractionCallbackResponse?>(null), _client.Rest);
+        return (ApplicationCommandInteraction)Interaction.Create(jsonModel, null, (_, _, _, _, _) => Task.FromResult<InteractionCallbackResponse?>(null), _client.Rest);
     }
 
     public async ValueTask ExecuteAsync(string commandName, string?[] arguments, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)

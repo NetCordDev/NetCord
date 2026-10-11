@@ -11,7 +11,7 @@ namespace NetCord.Rest;
 /// <param name="description"><inheritdoc cref="Description" path="/summary" /></param>
 /// <param name="handler"><inheritdoc cref="Handler" path="/summary" /></param>
 [GenerateMethodsForProperties]
-public partial class EntryPointCommandProperties(string name, string description, EntryPointCommandHandler handler) : ApplicationCommandProperties(ApplicationCommandType.EntryPoint, name)
+public partial class EntryPointCommandProperties(string name, string description, EntryPointCommandHandlerType handler) : ApplicationCommandProperties(ApplicationCommandType.EntryPoint, name)
 {
     /// <summary>
     /// Description of the command (1-100 characters).
@@ -30,7 +30,7 @@ public partial class EntryPointCommandProperties(string name, string description
     /// Determines whether the interaction is handled by the application's interactions handler or by Discord.
     /// </summary>
     [JsonPropertyName("handler")]
-    public EntryPointCommandHandler Handler { get; set; } = handler;
+    public EntryPointCommandHandlerType Handler { get; set; } = handler;
 
     private protected override void WriteTo(Utf8JsonWriter writer)
     {

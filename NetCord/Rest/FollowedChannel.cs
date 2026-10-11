@@ -1,10 +1,8 @@
 namespace NetCord.Rest;
 
-public class FollowedChannel(JsonModels.JsonFollowedChannel jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonFollowedChannel>
+public class FollowedChannel(JsonModels.JsonFollowedChannel jsonModel)
 {
-    JsonModels.JsonFollowedChannel IJsonModel<JsonModels.JsonFollowedChannel>.JsonModel => jsonModel;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-    public override ulong Id => jsonModel.Id;
-
-    public ulong WebhookId => jsonModel.WebhookId;
+    public ulong WebhookId { get; } = jsonModel.WebhookId;
 }

@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonVoiceState
+[JsonGuard]
+public partial class JsonVoiceState
 {
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
@@ -22,25 +25,25 @@ public class JsonVoiceState
     public string SessionId { get; set; }
 
     [JsonPropertyName("deaf")]
-    public bool IsDeafened { get; set; }
+    public bool Deaf { get; set; }
 
     [JsonPropertyName("mute")]
-    public bool IsMuted { get; set; }
+    public bool Mute { get; set; }
 
     [JsonPropertyName("self_deaf")]
-    public bool IsSelfDeafened { get; set; }
+    public bool SelfDeaf { get; set; }
 
     [JsonPropertyName("self_mute")]
-    public bool IsSelfMuted { get; set; }
+    public bool SelfMute { get; set; }
 
     [JsonPropertyName("self_stream")]
-    public bool? SelfStreamExists { get; set; }
+    public bool? SelfStream { get; set; }
 
     [JsonPropertyName("self_video")]
-    public bool SelfVideoExists { get; set; }
+    public bool SelfVideo { get; set; }
 
     [JsonPropertyName("suppress")]
-    public bool Suppressed { get; set; }
+    public bool Suppress { get; set; }
 
     [JsonPropertyName("request_to_speak_timestamp")]
     public DateTimeOffset? RequestToSpeakTimestamp { get; set; }

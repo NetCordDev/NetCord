@@ -2,19 +2,17 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class AutoModerationRuleTriggerMetadata(JsonAutoModerationRuleTriggerMetadata jsonModel) : IJsonModel<JsonAutoModerationRuleTriggerMetadata>
+public class AutoModerationRuleTriggerMetadata(JsonAutoModerationRuleTriggerMetadata jsonModel)
 {
-    JsonAutoModerationRuleTriggerMetadata IJsonModel<JsonAutoModerationRuleTriggerMetadata>.JsonModel => jsonModel;
+    public IReadOnlyList<string>? KeywordFilter { get; } = jsonModel.KeywordFilter;
 
-    public IReadOnlyList<string>? KeywordFilter => jsonModel.KeywordFilter;
+    public IReadOnlyList<string>? RegexPatterns { get; } = jsonModel.RegexPatterns;
 
-    public IReadOnlyList<string>? RegexPatterns => jsonModel.RegexPatterns;
+    public IReadOnlyList<AutoModerationRuleKeywordPresetType>? Presets { get; } = jsonModel.Presets;
 
-    public IReadOnlyList<AutoModerationRuleKeywordPresetType>? Presets => jsonModel.Presets;
+    public IReadOnlyList<string>? AllowList { get; } = jsonModel.AllowList;
 
-    public IReadOnlyList<string>? AllowList => jsonModel.AllowList;
+    public int? MentionTotalLimit { get; } = jsonModel.MentionTotalLimit;
 
-    public int? MentionTotalLimit => jsonModel.MentionTotalLimit;
-
-    public bool MentionRaidProtectionEnabled => jsonModel.MentionRaidProtectionEnabled;
+    public bool? MentionRaidProtectionEnabled { get; } = jsonModel.MentionRaidProtectionEnabled;
 }

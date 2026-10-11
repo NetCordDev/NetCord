@@ -18,7 +18,7 @@ public partial class RestClient
         => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/stickers", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStickerArray).ConfigureAwait(false)).Select(s => new GuildSticker(s, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildSticker)], nameof(GuildSticker.GuildId), nameof(GuildSticker.Id))]
+    [GenerateAlias([typeof(GuildSticker)], nameof(GuildSticker.GuildId), nameof(GuildSticker.Id), ClientName = "client")]
     public async Task<GuildSticker> GetGuildStickerAsync(ulong guildId, ulong stickerId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/stickers/{stickerId}", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonSticker).ConfigureAwait(false), this);
 
@@ -30,7 +30,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildSticker)], nameof(GuildSticker.GuildId), nameof(GuildSticker.Id))]
+    [GenerateAlias([typeof(GuildSticker)], nameof(GuildSticker.GuildId), nameof(GuildSticker.Id), ClientName = "client")]
     public async Task<GuildSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<GuildStickerOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GuildStickerOptions guildStickerOptions = new();
@@ -40,7 +40,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(GuildSticker)], nameof(GuildSticker.GuildId), nameof(GuildSticker.Id))]
+    [GenerateAlias([typeof(GuildSticker)], nameof(GuildSticker.GuildId), nameof(GuildSticker.Id), ClientName = "client")]
     public Task DeleteGuildStickerAsync(ulong guildId, ulong stickerId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/stickers/{stickerId}", null, new(guildId), properties, cancellationToken: cancellationToken);
 }

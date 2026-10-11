@@ -66,6 +66,6 @@ public class InteractionResolvedData
             Messages = messages.ToDictionary(m => m.Key, m => new RestMessage(m.Value, client));
 
         if (jsonModel.Attachments is { } attachments)
-            Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value, client));
+            Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.Create(c.Value, client));
     }
 }

@@ -1,16 +1,14 @@
 namespace NetCord.Rest;
 
-public class VoiceRegion(JsonModels.JsonVoiceRegion jsonModel) : IJsonModel<JsonModels.JsonVoiceRegion>
+public class VoiceRegion(JsonModels.JsonVoiceRegion jsonModel)
 {
-    JsonModels.JsonVoiceRegion IJsonModel<JsonModels.JsonVoiceRegion>.JsonModel => jsonModel;
+    public string Id { get; } = jsonModel.Id;
 
-    public string Id => jsonModel.Id;
+    public string Name { get; } = jsonModel.Name;
 
-    public string Name => jsonModel.Name;
+    public bool Optimal { get; } = jsonModel.Optimal;
 
-    public bool Optimal => jsonModel.Optimal;
+    public bool Deprecated { get; } = jsonModel.Deprecated;
 
-    public bool Deprecated => jsonModel.Deprecated;
-
-    public bool Custom => jsonModel.Custom;
+    public bool Custom { get; } = jsonModel.Custom;
 }

@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonMessageSnapshot
+[JsonGuard]
+public partial class JsonMessageSnapshot
 {
     [JsonPropertyName("message")]
     public JsonMessageSnapshotMessage Message { get; set; }

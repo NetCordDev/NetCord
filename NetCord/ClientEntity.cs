@@ -1,13 +1,13 @@
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class ClientEntity : Entity
+public abstract class ClientEntity(ulong id, RestClient client) : Entity(id)
 {
-    private protected readonly RestClient _client;
-
-    private protected ClientEntity(RestClient client)
+    public ClientEntity(JsonEntity jsonModel, RestClient client) : this(jsonModel.Id, client)
     {
-        _client = client;
     }
+
+    private protected readonly RestClient _client = client;
 }

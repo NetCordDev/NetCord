@@ -3,13 +3,11 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildThreadListSyncEventArgs(JsonGuildThreadListSyncEventArgs jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : IJsonModel<JsonGuildThreadListSyncEventArgs>
+public class GuildThreadListSyncEventArgs(JsonGuildThreadListSyncEventArgs jsonModel, RestClient client, IDictionaryProvider dictionaryProvider)
 {
-    JsonGuildThreadListSyncEventArgs IJsonModel<JsonGuildThreadListSyncEventArgs>.JsonModel => jsonModel;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
-    public ulong GuildId => jsonModel.GuildId;
-
-    public IReadOnlyList<ulong>? ChannelIds => jsonModel.ChannelIds;
+    public IReadOnlyList<ulong>? ChannelIds { get; } = jsonModel.ChannelIds;
 
     public IReadOnlyDictionary<ulong, GuildThread> Threads { get; } = dictionaryProvider.CreateDictionary(GuildThreadGenerator.CreateThreads(jsonModel.Threads,
                                                                                                                                              jsonModel.Users,
