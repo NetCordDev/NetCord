@@ -60,16 +60,22 @@ jobs:
           npm run test
           npm run build
 
+      - name: Login to NuGet
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USERNAME }}
+
       - name: Publish Packages
         shell: *dev-shell
         env:
-          KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
-          dotnet nuget push NetCord/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord/bin/Release/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Deploy Documentation
         uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
