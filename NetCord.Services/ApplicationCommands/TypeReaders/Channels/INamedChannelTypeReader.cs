@@ -8,7 +8,7 @@ public class INamedChannelTypeReader<TContext> : ChannelTypeReader<TContext> whe
         {
             yield return ChannelType.TextGuildChannel;
             yield return ChannelType.VoiceGuildChannel;
-            yield return ChannelType.CategoryChannel;
+            yield return ChannelType.CategoryGuildChannel;
             yield return ChannelType.AnnouncementGuildChannel;
             yield return ChannelType.AnnouncementGuildThread;
             yield return ChannelType.PublicGuildThread;

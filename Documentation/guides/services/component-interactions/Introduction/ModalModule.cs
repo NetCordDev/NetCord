@@ -6,8 +6,8 @@ namespace MyBot;
 public class ModalModule : ComponentInteractionModule<ModalInteractionContext>
 {
     [ComponentInteraction("modal")]
-    public string Modal() => string.Join('\n', Context.Components.OfType<Label>()
+    public string Modal() => string.Join('\n', Context.Components.OfType<LabelComponent>()
                                                                  .Select(l => l.Component)
-                                                                 .OfType<TextInput>()
+                                                                 .OfType<TextInputComponent>()
                                                                  .Select(i => $"{i.CustomId}: {i.Value}"));
 }

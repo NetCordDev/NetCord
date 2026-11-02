@@ -2,9 +2,18 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonReadyEventArgs
+public class JsonReadyApplication : JsonEntity
+{
+    [JsonPropertyName("flags")]
+    public ApplicationFlags? Flags { get; set; }
+}
+
+[JsonGuard]
+public partial class JsonReadyEventArgs
 {
     [JsonPropertyName("v")]
     public ApiVersion Version { get; set; }
@@ -25,5 +34,5 @@ public class JsonReadyEventArgs
     public Shard? Shard { get; set; }
 
     [JsonPropertyName("application")]
-    public JsonApplication Application { get; set; }
+    public JsonReadyApplication Application { get; set; }
 }

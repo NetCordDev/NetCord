@@ -4,9 +4,7 @@ namespace NetCord.Rest;
 
 public class PingWebhookEventArgs(JsonWebhookEventArgs jsonModel) : IWebhookEventArgs
 {
-    JsonWebhookEventArgs IJsonModel<JsonWebhookEventArgs>.JsonModel => jsonModel;
+    public int Version { get; } = jsonModel.Version;
 
-    public int Version => jsonModel.Version;
-
-    public ulong ApplicationId => jsonModel.ApplicationId;
+    public ulong ApplicationId { get; } = jsonModel.ApplicationId;
 }

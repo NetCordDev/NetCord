@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonInvite
+[JsonGuard]
+public partial class JsonInvite
 {
     [JsonPropertyName("type")]
     public InviteType Type { get; set; }
@@ -37,7 +40,7 @@ public class JsonInvite
     public JsonUser? TargetUser { get; set; }
 
     [JsonPropertyName("target_application")]
-    public JsonApplication? TargetApplication { get; set; }
+    public JsonPartialApplication? TargetApplication { get; set; }
 
     [JsonPropertyName("temporary")]
     public bool Temporary { get; set; }

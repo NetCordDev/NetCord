@@ -8,7 +8,7 @@ public class JsonAutoModerationRuleTriggerMetadata
     public string[]? KeywordFilter { get; set; }
 
     [JsonPropertyName("regex_patterns")]
-    public string[] RegexPatterns { get; set; }
+    public string[]? RegexPatterns { get; set; }
 
     [JsonPropertyName("presets")]
     public AutoModerationRuleKeywordPresetType[]? Presets { get; set; }
@@ -20,5 +20,5 @@ public class JsonAutoModerationRuleTriggerMetadata
     public int? MentionTotalLimit { get; set; }
 
     [JsonPropertyName("mention_raid_protection_enabled")]
-    public bool MentionRaidProtectionEnabled { get; set; }
+    public bool? MentionRaidProtectionEnabled { get; set; }
 }

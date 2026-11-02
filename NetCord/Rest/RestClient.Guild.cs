@@ -18,7 +18,7 @@ public partial class RestClient
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<GuildPreview> GetGuildPreviewAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/preview", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuild).ConfigureAwait(false), this);
+        => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/preview", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildPreview).ConfigureAwait(false), this);
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<RestGuild> ModifyGuildAsync(ulong guildId, Action<GuildOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)

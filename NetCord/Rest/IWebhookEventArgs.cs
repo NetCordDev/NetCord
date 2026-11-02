@@ -2,7 +2,7 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public interface IWebhookEventArgs : IJsonModel<JsonWebhookEventArgs>
+public interface IWebhookEventArgs
 {
     public int Version { get; }
 
@@ -13,7 +13,7 @@ public interface IWebhookEventArgs : IJsonModel<JsonWebhookEventArgs>
         return jsonModel.Type switch
         {
             WebhookEventType.Ping => new PingWebhookEventArgs(jsonModel),
-            WebhookEventType.Event => WebhookEventArgs.CreateFromJson(jsonModel, client),
+            WebhookEventType.Event => WebhookEventArgs.Create(jsonModel, client),
             _ => throw new InvalidOperationException($"Unknown webhook event type: {jsonModel.Type}."),
         };
     }

@@ -3,37 +3,25 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRule>
+public partial class AutoModerationRule(JsonAutoModerationRule jsonModel, RestClient client) : ClientEntity(jsonModel, client)
 {
-    JsonAutoModerationRule IJsonModel<JsonAutoModerationRule>.JsonModel => _jsonModel;
-    private readonly JsonAutoModerationRule _jsonModel;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 
-    public AutoModerationRule(JsonAutoModerationRule jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-        TriggerMetadata = new(_jsonModel.TriggerMetadata);
-        Actions = _jsonModel.Actions.Select(a => new AutoModerationAction(a)).ToArray();
-    }
+    public string Name { get; } = jsonModel.Name;
 
-    public override ulong Id => _jsonModel.Id;
+    public ulong CreatorId { get; } = jsonModel.CreatorId;
 
-    public ulong GuildId => _jsonModel.GuildId;
+    public AutoModerationRuleEventType EventType { get; } = jsonModel.EventType;
 
-    public string Name => _jsonModel.Name;
+    public AutoModerationRuleTriggerType TriggerType { get; } = jsonModel.TriggerType;
 
-    public ulong CreatorId => _jsonModel.CreatorId;
+    public AutoModerationRuleTriggerMetadata TriggerMetadata { get; } = new(jsonModel.TriggerMetadata);
 
-    public AutoModerationRuleEventType EventType => _jsonModel.EventType;
+    public IReadOnlyList<AutoModerationAction> Actions { get; } = [.. jsonModel.Actions.Select(a => new AutoModerationAction(a))];
 
-    public AutoModerationRuleTriggerType TriggerType => _jsonModel.TriggerType;
+    public bool Enabled { get; } = jsonModel.Enabled;
 
-    public AutoModerationRuleTriggerMetadata TriggerMetadata { get; }
+    public IReadOnlyList<ulong> ExemptRoles { get; } = jsonModel.ExemptRoles;
 
-    public IReadOnlyList<AutoModerationAction> Actions { get; }
-
-    public bool Enabled => _jsonModel.Enabled;
-
-    public IReadOnlyList<ulong> ExemptRoles => _jsonModel.ExemptRoles;
-
-    public IReadOnlyList<ulong> ExemptChannels => _jsonModel.ExemptChannels;
+    public IReadOnlyList<ulong> ExemptChannels { get; } = jsonModel.ExemptChannels;
 }

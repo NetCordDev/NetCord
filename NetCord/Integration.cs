@@ -2,53 +2,35 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
+public class Integration(JsonModels.JsonIntegration jsonModel, RestClient client) : Entity(jsonModel)
 {
-    JsonModels.JsonIntegration IJsonModel<JsonModels.JsonIntegration>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonIntegration _jsonModel;
+    public string Name { get; } = jsonModel.Name;
 
-    public override ulong Id => _jsonModel.Id;
+    public IntegrationType Type { get; } = jsonModel.Type;
 
-    public string Name => _jsonModel.Name;
+    public bool Enabled { get; } = jsonModel.Enabled;
 
-    public IntegrationType Type => _jsonModel.Type;
+    public bool? Syncing { get; } = jsonModel.Syncing;
 
-    public bool Enabled => _jsonModel.Enabled;
+    public ulong? RoleId { get; } = jsonModel.RoleId;
 
-    public bool? Syncing => _jsonModel.Syncing;
+    public bool? EnableEmoticons { get; } = jsonModel.EnableEmoticons;
 
-    public ulong? RoleId => _jsonModel.RoleId;
+    public IntegrationExpireBehavior? ExpireBehavior { get; } = jsonModel.ExpireBehavior;
 
-    public bool? EnableEmoticons => _jsonModel.EnableEmoticons;
+    public int? ExpireGracePeriod { get; } = jsonModel.ExpireGracePeriod;
 
-    public IntegrationExpireBehavior? ExpireBehavior => _jsonModel.ExpireBehavior;
+    public User? User { get; } = jsonModel.User is { } user ? new(user, client) : null;
 
-    public int? ExpireGracePeriod => _jsonModel.ExpireGracePeriod;
+    public IntegrationAccount Account { get; } = new(jsonModel.Account);
 
-    public User? User { get; }
+    public DateTimeOffset? SyncedAt { get; } = jsonModel.SyncedAt;
 
-    public IntegrationAccount Account { get; }
+    public int? SubscriberCount { get; } = jsonModel.SubscriberCount;
 
-    public DateTimeOffset? SyncedAt => _jsonModel.SyncedAt;
+    public bool? Revoked { get; } = jsonModel.Revoked;
 
-    public int? SubscriberCount => _jsonModel.SubscriberCount;
+    public Application? Application { get; } = jsonModel.Application is { } application ? new(application, client) : null;
 
-    public bool? Revoked => _jsonModel.Revoked;
-
-    public IntegrationApplication? Application { get; }
-
-    public Integration(JsonModels.JsonIntegration jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        var user = _jsonModel.User;
-        if (user is not null)
-            User = new(user, client);
-
-        Account = new(_jsonModel.Account);
-
-        var application = _jsonModel.Application;
-        if (application is not null)
-            Application = new(application, client);
-    }
+    public IReadOnlyList<string>? Scopes { get; } = jsonModel.Scopes;
 }

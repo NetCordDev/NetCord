@@ -3,31 +3,27 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord;
 
-public partial class GuildTemplate(JsonGuildTemplate jsonModel, RestClient client) : IJsonModel<JsonGuildTemplate>
+public partial class GuildTemplate(JsonGuildTemplate jsonModel, RestClient client)
 {
-    JsonGuildTemplate IJsonModel<JsonGuildTemplate>.JsonModel => jsonModel;
+    public string Code { get; } = jsonModel.Code;
 
-    private readonly RestClient _client = client;
+    public string Name { get; } = jsonModel.Name;
 
-    public string Code => jsonModel.Code;
+    public string? Description { get; } = jsonModel.Description;
 
-    public string Name => jsonModel.Name;
+    public int UsageCount { get; } = jsonModel.UsageCount;
 
-    public string Description => jsonModel.Description;
-
-    public int UsageCount => jsonModel.UsageCount;
-
-    public ulong CreatorId => jsonModel.CreatorId;
+    public ulong CreatorId { get; } = jsonModel.CreatorId;
 
     public User Creator { get; } = new(jsonModel.Creator, client);
 
-    public DateTimeOffset CreatedAt => jsonModel.CreatedAt;
+    public DateTimeOffset CreatedAt { get; } = jsonModel.CreatedAt;
 
-    public DateTimeOffset UpdatedAt => jsonModel.UpdatedAt;
+    public DateTimeOffset UpdatedAt { get; } = jsonModel.UpdatedAt;
 
-    public ulong SourceGuildId => jsonModel.SourceGuildId;
+    public ulong SourceGuildId { get; } = jsonModel.SourceGuildId;
 
-    public GuildTemplatePreview Preview { get; } = new(jsonModel.Preview, client);
+    public GuildTemplateSerializerSourceGuild SerializedSourceGuild { get; } = new(jsonModel.SerializedSourceGuild, client);
 
-    public bool? IsDirty => jsonModel.IsDirty;
+    public bool? IsDirty { get; } = jsonModel.IsDirty;
 }

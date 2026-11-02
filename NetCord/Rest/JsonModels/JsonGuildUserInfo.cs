@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonGuildUserInfo
+[JsonGuard]
+public partial class JsonGuildUserInfo
 {
     [JsonPropertyName("member")]
     public JsonGuildUser User { get; set; }

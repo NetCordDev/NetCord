@@ -52,7 +52,7 @@ public partial class EmbedProperties
     /// <inheritdoc cref="Embed.Thumbnail"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("thumbnail")]
-    public EmbedThumbnailProperties? Thumbnail { get; set; }
+    public EmbedImageProperties? Thumbnail { get; set; }
 
     /// <inheritdoc cref="Embed.Author"/>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -65,4 +65,75 @@ public partial class EmbedProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("fields")]
     public IEnumerable<EmbedFieldProperties>? Fields { get; set; }
+}
+
+/// <inheritdoc cref="EmbedFooter"/>
+[GenerateMethodsForProperties]
+public partial class EmbedFooterProperties
+{
+
+    /// <inheritdoc cref="EmbedFooter.Text"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("text")]
+    public string? Text { get; set; }
+
+    /// <summary>
+    /// Points to an image, which is displayed in a small circular format to the left of the <see cref="Text"/>.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("icon_url")]
+    public string? IconUrl { get; set; }
+}
+
+/// <inheritdoc cref="EmbedImage"/>
+/// <param name="url"><inheritdoc cref="Url" path="/summary"/></param>
+[GenerateMethodsForProperties]
+public partial class EmbedImageProperties(string? url)
+{
+    /// <inheritdoc cref="EmbedImage.Url"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("url")]
+    public string? Url { get; set; } = url;
+
+    public static implicit operator EmbedImageProperties(string? url) => new(url);
+}
+
+/// <inheritdoc cref="EmbedAuthor"/>
+[GenerateMethodsForProperties]
+public partial class EmbedAuthorProperties
+{
+    /// <inheritdoc cref="EmbedAuthor.Name"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    /// <inheritdoc cref="EmbedAuthor.Url"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    /// <inheritdoc cref="EmbedAuthor.IconUrl"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("icon_url")]
+    public string? IconUrl { get; set; }
+}
+
+/// <inheritdoc cref="EmbedField"/>
+[GenerateMethodsForProperties]
+public partial class EmbedFieldProperties
+{
+    /// <inheritdoc cref="EmbedField.Name"/>
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <inheritdoc cref="EmbedField.Value"/>
+    [JsonPropertyName("value")]
+    public string Value { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When set alongside another field with <see cref="Inline"/> set, displays the fields side by side when supported.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("inline")]
+    public bool Inline { get; set; }
 }

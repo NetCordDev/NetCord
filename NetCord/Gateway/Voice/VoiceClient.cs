@@ -865,13 +865,11 @@ public sealed partial class VoiceClient : WebSocketClient
     /// <returns></returns>
     public async ValueTask SendVoiceAsync(ushort sequenceNumber, uint timestamp, ReadOnlyMemory<byte> frame, CancellationToken cancellationToken = default)
     {
-        if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
+        if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session } || Cache.Ssrc is not { } ssrc)
         {
             ThrowConnectionNotStarted();
             return;
         }
-
-        var ssrc = Cache.Ssrc;
 
         using var result = EncryptDave(session, frame.Span, ssrc);
 
@@ -907,13 +905,11 @@ public sealed partial class VoiceClient : WebSocketClient
     /// <param name="frame">The Opus voice frame to send.</param>
     public void SendVoice(ushort sequenceNumber, uint timestamp, ReadOnlySpan<byte> frame)
     {
-        if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
+        if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session } || Cache.Ssrc is not { } ssrc)
         {
             ThrowConnectionNotStarted();
             return;
         }
-
-        var ssrc = Cache.Ssrc;
 
         using var result = EncryptDave(session, frame, ssrc);
 

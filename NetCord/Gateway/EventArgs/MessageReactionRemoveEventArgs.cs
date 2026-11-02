@@ -1,20 +1,20 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class MessageReactionRemoveEventArgs(JsonModels.EventArgs.JsonMessageReactionRemoveEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEventArgs>
+public class MessageReactionRemoveEventArgs(JsonMessageReactionRemoveEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonMessageReactionRemoveEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEventArgs>.JsonModel => jsonModel;
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public ulong UserId => jsonModel.UserId;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-    public ulong ChannelId => jsonModel.ChannelId;
+    public ulong MessageId { get; } = jsonModel.MessageId;
 
-    public ulong MessageId => jsonModel.MessageId;
-
-    public ulong? GuildId => jsonModel.GuildId;
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
     public MessageReactionEmoji Emoji { get; } = new(jsonModel.Emoji);
 
-    public bool Burst => jsonModel.Burst;
+    public bool Burst { get; } = jsonModel.Burst;
 
-    public ReactionType Type => jsonModel.Type;
+    public ReactionType Type { get; } = jsonModel.Type;
 }

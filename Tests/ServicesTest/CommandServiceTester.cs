@@ -23,7 +23,13 @@ public sealed class CommandServiceTesterSession
     {
         JsonMessage jsonModel = new()
         {
-            Author = new(),
+            Id = 12354,
+            Author = new()
+            {
+                Id = 123,
+                Discriminator = 0,
+                Username = "User",
+            },
             MentionedUsers = [],
             Attachments = [],
             Embeds = [],

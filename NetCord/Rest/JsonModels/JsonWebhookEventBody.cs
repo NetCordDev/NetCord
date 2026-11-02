@@ -1,9 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonWebhookEventBody
+[JsonGuard]
+public partial class JsonWebhookEventBody
 {
     [JsonPropertyName("type")]
     public string Type { get; set; }

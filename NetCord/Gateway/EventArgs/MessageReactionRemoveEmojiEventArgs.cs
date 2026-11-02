@@ -1,14 +1,14 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class MessageReactionRemoveEmojiEventArgs(JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>
+public class MessageReactionRemoveEmojiEventArgs(JsonMessageReactionRemoveEmojiEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>.JsonModel => jsonModel;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-    public ulong ChannelId => jsonModel.ChannelId;
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    public ulong? GuildId => jsonModel.GuildId;
-
-    public ulong MessageId => jsonModel.MessageId;
+    public ulong MessageId { get; } = jsonModel.MessageId;
 
     public MessageReactionEmoji Emoji { get; } = new(jsonModel.Emoji);
 }

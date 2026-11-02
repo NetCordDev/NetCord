@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonApplicationCommandInteractionDataOption
+[JsonGuard]
+public partial class JsonApplicationCommandInteractionDataOption
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -18,5 +21,5 @@ public class JsonApplicationCommandInteractionDataOption
     public JsonApplicationCommandInteractionDataOption[]? Options { get; set; }
 
     [JsonPropertyName("focused")]
-    public bool Focused { get; set; }
+    public bool? Focused { get; set; }
 }

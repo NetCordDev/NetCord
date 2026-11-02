@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonGuildScheduledEvent : JsonEntity
+[JsonGuard]
+public partial class JsonGuildScheduledEvent : JsonEntity
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -38,7 +41,7 @@ public class JsonGuildScheduledEvent : JsonEntity
     public ulong? EntityId { get; set; }
 
     [JsonPropertyName("entity_metadata")]
-    public JsonGuildScheduledEventMetadata? EntityMetadata { get; set; }
+    public JsonGuildScheduledEventEntityMetadata? EntityMetadata { get; set; }
 
     [JsonPropertyName("creator")]
     public JsonUser? Creator { get; set; }

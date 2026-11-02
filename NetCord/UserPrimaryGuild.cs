@@ -2,29 +2,27 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class UserPrimaryGuild(JsonUserPrimaryGuild jsonModel) : IJsonModel<JsonUserPrimaryGuild>
+public class UserPrimaryGuild(JsonUserPrimaryGuild jsonModel)
 {
-    JsonUserPrimaryGuild IJsonModel<JsonUserPrimaryGuild>.JsonModel => jsonModel;
-
     /// <summary>
     /// The ID of the user's primary guild.
     /// </summary>
-    public ulong? IdentityGuildId => jsonModel.IdentityGuildId;
+    public ulong? IdentityGuildId { get; } = jsonModel.IdentityGuildId;
 
     /// <summary>
     /// Whether the user is displaying the primary guild's server tag. This can be <see langword="null"/> if the system clears the identity, e.g. because the server no longer supports tags.
     /// </summary>
-    public bool? IdentityEnabled => jsonModel.IdentityEnabled;
+    public bool? IdentityEnabled { get; } = jsonModel.IdentityEnabled;
 
     /// <summary>
     /// The text of the user's server tag. Limited to 4 characters.
     /// </summary>
-    public string? Tag => jsonModel.Tag;
+    public string? Tag { get; } = jsonModel.Tag;
 
     /// <summary>
     /// The server tag badge hash.
     /// </summary>
-    public string? BadgeHash => jsonModel.BadgeHash;
+    public string? BadgeHash { get; } = jsonModel.BadgeHash;
 
     /// <summary>
     /// Whether the primary guild has a set server tag badge.

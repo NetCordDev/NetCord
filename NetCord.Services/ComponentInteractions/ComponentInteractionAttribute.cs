@@ -1,7 +1,7 @@
 namespace NetCord.Services.ComponentInteractions;
 
 /// <summary>
-/// Component interactions are interactions that are triggered by user actions on components, such as buttons, select menus, and modals.
+/// Component interactions are interactions that are triggered by user actions on components, such as buttons, selects, and modals.
 /// </summary>
 /// <param name="customId"><inheritdoc cref="CustomId" path="/summary" /></param>
 [AttributeUsage(AttributeTargets.Method)]

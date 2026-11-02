@@ -1,10 +1,8 @@
 namespace NetCord.Gateway;
 
-public class PartySize(long[] jsonModel) : IJsonModel<long[]>
+public class PartySize(long[] jsonModel)
 {
-    long[] IJsonModel<long[]>.JsonModel => jsonModel;
+    public long CurrentSize { get; } = jsonModel[0];
 
-    public long CurrentSize => jsonModel[0];
-
-    public long MaxSize => jsonModel[1];
+    public long MaxSize { get; } = jsonModel[1];
 }

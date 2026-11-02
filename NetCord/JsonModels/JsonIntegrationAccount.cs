@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonIntegrationAccount
+[JsonGuard]
+public partial class JsonIntegrationAccount
 {
     [JsonPropertyName("id")]
     public string Id { get; set; }

@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonStageInstance : JsonEntity
+[JsonGuard]
+public partial class JsonStageInstance : JsonEntity
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -18,4 +21,7 @@ public class JsonStageInstance : JsonEntity
 
     [JsonPropertyName("discoverable_disabled")]
     public bool DiscoverableDisabled { get; set; }
+
+    [JsonPropertyName("guild_scheduled_event_id")]
+    public ulong? GuildScheduledEventId { get; set; }
 }

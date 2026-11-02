@@ -19,7 +19,7 @@ public partial class ComponentSeparatorProperties : IMessageComponentProperties,
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("spacing")]
-    public ComponentSeparatorSpacingSize? Spacing { get; set; }
+    public SeparatorSpacingSize? Spacing { get; set; }
 
     private void WriteTo(Utf8JsonWriter writer)
     {

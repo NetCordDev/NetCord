@@ -179,14 +179,14 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         return SendAsync(message);
     }
 
-    [Command("menu")]
-    public Task Menu(params string[] values)
+    [Command("select")]
+    public Task Select(params string[] values)
     {
         values = values.Distinct().ToArray();
         MessageProperties message = new()
         {
-            Content = "Here is your menu:",
-            Components = [new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length, ParentId = 122, Id = 10 }],
+            Content = "Here is your select:",
+            Components = [new StringSelectProperties("select", values.Select(v => new StringSelectOptionProperties(v, v))) { MaxValues = values.Length, ParentId = 122, Id = 10 }],
             MessageReference = MessageReferenceProperties.Reply(Context.Message.Id)
         };
         return SendAsync(message);

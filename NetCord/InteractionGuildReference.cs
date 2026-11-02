@@ -2,13 +2,9 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class InteractionGuildReference(JsonInteractionGuildReference jsonModel) : Entity, IJsonModel<JsonInteractionGuildReference>
+public class InteractionGuildReference(JsonInteractionGuildReference jsonModel) : Entity(jsonModel)
 {
-    JsonInteractionGuildReference IJsonModel<JsonInteractionGuildReference>.JsonModel => jsonModel;
+    public IReadOnlyList<string> Features { get; } = jsonModel.Features;
 
-    public override ulong Id => jsonModel.Id;
-
-    public IReadOnlyList<string> Features => jsonModel.Features;
-
-    public string Locale => jsonModel.Locale;
+    public string Locale { get; } = jsonModel.Locale;
 }

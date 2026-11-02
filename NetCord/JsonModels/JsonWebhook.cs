@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using NetCord.Rest;
+using NetCord.Rest.JsonModels;
 
 namespace NetCord.JsonModels;
 
@@ -31,7 +32,7 @@ public class JsonWebhook : JsonEntity
     public ulong? ApplicationId { get; set; }
 
     [JsonPropertyName("source_guild")]
-    public JsonGuild? Guild { get; set; }
+    public JsonPartialGuild? Guild { get; set; }
 
     [JsonPropertyName("source_channel")]
     public JsonChannel? Channel { get; set; }

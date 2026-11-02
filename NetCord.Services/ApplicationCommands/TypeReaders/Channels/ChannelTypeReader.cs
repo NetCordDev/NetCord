@@ -6,6 +6,6 @@ public class ChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> wher
 
     public override ValueTask<SlashCommandTypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new(SlashCommandTypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![Snowflake.Parse(value)]));
+        return new(SlashCommandTypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.Resolved!.Channels![Snowflake.Parse(value)]));
     }
 }

@@ -1,9 +1,7 @@
 namespace NetCord;
 
-public class SlashCommandMention(ulong id, string name) : Entity, IEquatable<SlashCommandMention>
+public class SlashCommandMention(ulong id, string name) : Entity(id), IEquatable<SlashCommandMention>
 {
-    public override ulong Id { get; } = id;
-
     public string Name { get; } = name;
 
     public string? SubCommandGroupName { get; }

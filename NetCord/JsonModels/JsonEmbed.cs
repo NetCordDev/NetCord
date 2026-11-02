@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
 public class JsonEmbed
@@ -29,7 +31,7 @@ public class JsonEmbed
     public JsonEmbedImage? Image { get; set; }
 
     [JsonPropertyName("thumbnail")]
-    public JsonEmbedThumbnail? Thumbnail { get; set; }
+    public JsonEmbedImage? Thumbnail { get; set; }
 
     [JsonPropertyName("video")]
     public JsonEmbedVideo? Video { get; set; }
@@ -41,5 +43,120 @@ public class JsonEmbed
     public JsonEmbedAuthor? Author { get; set; }
 
     [JsonPropertyName("fields")]
-    public JsonEmbedField[] Fields { get; set; }
+    public JsonEmbedField[]? Fields { get; set; }
+
+    [JsonPropertyName("flags")]
+    public EmbedFlags? Flags { get; set; }
+}
+
+[JsonGuard]
+public partial class JsonEmbedFooter
+{
+    [JsonPropertyName("text")]
+    public string Text { get; set; }
+
+    [JsonPropertyName("icon_url")]
+    public string? IconUrl { get; set; }
+
+    [JsonPropertyName("proxy_icon_url")]
+    public string? ProxyIconUrl { get; set; }
+}
+
+[JsonGuard]
+public partial class JsonEmbedImage
+{
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
+
+    [JsonPropertyName("proxy_url")]
+    public string? ProxyUrl { get; set; }
+
+    [JsonPropertyName("height")]
+    public int? Height { get; set; }
+
+    [JsonPropertyName("width")]
+    public int? Width { get; set; }
+
+    [JsonPropertyName("content_type")]
+    public string? ContentType { get; set; }
+
+    [JsonPropertyName("placeholder")]
+    public string? Placeholder { get; set; }
+
+    [JsonPropertyName("placeholder_version")]
+    public int? PlaceholderVersion { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("flags")]
+    public EmbedMediaFlags? Flags { get; set; }
+}
+
+public class JsonEmbedVideo
+{
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("proxy_url")]
+    public string? ProxyUrl { get; set; }
+
+    [JsonPropertyName("height")]
+    public int? Height { get; set; }
+
+    [JsonPropertyName("width")]
+    public int? Width { get; set; }
+
+    [JsonPropertyName("content_type")]
+    public string? ContentType { get; set; }
+
+    [JsonPropertyName("placeholder")]
+    public string? Placeholder { get; set; }
+
+    [JsonPropertyName("placeholder_version")]
+    public int? PlaceholderVersion { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("flags")]
+    public EmbedMediaFlags? Flags { get; set; }
+}
+
+public class JsonEmbedProvider
+{
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+}
+
+[JsonGuard]
+public partial class JsonEmbedAuthor
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("icon_url")]
+    public string? IconUrl { get; set; }
+
+    [JsonPropertyName("proxy_icon_url")]
+    public string? ProxyIconUrl { get; set; }
+}
+
+[JsonGuard]
+public partial class JsonEmbedField
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("value")]
+    public string Value { get; set; }
+
+    [JsonPropertyName("inline")]
+    public bool? Inline { get; set; }
 }

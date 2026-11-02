@@ -34,20 +34,20 @@ We can add an interaction handler now.
 #### Button Module
 [!code-cs[ButtonModule.cs](Introduction/ButtonModule.cs)]
 
-#### String Menu Module
-[!code-cs[StringMenuModule.cs](Introduction/StringMenuModule.cs)]
+#### String Select Module
+[!code-cs[StringSelectModule.cs](Introduction/StringSelectModule.cs)]
 
-#### User Menu Module
-[!code-cs[UserMenuModule.cs](Introduction/UserMenuModule.cs)]
+#### User Select Module
+[!code-cs[UserSelectModule.cs](Introduction/UserSelectModule.cs)]
 
-#### Role Menu Module
-[!code-cs[RoleMenuModule.cs](Introduction/RoleMenuModule.cs)]
+#### Role Select Module
+[!code-cs[RoleSelectModule.cs](Introduction/RoleSelectModule.cs)]
 
-#### Mentionable Menu Module
-[!code-cs[MentionableMenuModule.cs](Introduction/MentionableMenuModule.cs)]
+#### Mentionable Select Module
+[!code-cs[MentionableSelectModule.cs](Introduction/MentionableSelectModule.cs)]
 
-#### Channel Menu Module
-[!code-cs[ChannelMenuModule.cs](Introduction/ChannelMenuModule.cs)]
+#### Channel Select Module
+[!code-cs[ChannelSelectModule.cs](Introduction/ChannelSelectModule.cs)]
 
 #### Modal Module
 [!code-cs[ModalModule.cs](Introduction/ModalModule.cs)]

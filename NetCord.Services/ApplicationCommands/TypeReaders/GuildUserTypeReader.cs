@@ -6,7 +6,7 @@ public class GuildUserTypeReader<TContext> : SlashCommandTypeReader<TContext> wh
 
     public override ValueTask<SlashCommandTypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![Snowflake.Parse(value)];
+        var user = ((SlashCommandInteraction)context.Interaction).Data.Resolved!.Users![Snowflake.Parse(value)];
         return new(user is GuildUser guildUser
             ? SlashCommandTypeReaderResult.Success(guildUser)
             : SlashCommandTypeReaderResult.Fail("The user must be in the guild."));

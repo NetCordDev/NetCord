@@ -7,7 +7,7 @@ public class MentionableTypeReader<TContext> : SlashCommandTypeReader<TContext> 
     public override ValueTask<SlashCommandTypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var slashInteraction = (SlashCommandInteraction)context.Interaction;
-        var resolvedData = slashInteraction.Data.ResolvedData!;
+        var resolvedData = slashInteraction.Data.Resolved!;
         var id = Snowflake.Parse(value);
 
         if (resolvedData.Users is { } users && users.TryGetValue(id, out var user))

@@ -1,14 +1,14 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GatewaySessionStartLimit(JsonModels.JsonGatewaySessionStartLimit jsonModel) : IJsonModel<JsonModels.JsonGatewaySessionStartLimit>
+public class GatewaySessionStartLimit(JsonGatewaySessionStartLimit jsonModel)
 {
-    JsonModels.JsonGatewaySessionStartLimit IJsonModel<JsonModels.JsonGatewaySessionStartLimit>.JsonModel => jsonModel;
+    public int Total { get; } = jsonModel.Total;
 
-    public int Total => jsonModel.Total;
+    public int Remaining { get; } = jsonModel.Remaining;
 
-    public int Remaining => jsonModel.Remaining;
+    public TimeSpan ResetAfter { get; } = TimeSpan.FromMilliseconds(jsonModel.ResetAfter);
 
-    public TimeSpan ResetAfter => new(jsonModel.ResetAfter * TimeSpan.TicksPerMillisecond);
-
-    public int MaxConcurrency => jsonModel.MaxConcurrency;
+    public int MaxConcurrency { get; } = jsonModel.MaxConcurrency;
 }

@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonSku : JsonEntity
+[JsonGuard]
+public partial class JsonSku : JsonEntity
 {
     [JsonPropertyName("type")]
     public SkuType Type { get; set; }

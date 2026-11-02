@@ -10,7 +10,7 @@ public interface IApplicationCommandServiceStorage<TContext> where TContext : IA
 
     public void AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo<TContext>> registeredCommands);
 
-    public bool TryGetCommand(ApplicationCommandInteractionData interactionData, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> command);
+    public bool TryGetCommand(ApplicationCommandData interactionData, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> command);
 }
 
 public class IdApplicationCommandServiceStorage<TContext> : IApplicationCommandServiceStorage<TContext> where TContext : IApplicationCommandContext
@@ -39,7 +39,7 @@ public class IdApplicationCommandServiceStorage<TContext> : IApplicationCommandS
         throw new InvalidOperationException($"'{nameof(IdApplicationCommandServiceStorage<>)}' does not support registering application commands more than once. Consider using other storage options like '{nameof(NameAndTypeApplicationCommandServiceStorage<>)}'.");
     }
 
-    public bool TryGetCommand(ApplicationCommandInteractionData interactionData, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> command)
+    public bool TryGetCommand(ApplicationCommandData interactionData, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> command)
     {
         return _commands.TryGetValue(interactionData.Id, out command);
     }
@@ -62,7 +62,7 @@ public class NameAndTypeApplicationCommandServiceStorage<TContext> : IApplicatio
     {
     }
 
-    public bool TryGetCommand(ApplicationCommandInteractionData interactionData, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> command)
+    public bool TryGetCommand(ApplicationCommandData interactionData, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> command)
     {
         return _commands.TryGetValue(new(interactionData.Name, interactionData.Type), out command);
     }

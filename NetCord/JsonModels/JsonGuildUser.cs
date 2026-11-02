@@ -1,11 +1,14 @@
 using System.Text.Json.Serialization;
 
+using JsonGuard;
+
 namespace NetCord.JsonModels;
 
-public class JsonGuildUser
+[JsonGuard]
+public partial class JsonGuildUser
 {
     [JsonPropertyName("user")]
-    public JsonUser User { get; set; }
+    public JsonUser? User { get; set; }
 
     [JsonPropertyName("nick")]
     public string? Nickname { get; set; }
@@ -45,4 +48,7 @@ public class JsonGuildUser
 
     [JsonPropertyName("avatar_decoration_data")]
     public JsonAvatarDecorationData? GuildAvatarDecorationData { get; set; }
+
+    [JsonPropertyName("collectibles")]
+    public JsonCollectibles? GuildCollectibles { get; set; }
 }

@@ -2,50 +2,36 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public class InteractionCallbackResponse(JsonInteractionCallbackResponse jsonModel, RestClient client) : IJsonModel<JsonInteractionCallbackResponse>
+public class InteractionCallbackResponse(JsonInteractionCallbackResponse jsonModel, RestClient client)
 {
-    JsonInteractionCallbackResponse IJsonModel<JsonInteractionCallbackResponse>.JsonModel => jsonModel;
-
     public InteractionCallbackResponseInteraction Interaction { get; } = new(jsonModel.Interaction);
 
-    public InteractionCallbackResponseResource Resource { get; } = new(jsonModel.Resource, client);
+    public InteractionCallbackResponseResource? Resource { get; } = jsonModel.Resource is { } resource ? new(resource, client) : null;
 }
 
-public class InteractionCallbackResponseInteraction(JsonInteractionCallbackResponseInteraction jsonModel) : Entity, IJsonModel<JsonInteractionCallbackResponseInteraction>
+public class InteractionCallbackResponseInteraction(JsonInteractionCallbackResponseInteraction jsonModel) : Entity(jsonModel)
 {
-    JsonInteractionCallbackResponseInteraction IJsonModel<JsonInteractionCallbackResponseInteraction>.JsonModel => jsonModel;
+    public InteractionType Type { get; } = jsonModel.Type;
 
-    public override ulong Id => jsonModel.Id;
-    public InteractionType Type => jsonModel.Type;
-    public string? ActivityInstanceId => jsonModel.ActivityInstanceId;
-    public ulong? ResponseMessageId => jsonModel.ResponseMessageId;
-    public bool? ResponseMessageLoading => jsonModel.ResponseMessageLoading;
-    public bool? ResponseMessageEphemeral => jsonModel.ResponseMessageEphemeral;
+    public string? ActivityInstanceId { get; } = jsonModel.ActivityInstanceId;
+
+    public ulong? ResponseMessageId { get; } = jsonModel.ResponseMessageId;
+
+    public bool? ResponseMessageLoading { get; } = jsonModel.ResponseMessageLoading;
+
+    public bool? ResponseMessageEphemeral { get; } = jsonModel.ResponseMessageEphemeral;
 }
 
-public class InteractionCallbackResponseResource : IJsonModel<JsonInteractionCallbackResponseResource>
+public class InteractionCallbackResponseResource(JsonInteractionCallbackResponseResource jsonModel, RestClient client)
 {
-    public InteractionCallbackResponseResource(JsonInteractionCallbackResponseResource jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        if (jsonModel.ActivityInstance is { } activityInstance)
-            ActivityInstance = new ActivityInstance(activityInstance);
+    public InteractionCallbackType Type { get; } = jsonModel.Type;
 
-        if (jsonModel.Message is { } message)
-            Message = new RestMessage(message, client);
-    }
+    public ActivityInstance? ActivityInstance { get; } = jsonModel.ActivityInstance is { } activityInstance ? new(activityInstance) : null;
 
-    JsonInteractionCallbackResponseResource IJsonModel<JsonInteractionCallbackResponseResource>.JsonModel => _jsonModel;
-    private readonly JsonInteractionCallbackResponseResource _jsonModel;
-
-    public InteractionCallbackType Type => _jsonModel.Type;
-    public ActivityInstance? ActivityInstance { get; }
-    public RestMessage? Message { get; }
+    public RestMessage? Message { get; } = jsonModel.Message is { } message ? new(message, client) : null;
 }
 
-public class ActivityInstance(JsonActivityInstance jsonModel) : IJsonModel<JsonActivityInstance>
+public class ActivityInstance(JsonActivityInstance jsonModel)
 {
-    JsonActivityInstance IJsonModel<JsonActivityInstance>.JsonModel => jsonModel;
-
-    public string Id => jsonModel.Id;
+    public string Id { get; } = jsonModel.Id;
 }

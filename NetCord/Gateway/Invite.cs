@@ -1,58 +1,39 @@
+using NetCord.Gateway.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class Invite : IInvite, IJsonModel<JsonModels.JsonInvite>
+public class Invite(JsonInvite jsonModel, RestClient client) : IInvite
 {
-    JsonModels.JsonInvite IJsonModel<JsonModels.JsonInvite>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonInvite _jsonModel;
+    public InviteType Type { get; } = jsonModel.Type;
 
-    public Invite(JsonModels.JsonInvite jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-        var inviter = jsonModel.Inviter;
-        if (inviter is not null)
-            Inviter = new(inviter, client);
+    public string Code { get; } = jsonModel.Code;
 
-        var targetUser = jsonModel.TargetUser;
-        if (targetUser is not null)
-            TargetUser = new(targetUser, client);
+    public DateTimeOffset CreatedAt { get; } = jsonModel.CreatedAt;
 
-        var targetApplication = jsonModel.TargetApplication;
-        if (targetApplication is not null)
-            TargetApplication = new(targetApplication, client);
-    }
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 
-    public InviteType Type => _jsonModel.Type;
+    public User? Inviter { get; } = jsonModel.Inviter is { } inviter ? new(inviter, client) : null;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    public int MaxAge { get; } = jsonModel.MaxAge;
 
-    public string Code => _jsonModel.Code;
+    public int MaxUses { get; } = jsonModel.MaxUses;
 
-    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
+    public InviteTargetType? TargetType { get; } = jsonModel.TargetType;
 
-    public ulong? GuildId => _jsonModel.GuildId;
+    public User? TargetUser { get; } = jsonModel.TargetUser is { } targetUser ? new(targetUser, client) : null;
 
-    public User? Inviter { get; }
+    public PartialApplication? TargetApplication { get; } = jsonModel.TargetApplication is { } targetApplication ? new(targetApplication, client) : null;
 
-    public int MaxAge => _jsonModel.MaxAge;
+    public bool Temporary { get; } = jsonModel.Temporary;
 
-    public int MaxUses => _jsonModel.MaxUses;
+    public int Uses { get; } = jsonModel.Uses;
 
-    public InviteTargetType? TargetType => _jsonModel.TargetType;
+    public DateTimeOffset? ExpiresAt { get; } = jsonModel.ExpiresAt;
 
-    public User? TargetUser { get; }
-
-    public Application? TargetApplication { get; }
-
-    public bool Temporary => _jsonModel.Temporary;
-
-    public int Uses => _jsonModel.Uses;
-
-    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
-
-    public IReadOnlyList<ulong>? RoleIds => _jsonModel.RoleIds;
+    public IReadOnlyList<ulong>? RoleIds { get; } = jsonModel.RoleIds;
 
     ulong? IInvite.ChannelId => ChannelId;
 

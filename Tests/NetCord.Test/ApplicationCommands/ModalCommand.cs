@@ -31,11 +31,11 @@ public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
                 }
             ).WithId(24),
             new LabelProperties(
-                "Menu",
-                new StringMenuProperties("xd")
+                "Select",
+                new StringSelectProperties("xd")
                 {
-                    new StringMenuSelectOptionProperties("Yes", "yes"),
-                    new StringMenuSelectOptionProperties("No", "no"),
+                    new StringSelectOptionProperties("Yes", "yes"),
+                    new StringSelectOptionProperties("No", "no"),
                 }.WithId(12).WithRequired(false)
             ).WithId(13),
         ]);

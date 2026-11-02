@@ -29,7 +29,7 @@ public partial class RestClient
         return new QueryPaginationAsyncEnumerable<RestGuild, ulong>(
             this,
             paginationProperties,
-            async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildArray).ConfigureAwait(false)).Select(g => new RestGuild(g, this)),
+            async s => (await s.ToObjectAsync(Serialization.Default.JsonRestGuildArray).ConfigureAwait(false)).Select(g => new RestGuild(g, this)),
             g => g.Id,
             HttpMethod.Get,
             $"/users/@me/guilds",

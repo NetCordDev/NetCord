@@ -1,25 +1,10 @@
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.Rest;
 
-public class GuildScheduledEventUser : IJsonModel<JsonModels.JsonGuildScheduledEventUser>
+public class GuildScheduledEventUser(JsonGuildScheduledEventUser jsonModel, ulong guildId, RestClient client)
 {
-    JsonModels.JsonGuildScheduledEventUser IJsonModel<JsonModels.JsonGuildScheduledEventUser>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildScheduledEventUser _jsonModel;
+    public ulong ScheduledEventId { get; } = jsonModel.ScheduledEventId;
 
-    public ulong ScheduledEventId => _jsonModel.ScheduledEventId;
-
-    public User User { get; }
-
-    public GuildScheduledEventUser(JsonModels.JsonGuildScheduledEventUser jsonModel, ulong guildId, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        var guildUser = jsonModel.GuildUser;
-        if (guildUser is null)
-            User = new(jsonModel.User, client);
-        else
-        {
-            guildUser.User = jsonModel.User;
-            User = new GuildUser(guildUser, guildId, client);
-        }
-    }
+    public User User { get; } = jsonModel.GuildUser is { } guildUser ? new GuildUser(guildUser, guildId, client) : new User(jsonModel.User, client);
 }

@@ -1,19 +1,19 @@
+using NetCord.JsonModels;
+
 namespace NetCord;
 
 /// <summary>
 /// Represents count information for a <see cref="MessageReaction"/> object.
 /// </summary>
-public class MessageReactionCountDetails(JsonModels.JsonMessageReactionCountDetails jsonModel) : IJsonModel<JsonModels.JsonMessageReactionCountDetails>
+public class MessageReactionCountDetails(JsonMessageReactionCountDetails jsonModel)
 {
-    JsonModels.JsonMessageReactionCountDetails IJsonModel<JsonModels.JsonMessageReactionCountDetails>.JsonModel => jsonModel;
-
     /// <summary>
     /// The number of applied super reactions.
     /// </summary>
-    public int Burst => jsonModel.Burst;
+    public int Burst { get; } = jsonModel.Burst;
 
     /// <summary>
     /// The number of applied normal reactions.
     /// </summary>
-    public int Normal => jsonModel.Normal;
+    public int Normal { get; } = jsonModel.Normal;
 }

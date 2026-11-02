@@ -1,12 +1,12 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class GuildScheduledEventUserEventArgs(JsonModels.EventArgs.JsonGuildScheduledEventUserEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonGuildScheduledEventUserEventArgs>
+public class GuildScheduledEventUserEventArgs(JsonGuildScheduledEventUserEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonGuildScheduledEventUserEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildScheduledEventUserEventArgs>.JsonModel => jsonModel;
+    public ulong GuildScheduledEventId { get; } = jsonModel.GuildScheduledEventId;
 
-    public ulong GuildScheduledEventId => jsonModel.GuildScheduledEventId;
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public ulong UserId => jsonModel.UserId;
-
-    public ulong GuildId => jsonModel.GuildId;
+    public ulong GuildId { get; } = jsonModel.GuildId;
 }

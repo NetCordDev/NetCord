@@ -2,9 +2,12 @@ using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
+using JsonGuard;
+
 namespace NetCord.Rest.JsonModels;
 
-public class JsonConnection
+[JsonGuard]
+public partial class JsonConnection
 {
     [JsonPropertyName("id")]
     public string Id { get; set; }

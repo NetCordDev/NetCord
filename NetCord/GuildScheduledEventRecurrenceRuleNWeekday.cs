@@ -2,11 +2,9 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class GuildScheduledEventRecurrenceRuleNWeekday(JsonGuildScheduledEventRecurrenceRuleNWeekday jsonModel) : IJsonModel<JsonGuildScheduledEventRecurrenceRuleNWeekday>
+public class GuildScheduledEventRecurrenceRuleNWeekday(JsonGuildScheduledEventRecurrenceRuleNWeekday jsonModel)
 {
-    JsonGuildScheduledEventRecurrenceRuleNWeekday IJsonModel<JsonGuildScheduledEventRecurrenceRuleNWeekday>.JsonModel => jsonModel;
+    public int N { get; } = jsonModel.N;
 
-    public int N => jsonModel.N;
-
-    public GuildScheduledEventRecurrenceRuleWeekday Day => jsonModel.Day;
+    public GuildScheduledEventRecurrenceRuleWeekday Day { get; } = jsonModel.Day;
 }

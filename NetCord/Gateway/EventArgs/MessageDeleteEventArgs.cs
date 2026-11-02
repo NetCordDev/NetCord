@@ -1,12 +1,12 @@
+using NetCord.Gateway.JsonModels.EventArgs;
+
 namespace NetCord.Gateway;
 
-public class MessageDeleteEventArgs(JsonModels.EventArgs.JsonMessageDeleteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessageDeleteEventArgs>
+public class MessageDeleteEventArgs(JsonMessageDeleteEventArgs jsonModel)
 {
-    JsonModels.EventArgs.JsonMessageDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageDeleteEventArgs>.JsonModel => jsonModel;
+    public ulong MessageId { get; } = jsonModel.MessageId;
 
-    public ulong MessageId => jsonModel.MessageId;
+    public ulong ChannelId { get; } = jsonModel.ChannelId;
 
-    public ulong ChannelId => jsonModel.ChannelId;
-
-    public ulong? GuildId => jsonModel.GuildId;
+    public ulong? GuildId { get; } = jsonModel.GuildId;
 }

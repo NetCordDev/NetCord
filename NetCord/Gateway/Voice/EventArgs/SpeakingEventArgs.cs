@@ -2,13 +2,11 @@ using NetCord.Gateway.Voice.JsonModels;
 
 namespace NetCord.Gateway.Voice;
 
-public class SpeakingEventArgs(JsonSpeaking jsonModel) : IJsonModel<JsonSpeaking>
+public class SpeakingEventArgs(JsonSpeaking jsonModel)
 {
-    JsonSpeaking IJsonModel<JsonSpeaking>.JsonModel => jsonModel;
+    public ulong UserId { get; } = jsonModel.UserId;
 
-    public ulong UserId => jsonModel.UserId;
+    public uint Ssrc { get; } = jsonModel.Ssrc;
 
-    public uint Ssrc => jsonModel.Ssrc;
-
-    public SpeakingFlags Speaking => jsonModel.Speaking;
+    public SpeakingFlags Speaking { get; } = jsonModel.Speaking;
 }
