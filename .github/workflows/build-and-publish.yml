@@ -9,8 +9,10 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -20,7 +22,7 @@ jobs:
           filter: tree:0
 
       - name: Install Nix
-        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
 
       - name: Setup dev environment
         shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
@@ -60,16 +62,22 @@ jobs:
           npm run test
           npm run build
 
+      - name: Login to NuGet
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USERNAME }}
+
       - name: Publish Packages
         shell: *dev-shell
         env:
-          KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
-          dotnet nuget push NetCord/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord/bin/Release/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Deploy Documentation
         uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
@@ -118,7 +126,7 @@ jobs:
           fi
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Build Artifacts
           path: |
@@ -129,7 +137,7 @@ jobs:
             Hosting/NetCord.Hosting.AspNetCore/bin/Release
 
       - name: Upload Documentation Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Documentation Artifacts
           path: Documentation/_site
