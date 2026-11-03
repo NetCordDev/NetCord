@@ -59,6 +59,10 @@ public partial class ForumGuildChannel : Channel, IGuildChannel
     /// <summary>
     /// The set of tags available for use in the channel.
     /// </summary>
+    /// <remarks>
+    /// Can be set when creating or updating a channel, which determines which tags can be set on individual threads within the thread’s <see cref="GuildChannelOptions.AppliedTags"/> field.
+    /// When updating a <see cref="ForumGuildChannel"/> or a <see cref="MediaForumGuildChannel"/> channel, tag objects only require the name field.
+    /// </remarks>
     public IReadOnlyList<ForumTag> AvailableTags { get; }
 
     /// <summary>
