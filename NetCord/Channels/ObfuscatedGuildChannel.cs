@@ -8,6 +8,11 @@ namespace NetCord;
 /// </summary>
 public partial class ObfuscatedGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : Channel(jsonModel, client), IGuildChannel
 {
+    /// <summary>
+    /// The type of the channel.
+    /// </summary>
+    public ChannelType Type => _jsonModel.Type;
+
     public ulong GuildId => guildId;
 
     public int? Position => _jsonModel.Position;
