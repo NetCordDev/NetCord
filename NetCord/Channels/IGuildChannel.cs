@@ -28,6 +28,9 @@ public partial interface IGuildChannel : INamedChannel
 
     public static IGuildChannel CreateFromJson(JsonChannel jsonChannel, ulong guildId, RestClient client)
     {
+        if (jsonChannel.Flags is { } flags && flags.HasFlag(ChannelFlags.ChannelObfuscated))
+            return new ObfuscatedGuildChannel(jsonChannel, guildId, client);
+
         return jsonChannel.Type switch
         {
             ChannelType.TextGuildChannel => new TextGuildChannel(jsonChannel, guildId, client),
