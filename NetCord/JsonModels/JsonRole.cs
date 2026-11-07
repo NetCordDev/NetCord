@@ -1,26 +1,12 @@
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public class JsonRole : JsonEntity
+public class JsonRole : JsonPartialRole
 {
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    [JsonPropertyName("colors")]
-    public JsonRoleColors Colors { get; set; }
-
     [JsonPropertyName("hoist")]
     public bool Hoist { get; set; }
-
-    [JsonPropertyName("icon")]
-    public string? IconHash { get; set; }
-
-    [JsonPropertyName("unicode_emoji")]
-    public string? UnicodeEmoji { get; set; }
-
-    [JsonPropertyName("position")]
-    public int Position { get; set; }
 
     [JsonPropertyName("permissions")]
     public Permissions Permissions { get; set; }
