@@ -30,7 +30,7 @@ public class ThreadUser(JsonThreadUser jsonModel, RestClient client) : ClientEnt
     /// </summary>
     public ThreadUserFlags Flags => jsonModel.Flags;
 
-    public override string ToString() => $"<@{Id}>";
+    public override string ToString() => Mention.User(Id);
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatUser(destination, out charsWritten, Id);
 }
