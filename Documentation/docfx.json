@@ -14,7 +14,8 @@
         }
       ],
       "dest": "docs",
-      "sourceLinkExclude": [ "**.g.cs" ]
+      "sourceLinkExclude": [ "**.g.cs" ],
+      "memberLayout": "separatePages"
     }
   ],
   "build": {
